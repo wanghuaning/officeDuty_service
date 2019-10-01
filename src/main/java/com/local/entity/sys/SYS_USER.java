@@ -36,16 +36,16 @@ public class SYS_USER implements Serializable {
     @ApiModelProperty("账号")
     @Comment("账号")
     @NotEmpty(message = "请输入用户名!")
-    @Column("user_name")
+    @Column("user_account")
     @ColDefine(type = ColType.VARCHAR,width = 255)
-    private String userName;
+    private String userAccount;
 
     @ApiModelProperty("密码")
     @Comment("密码")
     @NotEmpty(message = "请输入密码!")
-    @Column("password")
+    @Column("user_password")
     @ColDefine(type = ColType.VARCHAR,width = 255)
-    private String password;
+    private String userPassword;
 
     @ApiModelProperty("最后修改密码的日期")
     @Comment("最后修改密码的日期")
@@ -109,20 +109,20 @@ public class SYS_USER implements Serializable {
         this.createTime = createTime;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUserAccount() {
+        return userAccount;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserAccount(String userAccount) {
+        this.userAccount = userAccount;
     }
 
-    public String getPassword() {
-        return password;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 
     public String getLastTime() {

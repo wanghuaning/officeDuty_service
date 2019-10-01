@@ -64,7 +64,7 @@ public class UserController {
         //查询菜单
 //        searchUser=userService.selectRoleMenu(searchUser);
         //将用户id放入redis
-        redisUtil.set(searchUser.getUserId(),searchUser,3600*24);
+        redisUtil.set(searchUser.getId(),searchUser,3600*24);
         //前台去除密码
         searchUser.setUserPassword("");
         token.put("token",searchUser);
