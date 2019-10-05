@@ -1,10 +1,9 @@
 package com.local.controller;
 
 import com.local.common.redis.util.RedisUtil;
-import com.local.entity.REG_RegionCode;
+import com.local.entity.sys.SYS_AREA;
 import com.local.model.AreaModel;
 import com.local.service.CodeService;
-import com.local.util.Response;
 import com.local.util.Result;
 import com.local.util.ResultCode;
 import com.local.util.ResultMsg;
@@ -38,18 +37,18 @@ public class AreaCodeController {
 //        System.out.println(res);
         if(res==null) {
             try {
-                List<REG_RegionCode> codes = codeService.selectAreaCodeByUpCode("530000");
+                List<SYS_AREA> codes = codeService.selectAreaCodeByUpCode("530000");
                 List<AreaModel> areas = new ArrayList<>();
                 if (codes != null) {
-                    for (REG_RegionCode lac : codes) {
+                    for (SYS_AREA lac : codes) {
                         AreaModel am = new AreaModel();
                         am.setId(lac.getCode());
                         am.setCode(lac.getCode());
                         am.setName(lac.getAreaName());
-                        List<REG_RegionCode> childs = codeService.selectAreaCodeByUpCode(lac.getCode());
+                        List<SYS_AREA> childs = codeService.selectAreaCodeByUpCode(lac.getCode());
                         if (childs.size() > 0) {
                             List<AreaModel> childam = new ArrayList<>();
-                            for (REG_RegionCode clac : childs) {
+                            for (SYS_AREA clac : childs) {
                                 AreaModel cam = new AreaModel();
                                 cam.setId(clac.getCode());
                                 cam.setCode(clac.getCode());

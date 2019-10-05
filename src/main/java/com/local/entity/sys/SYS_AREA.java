@@ -6,52 +6,78 @@ import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
 
-@ApiModel("应用系统")
-@Table("SYS_AREA")
+@ApiModel("地区标识表")//用在模型类上，对模型类做注释；
+@Table("sys_area")
+@Comment("地区标识表")
 public class SYS_AREA implements Serializable {
-
     @Name
-    @Prev(els = {@EL("uuid()")})
-    @ApiModelProperty("系统id")
-    @Comment("系统id")
-    @Column("AREA_CODE")
-    @ColDefine(type = ColType.VARCHAR, width = 128)
-    private String AREA_CODE;
+    @ApiModelProperty("代码")
+    @Comment("代码")
+    @Column("Code")
+    @ColDefine(type = ColType.VARCHAR,width = 32)
+    private String code;
 
-    @ApiModelProperty("系统名称")
-    @Comment("系统名称")
-    @Column("AREA_PARENT_CODE")
-    @ColDefine(type = ColType.VARCHAR, width = 128)
-    private String AREA_PARENT_CODE;
+    @ApiModelProperty("父级代码")
+    @Comment("父级代码")
+    @Column("Up_Code")
+    @ColDefine(type = ColType.VARCHAR,width = 32)
+    private String upCode;
 
-    @ApiModelProperty("系统编码")
-    @Comment("系统编码")
-    @Column("AREA_NAME")
-    @ColDefine(type = ColType.VARCHAR, width = 128)
-    private String AREA_NAME;
+    @ApiModelProperty("区域名字")
+    @Comment("区域名字")
+    @Column("Area_Name")
+    @ColDefine(type = ColType.VARCHAR,width = 128)
+    private String areaName;
 
-    public String getAREA_CODE() {
-        return AREA_CODE;
+    @ApiModelProperty("类型")
+    @Comment("类型")
+    @Column("type")
+    @ColDefine(type = ColType.CHAR,width = 1)
+    private String type;
+
+    @ApiModelProperty("可用标示")
+    @Comment("可用标示")
+    @Column("Available_Flag")
+    @ColDefine(type = ColType.VARCHAR,width = 255)
+    private String availableFlag;
+
+    public String getCode() {
+        return code;
     }
 
-    public void setAREA_CODE(String AREA_CODE) {
-        this.AREA_CODE = AREA_CODE;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getAREA_PARENT_CODE() {
-        return AREA_PARENT_CODE;
+    public String getUpCode() {
+        return upCode;
     }
 
-    public void setAREA_PARENT_CODE(String AREA_PARENT_CODE) {
-        this.AREA_PARENT_CODE = AREA_PARENT_CODE;
+    public void setUpCode(String upCode) {
+        this.upCode = upCode;
     }
 
-    public String getAREA_NAME() {
-        return AREA_NAME;
+    public String getAreaName() {
+        return areaName;
     }
 
-    public void setAREA_NAME(String AREA_NAME) {
-        this.AREA_NAME = AREA_NAME;
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getAvailableFlag() {
+        return availableFlag;
+    }
+
+    public void setAvailableFlag(String availableFlag) {
+        this.availableFlag = availableFlag;
+    }
 }

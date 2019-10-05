@@ -1,11 +1,11 @@
 package com.local.service;
 
-import com.local.entity.REG_RegionCode;
+import com.local.entity.sys.SYS_AREA;
 
 import java.util.List;
 
 public interface CodeService {
 
-    List<REG_RegionCode> selectAreaCodeByUpCode(String upCode);
+    List<SYS_AREA> selectAreaCodeByUpCode(String upCode);
 
 }
