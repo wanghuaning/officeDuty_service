@@ -18,7 +18,7 @@ import java.util.List;
  * 单位控制器
  */
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api")
 public class UnitConttoller {
    private final static Logger logger= LoggerFactory.getLogger(UnitConttoller.class);
 
@@ -31,6 +31,7 @@ public class UnitConttoller {
     public String getDepts(@RequestParam(value = "name", required = false) String name,
              @RequestParam(value = "enabled", required = false) String enabled) {
         try {
+            System.out.println("单位查询");
             List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name,enabled);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {

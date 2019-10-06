@@ -69,15 +69,27 @@ public class SYS_UNIT implements Serializable {
 
     @ApiModelProperty("正职领导数")
     @Comment("正职领导数")
-    @Column("standing_Position_Num")
+    @Column("standing_Leader_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long standingPositionNum;
+    private long standingLeaderNum;
 
     @ApiModelProperty("副职领导数")
     @Comment("副职领导数")
-    @Column("voce_Position_Num")
+    @Column("voce_Leader_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long vocePositionNum;
+    private long voceLeaderNum;
+
+    @ApiModelProperty("正职非领导数")
+    @Comment("正职非领导数")
+    @Column("standing_Not_Leader_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long standingNotLeaderNum;
+
+    @ApiModelProperty("副职非领导数")
+    @Comment("副职非领导数")
+    @Column("voce_Not_Leader_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long voceNotLeaderNum;
 
     @ApiModelProperty("行政编制数")
     @Comment("行政编制数")
@@ -139,7 +151,16 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 2)
     private String enabled;
 
+    private boolean hasChildren;
     private List<SYS_UNIT> children;
+
+    public boolean isHasChildren() {
+        return hasChildren;
+    }
+
+    public void setHasChildren(boolean hasChildren) {
+        this.hasChildren = hasChildren;
+    }
 
     public List<SYS_UNIT> getChildren() {
         return children;
@@ -213,20 +234,44 @@ public class SYS_UNIT implements Serializable {
         this.level = level;
     }
 
-    public long getStandingPositionNum() {
-        return standingPositionNum;
+    public String getName() {
+        return name;
     }
 
-    public void setStandingPositionNum(long standingPositionNum) {
-        this.standingPositionNum = standingPositionNum;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public long getVocePositionNum() {
-        return vocePositionNum;
+    public long getStandingLeaderNum() {
+        return standingLeaderNum;
     }
 
-    public void setVocePositionNum(long vocePositionNum) {
-        this.vocePositionNum = vocePositionNum;
+    public void setStandingLeaderNum(long standingLeaderNum) {
+        this.standingLeaderNum = standingLeaderNum;
+    }
+
+    public long getVoceLeaderNum() {
+        return voceLeaderNum;
+    }
+
+    public void setVoceLeaderNum(long voceLeaderNum) {
+        this.voceLeaderNum = voceLeaderNum;
+    }
+
+    public long getStandingNotLeaderNum() {
+        return standingNotLeaderNum;
+    }
+
+    public void setStandingNotLeaderNum(long standingNotLeaderNum) {
+        this.standingNotLeaderNum = standingNotLeaderNum;
+    }
+
+    public long getVoceNotLeaderNum() {
+        return voceNotLeaderNum;
+    }
+
+    public void setVoceNotLeaderNum(long voceNotLeaderNum) {
+        this.voceNotLeaderNum = voceNotLeaderNum;
     }
 
     public long getOfficialNum() {
