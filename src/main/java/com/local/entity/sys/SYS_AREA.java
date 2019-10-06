@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @ApiModel("地区标识表")//用在模型类上，对模型类做注释；
 @Table("sys_area")
@@ -40,6 +41,16 @@ public class SYS_AREA implements Serializable {
     @Column("Available_Flag")
     @ColDefine(type = ColType.VARCHAR,width = 255)
     private String availableFlag;
+
+    private List<SYS_AREA> children;
+
+    public List<SYS_AREA> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SYS_AREA> children) {
+        this.children = children;
+    }
 
     public String getCode() {
         return code;

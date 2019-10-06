@@ -31,7 +31,6 @@ public class UnitConttoller {
     public String getDepts(@RequestParam(value = "name", required = false) String name,
              @RequestParam(value = "enabled", required = false) String enabled) {
         try {
-            System.out.println("单位查询");
             List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name,enabled);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
