@@ -5,16 +5,9 @@ import java.util.List;
 public class AreaModel {
 
     private String id;
-    private String code;
-    private String name;
+    private String value;
+    private String label;
     private List<AreaModel> children;
-
-    public AreaModel() {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.children = children;
-    }
 
     public String getId() {
         return id;
@@ -24,20 +17,20 @@ public class AreaModel {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
+    public String getValue() {
+        return value;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public String getName() {
-        return name;
+    public String getLabel() {
+        return label;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public List<AreaModel> getChildren() {

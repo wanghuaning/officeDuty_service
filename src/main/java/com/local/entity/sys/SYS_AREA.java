@@ -42,7 +42,26 @@ public class SYS_AREA implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 255)
     private String availableFlag;
 
+    private String value;
+
+    private String label;
     private List<SYS_AREA> children;
+
+    public String getValue() {
+        return code;
+    }
+
+    public void setValue(String value) {
+        this.value = code;
+    }
+
+    public String getLabel() {
+        return areaName;
+    }
+
+    public void setLabel(String label) {
+        this.label = areaName;
+    }
 
     public List<SYS_AREA> getChildren() {
         return children;

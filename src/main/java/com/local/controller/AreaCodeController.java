@@ -46,7 +46,7 @@ public class AreaCodeController {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
         } else {
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, res.toString(), null).getJson();
+            return res.toString();
         }
     }
 }
