@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,8 +38,14 @@ public class UnitServiceImpl implements UnitService {
             }
         }
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
-        getUnits(units, enabled);
+        getUnits(units, enabled,name);
         return units;
+    }
+    public static List removeDuplicate(List list) {
+        HashSet h = new HashSet(list);
+        list.clear();
+        list.addAll(h);
+        return list;
     }
 
     /**
@@ -52,15 +59,27 @@ public class UnitServiceImpl implements UnitService {
         return num;
     }
 
-    public void getUnits(List<SYS_UNIT> units, String enabled) {
-        for (SYS_UNIT unit : units) {
-//            unit.setLabel(dept.getName());
+    public void getUnits(List<SYS_UNIT> units, String enabled, String name) {
+        System.out.println(units.get(0).getName()+"=>");
+//        for (SYS_UNIT unit : units)  {
+        for (int i = 0; i < units.size(); i++){
+            SYS_UNIT unit=units.get(i);
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0"));
                 if (!StrUtils.isBlank(unitList) && unitList.size() > 0) {
+                    if (!StrUtils.isBlank(name)) {//部门名称不为空
+//                        for (SYS_UNIT unit1:unitList){
+                            for (int j = 0; j < unitList.size(); j++){
+                                SYS_UNIT unit1=unitList.get(j);
+                            if (units.contains(unit1)){//**需要在实体类对象中复写equals()方法 equals()去除 unit.setChildren(new ArrayList<>());判断
+                                units.remove(units.indexOf(unit1));
+                                i--;//确认删除
+                            }
+                        }
+                    }
                     unit.setChildren(unitList);
                     unit.setHasChildren(true);
-                    getUnits(unitList, enabled);
+                    getUnits(unitList, enabled,name);
                 } else {
                     unit.setChildren(new ArrayList<>());
                     unit.setHasChildren(false);

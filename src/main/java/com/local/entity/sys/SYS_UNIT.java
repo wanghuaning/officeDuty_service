@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @ApiModel("用户表")//用在模型类上，对模型类做注释；
 @Table("SYS_UNIT")
@@ -156,8 +158,49 @@ public class SYS_UNIT implements Serializable {
     private boolean hasChildren;
     private List<SYS_UNIT> children;
     private String value;
-
     private String label;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SYS_UNIT)) return false;
+        SYS_UNIT unit = (SYS_UNIT) o;
+        return standingLeaderNum == unit.standingLeaderNum &&
+                voceLeaderNum == unit.voceLeaderNum &&
+                standingNotLeaderNum == unit.standingNotLeaderNum &&
+                voceNotLeaderNum == unit.voceNotLeaderNum &&
+                officialNum == unit.officialNum &&
+                referOfficialNum == unit.referOfficialNum &&
+                enterpriseNum == unit.enterpriseNum &&
+                workerNum == unit.workerNum &&
+                otherNum == unit.otherNum &&
+                internalLeaderStanding == unit.internalLeaderStanding &&
+                internalLeaderVoce == unit.internalLeaderVoce &&
+                internalNotLeaderStanding == unit.internalNotLeaderStanding &&
+                internalNotLeaderVoce == unit.internalNotLeaderVoce &&
+//                hasChildren == unit.hasChildren &&
+                Objects.equals(id, unit.id) &&
+                Objects.equals(code, unit.code) &&
+                Objects.equals(name, unit.name) &&
+                Objects.equals(simpleName, unit.simpleName) &&
+                Objects.equals(parentId, unit.parentId) &&
+                Objects.equals(area, unit.area) &&
+                Objects.equals(affiliation, unit.affiliation) &&
+                Objects.equals(category, unit.category) &&
+                Objects.equals(level, unit.level) &&
+                Objects.equals(enabled, unit.enabled) &&
+                Arrays.equals(areaStrs, unit.areaStrs) &&
+//                Objects.equals(children, unit.children) &&
+                Objects.equals(value, unit.value) &&
+                Objects.equals(label, unit.label);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, code, name, simpleName, parentId, area, affiliation, category, level, standingLeaderNum, voceLeaderNum, standingNotLeaderNum, voceNotLeaderNum, officialNum, referOfficialNum, enterpriseNum, workerNum, otherNum, internalLeaderStanding, internalLeaderVoce, internalNotLeaderStanding, internalNotLeaderVoce, enabled, hasChildren, children, value, label);
+        result = 31 * result + Arrays.hashCode(areaStrs);
+        return result;
+    }
 
     public String[] getAreaStrs() {
         return areaStrs;
