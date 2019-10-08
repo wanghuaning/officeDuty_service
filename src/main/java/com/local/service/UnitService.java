@@ -19,4 +19,6 @@ public interface UnitService {
     SYS_UNIT selectUnitByCode(String code);//根据名称查询单位
 
     SYS_UNIT selectUnitById(String id);
+
+    List<SYS_UNIT> selectUnitAll();
 }

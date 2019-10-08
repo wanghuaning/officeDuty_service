@@ -8,6 +8,7 @@ import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.util.cri.SimpleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,16 +32,17 @@ public class UnitServiceImpl implements UnitService {
             if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
                 cri.where().andEquals("enabled", enabled);
             }
-        }else {
+        } else {
             cri.where().andEquals("parent_Id", null);
             if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
                 cri.where().andEquals("enabled", enabled);
             }
         }
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
-        getUnits(units, enabled,name);
+        getUnits(units, enabled, name);
         return units;
     }
+
     public static List removeDuplicate(List list) {
         HashSet h = new HashSet(list);
         list.clear();
@@ -60,26 +62,25 @@ public class UnitServiceImpl implements UnitService {
     }
 
     public void getUnits(List<SYS_UNIT> units, String enabled, String name) {
-        System.out.println(units.get(0).getName()+"=>");
 //        for (SYS_UNIT unit : units)  {
-        for (int i = 0; i < units.size(); i++){
-            SYS_UNIT unit=units.get(i);
+        for (int i = 0; i < units.size(); i++) {
+            SYS_UNIT unit = units.get(i);
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0"));
                 if (!StrUtils.isBlank(unitList) && unitList.size() > 0) {
                     if (!StrUtils.isBlank(name)) {//部门名称不为空
 //                        for (SYS_UNIT unit1:unitList){
-                            for (int j = 0; j < unitList.size(); j++){
-                                SYS_UNIT unit1=unitList.get(j);
-                            if (units.contains(unit1)){//**需要在实体类对象中复写equals()方法 equals()去除 unit.setChildren(new ArrayList<>());判断
+                        for (int j = 0; j < unitList.size(); j++) {
+                            SYS_UNIT unit1 = unitList.get(j);
+                            if (units.contains(unit1)) {//**需要在实体类对象中复写equals()方法 equals()去除 unit.setChildren(new ArrayList<>());判断
                                 units.remove(units.indexOf(unit1));
-                                i--;//确认删除
+                                i--;//确认删除 必要步骤**
                             }
                         }
                     }
                     unit.setChildren(unitList);
                     unit.setHasChildren(true);
-                    getUnits(unitList, enabled,name);
+                    getUnits(unitList, enabled, name);
                 } else {
                     unit.setChildren(new ArrayList<>());
                     unit.setHasChildren(false);
@@ -105,16 +106,17 @@ public class UnitServiceImpl implements UnitService {
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "修改单位", type = "U")
-    public void updateUnit(SYS_UNIT unit){
-    dao.update(unit);
+    public void updateUnit(SYS_UNIT unit) {
+        dao.update(unit);
     }
 
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "删除单位", type = "D")
-    public void deleteUnit(String id){
-    dao.delete(SYS_UNIT.class,id);
+    public void deleteUnit(String id) {
+        dao.delete(SYS_UNIT.class, id);
     }
+
     /**
      * 根据名称查询单位
      *
@@ -150,6 +152,7 @@ public class UnitServiceImpl implements UnitService {
             return null;
         }
     }
+
     /**
      * 根据ID查询单位
      *
@@ -157,12 +160,24 @@ public class UnitServiceImpl implements UnitService {
      * @return
      */
     @Override
-    public SYS_UNIT selectUnitById(String id){
+    public SYS_UNIT selectUnitById(String id) {
         Criteria cri = Cnd.cri();
         cri.where().andEquals("id", id);
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
         if (units.size() > 0) {
             return units.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_UNIT> selectUnitAll(){
+        Criteria cri = Cnd.cri();
+        cri.where().andNotEquals("name", "'单位'");
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units;
         } else {
             return null;
         }
