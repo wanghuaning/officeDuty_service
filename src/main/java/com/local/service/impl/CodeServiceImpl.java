@@ -17,6 +17,8 @@ import java.util.List;
 public class CodeServiceImpl implements CodeService {
     @Autowired
     Dao dao;
+
+    @Override
   public List<SYS_AREA> selectAreaCodeByUpCode(String upCode){
       List<SYS_AREA> list=new ArrayList<>();
       Criteria criteria= Cnd.cri();
@@ -28,6 +30,20 @@ public class CodeServiceImpl implements CodeService {
       }else {
           return null;
       }
+  }
+
+  @Override
+  public SYS_AREA selectAreaByCode(String code){
+        List<SYS_AREA> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("Code",code);
+        list=dao.query(SYS_AREA.class,criteria);
+        getAreas(list);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
   }
     /**
      * 是否存在子区域

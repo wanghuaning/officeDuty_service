@@ -48,11 +48,11 @@ public class SYS_AREA implements Serializable {
     private List<SYS_AREA> children;
 
     public String getValue() {
-        return code;
+        return areaName;
     }
 
     public void setValue(String value) {
-        this.value = code;
+        this.value = areaName;
     }
 
     public String getLabel() {

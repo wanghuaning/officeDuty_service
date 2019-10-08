@@ -8,7 +8,7 @@ import java.util.List;
 public interface CodeService {
 
     List<SYS_AREA> selectAreaCodeByUpCode(String upCode);
-
+    SYS_AREA selectAreaByCode(String code);
     //机构级别
     List<SYS_CODE> selectLevels();
 

@@ -168,11 +168,11 @@ public class SYS_UNIT implements Serializable {
     }
 
     public String getValue() {
-        return id;
+        return name;
     }
 
     public void setValue(String value) {
-        this.value = id;
+        this.value = name;
     }
 
     public String getLabel() {

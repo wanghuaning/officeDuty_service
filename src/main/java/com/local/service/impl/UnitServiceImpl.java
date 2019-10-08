@@ -27,12 +27,14 @@ public class UnitServiceImpl implements UnitService {
         Criteria cri = Cnd.cri();
         if (!StrUtils.isBlank(name)) {//部门名称不为空
             cri.where().andLike("name", "%" + name.trim() + "%");
-        }
-        if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
-            cri.where().andEquals("enabled", enabled);
-        }
-        if (StrUtils.isBlank(name) && StrUtils.isBlank(enabled)){
+            if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
+                cri.where().andEquals("enabled", enabled);
+            }
+        }else {
             cri.where().andEquals("parent_Id", null);
+            if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
+                cri.where().andEquals("enabled", enabled);
+            }
         }
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
         getUnits(units, enabled);
@@ -81,6 +83,19 @@ public class UnitServiceImpl implements UnitService {
         dao.insert(unit);
     }
 
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "修改单位", type = "U")
+    public void updateUnit(SYS_UNIT unit){
+    dao.update(unit);
+    }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "删除单位", type = "D")
+    public void deleteUnit(String id){
+    dao.delete(SYS_UNIT.class,id);
+    }
     /**
      * 根据名称查询单位
      *
@@ -105,9 +120,27 @@ public class UnitServiceImpl implements UnitService {
      * @param code
      * @return
      */
+    @Override
     public SYS_UNIT selectUnitByCode(String code) {
         Criteria cri = Cnd.cri();
         cri.where().andEquals("code", code);
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
+        }
+    }
+    /**
+     * 根据ID查询单位
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public SYS_UNIT selectUnitById(String id){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("id", id);
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
         if (units.size() > 0) {
             return units.get(0);
