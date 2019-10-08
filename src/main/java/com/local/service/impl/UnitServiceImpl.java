@@ -1,5 +1,6 @@
 package com.local.service.impl;
 
+import com.local.common.slog.annotation.SLog;
 import com.local.entity.elsys.ElSysDept;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.UnitService;
@@ -9,6 +10,7 @@ import org.nutz.dao.Dao;
 import org.nutz.dao.sql.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -23,25 +25,18 @@ public class UnitServiceImpl implements UnitService {
     @Override
     public List<SYS_UNIT> selectUnitsByParam(String name, String enabled) {
         Criteria cri = Cnd.cri();
-//            if (!StrUtils.isBlank(name)){//部门名称不为空
-//                System.out.println("1111111111");
-//                cri.where().andLike("NAME","%"+name.trim()+"%");
-//            }else {//如果部门名称为空
-//                if (enabled.equals("1")){//状态为正常，那么就初始化根节点
-//                    cri.where().andEquals("parent_Id","0");
-//                }
-//            }
-        if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
-            cri.where().andEquals("ENABLED", enabled);
-            List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
-            getUnits(units, enabled);
-            return units;
-        } else {
-            cri.where().andEquals("parent_Id", null);
-            List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
-            getUnits(units, enabled);
-            return units;
+        if (!StrUtils.isBlank(name)) {//部门名称不为空
+            cri.where().andLike("name", "%" + name.trim() + "%");
         }
+        if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
+            cri.where().andEquals("enabled", enabled);
+        }
+        if (StrUtils.isBlank(name) && StrUtils.isBlank(enabled)){
+            cri.where().andEquals("parent_Id", null);
+        }
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        getUnits(units, enabled);
+        return units;
     }
 
     /**
@@ -64,10 +59,60 @@ public class UnitServiceImpl implements UnitService {
                     unit.setChildren(unitList);
                     unit.setHasChildren(true);
                     getUnits(unitList, enabled);
-                }else {
+                } else {
+                    unit.setChildren(new ArrayList<>());
                     unit.setHasChildren(false);
                 }
+            } else {
+                unit.setChildren(new ArrayList<>());
             }
+        }
+    }
+
+    /**
+     * 插入单位
+     *
+     * @param unit
+     */
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "插入单位", type = "C")
+    public void insertUnit(SYS_UNIT unit) {
+        dao.insert(unit);
+    }
+
+    /**
+     * 根据名称查询单位
+     *
+     * @param name
+     * @return
+     */
+    @Override
+    public SYS_UNIT selectUnitByName(String name) {
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("name", name);
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 根据名称查询单位
+     *
+     * @param code
+     * @return
+     */
+    public SYS_UNIT selectUnitByCode(String code) {
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("code", code);
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
         }
     }
 }

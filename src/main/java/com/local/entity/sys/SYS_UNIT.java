@@ -12,7 +12,7 @@ import java.util.List;
 @Comment("用户表")
 public class SYS_UNIT implements Serializable {
     @Name
-    @Prev(els = {@EL("uuid")})
+//    @Prev(els = {@EL("uuid")})
     @ApiModelProperty("单位id")//用在属性上，对属性做注释
     @Comment("单位id")//定义脚本中添加comment属性来添加注释
     @Column("id")
@@ -55,8 +55,8 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String affiliation;
 
-    @ApiModelProperty("隶属关系")
-    @Comment("隶属关系")
+    @ApiModelProperty("机构类别")
+    @Comment("机构类别")
     @Column("category")
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String category;
@@ -151,8 +151,37 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 2)
     private String enabled;
 
+
+    private String[] areaStrs;
     private boolean hasChildren;
     private List<SYS_UNIT> children;
+    private String value;
+
+    private String label;
+
+    public String[] getAreaStrs() {
+        return areaStrs;
+    }
+
+    public void setAreaStrs(String[] areaStrs) {
+        this.areaStrs = areaStrs;
+    }
+
+    public String getValue() {
+        return id;
+    }
+
+    public void setValue(String value) {
+        this.value = id;
+    }
+
+    public String getLabel() {
+        return name;
+    }
+
+    public void setLabel(String label) {
+        this.label = name;
+    }
 
     public boolean isHasChildren() {
         return hasChildren;

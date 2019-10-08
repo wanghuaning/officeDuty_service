@@ -1,6 +1,7 @@
 package com.local.service.impl;
 
 import com.local.entity.sys.SYS_AREA;
+import com.local.entity.sys.SYS_CODE;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.CodeService;
 import com.local.util.StrUtils;
@@ -49,6 +50,66 @@ public class CodeServiceImpl implements CodeService {
                     getAreas(areaList);
                 }
             }
+        }
+    }
+    /**
+     * 机构级别
+     */
+    @Override
+    public List<SYS_CODE> selectLevels(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","1");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    /**
+     * 机构类别
+     */
+    @Override
+    public List<SYS_CODE> selectCategorys(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","20");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 隶属关系
+     * @return
+     */
+    @Override
+    public List<SYS_CODE> selectAffiliations(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","480");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public SYS_CODE selectCodeById(String id){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("id",id);
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
         }
     }
 }
