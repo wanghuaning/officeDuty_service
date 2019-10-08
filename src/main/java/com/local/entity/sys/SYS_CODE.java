@@ -49,11 +49,11 @@ public class SYS_CODE implements Serializable {
     private String label;
 
     public String getValue() {
-        return id.toString();
+        return codeName;
     }
 
     public void setValue(String value) {
-        this.value = id.toString();
+        this.value = codeName;
     }
 
     public String getLabel() {

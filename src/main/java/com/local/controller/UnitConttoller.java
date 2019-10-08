@@ -66,26 +66,28 @@ public class UnitConttoller {
             String uuid= UUID.randomUUID().toString();
             unit.setId(uuid);
             unit.setEnabled("0");
-            SYS_CODE affiliation=codeService.selectCodeById(unit.getAffiliation());
-            if (affiliation!=null){
-                unit.setAffiliation(affiliation.getCodeName());
-            }
-            SYS_CODE category=codeService.selectCodeById(unit.getCategory());
-            if (category!=null){
-                unit.setCategory(category.getCodeName());
-            }
-            SYS_CODE level=codeService.selectCodeById(unit.getLevel());
-            if (level!=null){
-                unit.setLevel(level.getCodeName());
-            }
-            if (unit.getAreaStrs().length>0){
-                SYS_AREA area=codeService.selectAreaByCode(unit.getAreaStrs()[unit.getAreaStrs().length-1]);
+//            SYS_CODE affiliation=codeService.selectCodeById(unit.getAffiliation());
+//            if (affiliation!=null){
+//                unit.setAffiliation(affiliation.getCodeName());
+//            }
+//            SYS_CODE category=codeService.selectCodeById(unit.getCategory());
+//            if (category!=null){
+//                unit.setCategory(category.getCodeName());
+//            }
+//            SYS_CODE level=codeService.selectCodeById(unit.getLevel());
+//            if (level!=null){
+//                unit.setLevel(level.getCodeName());
+//            }
+            if (!StrUtils.isBlank(unit.getAreaStrs())) {
+                if (unit.getAreaStrs().length > 0) {
+                    SYS_AREA area = codeService.selectAreaByCode(unit.getAreaStrs()[unit.getAreaStrs().length - 1]);
+                }
             }
             unitService.insertUnit(unit);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
-            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
 
@@ -106,20 +108,22 @@ public class UnitConttoller {
                         return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                     }
                 }
-                SYS_CODE affiliation=codeService.selectCodeById(unit.getAffiliation());
-                if (affiliation!=null){
-                    unit.setAffiliation(affiliation.getCodeName());
-                }
-                SYS_CODE category=codeService.selectCodeById(unit.getCategory());
-                if (category!=null){
-                    unit.setCategory(category.getCodeName());
-                }
-                SYS_CODE level=codeService.selectCodeById(unit.getLevel());
-                if (level!=null){
-                    unit.setLevel(level.getCodeName());
-                }
-                if (unit.getAreaStrs().length>0){
-                    SYS_AREA area=codeService.selectAreaByCode(unit.getAreaStrs()[unit.getAreaStrs().length-1]);
+//                SYS_CODE affiliation=codeService.selectCodeById(unit.getAffiliation());
+//                if (affiliation!=null){
+//                    unit.setAffiliation(affiliation.getCodeName());
+//                }
+//                SYS_CODE category=codeService.selectCodeById(unit.getCategory());
+//                if (category!=null){
+//                    unit.setCategory(category.getCodeName());
+//                }
+//                SYS_CODE level=codeService.selectCodeById(unit.getLevel());
+//                if (level!=null){
+//                    unit.setLevel(level.getCodeName());
+//                }
+                if (!StrUtils.isBlank(unit.getAreaStrs())){
+                    if (unit.getAreaStrs().length>0){
+                        SYS_AREA area=codeService.selectAreaByCode(unit.getAreaStrs()[unit.getAreaStrs().length-1]);
+                    }
                 }
                 unitService.updateUnit(unit);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
