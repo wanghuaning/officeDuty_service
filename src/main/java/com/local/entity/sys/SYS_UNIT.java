@@ -153,6 +153,41 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 2)
     private String enabled;
 
+    @ApiModelProperty("上级单位名称")
+    @Comment("上级单位名称")
+    @Column("parent_Name")
+    @ColDefine(type = ColType.VARCHAR,width = 255)
+    private String parentName;
+
+    @ApiModelProperty("备注")
+    @Comment("备注")
+    @Column("detail")
+    @ColDefine(type = ColType.VARCHAR,width = 2000)
+    private String detail;
+
+    @ApiModelProperty("排序")
+    @Comment("排序")
+    @Column("unit_Order")
+    @ColDefine(type = ColType.INT,width = 6)
+    private String unitOrder;
+
+    @ApiModelProperty("省名称")
+    @Comment("省名称")
+    @Column("build_Province")
+    @ColDefine(type = ColType.VARCHAR,width = 10)
+    private String buildProvince;
+
+    @ApiModelProperty("市名称")
+    @Comment("市名称")
+    @Column("build_City")
+    @ColDefine(type = ColType.VARCHAR,width = 10)
+    private String buildCity;
+
+    @ApiModelProperty("县名称")
+    @Comment("县名称")
+    @Column("build_County")
+    @ColDefine(type = ColType.VARCHAR,width = 10)
+    private String buildCounty;
 
     private String[] areaStrs;
     private boolean hasChildren;
@@ -160,46 +195,52 @@ public class SYS_UNIT implements Serializable {
     private String value;
     private String label;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SYS_UNIT)) return false;
-        SYS_UNIT unit = (SYS_UNIT) o;
-        return standingLeaderNum == unit.standingLeaderNum &&
-                voceLeaderNum == unit.voceLeaderNum &&
-                standingNotLeaderNum == unit.standingNotLeaderNum &&
-                voceNotLeaderNum == unit.voceNotLeaderNum &&
-                officialNum == unit.officialNum &&
-                referOfficialNum == unit.referOfficialNum &&
-                enterpriseNum == unit.enterpriseNum &&
-                workerNum == unit.workerNum &&
-                otherNum == unit.otherNum &&
-                internalLeaderStanding == unit.internalLeaderStanding &&
-                internalLeaderVoce == unit.internalLeaderVoce &&
-                internalNotLeaderStanding == unit.internalNotLeaderStanding &&
-                internalNotLeaderVoce == unit.internalNotLeaderVoce &&
-//                hasChildren == unit.hasChildren &&
-                Objects.equals(id, unit.id) &&
-                Objects.equals(code, unit.code) &&
-                Objects.equals(name, unit.name) &&
-                Objects.equals(simpleName, unit.simpleName) &&
-                Objects.equals(parentId, unit.parentId) &&
-                Objects.equals(area, unit.area) &&
-                Objects.equals(affiliation, unit.affiliation) &&
-                Objects.equals(category, unit.category) &&
-                Objects.equals(level, unit.level) &&
-                Objects.equals(enabled, unit.enabled) &&
-                Arrays.equals(areaStrs, unit.areaStrs) &&
-//                Objects.equals(children, unit.children) &&
-                Objects.equals(value, unit.value) &&
-                Objects.equals(label, unit.label);
+    public String getBuildProvince() {
+        return buildProvince;
     }
 
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(id, code, name, simpleName, parentId, area, affiliation, category, level, standingLeaderNum, voceLeaderNum, standingNotLeaderNum, voceNotLeaderNum, officialNum, referOfficialNum, enterpriseNum, workerNum, otherNum, internalLeaderStanding, internalLeaderVoce, internalNotLeaderStanding, internalNotLeaderVoce, enabled, hasChildren, children, value, label);
-        result = 31 * result + Arrays.hashCode(areaStrs);
-        return result;
+    public void setBuildProvince(String buildProvince) {
+        this.buildProvince = buildProvince;
+    }
+
+    public String getBuildCity() {
+        return buildCity;
+    }
+
+    public void setBuildCity(String buildCity) {
+        this.buildCity = buildCity;
+    }
+
+    public String getBuildCounty() {
+        return buildCounty;
+    }
+
+    public void setBuildCounty(String buildCounty) {
+        this.buildCounty = buildCounty;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getUnitOrder() {
+        return unitOrder;
+    }
+
+    public void setUnitOrder(String unitOrder) {
+        this.unitOrder = unitOrder;
     }
 
     public String[] getAreaStrs() {
@@ -424,5 +465,46 @@ public class SYS_UNIT implements Serializable {
 
     public void setEnabled(String enabled) {
         this.enabled = enabled;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SYS_UNIT)) return false;
+        SYS_UNIT unit = (SYS_UNIT) o;
+        return standingLeaderNum == unit.standingLeaderNum &&
+                voceLeaderNum == unit.voceLeaderNum &&
+                standingNotLeaderNum == unit.standingNotLeaderNum &&
+                voceNotLeaderNum == unit.voceNotLeaderNum &&
+                officialNum == unit.officialNum &&
+                referOfficialNum == unit.referOfficialNum &&
+                enterpriseNum == unit.enterpriseNum &&
+                workerNum == unit.workerNum &&
+                otherNum == unit.otherNum &&
+                internalLeaderStanding == unit.internalLeaderStanding &&
+                internalLeaderVoce == unit.internalLeaderVoce &&
+                internalNotLeaderStanding == unit.internalNotLeaderStanding &&
+                internalNotLeaderVoce == unit.internalNotLeaderVoce &&
+//                hasChildren == unit.hasChildren &&
+                Objects.equals(id, unit.id) &&
+                Objects.equals(code, unit.code) &&
+                Objects.equals(name, unit.name) &&
+                Objects.equals(simpleName, unit.simpleName) &&
+                Objects.equals(parentId, unit.parentId) &&
+                Objects.equals(area, unit.area) &&
+                Objects.equals(affiliation, unit.affiliation) &&
+                Objects.equals(category, unit.category) &&
+                Objects.equals(level, unit.level) &&
+                Objects.equals(enabled, unit.enabled) &&
+                Arrays.equals(areaStrs, unit.areaStrs) &&
+//                Objects.equals(children, unit.children) &&
+                Objects.equals(value, unit.value) &&
+                Objects.equals(label, unit.label);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, code, name, simpleName, parentId, area, affiliation, category, level, standingLeaderNum, voceLeaderNum, standingNotLeaderNum, voceNotLeaderNum, officialNum, referOfficialNum, enterpriseNum, workerNum, otherNum, internalLeaderStanding, internalLeaderVoce, internalNotLeaderStanding, internalNotLeaderVoce, enabled, hasChildren, children, value, label);
+        result = 31 * result + Arrays.hashCode(areaStrs);
+        return result;
     }
 }

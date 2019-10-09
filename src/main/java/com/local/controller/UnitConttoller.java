@@ -1,25 +1,25 @@
 package com.local.controller;
 
-import com.local.common.filter.ExportExcelWrapper;
-import com.local.entity.elsys.ElSysDept;
+import com.local.cell.UnitManager;
 import com.local.entity.sys.SYS_AREA;
-import com.local.entity.sys.SYS_CODE;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.CodeService;
 import com.local.service.UnitService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.java.Log;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,10 +66,10 @@ public class UnitConttoller {
             String uuid= UUID.randomUUID().toString();
             unit.setId(uuid);
             unit.setEnabled("0");
-            if (!StrUtils.isBlank(unit.getAreaStrs())) {
-                if (unit.getAreaStrs().length > 0) {
-                    SYS_AREA area = codeService.selectAreaByCode(unit.getAreaStrs()[unit.getAreaStrs().length - 1]);
-                }
+            UnitManager.setUnitArea(unit);
+            SYS_UNIT punit=unitService.selectUnitById(unit.getParentId());
+            if (punit!=null){
+                unit.setParentName(punit.getName());
             }
             unitService.insertUnit(unit);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
@@ -96,11 +96,8 @@ public class UnitConttoller {
                         return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                     }
                 }
-                if (!StrUtils.isBlank(unit.getAreaStrs())){
-                    if (unit.getAreaStrs().length>0){
-                        SYS_AREA area=codeService.selectAreaByCode(unit.getAreaStrs()[unit.getAreaStrs().length-1]);
-                    }
-                }
+                UnitManager.setUnitArea(unit);
+                unit.setUnitOrder(unitById.getUnitOrder());
                 unitService.updateUnit(unit);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
             }else {
@@ -127,16 +124,28 @@ public class UnitConttoller {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "删除单位", notes = "删除单位", httpMethod = "GET", tags = "删除单位接口")
+    @ApiOperation(value = "导出单位", notes = "导出单位", httpMethod = "GET", tags = "导出单位接口")
     @GetMapping(value = "/unit/outExcel")
     @ResponseBody
     public String getUnitExcel(HttpServletRequest request, HttpServletResponse response){
         System.out.println("导出");
-        List<SYS_UNIT> unitList=unitService.selectUnitAll();
-        String[] columnNames = { "ID", "名称", " 代码"};
-        String fileName = "excel1";
-        ExportExcelWrapper<SYS_UNIT> util = new ExportExcelWrapper<SYS_UNIT>();
-        util.exportExcel(fileName, fileName, columnNames, unitList, response, ExportExcelUtil.EXCEL_FILE_2003);
-        return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        try {
+            List<SYS_UNIT> unitList=unitService.selectUnitAll();
+//            Resource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xlsl");
+            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xlsx");
+            String path=file.getPath();
+            String[] arr={"name","code","simpleName","parentName","area","affiliation","category","level","standingLeaderNum","voceLeaderNum","standingNotLeaderNum","voceNotLeaderNum",
+            "officialNum","referOfficialNum","enterpriseNum","workerNum","otherNum","internalLeaderStanding","internalLeaderVoce","internalNotLeaderStanding","internalNotLeaderVoce","detail"};
+            Workbook temp=ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
+            excelFileGenerator.setExcleNAME(response,"单位信息表导出.xlsx");
+            excelFileGenerator.createExcelFile(temp.getSheet("单位信息"),2,unitList,arr);
+            temp.write(response.getOutputStream());
+            temp.close();
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, unitList, null).getJson();
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_EXCEL_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
     }
 }

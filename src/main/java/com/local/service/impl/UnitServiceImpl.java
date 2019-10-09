@@ -64,6 +64,7 @@ public class UnitServiceImpl implements UnitService {
     public void getUnits(List<SYS_UNIT> units, String enabled, String name) {
 //        for (SYS_UNIT unit : units)  {
         for (int i = 0; i < units.size(); i++) {
+            List<String> aras=new ArrayList<>();
             SYS_UNIT unit = units.get(i);
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0"));
@@ -80,6 +81,8 @@ public class UnitServiceImpl implements UnitService {
                     }
                     unit.setChildren(unitList);
                     unit.setHasChildren(true);
+//                    String[] arr={"内蒙古自治区","赤峰市","元宝山区"};
+//                    unit.setAreaStrs(arr);
                     getUnits(unitList, enabled, name);
                 } else {
                     unit.setChildren(new ArrayList<>());
@@ -87,6 +90,16 @@ public class UnitServiceImpl implements UnitService {
                 }
             } else {
                 unit.setChildren(new ArrayList<>());
+            }
+            if (unit.getBuildCounty()!=null){
+                String[] arr={unit.getBuildProvince(),unit.getBuildCity(),unit.getBuildCounty()};
+                unit.setAreaStrs(arr);
+            }else if (unit.getBuildCity()!=null){
+                String[] arr={unit.getBuildProvince(),unit.getBuildCity()};
+                unit.setAreaStrs(arr);
+            }else{
+                String[] arr={unit.getBuildProvince()};
+                unit.setAreaStrs(arr);
             }
         }
     }
