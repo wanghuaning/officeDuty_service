@@ -1,18 +1,29 @@
 package com.local.util;
 
+import com.local.controller.UnitConttoller;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class ExcelFileGenerator <T>{
+    private final static Logger logger = LoggerFactory.getLogger(ExcelFileGenerator.class);
     private static Map<String, byte[]> templetes=new HashMap<>();
     public static Workbook getTeplet(String path) throws IOException, InvalidFormatException {
         if (!templetes.containsKey(path)){
@@ -85,34 +96,45 @@ public class ExcelFileGenerator <T>{
      * 设置单元格的值，并判断是否数字
      *
      */
-    private static void  setCellFormattedValue(Cell c, Object rs) {
-        if (rs == null) {
-            c.setCellType(CellType.BLANK);
-        } else {
-            String v = (String) rs;
-//            Boolean strResult =StrUtils.isNumeric(v);
-//            if (strResult) {
-//                c.setCellType(CellType.NUMERIC);
-//                Double d=Double.valueOf(v);
-//                c.setCellValue(d);
-//            } else {
-            if (v.contains("color")) {
-                int index1 = v.indexOf(">");
-                int index2 = v.indexOf("<", 1); //跳过第一个，从索引1开始搜索
-                String value = v.substring(index1 + 1, index2);
-                c.setCellType(CellType.NUMERIC);
-                c.setCellValue( Double.valueOf(value));
+    private static void  setCellFormattedValue(Cell cell, Object value) {
+        String textValue = null;
+        if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        } else if (value instanceof Float) {
+            textValue = String.valueOf((Float) value);
+            cell.setCellValue(textValue);
+        } else if (value instanceof Double) {
+            textValue = String.valueOf((Double) value);
+            cell.setCellValue(textValue);
+        } else if (value instanceof Long) {
+            cell.setCellValue((Long) value);
+        }
+        if (value instanceof Boolean) {
+            textValue = "是";
+            if (!(Boolean) value) {
+                textValue = "否";
             }
-//                else if (v.length() < 9 && (v.matches("^\\d+$") || v.matches("^\\d+\\.+\\d+$") || v.matches("^((\\d+\\.?+\\d+)[Ee]{1}(\\d+))$"))) {
-//                    c.setCellType(CellType.NUMERIC);
-//                    c.setCellValue(Double.valueOf(v));
-//                }
-            else {
-                c.setCellType(CellType.STRING);
-                c.setCellValue(v);
+        } else if (value instanceof Date) {
+            String pattern="yyyy-MM-dd HH:mm:ss";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            textValue = sdf.format((Date) value);
+        } else {
+            // 其它数据类型都当作字符串简单处理
+            if (value != null) {
+                textValue = value.toString();
             }
         }
-//        }
+        if (textValue != null) {
+            Pattern p = Pattern.compile("^//d+(//.//d+)?$");
+            Matcher matcher = p.matcher(textValue);
+            if (matcher.matches()) {
+                // 是数字当作double处理
+                cell.setCellValue(Double.parseDouble(textValue));
+            } else {
+                XSSFRichTextString richString = new XSSFRichTextString(textValue);
+                cell.setCellValue(richString);
+            }
+        }
     }
     /**
      * 创建Excel表压缩文件包
@@ -152,4 +174,171 @@ public class ExcelFileGenerator <T>{
      }
      zipOut.close();
  }
+
+
+    /**
+     * excelz转为List
+     * @param inputStream
+     * @return
+     */
+    public static List<Integer> excelToShopIdList(InputStream inputStream) {
+        List<Integer> list = new ArrayList<>();
+        Workbook workbook = null;
+        try {
+            workbook = WorkbookFactory.create(inputStream);
+            inputStream.close();
+            //工作表对象
+            Sheet sheet = workbook.getSheetAt(0);
+            //总行数
+            int rowLength = sheet.getLastRowNum() + 1;
+            //工作表的列
+            Row row = sheet.getRow(0);
+            //总列数
+            int colLength = row.getLastCellNum();
+            //得到指定的单元格
+            Cell cell = row.getCell(0);
+            for (int i = 1; i < rowLength; i++) {
+                row = sheet.getRow(i);
+                for (int j = 0; j < colLength; j++) {
+                    cell = row.getCell(j);
+                    if (cell != null) {
+                        cell.setCellType(Cell.CELL_TYPE_STRING);
+                        String data = cell.getStringCellValue();
+                        data = data.trim();
+                        if (StringUtils.isNumeric(data))
+                            list.add(Integer.parseInt(data));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("parse excel file error :", e);
+        }
+        return list;
+    }
+
+    /**
+     * Excel数据返回
+     * @param inputStream
+     * @param index
+     * @return
+     */
+    public static List<Map<Integer, String>> importReportExcel(InputStream inputStream, int index) {
+        List<Map<Integer, String>> mapRow = new ArrayList<>();
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(index);
+            for (Row row : sheet) {
+                Map<Integer, String> mapColumn = new HashMap<Integer, String>();
+                for (Cell cell : row) {
+                    int type = cell.getCellType();
+                    String cellContext = "";
+                    switch (type) { // 判断数据类型
+                        case Cell.CELL_TYPE_BLANK:// 空的
+                            cellContext = "";
+                            break;
+                        case Cell.CELL_TYPE_BOOLEAN:// 布尔
+                            cellContext = cell.getBooleanCellValue() + "";
+                            break;
+                        case Cell.CELL_TYPE_ERROR:// 错误
+                            cellContext = cell.getErrorCellValue() + "";
+                            break;
+                        case Cell.CELL_TYPE_FORMULA:// 公式
+                            cellContext = cell.getCellFormula();
+                            break;
+                        case Cell.CELL_TYPE_NUMERIC:// 数字或日期
+                            if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                                cellContext = new DataFormatter().formatRawCellContents(cell.getNumericCellValue(), 0, "yyyy-mm-dd");// 格式化日期
+                            } else {
+                                NumberFormat nf = NumberFormat.getInstance();
+                                nf.setGroupingUsed(false);
+                                cellContext = nf.format(cell.getNumericCellValue());
+                            }
+                            break;
+                        case Cell.CELL_TYPE_STRING:// 字符串
+                            cellContext = cell.getStringCellValue();
+                            break;
+                        default:
+                            break;
+                    }
+                    mapColumn.put(cell.getColumnIndex(), cellContext);
+                }
+                mapRow.add(mapColumn);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return mapRow;
+    }
+
+
+    /**
+     * 读取Excel表数据
+     * @param excelInputSteam
+     * @param sheetNumber 读取Excel表位置 0开始
+     * @param headerNumber 表头位置 0开始
+     * @param rowStart 读取开始位置 0开始
+     * @return
+     * @throws IOException
+     * @throws InvalidFormatException
+     */
+    public static List<Map<String, Object>> readeExcelData(InputStream excelInputSteam,
+                                                           int sheetNumber,
+                                                           int headerNumber,
+                                                           int rowStart) throws IOException, InvalidFormatException {
+        //需要的变量以及要返回的数据
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        List<String> headers = new ArrayList<String>();
+        //生成工作表
+        Workbook workbook = WorkbookFactory.create(excelInputSteam);
+        Sheet sheet = workbook.getSheetAt(sheetNumber);
+        Row header = sheet.getRow(headerNumber);
+        //最后一行数据
+        int rowEnd = sheet.getLastRowNum();
+        DataFormatter dataFormatter = new DataFormatter();
+        //获取标题信息
+        for (int i = 0; i < header.getLastCellNum(); ++i) {
+            Cell cell = header.getCell(i);
+            headers.add(dataFormatter.formatCellValue(cell));
+        }
+        //获取内容信息
+        for (int i = rowStart; i <= rowEnd; ++i) {
+            Row currentRow = sheet.getRow(i);
+            if (Objects.isNull(currentRow)) {
+                continue;
+            }
+            Map<String, Object> dataMap = new HashMap<>();
+            for (int j = 0; j < currentRow.getLastCellNum(); ++j) {
+                //将null转化为Blank
+                Cell data = currentRow.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                if (Objects.isNull(data)) {     //感觉这个if有点多余
+                    dataMap.put(headers.get(j), null);
+                } else {
+                    switch (data.getCellType()) {   //不同的类型分别进行存储
+                        case Cell.CELL_TYPE_STRING:
+                            dataMap.put(headers.get(j), data.getRichStringCellValue().getString());
+                            break;
+                        case Cell.CELL_TYPE_NUMERIC:
+                            if (DateUtil.isCellDateFormatted(data)) {
+                                dataMap.put(headers.get(j), data.getDateCellValue());
+                            } else {
+                                dataMap.put(headers.get(j), data.getNumericCellValue());
+                            }
+                            break;
+                        case Cell.CELL_TYPE_FORMULA:
+                            dataMap.put(headers.get(j), data.getCellFormula());
+                            break;
+                        case Cell.CELL_TYPE_BOOLEAN:
+                            dataMap.put(headers.get(j), data.getBooleanCellValue());
+                            break;
+                        default:
+                            dataMap.put(headers.get(j), null);
+                    }
+                }
+            }
+            result.add(dataMap);
+        }
+        return result;
+    }
 }

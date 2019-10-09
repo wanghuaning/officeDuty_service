@@ -16,11 +16,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -125,20 +128,20 @@ public class UnitConttoller {
         }
     }
     @ApiOperation(value = "导出单位", notes = "导出单位", httpMethod = "GET", tags = "导出单位接口")
-    @GetMapping(value = "/unit/outExcel")
-    @ResponseBody
+    @RequestMapping(value = "/unit/outExcel")
     public String getUnitExcel(HttpServletRequest request, HttpServletResponse response){
         System.out.println("导出");
         try {
             List<SYS_UNIT> unitList=unitService.selectUnitAll();
-//            Resource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xlsl");
-            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xlsx");
-            String path=file.getPath();
+            Resource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
+//            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xls");
+//            String path=file.getPath();
+            String path=resource.getFile().getPath();
             String[] arr={"name","code","simpleName","parentName","area","affiliation","category","level","standingLeaderNum","voceLeaderNum","standingNotLeaderNum","voceNotLeaderNum",
             "officialNum","referOfficialNum","enterpriseNum","workerNum","otherNum","internalLeaderStanding","internalLeaderVoce","internalNotLeaderStanding","internalNotLeaderVoce","detail"};
             Workbook temp=ExcelFileGenerator.getTeplet(path);
             ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
-            excelFileGenerator.setExcleNAME(response,"单位信息表导出.xlsx");
+            excelFileGenerator.setExcleNAME(response,"单位信息表导出.xls");
             excelFileGenerator.createExcelFile(temp.getSheet("单位信息"),2,unitList,arr);
             temp.write(response.getOutputStream());
             temp.close();
@@ -146,6 +149,24 @@ public class UnitConttoller {
         }catch (Exception e){
             logger.error(ResultMsg.GET_EXCEL_ERROR,e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出单位", notes = "导出单位", httpMethod = "POST", tags = "导出单位接口")
+    @RequestMapping(value = "/unit/import")
+    public String importUnitExcel(@RequestParam("excelFile") MultipartFile excelFile){
+        try {
+            String name = excelFile.getOriginalFilename();
+            if (name.length() < 6 || !name.substring(name.length() - 5).equals(".xlsx")) {
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.FILE_ERROR,null,null).getJson();
+            }
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+//            List<Map<Integer, String>> list=ExcelFileGenerator.importReportExcel(excelFile.getInputStream(),0);
+            List<Map<String, Object>>  list=ExcelFileGenerator.readeExcelData(excelFile.getInputStream(),0,0,2);
+            return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,list,null).getJson();
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_ERROR,null,null).getJson();
         }
     }
 }
