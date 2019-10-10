@@ -34,10 +34,20 @@ public class PeopleServiceImpl implements PeopleService {
             cri.where().andLike("idcard","%"+idcard+"%");
         }
         if (!StrUtils.isBlank(politicalStatus)){
-            cri.where().andEquals("political_Status","%"+politicalStatus+"%");
+            if ("office".equals(politicalStatus)){
+                cri.where().andEquals("political_Status","行政编制");
+            }else if ("enterprise".equals(politicalStatus)){
+                cri.where().andEquals("political_Status","事业编制（参公）");
+            }else if ("other".equals(politicalStatus)){
+                cri.where().andEquals("political_Status","其他");
+            }
         }
         if (!StrUtils.isBlank(enabled)){
-            cri.where().andEquals("enabled","%"+enabled+"%");
+            if ("enabled".equals(enabled)){
+                cri.where().andEquals("enabled","0");
+            }else if ("notEnabled".equals(enabled)){
+                cri.where().andEquals("enabled","1");
+            }
         }
         cri.where().andEquals("unit_Id",unitId);
         cri.getOrderBy().asc("people_Order");
