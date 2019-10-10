@@ -23,9 +23,13 @@ public class PeopleController {
     @ResponseBody
     public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
                            @RequestParam(value = "page", required = false) String pageNumber,
-                             @RequestParam(value = "unitId",required = false) String unitId) {
+                             @RequestParam(value = "unitId",required = false) String unitId,
+                             @RequestParam(value = "name",required = false) String name,
+                             @RequestParam(value = "idcard",required = false) String idcard,
+                             @RequestParam(value = "politicalStatus",required = false) String politicalStatus,
+                             @RequestParam(value = "enabled",required = false) String enabled) {
         try {
-            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),unitId);
+            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),unitId,name,idcard,politicalStatus,enabled);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);

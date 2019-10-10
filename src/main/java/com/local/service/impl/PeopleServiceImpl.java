@@ -21,12 +21,24 @@ public class PeopleServiceImpl implements PeopleService {
     @Autowired
     private Dao dao;
     @Override
-    public QueryResult selectPeoples(int pageSize, int pageNumber,String unitId){
+    public QueryResult selectPeoples(int pageSize, int pageNumber,String unitId,String name,String idcard,String politicalStatus,String enabled){
         Pager pager=new Pager();
         pager.setPageNumber(pageNumber+1);
         pager.setPageSize(pageSize);
         List<SYS_People> peopleList=new ArrayList<>();
         Criteria cri= Cnd.cri();
+        if (!StrUtils.isBlank(name)){//市
+            cri.where().andLike("name","%"+name+"%");
+        }
+        if (!StrUtils.isBlank(idcard)){
+            cri.where().andLike("idcard","%"+idcard+"%");
+        }
+        if (!StrUtils.isBlank(politicalStatus)){
+            cri.where().andEquals("political_Status","%"+politicalStatus+"%");
+        }
+        if (!StrUtils.isBlank(enabled)){
+            cri.where().andEquals("enabled","%"+enabled+"%");
+        }
         cri.where().andEquals("unit_Id",unitId);
         cri.getOrderBy().asc("people_Order");
         peopleList = dao.query(SYS_People.class,cri,pager);
