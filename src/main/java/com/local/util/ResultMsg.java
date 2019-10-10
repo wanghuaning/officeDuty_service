@@ -73,6 +73,7 @@ public class ResultMsg {
     public static final String GET_EXCEL_ERROR = "导出失败";
     public static final String IMPORT_EXCEL_SUCCESS = "导出成功";
     public static final String IMPORT_EXCEL_ERROR = "导出失败";
+    public static final String IMPORT_EXCEL_FILE_ERROR = "采集表格式错误";
 
     public static final String FILE_ERROR = "文件格式错误";
 }

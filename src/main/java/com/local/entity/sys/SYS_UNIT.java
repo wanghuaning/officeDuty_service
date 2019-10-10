@@ -9,9 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-@ApiModel("用户表")//用在模型类上，对模型类做注释；
+@ApiModel("单位表")//用在模型类上，对模型类做注释；
 @Table("SYS_UNIT")
-@Comment("用户表")
+@Comment("单位表")
 public class SYS_UNIT implements Serializable {
     @Name
 //    @Prev(els = {@EL("uuid")})
@@ -147,7 +147,7 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 6)
     private long internalNotLeaderVoce;
 
-    @ApiModelProperty("机构状态")
+    @ApiModelProperty("机构状态0:可用 1：停用 2：导入单位没有找到上级")
     @Comment("机构状态")
     @Column("enabled")
     @ColDefine(type = ColType.INT,width = 2)

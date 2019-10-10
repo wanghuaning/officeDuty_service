@@ -1,12 +1,12 @@
 package com.local.util;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  *
@@ -184,7 +184,84 @@ public class StrUtils {
         return true;
     }
 
+    /**
+     * String转成int的值， 若无法转换，默认返回0
+     */
+    public static int strToInt(String string) {
+        return stoi(string, 0);
+    }
 
+    public static int stoi(String string, int defaultValue) {
+        if ((string == null) || (string.equalsIgnoreCase(""))) {
+            return defaultValue;
+        }
+        int id;
+        try {
+            Double d=Double.parseDouble(string);
+            id = (new Double(d)).intValue();
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+        return id;
+    }
+    /**
+     * String转成long的值， 若无法转换，默认返回0
+     */
+    public static long strToLong(String string) {
+        return stol(string, 0);
+    }
+
+    public static long stol(String string, long defaultValue) {
+        if ((string == null) || (string.equalsIgnoreCase(""))) {
+            return defaultValue;
+        }
+        long ret;
+        try {
+            ret = Long.parseLong(string);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+
+        return ret;
+    }
+
+    /**
+     * String转成double的值， 若无法转换，默认返回0.00
+     */
+    public static double strToDouble(String string) {
+        return stod(string, 0.00);
+    }
+
+    public static double stod(String string, double defaultValue) {
+        if ((string == null) || (string.equalsIgnoreCase(""))) {
+            return defaultValue;
+        }
+        double ret;
+        try {
+            ret = Double.parseDouble(string);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+
+        return ret;
+    }
+    private static String[] parsePatterns = {"yyyy-MM-dd","yyyy年MM月dd日",
+            "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy/MM/dd",
+            "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyyMMdd"};
+
+    public static Date parseDate(String string) {
+        if (string == null) {
+            return null;
+        }
+        try {
+            return DateUtils.parseDate(string, parsePatterns);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
     public static void main(String[] args) {
         List<String> attr=new ArrayList<String>();
         for(int i=0;i<10000;i++){

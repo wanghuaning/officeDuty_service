@@ -341,4 +341,31 @@ public class ExcelFileGenerator <T>{
         }
         return result;
     }
+
+    /**
+     * 或Excel表头
+     * @param excelInputSteam
+     * @param sheetNumber 数据表序号 0开始
+     * @param headerNumber 表头开始位置 0开始
+     * @return
+     * @throws IOException
+     * @throws InvalidFormatException
+     */
+    public static List<String> readeExcelHeader(InputStream excelInputSteam,
+                                                int sheetNumber,
+                                                int headerNumber) throws IOException, InvalidFormatException {
+        //要返回的数据
+        List<String> headers = new ArrayList<String>();
+        //生成工作表
+        Workbook workbook = WorkbookFactory.create(excelInputSteam);
+        Sheet sheet = workbook.getSheetAt(sheetNumber);
+        Row header = sheet.getRow(headerNumber);
+        DataFormatter dataFormatter = new DataFormatter();
+        for (int i = 0; i < header.getLastCellNum(); i++) {
+            //获取单元格
+            Cell cell = header.getCell(i);
+            headers.add(dataFormatter.formatCellValue(cell));
+        }
+        return headers;
+    }
 }

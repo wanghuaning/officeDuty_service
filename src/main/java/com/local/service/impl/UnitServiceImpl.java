@@ -195,4 +195,15 @@ public class UnitServiceImpl implements UnitService {
             return null;
         }
     }
+    @Override
+    public SYS_UNIT selectUnitByNameAndParent(String name,String pname){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("name", name).andEquals("parent_Name",pname);
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
+        }
+    }
 }
