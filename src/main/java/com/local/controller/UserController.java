@@ -39,7 +39,7 @@ public class UserController {
         if (StrUtils.isBlank(code)){
             return new Result(ResultCode.ERROR.toString(),ResultMsg.CHECK_EXPIRE,null,null).getJson();
         }
-        if (StrUtils.isBlank(user.getUuid()) || !user.getCode().equals(code)){
+        if (StrUtils.isBlank(user.getUuid()) || !user.getCode().equalsIgnoreCase(String.valueOf(code))){//不区分大小写equalsIgnoreCase
             return new Result(ResultCode.ERROR.toString(),ResultMsg.CHECK_ERROR,null,null).getJson();
         }
         SYS_USER searchUser=null;

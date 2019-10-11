@@ -58,4 +58,61 @@ public class CodeController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "民族", notes = "民族", httpMethod = "GET", tags = {"民族查询接口"})
+    @GetMapping("/nationality")
+    @ResponseBody
+    public String getNationalitys(){
+        List<SYS_CODE> codes=codeService.selectNationality();
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "政治面貌", notes = "政治面貌", httpMethod = "GET", tags = {"政治面貌查询接口"})
+    @GetMapping("/party")
+    @ResponseBody
+    public String getPartys(){
+        List<SYS_CODE> codes=codeService.selectParty();
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "现职务层次", notes = "现职务层次", httpMethod = "GET", tags = {"现职务层次查询接口"})
+    @GetMapping("/position")
+    @ResponseBody
+    public String getPositions(){
+        List<SYS_CODE> codes=codeService.selectPosition();
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "现职级", notes = "现职级", httpMethod = "GET", tags = {"现职级查询接口"})
+    @GetMapping("/positionLevel")
+    @ResponseBody
+    public String getPositionLevels(){
+        List<SYS_CODE> codes=codeService.selectPositionLevel();
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "编制类型", notes = "编制类型", httpMethod = "GET", tags = {"编制类型查询接口"})
+    @GetMapping("/politicalStatus")
+    @ResponseBody
+    public String getPoliticalStatuss(){
+        List<SYS_CODE> codes=codeService.selectPoliticalStatus();
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }

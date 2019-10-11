@@ -128,4 +128,76 @@ public class CodeServiceImpl implements CodeService {
             return null;
         }
     }
+
+    /**
+     * 民族
+     */
+    @Override
+    public List<SYS_CODE> selectNationality(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","50");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 政治面貌
+     */
+    public List<SYS_CODE> selectParty(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","120");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 现职务层次
+     * @return
+     */
+    public List<SYS_CODE> selectPosition(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","140");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    //现职级
+    public List<SYS_CODE> selectPositionLevel(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","165");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    //编制类型
+    public List<SYS_CODE> selectPoliticalStatus(){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id","190");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
 }

@@ -156,6 +156,21 @@ public class SYS_People {
   @ColDefine(type = ColType.INT,width = 6)
   private Integer peopleOrder;
 
+  private String isEnable;
+
+  public String getIsEnable() {
+    if ("0".equals(enabled)){
+      return "是";
+    }else {
+      return "否";
+    }
+
+  }
+
+  public void setIsEnable(String isEnable) {
+    this.isEnable = isEnable;
+  }
+
   public String getId() {
     return id;
   }
