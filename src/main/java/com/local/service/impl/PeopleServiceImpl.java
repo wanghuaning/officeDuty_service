@@ -1,7 +1,9 @@
 package com.local.service.impl;
 
+import com.local.common.slog.annotation.SLog;
 import com.local.entity.elsys.ElSysRole;
 import com.local.entity.sys.SYS_People;
+import com.local.entity.sys.SYS_UNIT;
 import com.local.service.PeopleService;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
@@ -11,6 +13,7 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,4 +63,105 @@ public class PeopleServiceImpl implements PeopleService {
         return queryResult;
     }
 
+
+    @Override
+    public SYS_People selectPeopleById(String id){
+        List<SYS_People> list=new ArrayList<>();
+        Criteria cir=Cnd.cri();
+        cir.where().andEquals("id",id);
+        list=dao.query(SYS_People.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public SYS_People selectPeopleByIdcardAndNotId(String idcard,String id){//查询身份证是否重复,处修改此条外
+        List<SYS_People> list=new ArrayList<>();
+        Criteria cir=Cnd.cri();
+        cir.where().andEquals("idcard",idcard).andNotEquals("id",id);
+        list=dao.query(SYS_People.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "修改人员", type = "U")
+    public void updatePeople(SYS_People people){
+        dao.update(people);
+    }
+
+    @Override
+    public void insertPeoples(SYS_People people){
+        dao.insert(people);
+    }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "删除人员", type = "D")
+    public void deletePeople(String id) {
+        dao.delete(SYS_People.class, id);
+    }
+
+    @Override
+    public SYS_People selectPeopleByIdcardAndUnitId(String idcard,String uid){
+        List<SYS_People> list=new ArrayList<>();
+        Criteria cir=Cnd.cri();
+        cir.where().andEquals("idcard",idcard).andNotEquals("unit_Id",uid);
+        list=dao.query(SYS_People.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * //根据单位ID查询，是否包含下级单位的 人员
+     * @param unitId
+     * @param isChild
+     * @return
+     */
+    @Override
+    public  List<SYS_People> selectPeoplesByUnitId(String unitId,String isChild){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if ("1".equals(isChild)){//包含下级单位
+            Criteria criteria=Cnd.cri();
+            criteria.where().andEquals("parent_Id",unitId);
+            List<SYS_UNIT> units=dao.query(SYS_UNIT.class,criteria);
+            getUnits(units,list);
+        }
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    public void getUnits(List<SYS_UNIT> units,List<SYS_People> peoples){
+        if (!StrUtils.isBlank(units) && units.size()>0){
+//            List<SYS_People> peopleList=new ArrayList<>();
+            for (SYS_UNIT unit:units){
+                Criteria cri = Cnd.cri();
+                cri.where().andEquals("unitId",unit.getId());
+                List<SYS_People> list=dao.query(SYS_People.class,cri);
+                if (!StrUtils.isBlank(list) && list.size()>0){
+                    peoples.addAll(list);
+                }
+                List<SYS_UNIT> cunits=dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
+                if (!StrUtils.isBlank(cunits) && cunits.size() > 0) {
+                    getUnits(cunits,peoples);
+                }
+            }
+        }
+    }
 }
