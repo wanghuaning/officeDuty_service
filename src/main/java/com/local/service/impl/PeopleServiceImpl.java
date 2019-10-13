@@ -113,7 +113,7 @@ public class PeopleServiceImpl implements PeopleService {
     public SYS_People selectPeopleByIdcardAndUnitId(String idcard,String uid){
         List<SYS_People> list=new ArrayList<>();
         Criteria cir=Cnd.cri();
-        cir.where().andEquals("idcard",idcard).andNotEquals("unit_Id",uid);
+        cir.where().andEquals("idcard",idcard).andEquals("unit_Id",uid);
         list=dao.query(SYS_People.class,cir);
         if (list.size()>0){
             return list.get(0);

@@ -1,11 +1,14 @@
 package com.local.controller;
 
+import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.PeopleService;
+import com.local.service.UnitService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
 import org.slf4j.Logger;
@@ -15,10 +18,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +33,9 @@ public class PeopleController {
 
     @Autowired
     private PeopleService peopleService;
+
+    @Autowired
+    private UnitService unitService;
 
     @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
     @GetMapping("/info")
@@ -54,6 +62,7 @@ public class PeopleController {
     public String updatePeople(@Validated @RequestBody SYS_People people) {
         try {
             SYS_People peopleById = peopleService.selectPeopleById(people.getId());
+            System.out.println(DateUtil.getDay(people.getBirthday()));
             if (peopleById != null) {
                 SYS_People peopleByIdcardAndNotId = peopleService.selectPeopleByIdcardAndNotId(people.getIdcard(), peopleById.getId());
                 if (peopleByIdcardAndNotId != null) {
@@ -114,22 +123,50 @@ public class PeopleController {
                                @RequestParam(value = "isChild", required = false) String isChild){
         try {
             List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unitId,isChild);
-            Resource resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
+            Resource resource=new ClassPathResource("exportExcel/exportPeopleInfo.xlsx");
 //            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xls");
 //            String path=file.getPath();
             String path=resource.getFile().getPath();
-            String[] arr={"name","code","simpleName","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","standingLeaderNum","voceLeaderNum","standingNotLeaderNum","voceNotLeaderNum",
-                    "officialNum","referOfficialNum","enterpriseNum","workerNum","otherNum","internalLeaderStanding","internalLeaderVoce","internalNotLeaderStanding","internalNotLeaderVoce","detail"};
+            String[] arr={"name","unitName","birthday","idcard","sex","birthplace","nationality","workday","party","partyTime","secondParty","thirdParty",
+                    "position","positionTime","positionLevel","positionLevelTime","baseWorker","politicalStatus","createTime","isEnable","detail"};
             Workbook temp= ExcelFileGenerator.getTeplet(path);
             ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
-            excelFileGenerator.setExcleNAME(response,"单位信息表导出.xls");
-            excelFileGenerator.createExcelFile(temp.getSheet("单位信息"),2,peoples,arr);
+            excelFileGenerator.setExcleNAME(response,"人员信息表导出.xls");
+            excelFileGenerator.createExcelFile(temp.getSheet("人员信息"),2,peoples,arr);
             temp.write(response.getOutputStream());
             temp.close();
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, peoples, null).getJson();
         }catch (Exception e){
             logger.error(ResultMsg.GET_EXCEL_ERROR,e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "导入单位", notes = "导入单位", httpMethod = "POST", tags = "导入单位接口")
+    @RequestMapping(value = "/import")
+    public String importUnitExcel(@RequestParam("excelFile") MultipartFile excelFile,@RequestParam(value = "fullImport", required = false) String fullImport){
+        StringBuffer stringBuffer=new StringBuffer();
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(),0,1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append(ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelData(excelFile.getInputStream(),0,1,2);
+                    List<SYS_People> peopleList= PeopleManager.getPeopleDataByExcel(list,peopleService,stringBuffer,unitService,fullImport);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),peopleList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,peopleList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
         }
     }
 }

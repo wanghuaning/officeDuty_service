@@ -1,10 +1,13 @@
 package com.local.entity.sys;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @ApiModel("人员基础信息表")//用在模型类上，对模型类做注释；
@@ -168,6 +171,7 @@ public class SYS_People {
   @ColDefine(type = ColType.INT, width = 6)
   private Integer peopleOrder;
 
+
   private String isEnable;
 
   public String getIsEnable() {
@@ -177,7 +181,6 @@ public class SYS_People {
       return "否";
     }
   }
-
   public String getId() {
     return id;
   }
@@ -202,7 +205,7 @@ public class SYS_People {
     this.idcard = idcard;
   }
 
-  public Date getBirthday() {
+  public Date getBirthday(){
     return birthday;
   }
 

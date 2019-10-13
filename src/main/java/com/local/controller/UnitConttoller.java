@@ -157,10 +157,6 @@ public class UnitConttoller {
     public String importUnitExcel(@RequestParam("excelFile") MultipartFile excelFile){
         StringBuffer stringBuffer=new StringBuffer();
         try {
-//            String name = excelFile.getOriginalFilename();
-//            if (name.length() < 6 || !name.substring(name.length() - 5).equals(".xlsx") || !name.substring(name.length() - 4).equals(".xls")) {
-//                return new Result(ResultCode.ERROR.toString(),ResultMsg.FILE_ERROR,null,null).getJson();
-//            }
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
             List<String> headList=ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(),0,0);
             if (headList.size()>0){
