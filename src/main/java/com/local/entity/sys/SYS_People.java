@@ -7,13 +7,14 @@ import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @ApiModel("人员基础信息表")//用在模型类上，对模型类做注释；
 @Table("sys_people")
 @Comment("人员基础信息表")
-public class SYS_People {
+public class SYS_People implements Serializable {
   @Name
   @ApiModelProperty("人员id")//用在属性上，对属性做注释
   @Comment("人员id")//定义脚本中添加comment属性来添加注释

@@ -78,4 +78,5 @@ public class ResultMsg {
     public static final String FILE_ERROR = "文件格式错误";
 
     public static final String PEOPLE_IDCARD_ERROE="身份证已存在";
+    public static final String PEOPLE_DUTY_ERROE="职务已存在";
 }

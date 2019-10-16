@@ -148,6 +148,7 @@ public class CodeServiceImpl implements CodeService {
     /**
      * 政治面貌
      */
+    @Override
     public List<SYS_CODE> selectParty(){
         List<SYS_CODE> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();
@@ -164,6 +165,7 @@ public class CodeServiceImpl implements CodeService {
      * 现职务层次
      * @return
      */
+    @Override
     public List<SYS_CODE> selectPosition(){
         List<SYS_CODE> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();
@@ -177,6 +179,7 @@ public class CodeServiceImpl implements CodeService {
     }
 
     //现职级
+    @Override
     public List<SYS_CODE> selectPositionLevel(){
         List<SYS_CODE> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();
@@ -189,10 +192,23 @@ public class CodeServiceImpl implements CodeService {
         }
     }
     //编制类型
+    @Override
     public List<SYS_CODE> selectPoliticalStatus(){
         List<SYS_CODE> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();
         criteria.where().andEquals("parent_id","190");
+        list=dao.query(SYS_CODE.class,criteria);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public List<SYS_CODE> selectCodesByPid(String pid){
+        List<SYS_CODE> list=new ArrayList<>();
+        Criteria criteria= Cnd.cri();
+        criteria.where().andEquals("parent_id",pid);
         list=dao.query(SYS_CODE.class,criteria);
         if (list.size()>0){
             return list;

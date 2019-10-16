@@ -98,6 +98,8 @@ public class PeopleServiceImpl implements PeopleService {
     }
 
     @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "新增人员", type = "C")
     public void insertPeoples(SYS_People people){
         dao.insert(people);
     }

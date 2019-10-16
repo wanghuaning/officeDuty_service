@@ -33,4 +33,6 @@ public interface CodeService {
     List<SYS_CODE> selectPositionLevel();
     //编制类型
     List<SYS_CODE> selectPoliticalStatus();
+
+    List<SYS_CODE> selectCodesByPid(String pid);
 }

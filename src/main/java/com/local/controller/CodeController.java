@@ -115,4 +115,16 @@ public class CodeController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+
+    @ApiOperation(value = "选拔任用方式", notes = "选拔任用方式", httpMethod = "GET", tags = {"选拔任用方式查询接口"})
+    @GetMapping("/selectionMethod")
+    @ResponseBody
+    public String getSelectionMethods(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("210");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }
