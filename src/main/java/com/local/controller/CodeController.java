@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Api(value = "通用字典", description = "字典接口")
@@ -167,6 +169,38 @@ public class CodeController {
     @ResponseBody
     public String getUnitType(){
         List<SYS_CODE> codes=codeService.selectCodesByPid("345");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "考核年份", notes = "考核年份", httpMethod = "GET", tags = {"考核年份查询接口"})
+    @GetMapping("/year")
+    @ResponseBody
+    public String getYears(){
+        Calendar calendar=Calendar.getInstance();
+        int year_now=calendar.get(Calendar.YEAR);
+        List<SYS_CODE> codes=new ArrayList<>();
+        for (int i=year_now;i>1992;i--){
+            System.out.println(i);
+            SYS_CODE code=new SYS_CODE();
+            code.setCodeName(String.valueOf(i));
+            code.setLabel(String.valueOf(i));
+            code.setValue(String.valueOf(i));
+            codes.add(code);
+        }
+        if (codes.size()>0){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "考核结论", notes = "考核结论", httpMethod = "GET", tags = {"考核结论查询接口"})
+    @GetMapping("/assessment")
+    @ResponseBody
+    public String getAssessments(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("370");
         if (codes!=null){
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
         }else {
