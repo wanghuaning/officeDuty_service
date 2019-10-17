@@ -3,9 +3,8 @@ package com.local.controller;
 import com.local.entity.sys.SYS_Duty;
 import com.local.entity.sys.SYS_People;
 import com.local.service.DutyService;
-import com.local.util.Result;
-import com.local.util.ResultCode;
-import com.local.util.ResultMsg;
+import com.local.service.PeopleService;
+import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
 import org.nutz.dao.QueryResult;
 import org.slf4j.Logger;
@@ -21,6 +20,8 @@ import java.util.UUID;
 public class DutyController {
     @Autowired
     private DutyService dutyService;
+    @Autowired
+    private PeopleService  peopleService;
     private final static Logger logger= LoggerFactory.getLogger(DutyController.class);
     @ApiOperation(value = "职务信息", notes = "职务信息", httpMethod = "GET", tags = "职务信息接口")
     @GetMapping("/info")
@@ -46,13 +47,80 @@ public class DutyController {
             if (dutyByNameAndTime != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.PEOPLE_DUTY_ERROE, null, null).getJson();
             }
-            String uuid= UUID.randomUUID().toString();
-            duty.setId(uuid);
-            dutyService.insertDuty(duty);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, duty, null).getJson();
+            SYS_People people=peopleService.selectPeopleById(duty.getPeopleId());
+            if (people!=null){
+                String uuid= UUID.randomUUID().toString();
+                duty.setId(uuid);
+                dutyService.insertDuty(duty);
+                SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                if (sys_duty!=null){
+                    people.setPosition(sys_duty.getName());
+                    peopleService.updatePeople(people);
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, duty, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
+            }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+
+
+    @ApiOperation(value = "删除职务", notes = "删除职务", httpMethod = "POST", tags = "删除职务接口")
+    @PostMapping(value = "/delete")
+    @ResponseBody
+    public String deleteDuty(@RequestParam(value = "id", required = false) String id) {
+        try {
+            if (StrUtils.isBlank(id)){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
+            }else {
+                SYS_Duty duty=dutyService.selectDutyById(id);
+                SYS_People people=peopleService.selectPeopleById(duty.getPeopleId());
+                if (people!=null){
+                    dutyService.deleteDuty(id);
+                    SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                    if (sys_duty!=null){
+                        people.setPosition(sys_duty.getName());
+                        peopleService.updatePeople(people);
+                    }
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
+                }
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.DEL_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "修改职务", notes = "修改职务", httpMethod = "POST", tags = "修改职务接口")
+    @PostMapping(value = "/edit")
+    @ResponseBody
+    public String updateDuty(@Validated @RequestBody SYS_Duty duty) {
+        try {
+            SYS_Duty dutyById = dutyService.selectDutyById(duty.getId());
+            if (dutyById != null) {
+                duty.setPeopleId(dutyById.getPeopleId());
+                SYS_People people=peopleService.selectPeopleById(dutyById.getPeopleId());
+                if (people!=null){
+                    dutyService.updateDuty(duty);
+                    SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                    if (sys_duty!=null){
+                        people.setPosition(sys_duty.getName());
+                        peopleService.updatePeople(people);
+                    }
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, duty, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
+                }
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
 }

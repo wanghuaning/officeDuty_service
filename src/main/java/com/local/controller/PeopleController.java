@@ -62,7 +62,6 @@ public class PeopleController {
     public String updatePeople(@Validated @RequestBody SYS_People people) {
         try {
             SYS_People peopleById = peopleService.selectPeopleById(people.getId());
-            System.out.println(DateUtil.getDay(people.getBirthday()));
             if (peopleById != null) {
                 SYS_People peopleByIdcardAndNotId = peopleService.selectPeopleByIdcardAndNotId(people.getIdcard(), peopleById.getId());
                 if (peopleByIdcardAndNotId != null) {
@@ -102,7 +101,7 @@ public class PeopleController {
     @ApiOperation(value = "删除人员", notes = "删除人员", httpMethod = "POST", tags = "删除人员接口")
     @PostMapping(value = "/delete")
     @ResponseBody
-    public String deleteUnit(@RequestParam(value = "id", required = false) String id) {
+    public String deletePeople(@RequestParam(value = "id", required = false) String id) {
         try {
             if (StrUtils.isBlank(id)){
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
@@ -118,7 +117,7 @@ public class PeopleController {
 
     @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
     @RequestMapping(value = "/outExcel")
-    public String getUnitExcel(HttpServletRequest request, HttpServletResponse response,
+    public String getPeopleExcel(HttpServletRequest request, HttpServletResponse response,
                                @RequestParam(value = "unitId", required = false) String unitId,
                                @RequestParam(value = "isChild", required = false) String isChild){
         try {
