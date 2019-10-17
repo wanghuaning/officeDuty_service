@@ -138,4 +138,15 @@ public class CodeController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "学历", notes = "学历", httpMethod = "GET", tags = {"学历查询接口"})
+    @GetMapping("/education")
+    @ResponseBody
+    public String getEducations(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("250");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }

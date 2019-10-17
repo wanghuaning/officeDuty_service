@@ -160,6 +160,12 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 255)
   private String unitName;
 
+  @ApiModelProperty("最新学历")
+  @Comment("最新学历")
+  @Column("education")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String education;
+
   @ApiModelProperty("人员状态1:禁用；0：在用")
   @Comment("人员状态1:禁用；0：在用")
   @Column("enabled")
@@ -182,6 +188,15 @@ public class SYS_People implements Serializable {
       return "否";
     }
   }
+
+  public String getEducation() {
+    return education;
+  }
+
+  public void setEducation(String education) {
+    this.education = education;
+  }
+
   public String getId() {
     return id;
   }
