@@ -79,4 +79,5 @@ public class ResultMsg {
 
     public static final String PEOPLE_IDCARD_ERROE="身份证已存在";
     public static final String PEOPLE_DUTY_ERROE="职务已存在";
+    public static final String PEOPLE_RANK_ERROE="职级已存在";
 }

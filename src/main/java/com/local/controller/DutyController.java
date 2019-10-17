@@ -55,6 +55,7 @@ public class DutyController {
                 SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
                 if (sys_duty!=null){
                     people.setPosition(sys_duty.getName());
+                    people.setPositionTime(sys_duty.getCreateTime());
                     peopleService.updatePeople(people);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, duty, null).getJson();
@@ -83,6 +84,7 @@ public class DutyController {
                     SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
                     if (sys_duty!=null){
                         people.setPosition(sys_duty.getName());
+                        people.setPositionTime(sys_duty.getCreateTime());
                         peopleService.updatePeople(people);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
@@ -109,6 +111,7 @@ public class DutyController {
                     SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
                     if (sys_duty!=null){
                         people.setPosition(sys_duty.getName());
+                        people.setPositionTime(sys_duty.getCreateTime());
                         peopleService.updatePeople(people);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, duty, null).getJson();

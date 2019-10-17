@@ -127,4 +127,15 @@ public class CodeController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "批次", notes = "批次", httpMethod = "GET", tags = {"批次查询接口"})
+    @GetMapping("/bacth")
+    @ResponseBody
+    public String getBacths(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("395");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }
