@@ -149,4 +149,28 @@ public class CodeController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+
+    @ApiOperation(value = "奖惩名称代码", notes = "奖惩名称代码", httpMethod = "GET", tags = {"奖惩名称代码查询接口"})
+    @GetMapping("/rewardType")
+    @ResponseBody
+    public String getRewardType(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("285");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "批准机关性质", notes = "批准机关性质", httpMethod = "GET", tags = {"批准机关性质查询接口"})
+    @GetMapping("/unitType")
+    @ResponseBody
+    public String getUnitType(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("345");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }

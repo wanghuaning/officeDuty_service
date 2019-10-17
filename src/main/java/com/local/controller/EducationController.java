@@ -29,7 +29,7 @@ public class EducationController {
     @Autowired
     private PeopleService peopleService;
 
-    @ApiOperation(value = "职级信息", notes = "职级信息", httpMethod = "GET", tags = "职级信息接口")
+    @ApiOperation(value = "学历信息", notes = "学历信息", httpMethod = "GET", tags = "学历信息接口")
     @GetMapping("/educationInof")
     @ResponseBody
     public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
@@ -45,13 +45,13 @@ public class EducationController {
     }
 
 
-    @ApiOperation(value = "新增职级", notes = "新增职级", httpMethod = "POST", tags = "新增职级接口")
+    @ApiOperation(value = "新增学历", notes = "新增学历", httpMethod = "POST", tags = "新增学历接口")
     @PostMapping(value = "/add")
     @ResponseBody
     public String insertPeople(@Validated @RequestBody SYS_Education education) {
         try {
-            SYS_Education EducationByNameAndTime = educationService.selectEducationByNameAndTime(education.getName(), education.getPeopleId(),education.getCreateTime());
-            if (EducationByNameAndTime != null) {
+            SYS_Education educationByNameAndTime = educationService.selectEducationByNameAndTime(education.getName(), education.getPeopleId(),education.getCreateTime());
+            if (educationByNameAndTime != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.PEOPLE_EDUCATION_ERROE, null, null).getJson();
             }
             SYS_People people=peopleService.selectPeopleById(education.getPeopleId());
@@ -75,7 +75,7 @@ public class EducationController {
     }
 
 
-    @ApiOperation(value = "删除职级", notes = "删除职级", httpMethod = "POST", tags = "删除职级接口")
+    @ApiOperation(value = "删除学历", notes = "删除学历", httpMethod = "POST", tags = "删除学历接口")
     @PostMapping(value = "/delete")
     @ResponseBody
     public String deleteEducation(@RequestParam(value = "id", required = false) String id) {
@@ -83,8 +83,8 @@ public class EducationController {
             if (StrUtils.isBlank(id)){
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             }else {
-                SYS_Education Education=educationService.selectEducationById(id);
-                SYS_People people=peopleService.selectPeopleById(Education.getPeopleId());
+                SYS_Education education=educationService.selectEducationById(id);
+                SYS_People people=peopleService.selectPeopleById(education.getPeopleId());
                 if (people!=null){
                     educationService.deleteEducation(id);
                     SYS_Education sys_education=educationService.selectEducationByPidOrderByTime(people.getId());
@@ -102,7 +102,7 @@ public class EducationController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "修改职级", notes = "修改职级", httpMethod = "POST", tags = "修改职级接口")
+    @ApiOperation(value = "修改学历", notes = "修改学历", httpMethod = "POST", tags = "修改学历接口")
     @PostMapping(value = "/edit")
     @ResponseBody
     public String updateEducation(@Validated @RequestBody SYS_Education Education) {

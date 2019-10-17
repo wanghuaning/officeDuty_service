@@ -1,9 +1,8 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.sys.SYS_Education;
-import com.local.entity.sys.SYS_Rank;
-import com.local.service.EducationService;
+import com.local.entity.sys.SYS_Assessment;
+import com.local.service.AssessmentService;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -19,36 +18,36 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class EducationServiceImpl implements EducationService {
+public class AssessmentServiceImpl implements AssessmentService {
     @Autowired
     private Dao dao;
     @Override
-    public QueryResult selectEducations(int pageSize, int pageNumber, String pid){
+    public QueryResult selectAssessments(int pageSize, int pageNumber, String pid){
         Pager pager = new Pager();
         pager.setPageNumber(pageNumber + 1);
         pager.setPageSize(pageSize);
-        List<SYS_Education> peopleList = new ArrayList<>();
+        List<SYS_Assessment> peopleList = new ArrayList<>();
         Criteria cri = Cnd.cri();
         if (!StrUtils.isBlank(pid)) {
             cri.where().andEquals("people_Id", pid);
-            cri.getOrderBy().desc("create_Time");
-            peopleList = dao.query(SYS_Education.class, cri, pager);
+            cri.getOrderBy().desc("year");
+            peopleList = dao.query(SYS_Assessment.class, cri, pager);
             if (StrUtils.isBlank(pager)) {
                 pager = new Pager();
             }
-            pager.setRecordCount(dao.count(SYS_Education.class, cri));
+            pager.setRecordCount(dao.count(SYS_Assessment.class, cri));
         }
         QueryResult queryResult = new QueryResult(peopleList, pager);
         return queryResult;
     }
 
     @Override
-    public SYS_Education selectEducationByPidOrderByTime(String pid) {
-        List<SYS_Education> list = new ArrayList<>();
+    public SYS_Assessment selectAssessmentByPidOrderByTime(String pid) {
+        List<SYS_Assessment> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
         cir.where().andEquals("people_Id", pid);
-        cir.getOrderBy().desc("create_Time");
-        list = dao.query(SYS_Education.class, cir);
+        cir.getOrderBy().desc("year");
+        list = dao.query(SYS_Assessment.class, cir);
         if (list.size() > 0) {
             return list.get(0);
         } else {
@@ -57,11 +56,11 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public SYS_Education selectEducationByNameAndTime(String name, String peopleId, Date createTime) {
-        List<SYS_Education> list = new ArrayList<>();
+    public SYS_Assessment selectAssessmentByNameAndTime(String name, String peopleId,int year) {
+        List<SYS_Assessment> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
-        cir.where().andEquals("name", name).andEquals("people_Id", peopleId).andEquals("create_Time", createTime);
-        list = dao.query(SYS_Education.class, cir);
+        cir.where().andEquals("name", name).andEquals("people_Id", peopleId).andEquals("year", year);
+        list = dao.query(SYS_Assessment.class, cir);
         if (list.size() > 0) {
             return list.get(0);
         } else {
@@ -70,11 +69,11 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public SYS_Education selectEducationById(String id) {
-        List<SYS_Education> list = new ArrayList<>();
+    public SYS_Assessment selectAssessmentById(String id) {
+        List<SYS_Assessment> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
         cir.where().andEquals("id", id);
-        list = dao.query(SYS_Education.class, cir);
+        list = dao.query(SYS_Assessment.class, cir);
         if (list.size() > 0) {
             return list.get(0);
         } else {
@@ -84,23 +83,23 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     @Transactional//声明式事务管理
-    @SLog(tag = "新增学历", type = "C")
-    public void insertEducation(SYS_Education duty) {
+    @SLog(tag = "新增考核", type = "C")
+    public void insertAssessment(SYS_Assessment duty) {
         dao.insert(duty);
     }
 
     @Override
     @Transactional//声明式事务管理
-    @SLog(tag = "修改学历", type = "U")
-    public void updateEducation(SYS_Education duty) {
+    @SLog(tag = "修改考核", type = "U")
+    public void updateAssessment(SYS_Assessment duty) {
         dao.update(duty);
     }
 
     @Override
     @Transactional//声明式事务管理
-    @SLog(tag = "删除学历", type = "D")
-    public void deleteEducation(String id) {
-        dao.delete(SYS_Education.class, id);
+    @SLog(tag = "删除考核", type = "D")
+    public void deleteAssessment(String id) {
+        dao.delete(SYS_Assessment.class, id);
     }
 
 }

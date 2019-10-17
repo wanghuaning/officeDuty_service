@@ -81,4 +81,6 @@ public class ResultMsg {
     public static final String PEOPLE_DUTY_ERROE="职务已存在";
     public static final String PEOPLE_RANK_ERROE="职级已存在";
     public static final String PEOPLE_EDUCATION_ERROE="学历已存在";
+    public static final String PEOPLE_REWARD_ERROE="奖惩已存在";
+    public static final String PEOPLE_ASSESSMENT_ERROE="当年已考核";
 }
