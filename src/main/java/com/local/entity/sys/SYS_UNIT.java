@@ -1,11 +1,14 @@
 package com.local.entity.sys;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,12 +36,6 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String name;
 
-    @ApiModelProperty("简称")
-    @Comment("简称")
-    @Column("simple_Name")
-    @ColDefine(type = ColType.VARCHAR,width = 64)
-    private String simpleName;
-
     @ApiModelProperty("父单位ID")
     @Comment("父单位ID")
     @Column("parent_Id")
@@ -57,8 +54,8 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String affiliation;
 
-    @ApiModelProperty("机构类别")
-    @Comment("机构类别")
+    @ApiModelProperty("所属序列")
+    @Comment("所属序列")
     @Column("category")
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String category;
@@ -69,29 +66,19 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String level;
 
-    @ApiModelProperty("正职领导数")
-    @Comment("正职领导数")
-    @Column("standing_Leader_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long standingLeaderNum;
+    @ApiModelProperty("参照公务员法管理审批文号")
+    @Comment("参照公务员法管理审批文号")
+    @Column("refer_Official_Document")
+    @ColDefine(type = ColType.VARCHAR,width = 64)
+    private String referOfficialDocument;
 
-    @ApiModelProperty("副职领导数")
-    @Comment("副职领导数")
-    @Column("voce_Leader_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long voceLeaderNum;
-
-    @ApiModelProperty("正职非领导数")
-    @Comment("正职非领导数")
-    @Column("standing_Not_Leader_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long standingNotLeaderNum;
-
-    @ApiModelProperty("副职非领导数")
-    @Comment("副职非领导数")
-    @Column("voce_Not_Leader_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long voceNotLeaderNum;
+    @ApiModelProperty("参照公务员法管理审批时间")
+    @Comment("参照公务员法管理审批时间")
+    @Column("refer_Official_Date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @ColDefine(type = ColType.DATETIME)
+    private Date referOfficialDate;
 
     @ApiModelProperty("行政编制数")
     @Comment("行政编制数")
@@ -99,53 +86,96 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 6)
     private long officialNum;
 
-    @ApiModelProperty("参照公务员法管理事业单位编制数")
-    @Comment("参照公务员法管理事业单位编制数")
+    @ApiModelProperty("事业编制数（参公）")
+    @Comment("事业编制数（参公）")
     @Column("refer_Official_Num")
     @ColDefine(type = ColType.INT,width = 6)
     private long referOfficialNum;
 
-    @ApiModelProperty("其他事业编制数")
-    @Comment("其他事业编制数")
-    @Column("enterprise_Num")
+    @ApiModelProperty("厅局级正职领导职数")
+    @Comment("厅局级正职领导职数")
+    @Column("main_Hall_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long enterpriseNum;
+    private long mainHallNum;
 
-    @ApiModelProperty("工勤编制数")
-    @Comment("工勤编制数")
-    @Column("worker_Num")
+    @ApiModelProperty("厅局级副职领导职数")
+    @Comment("厅局级副职领导职数")
+    @Column("deputy_Hall_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long workerNum;
+    private long deputyHallNum;
 
-    @ApiModelProperty("其他编制数")
-    @Comment("其他编制数")
-    @Column("other_Num")
+    @ApiModelProperty("县处级正职领导职数")
+    @Comment("县处级正职领导职数")
+    @Column("right_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long otherNum;
+    private long rightPlaceNum;
 
-    @ApiModelProperty("内设机构应配领导正职")
-    @Comment("内设机构应配领导正职")
-    @Column("internal_Leader_Standing")
+    @ApiModelProperty("县处级副职领导职数")
+    @Comment("县处级副职领导职数")
+    @Column("deputy_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long internalLeaderStanding;
+    private long deputyPlaceNum;
 
-    @ApiModelProperty("内设机构应配领导副职")
-    @Comment("内设机构应配领导副职")
-    @Column("internal_Leader_Voce")
+    @ApiModelProperty("一级巡视员职数")
+    @Comment("一级巡视员职数")
+    @Column("one_Inspector_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long internalLeaderVoce;
+    private long oneInspectorNum;
 
-    @ApiModelProperty("内设机构应配正职非领导")
-    @Comment("内设机构应配正职非领导")
-    @Column("internal_Not_Leader_Standing")
+    @ApiModelProperty("二级巡视员职数")
+    @Comment("二级巡视员职数")
+    @Column("tow_Inspector_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long internalNotLeaderStanding;
+    private long towInspectorNum;
 
-    @ApiModelProperty("内设机构应配副职非领导")
-    @Comment("内设机构应配副职非领导")
-    @Column("internal_Not_Leader_Voce")
+    @ApiModelProperty("一级调研员职数")
+    @Comment("一级调研员职数")
+    @Column("one_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long internalNotLeaderVoce;
+    private long oneResearcherNum;
+
+    @ApiModelProperty("二级调研员职数")
+    @Comment("二级调研员职数")
+    @Column("tow_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long towResearcherNum;
+
+    @ApiModelProperty("三级调研员职数")
+    @Comment("三级调研员职数")
+    @Column("three_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long threeResearcherNum;
+
+    @ApiModelProperty("四级调研员职数")
+    @Comment("四级调研员职数")
+    @Column("four_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long fourResearcherNum;
+
+    @ApiModelProperty("一级主任科员职数")
+    @Comment("一级主任科员职数")
+    @Column("one_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long oneClerkNum;
+
+    @ApiModelProperty("二级主任科员职数")
+    @Comment("二级主任科员职数")
+    @Column("tow_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long towClerkNum;
+
+    @ApiModelProperty("三级主任科员职数")
+    @Comment("三级主任科员职数")
+    @Column("three_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long threeClerkNum;
+
+    @ApiModelProperty("四级主任科员职数")
+    @Comment("四级主任科员职数")
+    @Column("four_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long fourClerkNum;
+
 
     @ApiModelProperty("机构状态0:可用 1：停用 2：导入单位没有找到上级")
     @Comment("机构状态")
@@ -195,102 +225,6 @@ public class SYS_UNIT implements Serializable {
     private String value;
     private String label;
 
-    public String getBuildProvince() {
-        return buildProvince;
-    }
-
-    public void setBuildProvince(String buildProvince) {
-        this.buildProvince = buildProvince;
-    }
-
-    public String getBuildCity() {
-        return buildCity;
-    }
-
-    public void setBuildCity(String buildCity) {
-        this.buildCity = buildCity;
-    }
-
-    public String getBuildCounty() {
-        return buildCounty;
-    }
-
-    public void setBuildCounty(String buildCounty) {
-        this.buildCounty = buildCounty;
-    }
-
-    public String getParentName() {
-        return parentName;
-    }
-
-    public void setParentName(String parentName) {
-        this.parentName = parentName;
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
-    }
-
-    public String getUnitOrder() {
-        return unitOrder;
-    }
-
-    public void setUnitOrder(String unitOrder) {
-        this.unitOrder = unitOrder;
-    }
-
-    public String[] getAreaStrs() {
-        return areaStrs;
-    }
-
-    public void setAreaStrs(String[] areaStrs) {
-        this.areaStrs = areaStrs;
-    }
-
-    public String getValue() {
-        return name;
-    }
-
-    public void setValue(String value) {
-        this.value = name;
-    }
-
-    public String getLabel() {
-        return name;
-    }
-
-    public void setLabel(String label) {
-        this.label = name;
-    }
-
-    public boolean isHasChildren() {
-        return hasChildren;
-    }
-
-    public void setHasChildren(boolean hasChildren) {
-        this.hasChildren = hasChildren;
-    }
-
-    public List<SYS_UNIT> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<SYS_UNIT> children) {
-        this.children = children;
-    }
-
-    public String getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
-    }
-
     public String getId() {
         return id;
     }
@@ -307,12 +241,20 @@ public class SYS_UNIT implements Serializable {
         this.code = code;
     }
 
-    public String getSimpleName() {
-        return simpleName;
+    public String getName() {
+        return name;
     }
 
-    public void setSimpleName(String simpleName) {
-        this.simpleName = simpleName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     public String getArea() {
@@ -347,44 +289,20 @@ public class SYS_UNIT implements Serializable {
         this.level = level;
     }
 
-    public String getName() {
-        return name;
+    public String getReferOfficialDocument() {
+        return referOfficialDocument;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setReferOfficialDocument(String referOfficialDocument) {
+        this.referOfficialDocument = referOfficialDocument;
     }
 
-    public long getStandingLeaderNum() {
-        return standingLeaderNum;
+    public Date getReferOfficialDate() {
+        return referOfficialDate;
     }
 
-    public void setStandingLeaderNum(long standingLeaderNum) {
-        this.standingLeaderNum = standingLeaderNum;
-    }
-
-    public long getVoceLeaderNum() {
-        return voceLeaderNum;
-    }
-
-    public void setVoceLeaderNum(long voceLeaderNum) {
-        this.voceLeaderNum = voceLeaderNum;
-    }
-
-    public long getStandingNotLeaderNum() {
-        return standingNotLeaderNum;
-    }
-
-    public void setStandingNotLeaderNum(long standingNotLeaderNum) {
-        this.standingNotLeaderNum = standingNotLeaderNum;
-    }
-
-    public long getVoceNotLeaderNum() {
-        return voceNotLeaderNum;
-    }
-
-    public void setVoceNotLeaderNum(long voceNotLeaderNum) {
-        this.voceNotLeaderNum = voceNotLeaderNum;
+    public void setReferOfficialDate(Date referOfficialDate) {
+        this.referOfficialDate = referOfficialDate;
     }
 
     public long getOfficialNum() {
@@ -403,60 +321,116 @@ public class SYS_UNIT implements Serializable {
         this.referOfficialNum = referOfficialNum;
     }
 
-    public long getEnterpriseNum() {
-        return enterpriseNum;
+    public long getMainHallNum() {
+        return mainHallNum;
     }
 
-    public void setEnterpriseNum(long enterpriseNum) {
-        this.enterpriseNum = enterpriseNum;
+    public void setMainHallNum(long mainHallNum) {
+        this.mainHallNum = mainHallNum;
     }
 
-    public long getWorkerNum() {
-        return workerNum;
+    public long getDeputyHallNum() {
+        return deputyHallNum;
     }
 
-    public void setWorkerNum(long workerNum) {
-        this.workerNum = workerNum;
+    public void setDeputyHallNum(long deputyHallNum) {
+        this.deputyHallNum = deputyHallNum;
     }
 
-    public long getOtherNum() {
-        return otherNum;
+    public long getRightPlaceNum() {
+        return rightPlaceNum;
     }
 
-    public void setOtherNum(long otherNum) {
-        this.otherNum = otherNum;
+    public void setRightPlaceNum(long rightPlaceNum) {
+        this.rightPlaceNum = rightPlaceNum;
     }
 
-    public long getInternalLeaderStanding() {
-        return internalLeaderStanding;
+    public long getDeputyPlaceNum() {
+        return deputyPlaceNum;
     }
 
-    public void setInternalLeaderStanding(long internalLeaderStanding) {
-        this.internalLeaderStanding = internalLeaderStanding;
+    public void setDeputyPlaceNum(long deputyPlaceNum) {
+        this.deputyPlaceNum = deputyPlaceNum;
     }
 
-    public long getInternalLeaderVoce() {
-        return internalLeaderVoce;
+    public long getOneInspectorNum() {
+        return oneInspectorNum;
     }
 
-    public void setInternalLeaderVoce(long internalLeaderVoce) {
-        this.internalLeaderVoce = internalLeaderVoce;
+    public void setOneInspectorNum(long oneInspectorNum) {
+        this.oneInspectorNum = oneInspectorNum;
     }
 
-    public long getInternalNotLeaderStanding() {
-        return internalNotLeaderStanding;
+    public long getTowInspectorNum() {
+        return towInspectorNum;
     }
 
-    public void setInternalNotLeaderStanding(long internalNotLeaderStanding) {
-        this.internalNotLeaderStanding = internalNotLeaderStanding;
+    public void setTowInspectorNum(long towInspectorNum) {
+        this.towInspectorNum = towInspectorNum;
     }
 
-    public long getInternalNotLeaderVoce() {
-        return internalNotLeaderVoce;
+    public long getOneResearcherNum() {
+        return oneResearcherNum;
     }
 
-    public void setInternalNotLeaderVoce(long internalNotLeaderVoce) {
-        this.internalNotLeaderVoce = internalNotLeaderVoce;
+    public void setOneResearcherNum(long oneResearcherNum) {
+        this.oneResearcherNum = oneResearcherNum;
+    }
+
+    public long getTowResearcherNum() {
+        return towResearcherNum;
+    }
+
+    public void setTowResearcherNum(long towResearcherNum) {
+        this.towResearcherNum = towResearcherNum;
+    }
+
+    public long getThreeResearcherNum() {
+        return threeResearcherNum;
+    }
+
+    public void setThreeResearcherNum(long threeResearcherNum) {
+        this.threeResearcherNum = threeResearcherNum;
+    }
+
+    public long getFourResearcherNum() {
+        return fourResearcherNum;
+    }
+
+    public void setFourResearcherNum(long fourResearcherNum) {
+        this.fourResearcherNum = fourResearcherNum;
+    }
+
+    public long getOneClerkNum() {
+        return oneClerkNum;
+    }
+
+    public void setOneClerkNum(long oneClerkNum) {
+        this.oneClerkNum = oneClerkNum;
+    }
+
+    public long getTowClerkNum() {
+        return towClerkNum;
+    }
+
+    public void setTowClerkNum(long towClerkNum) {
+        this.towClerkNum = towClerkNum;
+    }
+
+    public long getThreeClerkNum() {
+        return threeClerkNum;
+    }
+
+    public void setThreeClerkNum(long threeClerkNum) {
+        this.threeClerkNum = threeClerkNum;
+    }
+
+    public long getFourClerkNum() {
+        return fourClerkNum;
+    }
+
+    public void setFourClerkNum(long fourClerkNum) {
+        this.fourClerkNum = fourClerkNum;
     }
 
     public String getEnabled() {
@@ -466,35 +440,134 @@ public class SYS_UNIT implements Serializable {
     public void setEnabled(String enabled) {
         this.enabled = enabled;
     }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getUnitOrder() {
+        return unitOrder;
+    }
+
+    public void setUnitOrder(String unitOrder) {
+        this.unitOrder = unitOrder;
+    }
+
+    public String getBuildProvince() {
+        return buildProvince;
+    }
+
+    public void setBuildProvince(String buildProvince) {
+        this.buildProvince = buildProvince;
+    }
+
+    public String getBuildCity() {
+        return buildCity;
+    }
+
+    public void setBuildCity(String buildCity) {
+        this.buildCity = buildCity;
+    }
+
+    public String getBuildCounty() {
+        return buildCounty;
+    }
+
+    public void setBuildCounty(String buildCounty) {
+        this.buildCounty = buildCounty;
+    }
+
+    public String[] getAreaStrs() {
+        return areaStrs;
+    }
+
+    public void setAreaStrs(String[] areaStrs) {
+        this.areaStrs = areaStrs;
+    }
+
+    public boolean isHasChildren() {
+        return hasChildren;
+    }
+
+    public void setHasChildren(boolean hasChildren) {
+        this.hasChildren = hasChildren;
+    }
+
+    public List<SYS_UNIT> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SYS_UNIT> children) {
+        this.children = children;
+    }
+
+    public String getValue() {
+        return name;
+    }
+
+    public void setValue(String value) {
+        this.value = name;
+    }
+
+    public String getLabel() {
+        return name;
+    }
+
+    public void setLabel(String label) {
+        this.label = name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SYS_UNIT)) return false;
         SYS_UNIT unit = (SYS_UNIT) o;
-        return standingLeaderNum == unit.standingLeaderNum &&
-                voceLeaderNum == unit.voceLeaderNum &&
-                standingNotLeaderNum == unit.standingNotLeaderNum &&
-                voceNotLeaderNum == unit.voceNotLeaderNum &&
-                officialNum == unit.officialNum &&
+        return officialNum == unit.officialNum &&
                 referOfficialNum == unit.referOfficialNum &&
-                enterpriseNum == unit.enterpriseNum &&
-                workerNum == unit.workerNum &&
-                otherNum == unit.otherNum &&
-                internalLeaderStanding == unit.internalLeaderStanding &&
-                internalLeaderVoce == unit.internalLeaderVoce &&
-                internalNotLeaderStanding == unit.internalNotLeaderStanding &&
-                internalNotLeaderVoce == unit.internalNotLeaderVoce &&
+                mainHallNum == unit.mainHallNum &&
+                deputyHallNum == unit.deputyHallNum &&
+                rightPlaceNum == unit.rightPlaceNum &&
+                deputyPlaceNum == unit.deputyPlaceNum &&
+                oneInspectorNum == unit.oneInspectorNum &&
+                towInspectorNum == unit.towInspectorNum &&
+                oneResearcherNum == unit.oneResearcherNum &&
+                towResearcherNum == unit.towResearcherNum &&
+                threeResearcherNum == unit.threeResearcherNum &&
+                fourResearcherNum == unit.fourResearcherNum &&
+                oneClerkNum == unit.oneClerkNum &&
+                towClerkNum == unit.towClerkNum &&
+                threeClerkNum == unit.threeClerkNum &&
+                fourClerkNum == unit.fourClerkNum &&
 //                hasChildren == unit.hasChildren &&
                 Objects.equals(id, unit.id) &&
                 Objects.equals(code, unit.code) &&
                 Objects.equals(name, unit.name) &&
-                Objects.equals(simpleName, unit.simpleName) &&
                 Objects.equals(parentId, unit.parentId) &&
                 Objects.equals(area, unit.area) &&
                 Objects.equals(affiliation, unit.affiliation) &&
                 Objects.equals(category, unit.category) &&
                 Objects.equals(level, unit.level) &&
+                Objects.equals(referOfficialDocument, unit.referOfficialDocument) &&
+                Objects.equals(referOfficialDate, unit.referOfficialDate) &&
                 Objects.equals(enabled, unit.enabled) &&
+                Objects.equals(parentName, unit.parentName) &&
+                Objects.equals(detail, unit.detail) &&
+                Objects.equals(unitOrder, unit.unitOrder) &&
+                Objects.equals(buildProvince, unit.buildProvince) &&
+                Objects.equals(buildCity, unit.buildCity) &&
+                Objects.equals(buildCounty, unit.buildCounty) &&
                 Arrays.equals(areaStrs, unit.areaStrs) &&
 //                Objects.equals(children, unit.children) &&
                 Objects.equals(value, unit.value) &&
@@ -503,7 +576,7 @@ public class SYS_UNIT implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, code, name, simpleName, parentId, area, affiliation, category, level, standingLeaderNum, voceLeaderNum, standingNotLeaderNum, voceNotLeaderNum, officialNum, referOfficialNum, enterpriseNum, workerNum, otherNum, internalLeaderStanding, internalLeaderVoce, internalNotLeaderStanding, internalNotLeaderVoce, enabled, hasChildren, children, value, label);
+        int result = Objects.hash(id, code, name, parentId, area, affiliation, category, level, referOfficialDocument, referOfficialDate, officialNum, referOfficialNum, mainHallNum, deputyHallNum, rightPlaceNum, deputyPlaceNum, oneInspectorNum, towInspectorNum, oneResearcherNum, towResearcherNum, threeResearcherNum, fourResearcherNum, oneClerkNum, towClerkNum, threeClerkNum, fourClerkNum, enabled, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, hasChildren, children, value, label);
         result = 31 * result + Arrays.hashCode(areaStrs);
         return result;
     }

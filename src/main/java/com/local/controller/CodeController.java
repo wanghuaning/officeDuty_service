@@ -183,7 +183,6 @@ public class CodeController {
         int year_now=calendar.get(Calendar.YEAR);
         List<SYS_CODE> codes=new ArrayList<>();
         for (int i=year_now;i>1992;i--){
-            System.out.println(i);
             SYS_CODE code=new SYS_CODE();
             code.setCodeName(String.valueOf(i));
             code.setLabel(String.valueOf(i));

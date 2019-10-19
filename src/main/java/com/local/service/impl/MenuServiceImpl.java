@@ -22,12 +22,12 @@ public class MenuServiceImpl implements MenuService {
         List<SYS_Menu> menus=new ArrayList<>();
         List<SYS_Menu> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();
-        criteria.where().andEquals("menu_parent_id","0");
+        criteria.where().andEquals("menu_parent_id","0").andEquals("menu_state","0");
         criteria.getOrderBy().asc("MENU_SORT");
         menus=dao.query(SYS_Menu.class,criteria);
         List<SYS_Menu> cmenus=new ArrayList<>();
         Criteria criteria1= Cnd.cri();
-        criteria1.where().andNotEquals("menu_parent_id","0");
+        criteria1.where().andNotEquals("menu_parent_id","0").andEquals("menu_state","0");
         criteria1.getOrderBy().asc("MENU_SORT");
         cmenus=dao.query(SYS_Menu.class,criteria1);
         for(SYS_Menu fmenu:menus){

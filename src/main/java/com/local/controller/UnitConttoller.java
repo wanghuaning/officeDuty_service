@@ -137,8 +137,9 @@ public class UnitConttoller {
 //            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xls");
 //            String path=file.getPath();
             String path=resource.getFile().getPath();
-            String[] arr={"name","code","simpleName","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","standingLeaderNum","voceLeaderNum","standingNotLeaderNum","voceNotLeaderNum",
-            "officialNum","referOfficialNum","enterpriseNum","workerNum","otherNum","internalLeaderStanding","internalLeaderVoce","internalNotLeaderStanding","internalNotLeaderVoce","detail"};
+            String[] arr={"name","code","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","officialNum","referOfficialNum","referOfficialDate","referOfficialDocument","mainHallNum","deputyHallNum",
+            "rightPlaceNum","deputyPlaceNum","oneInspectorNum","towInspectorNum","oneResearcherNum","towResearcherNum","threeResearcherNum"
+                    ,"fourResearcherNum","oneClerkNum","towClerkNum","threeClerkNum","fourClerkNum","detail"};
             Workbook temp=ExcelFileGenerator.getTeplet(path);
             ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
             excelFileGenerator.setExcleNAME(response,"单位信息表导出.xls");

@@ -2,7 +2,9 @@ package com.local.cell;
 
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.UnitService;
+import com.local.util.DateUtil;
 import com.local.util.StrUtils;
+import org.nutz.lang.random.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +39,7 @@ public class UnitManager {
         }
     }
 
-    public static List<SYS_UNIT> getUnitDataByExcel(List<Map<String, Object>> list, UnitService unitService, StringBuffer stringBuffer) {
+    public static List<SYS_UNIT> getUnitDataByExcel(List<Map<String, Object>> list, UnitService unitService, StringBuffer stringBuffer)throws Exception {
         List<SYS_UNIT> unitList = new ArrayList<>();
         for (Map<String, Object> map : list) {
             SYS_UNIT unit = new SYS_UNIT();
@@ -45,7 +47,6 @@ public class UnitManager {
                 unit.setName(map.get("单位名称").toString());
                 if (!StrUtils.isBlank(map.get("组织机构编码"))) {
                     unit.setCode(map.get("组织机构编码").toString());
-                    unit.setSimpleName(String.valueOf(map.get("简称")));
                     SYS_UNIT punit = unitService.selectUnitByName(String.valueOf(map.get("上级单位")));
                     if (punit != null) {
                         unit.setParentName(punit.getName());
@@ -58,21 +59,26 @@ public class UnitManager {
                     unit.setBuildCounty(String.valueOf(map.get("所在县")));
                     unit.setArea(String.valueOf(map.get("所在省")) + String.valueOf(map.get("所在市")) + String.valueOf(map.get("所在县")));
                     unit.setAffiliation(String.valueOf(map.get("隶属关系")));
-                    unit.setCategory(String.valueOf(map.get("机构类别")));
-                    unit.setLevel(String.valueOf(map.get("机构级别")));
-                    unit.setStandingLeaderNum(StrUtils.strToInt(String.valueOf(map.get("正职领导数"))));
-                    unit.setVoceLeaderNum(StrUtils.strToInt(String.valueOf(map.get("副职领导数"))));
-                    unit.setStandingNotLeaderNum(StrUtils.strToInt(String.valueOf(map.get("正职非领导数"))));
-                    unit.setVoceNotLeaderNum(StrUtils.strToInt(String.valueOf(map.get("副职非领导数"))));
+                    unit.setCategory(String.valueOf(map.get("所属序列")));
+                    unit.setLevel(String.valueOf(map.get("单位级别")));
                     unit.setOfficialNum(StrUtils.strToInt(String.valueOf(map.get("行政编制数"))));
-                    unit.setReferOfficialNum(StrUtils.strToInt(String.valueOf(map.get("参照公务员法管理事业单位编制数"))));
-                    unit.setEnterpriseNum(StrUtils.strToInt(String.valueOf(map.get("其他事业编制数"))));
-                    unit.setWorkerNum(StrUtils.strToInt(String.valueOf(map.get("工勤编制数"))));
-                    unit.setOtherNum(StrUtils.strToInt(String.valueOf(map.get("其他编制数"))));
-                    unit.setInternalLeaderStanding(StrUtils.strToInt(String.valueOf(map.get("内设机构应配领导正职"))));
-                    unit.setInternalLeaderVoce(StrUtils.strToInt(String.valueOf(map.get("内设机构应配领导副职"))));
-                    unit.setInternalNotLeaderStanding(StrUtils.strToInt(String.valueOf(map.get("内设机构应配正职非领导"))));
-                    unit.setInternalNotLeaderVoce(StrUtils.strToInt(String.valueOf(map.get("内设机构应配副职非领导"))));
+                    unit.setReferOfficialNum(StrUtils.strToInt(String.valueOf(map.get("事业编制数（参公）"))));
+                    unit.setReferOfficialDate(DateUtil.stringToDate(String.valueOf(map.get("参照公务员法管理审批时间"))));
+                    unit.setReferOfficialDocument(String.valueOf(map.get("参照公务员法管理审批文号")));
+                    unit.setMainHallNum(StrUtils.strToInt(String.valueOf(map.get("厅局级正职领导职数"))));
+                    unit.setDeputyHallNum(StrUtils.strToInt(String.valueOf(map.get("厅局级副职领导职数"))));
+                    unit.setRightPlaceNum(StrUtils.strToInt(String.valueOf(map.get("县处级正职领导职数"))));
+                    unit.setDeputyPlaceNum(StrUtils.strToInt(String.valueOf(map.get("县处级副职领导职数"))));
+                    unit.setOneInspectorNum(StrUtils.strToInt(String.valueOf(map.get("一级巡视员职数"))));
+                    unit.setTowInspectorNum(StrUtils.strToInt(String.valueOf(map.get("二级巡视员职数"))));
+                    unit.setOneResearcherNum(StrUtils.strToInt(String.valueOf(map.get("一级调研员职数"))));
+                    unit.setTowResearcherNum(StrUtils.strToInt(String.valueOf(map.get("二级调研员职数"))));
+                    unit.setThreeResearcherNum(StrUtils.strToInt(String.valueOf(map.get("三级调研员职数"))));
+                    unit.setFourResearcherNum(StrUtils.strToInt(String.valueOf(map.get("四级调研员职数"))));
+                    unit.setOneClerkNum(StrUtils.strToInt(String.valueOf(map.get("一级主任科员职数"))));
+                    unit.setTowClerkNum(StrUtils.strToInt(String.valueOf(map.get("二级主任科员职数"))));
+                    unit.setThreeClerkNum(StrUtils.strToInt(String.valueOf(map.get("三级主任科员职数"))));
+                    unit.setFourClerkNum(StrUtils.strToInt(String.valueOf(map.get("四级主任科员职数"))));
                     unit.setDetail(String.valueOf(map.get("备注")));
                     unit.setEnabled("0");
                     SYS_UNIT unit1 = unitService.selectUnitByNameAndParent(unit.getName(), unit.getParentName());
