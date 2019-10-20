@@ -41,6 +41,12 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String peopleId;
 
+  @ApiModelProperty("是否领导班子成员")
+  @Comment("是否领导班子成员")
+  @Column("leader")
+  @ColDefine(type = ColType.VARCHAR, width = 8)
+  private String leader;
+
   @ApiModelProperty("成员类别")
   @Comment("成员类别")
   @Column("leader_Type")
@@ -79,6 +85,14 @@ public class SYS_Duty implements Serializable {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public String getLeader() {
+    return leader;
+  }
+
+  public void setLeader(String leader) {
+    this.leader = leader;
   }
 
   public String getName() {

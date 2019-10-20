@@ -64,7 +64,7 @@ public class UnitManager {
                     unit.setOfficialNum(StrUtils.strToInt(String.valueOf(map.get("行政编制数"))));
                     unit.setReferOfficialNum(StrUtils.strToInt(String.valueOf(map.get("事业编制数（参公）"))));
                     unit.setReferOfficialDate(DateUtil.stringToDate(String.valueOf(map.get("参照公务员法管理审批时间"))));
-                    unit.setReferOfficialDocument(String.valueOf(map.get("参照公务员法管理审批文号")));
+                    unit.setReferOfficialDocument(StrUtils.toNullStr(map.get("参照公务员法管理审批文号")));
                     unit.setMainHallNum(StrUtils.strToInt(String.valueOf(map.get("厅局级正职领导职数"))));
                     unit.setDeputyHallNum(StrUtils.strToInt(String.valueOf(map.get("厅局级副职领导职数"))));
                     unit.setRightPlaceNum(StrUtils.strToInt(String.valueOf(map.get("县处级正职领导职数"))));
@@ -79,7 +79,7 @@ public class UnitManager {
                     unit.setTowClerkNum(StrUtils.strToInt(String.valueOf(map.get("二级主任科员职数"))));
                     unit.setThreeClerkNum(StrUtils.strToInt(String.valueOf(map.get("三级主任科员职数"))));
                     unit.setFourClerkNum(StrUtils.strToInt(String.valueOf(map.get("四级主任科员职数"))));
-                    unit.setDetail(String.valueOf(map.get("备注")));
+                    unit.setDetail(StrUtils.toNullStr(map.get("备注")));
                     unit.setEnabled("0");
                     SYS_UNIT unit1 = unitService.selectUnitByNameAndParent(unit.getName(), unit.getParentName());
                     if (unit1 != null) {
@@ -88,8 +88,8 @@ public class UnitManager {
                     } else {
                         SYS_UNIT codeUnit = unitService.selectUnitByCode(unit.getCode());
                         if (codeUnit!=null){
-                            stringBuffer.append("第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
-                            logger.error("第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
+                            stringBuffer.append("单位表：第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
+                            logger.error("单位表：第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
                         }else {
                             String uuid = UUID.randomUUID().toString();
                             unit.setId(uuid);
@@ -98,12 +98,12 @@ public class UnitManager {
                         }
                     }
                 } else {
-                    stringBuffer.append("第" + list.indexOf(map) + "行;组织机构编码为空！");
-                    logger.error("第" + list.indexOf(map) + "行;组织机构编码为空！");
+                    stringBuffer.append("单位表：第" + list.indexOf(map) + "行;组织机构编码为空！");
+                    logger.error("单位表：第" + list.indexOf(map) + "行;组织机构编码为空！");
                 }
             } else {
-                stringBuffer.append("第" + list.indexOf(map) + "行;单位名称为空！");
-                logger.error("第" + list.indexOf(map) + "行;单位名称为空！");
+                stringBuffer.append("单位表：第" + list.indexOf(map) + "行;单位名称为空！");
+                logger.error("单位表：第" + list.indexOf(map) + "行;单位名称为空！");
             }
         }
         return unitList;

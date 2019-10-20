@@ -17,8 +17,10 @@ public class DateUtil {
     private static String fm9 = "yyyy.MM.dd";
     public static Date stringToDate(String dateStr)throws  Exception{
         String[] arr =null;
-        if(dateStr != null){
+        if(dateStr != null && !"".equals(dateStr) && !"null".equals(dateStr)){
             arr=dateStr.split("-");
+        }else {
+            return null;
         }
         String format =fm;
         if(dateStr.contains(":") && dateStr.contains(" ")){

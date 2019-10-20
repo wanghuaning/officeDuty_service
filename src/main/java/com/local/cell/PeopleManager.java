@@ -1,9 +1,7 @@
 package com.local.cell;
 
-import com.local.entity.sys.SYS_People;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.service.PeopleService;
-import com.local.service.UnitService;
+import com.local.entity.sys.*;
+import com.local.service.*;
 import com.local.util.DateUtil;
 import com.local.util.StrUtils;
 import org.slf4j.Logger;
@@ -77,8 +75,8 @@ public class PeopleManager {
                                 people.setPeopleOrder(people1.getPeopleOrder());
                                 service.updatePeople(people);
                             }else {
-                                stringBuffer.append("第" + list.indexOf(map) + "行;身份证号重复，请检查！");
-                                logger.error("第" + list.indexOf(map) + "行;身份证号重复，请检查！");
+                                stringBuffer.append("人员表：第" + list.indexOf(map) + "行;身份证号重复，请检查！");
+                                logger.error("人员表：第" + list.indexOf(map) + "行;身份证号重复，请检查！");
                             }
                         } else {
                                 String uuid = UUID.randomUUID().toString();
@@ -87,17 +85,381 @@ public class PeopleManager {
                                 peopleList.add(people);
                         }
                     } else {
+                        stringBuffer.append("人员表：第" + list.indexOf(map) + "行;身份证号为空！");
+                        logger.error("人员表：第" + list.indexOf(map) + "行;身份证号为空！");
+                    }
+                } else {
+                    stringBuffer.append("人员表：第" + list.indexOf(map) + "行;姓名为空！");
+                    logger.error("人员表：第" + list.indexOf(map) + "行;姓名为空！");
+                }
+                people.setUnitId(unit.getId());
+            } else {
+                logger.error("人员表：第" + list.indexOf(map) + "行;单位不存在！");
+                stringBuffer.append("人员表：第" + list.indexOf(map) + "行;单位不存在！");
+            }
+        }
+        return peopleList;
+    }
+
+    /**
+     * 职务表导入
+     * @param list
+     * @param service
+     * @param stringBuffer
+     * @param unitService
+     * @param fullImport
+     * @return
+     * @throws Exception
+     */
+    public static List<SYS_Duty> getPeopleDutyDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
+                                                          UnitService unitService, String fullImport, DutyService dutyService)throws Exception {
+        List<SYS_Duty> peopleList = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            SYS_UNIT unit = unitService.selectUnitByName(String.valueOf(map.get("单位")));
+            if (unit != null) {
+                SYS_Duty duty = new SYS_Duty();
+                if (!StrUtils.isBlank(map.get("姓名"))) {
+                    if (!StrUtils.isBlank(map.get("身份证号"))) {
+                        SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
+                        if (people!=null){
+                            duty.setPeopleId(people.getId());
+                            String creatTime=String.valueOf(map.get("任职时间"));
+                            if (!StrUtils.isBlank(creatTime)){
+                                duty.setCreateTime(DateUtil.stringToDate(creatTime));
+                            }
+                            duty.setLeaderType(String.valueOf(map.get("成员类别")));
+                            duty.setLeader(String.valueOf(map.get("是否领导班子成员")));
+                            duty.setName(String.valueOf(map.get("领导职务名称")));
+                            duty.setSelectionMethod(String.valueOf(map.get("选拔任用方式")));
+                            duty.setStatus(String.valueOf(map.get("任职状态")));
+                            String serveTime=String.valueOf(map.get("免职时间"));
+                            if (!StrUtils.isBlank(serveTime)){
+                                duty.setServeTime(DateUtil.stringToDate(serveTime));
+                            }
+                            duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
+                            SYS_Duty duty1=dutyService.selectDutyByNameAndTime(duty.getName(),people.getId(),duty.getCreateTime());
+                            if ("1".equals(fullImport)){//覆盖导入
+                                if (duty1!=null){
+                                    duty.setId(duty1.getId());
+                                    dutyService.updateDuty(duty);
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    duty.setId(uuid);
+                                    dutyService.insertDuty(duty);
+                                }
+                            }else {
+                                if (duty1!=null){
+                                    stringBuffer.append("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+                                    logger.error("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    duty.setId(uuid);
+                                    dutyService.insertDuty(duty);
+                                }
+                            }
+                        }else {
+                            stringBuffer.append("职务表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                            logger.error("职务表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                        }
+                    } else {
+                        stringBuffer.append("职务表：第" + list.indexOf(map) + "行;身份证号为空！");
+                        logger.error("职务表：第" + list.indexOf(map) + "行;身份证号为空！");
+                    }
+                } else {
+                    stringBuffer.append("职务表：第" + list.indexOf(map) + "行;姓名为空！");
+                    logger.error("职务表：第" + list.indexOf(map) + "行;姓名为空！");
+                }
+            } else {
+                logger.error("职务表：第" + list.indexOf(map) + "行;单位不存在！");
+                stringBuffer.append("职务表：第" + list.indexOf(map) + "行;单位不存在！");
+            }
+        }
+        return peopleList;
+    }
+
+    /**
+     * 职级表导入
+     * @param list
+     * @param service
+     * @param stringBuffer
+     * @param unitService
+     * @param fullImport
+     * @return
+     * @throws Exception
+     */
+    public static List<SYS_Rank> getPeopleRankDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
+                                                          UnitService unitService, String fullImport, RankService rankService)throws Exception {
+        List<SYS_Rank> peopleList = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            SYS_UNIT unit = unitService.selectUnitByName(String.valueOf(map.get("单位")));
+            if (unit != null) {
+                SYS_Rank rank = new SYS_Rank();
+                if (!StrUtils.isBlank(map.get("姓名"))) {
+                    if (!StrUtils.isBlank(map.get("身份证号"))) {
+                        SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
+                        if (people!=null){
+                            rank.setPeopleId(people.getId());
+                            rank.setName(String.valueOf(map.get("职级层次")));
+                            String creatTime=String.valueOf(map.get("任职时间"));
+                            if (!StrUtils.isBlank(creatTime)){
+                                rank.setCreateTime(DateUtil.stringToDate(creatTime));
+                            }
+                            rank.setRankType(String.valueOf(map.get("类别（职级标志）")));
+                            rank.setStatus(String.valueOf(map.get("状态")));
+                            rank.setBatch(String.valueOf(map.get("批次")));
+                            String serveTime=String.valueOf(map.get("终止日期"));
+                            if (!StrUtils.isBlank(serveTime)){
+                                rank.setServeTime(DateUtil.stringToDate(serveTime));
+                            }
+                            rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
+                            SYS_Rank rank1=rankService.selectRankByNameAndTime(rank.getName(),people.getId(),rank.getCreateTime());
+                            if ("1".equals(fullImport)){//覆盖导入
+                                if (rank1!=null){
+                                    rank.setId(rank1.getId());
+                                    rankService.updateRank(rank);
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    rank.setId(uuid);
+                                    rankService.insertRank(rank);
+                                }
+                            }else {
+                                if (rank1!=null){
+                                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+                                    logger.error("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    rank.setId(uuid);
+                                    rankService.insertRank(rank);
+                                }
+                            }
+                        }else {
+                            stringBuffer.append("职级表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                            logger.error("职级表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                        }
+                    } else {
+                        stringBuffer.append("职级表：第" + list.indexOf(map) + "行;身份证号为空！");
+                        logger.error("职级表：第" + list.indexOf(map) + "行;身份证号为空！");
+                    }
+                } else {
+                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;姓名为空！");
+                    logger.error("职级表：第" + list.indexOf(map) + "行;姓名为空！");
+                }
+            } else {
+                logger.error("职级表：第" + list.indexOf(map) + "行;单位不存在！");
+                stringBuffer.append("职级表：第" + list.indexOf(map) + "行;单位不存在！");
+            }
+        }
+        return peopleList;
+    }
+
+    /**
+     * 学历表导入
+     * @param list
+     * @param service
+     * @param stringBuffer
+     * @param unitService
+     * @param fullImport
+     * @return
+     * @throws Exception
+     */
+    public static List<SYS_Education> getPeopleEducationDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
+                                                          UnitService unitService, String fullImport, EducationService educationService)throws Exception {
+        List<SYS_Education> peopleList = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            SYS_UNIT unit = unitService.selectUnitByName(String.valueOf(map.get("单位")));
+            if (unit != null) {
+                SYS_Education education = new SYS_Education();
+                if (!StrUtils.isBlank(map.get("姓名"))) {
+                    if (!StrUtils.isBlank(map.get("身份证号"))) {
+                        SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
+                        if (people!=null){
+                            education.setPeopleId(people.getId());
+                            education.setName(String.valueOf(map.get("学历名称")));
+                            String creatTime=String.valueOf(map.get("入学时间"));
+                            if (!StrUtils.isBlank(creatTime)){
+                                education.setCreateTime(DateUtil.stringToDate(creatTime));
+                            }
+                            education.setDegree(String.valueOf(map.get("学位名称")));
+                            String serveTime=String.valueOf(map.get("毕（肄）业时间"));
+                            if (!StrUtils.isBlank(serveTime)){
+                                education.setEndTime(DateUtil.stringToDate(serveTime));
+                            }
+                            String degreeTime=String.valueOf(map.get("学位授予时间"));
+                            if (!StrUtils.isBlank(degreeTime)){
+                                education.setDegreeTime(DateUtil.stringToDate(degreeTime));
+                            }
+                            SYS_Education education1=educationService.selectEducationByNameAndTime(education.getName(),people.getId(),education.getCreateTime());
+                            if ("1".equals(fullImport)){//覆盖导入
+                                if (education1!=null){
+                                    education.setId(education1.getId());
+                                    educationService.updateEducation(education);
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    education.setId(uuid);
+                                    educationService.insertEducation(education);
+                                }
+                            }else {
+                                if (education1!=null){
+                                    stringBuffer.append("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+                                    logger.error("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    education.setId(uuid);
+                                    educationService.insertEducation(education);
+                                }
+                            }
+                        }else {
+                            stringBuffer.append("学历表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                            logger.error("学历表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                        }
+                    } else {
                         stringBuffer.append("第" + list.indexOf(map) + "行;身份证号为空！");
                         logger.error("第" + list.indexOf(map) + "行;身份证号为空！");
                     }
                 } else {
-                    stringBuffer.append("第" + list.indexOf(map) + "行;姓名为空！");
-                    logger.error("第" + list.indexOf(map) + "行;姓名为空！");
+                    stringBuffer.append("学历表：第" + list.indexOf(map) + "行;姓名为空！");
+                    logger.error("学历表：第" + list.indexOf(map) + "行;姓名为空！");
                 }
-                people.setUnitId(unit.getId());
             } else {
-                logger.error("第" + list.indexOf(map) + "行;单位不存在！");
-                stringBuffer.append("第" + list.indexOf(map) + "行;单位不存在！");
+                logger.error("学历表：第" + list.indexOf(map) + "行;单位不存在！");
+                stringBuffer.append("学历表：第" + list.indexOf(map) + "行;单位不存在！");
+            }
+        }
+        return peopleList;
+    }
+    /**
+     * 奖惩表导入
+     * @param list
+     * @param service
+     * @param stringBuffer
+     * @param unitService
+     * @param fullImport
+     * @return
+     * @throws Exception
+     */
+    public static List<SYS_Reward> getPeopleRewardDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
+                                                                    UnitService unitService, String fullImport, RewardService rewardService)throws Exception {
+        List<SYS_Reward> peopleList = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            SYS_UNIT unit = unitService.selectUnitByName(String.valueOf(map.get("单位")));
+            if (unit != null) {
+                SYS_Reward reward = new SYS_Reward();
+                if (!StrUtils.isBlank(map.get("姓名"))) {
+                    if (!StrUtils.isBlank(map.get("身份证号"))) {
+                        SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
+                        if (people!=null){
+                            reward.setPeopleId(people.getId());
+                            reward.setName(String.valueOf(map.get("奖惩名称")));
+                            String creatTime=String.valueOf(map.get("批准日期"));
+                            if (!StrUtils.isBlank(creatTime)){
+                                reward.setCreateTime(DateUtil.stringToDate(creatTime));
+                            }
+                            reward.setNameType(String.valueOf(map.get("奖惩名称代码")));
+                            String serveTime=String.valueOf(map.get("撤销日期"));
+                            if (!StrUtils.isBlank(serveTime)){
+                                reward.setRevocationDate(DateUtil.stringToDate(serveTime));
+                            }
+                            reward.setApprovalUnit(StrUtils.toNullStr(map.get("批准机关")));
+                            reward.setApprovalUnit(StrUtils.toNullStr(map.get("受奖惩时职务层次")));
+                            reward.setApprovalUnit(StrUtils.toNullStr(map.get("批准机关性质")));
+                            SYS_Reward reward1=rewardService.selectRewardByNameAndTime(reward.getName(),people.getId(),reward.getCreateTime());
+                            if ("1".equals(fullImport)){//覆盖导入
+                                if (reward1!=null){
+                                    reward.setId(reward1.getId());
+                                    rewardService.updateReward(reward);
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    reward.setId(uuid);
+                                    rewardService.insertReward(reward);
+                                }
+                            }else {
+                                if (reward1!=null){
+                                    stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+                                    logger.error("奖惩表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    reward.setId(uuid);
+                                    rewardService.insertReward(reward);
+                                }
+                            }
+                        }else {
+                            stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                            logger.error("奖惩表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                        }
+                    } else {
+                        stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;身份证号为空！");
+                        logger.error("奖惩表：第" + list.indexOf(map) + "行;身份证号为空！");
+                    }
+                } else {
+                    stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;姓名为空！");
+                    logger.error("奖惩表：第" + list.indexOf(map) + "行;姓名为空！");
+                }
+            } else {
+                logger.error("奖惩表：第" + list.indexOf(map) + "行;单位不存在！");
+                stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;单位不存在！");
+            }
+        }
+        return peopleList;
+    }
+    /**
+     * 奖惩表导入
+     * @param list
+     * @param service
+     * @param stringBuffer
+     * @param unitService
+     * @param fullImport
+     * @return
+     * @throws Exception
+     */
+    public static List<SYS_Assessment> getPeopleAssessmentDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
+                                                              UnitService unitService, String fullImport, AssessmentService assessmentService)throws Exception {
+        List<SYS_Assessment> peopleList = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            SYS_UNIT unit = unitService.selectUnitByName(String.valueOf(map.get("单位")));
+            if (unit != null) {
+                SYS_Assessment assessment = new SYS_Assessment();
+                if (!StrUtils.isBlank(map.get("姓名"))) {
+                    if (!StrUtils.isBlank(map.get("身份证号"))) {
+                        SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
+                        if (people!=null){
+                            assessment.setPeopleId(people.getId());
+                            assessment.setName(String.valueOf(map.get("考核结论")));
+                            assessment.setYear(Integer.parseInt(String.valueOf(map.get("考核年度"))));
+                            SYS_Assessment assessment1=assessmentService.selectAssessmentByNameAndTime(assessment.getName(),people.getId(),assessment.getYear());
+                            if ("1".equals(fullImport)){//覆盖导入
+                                if (assessment1!=null){
+                                    assessment.setId(assessment1.getId());
+                                    assessmentService.updateAssessment(assessment);
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    assessment.setId(uuid);
+                                    assessmentService.insertAssessment(assessment);
+                                }
+                            }else {
+                                if (assessment1!=null){
+                                    stringBuffer.append("考核表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+                                    logger.error("考核表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+                                }else {
+                                    String uuid=UUID.randomUUID().toString();
+                                    assessment.setId(uuid);
+                                    assessmentService.insertAssessment(assessment);
+                                }
+                            }
+                        }else {
+                            stringBuffer.append("考核表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                            logger.error("考核表：第" + list.indexOf(map) + "行;人员不存在，无法导入！");
+                        }
+                    } else {
+                        stringBuffer.append("考核表：第" + list.indexOf(map) + "行;身份证号为空！");
+                        logger.error("考核表：第" + list.indexOf(map) + "行;身份证号为空！");
+                    }
+                } else {
+                    stringBuffer.append("考核表：第" + list.indexOf(map) + "行;姓名为空！");
+                    logger.error("考核表：第" + list.indexOf(map) + "行;姓名为空！");
+                }
+            } else {
+                logger.error("考核表：第" + list.indexOf(map) + "行;单位不存在！");
+                stringBuffer.append("考核表：第" + list.indexOf(map) + "行;单位不存在！");
             }
         }
         return peopleList;

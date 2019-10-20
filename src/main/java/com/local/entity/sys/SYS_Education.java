@@ -64,7 +64,7 @@ public class SYS_Education implements Serializable {
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ColDefine(type = ColType.DATETIME)
-  private String degreeTime;
+  private Date degreeTime;
 
   public String getId() {
     return id;
@@ -114,11 +114,11 @@ public class SYS_Education implements Serializable {
     this.endTime = endTime;
   }
 
-  public String getDegreeTime() {
+  public Date getDegreeTime() {
     return degreeTime;
   }
 
-  public void setDegreeTime(String degreeTime) {
+  public void setDegreeTime(Date degreeTime) {
     this.degreeTime = degreeTime;
   }
 }

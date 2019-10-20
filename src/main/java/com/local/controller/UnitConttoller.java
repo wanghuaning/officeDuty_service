@@ -1,10 +1,9 @@
 package com.local.controller;
 
+import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
-import com.local.entity.sys.SYS_AREA;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.service.CodeService;
-import com.local.service.UnitService;
+import com.local.entity.sys.*;
+import com.local.service.*;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,15 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.util.ResourceUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +36,24 @@ public class UnitConttoller {
 
     @Autowired
     private CodeService codeService;
+
+    @Autowired
+    private PeopleService peopleService;
+
+    @Autowired
+    private DutyService dutyService;
+
+    @Autowired
+    private AssessmentService assessmentService;
+
+    @Autowired
+    private RankService rankService;
+
+    @Autowired
+    private RewardService rewardService;
+
+    @Autowired
+    private EducationService educationService;
     @ApiOperation(value = "查询单位", notes = "查询单位", httpMethod = "GET", tags = "查询单位接口")
     @GetMapping("/unit")
     @ResponseBody
@@ -120,6 +135,12 @@ public class UnitConttoller {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             }else {
                 unitService.deleteUnit(id);
+                List<SYS_UNIT> cunits=unitService.selectAllChildUnits(id);
+                if (cunits.size()>0){
+                    for (SYS_UNIT unit:cunits){
+                        unitService.deleteUnit(unit.getId());
+                    }
+                }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
             }
         }catch (Exception e){
@@ -152,20 +173,51 @@ public class UnitConttoller {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-
+    @ApiOperation(value = "导出Excel模板", notes = "导出Excel模板", httpMethod = "GET", tags = "导出Excel模板接口")
+    @RequestMapping(value = "/unit/outExcelModel")
+    public String getUnitExcelModel(HttpServletRequest request, HttpServletResponse response,@RequestParam("flag") String flag){
+        try {
+            Resource  resource=null;
+            String excelName="全部信息采集表.xls";
+            String sheetName="填报说明";
+            if ("all".equals(flag)){
+                resource=new ClassPathResource("exportExcel/exportAllInfo.xls");
+            }else if ("unit".equals(flag)){
+                resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
+                excelName="单位信息采集表.xls";
+                sheetName="单位信息";
+            }else if ("people".equals(flag)){
+                resource=new ClassPathResource("exportExcel/exportPeopleInfo.xlsx");
+                excelName="人员信息采集表.xlsx";
+                sheetName="人员信息";
+            }
+            String path=resource.getFile().getPath();
+            String[] arr=null;
+            Workbook temp=ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
+            excelFileGenerator.setExcleNAME(response,excelName);
+            excelFileGenerator.createExcelFile(temp.getSheet(sheetName),2,new ArrayList<>(),arr);
+            temp.write(response.getOutputStream());
+            temp.close();
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, excelName, null).getJson();
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_EXCEL_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "导入单位", notes = "导入单位", httpMethod = "POST", tags = "导入单位接口")
     @RequestMapping(value = "/unit/import")
     public String importUnitExcel(@RequestParam("excelFile") MultipartFile excelFile){
         StringBuffer stringBuffer=new StringBuffer();
         try {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
-            List<String> headList=ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(),0,0);
+            List<String> headList=ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(),0,1);
             if (headList.size()>0){
                 if (!headList.get(0).contains("单位名称") && !headList.get(1).contains("组织机构编码")){
                     stringBuffer.append(ResultMsg.IMPORT_EXCEL_FILE_ERROR);
                     return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
                 }else {
-                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelData(excelFile.getInputStream(),0,0,1);
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelData(excelFile.getInputStream(),0,1,2);
                     List<SYS_UNIT> unitList=UnitManager.getUnitDataByExcel(list,unitService,stringBuffer);
                     if (unitList.size()>0){
                         for (SYS_UNIT unit:unitList){
@@ -190,6 +242,214 @@ public class UnitConttoller {
                         return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),unitList,null).getJson();
                     }else {
                         return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,unitList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导入全部信息", notes = "导入全部信息", httpMethod = "POST", tags = "导入全部信息接口")
+    @RequestMapping(value = "/unit/importAll")
+    public String importUnitAllInfoExcel(@RequestParam("excelFile") MultipartFile excelFile,@RequestParam(value = "fullImport", required = false) String fullImport){
+        StringBuffer stringBuffer=new StringBuffer();
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"B01单位",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("单位名称") && !headList.get(1).contains("组织机构编码")){
+                    stringBuffer.append("单位表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"B01单位",1,2);
+                    List<SYS_UNIT> unitList=UnitManager.getUnitDataByExcel(list,unitService,stringBuffer);
+                    if (unitList.size()>0){
+                        for (SYS_UNIT unit:unitList){
+                            SYS_UNIT sys_unit=unitService.selectUnitById(unit.getId());
+                            if (sys_unit!=null){
+                                SYS_UNIT punit=unitService.selectUnitByName(unit.getParentName());
+                                if (punit!=null){
+                                    unit.setEnabled("0");
+                                    unit.setUnitOrder(sys_unit.getUnitOrder());
+                                    unit.setParentName(punit.getParentName());
+                                    unit.setParentId(punit.getId());
+                                    unitService.updateUnit(unit);
+                                }else {
+                                    stringBuffer.append(unit.getName()+":上级单位不存在，请核查！");
+                                    logger.error(unit.getName()+":上级单位不存在，请核查！");
+                                    unitService.deleteUnit(unit.getId());
+                                }
+                            }
+                        }
+                    }
+                    importPeopleExcel(excelFile,fullImport,stringBuffer);
+                    importPeopleDutyExcel(excelFile,fullImport,stringBuffer);
+                    importPeopleRankExcel(excelFile,fullImport,stringBuffer);
+                    importPeopleEducationExcel(excelFile,fullImport,stringBuffer);
+                    importPeopleRewardExcel(excelFile,fullImport,stringBuffer);
+                    importPeopleAssessmentExcel(excelFile,fullImport,stringBuffer);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),unitList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,unitList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+
+
+    public String importPeopleExcel(MultipartFile excelFile,String fullImport,StringBuffer stringBuffer){
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"A01人员",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append("人员表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"A01人员",1,2);
+                    List<SYS_People> peopleList= PeopleManager.getPeopleDataByExcel(list,peopleService,stringBuffer,unitService,fullImport);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),peopleList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,peopleList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+    public String importPeopleDutyExcel(MultipartFile excelFile,String fullImport,StringBuffer stringBuffer){
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"A02职务",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append("职务表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"A02职务",1,2);
+                    List<SYS_Duty> dutyList= PeopleManager.getPeopleDutyDataByExcel(list,peopleService,stringBuffer,unitService,fullImport,dutyService);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),dutyList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,dutyList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+
+    public String importPeopleRankExcel(MultipartFile excelFile,String fullImport,StringBuffer stringBuffer){
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"A03职级",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append("职级表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"A03职级",1,2);
+                    List<SYS_Rank> dutyList= PeopleManager.getPeopleRankDataByExcel(list,peopleService,stringBuffer,unitService,fullImport,rankService);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),dutyList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,dutyList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+    public String importPeopleEducationExcel(MultipartFile excelFile,String fullImport,StringBuffer stringBuffer){
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"A04学历学位",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append("学历表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"A04学历学位",1,2);
+                    List<SYS_Education> dutyList= PeopleManager.getPeopleEducationDataByExcel(list,peopleService,stringBuffer,unitService,fullImport,educationService);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),dutyList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,dutyList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+
+    public String importPeopleRewardExcel(MultipartFile excelFile,String fullImport,StringBuffer stringBuffer){
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"A05奖惩",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append("奖惩表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"A05奖惩",1,2);
+                    List<SYS_Reward> dutyList= PeopleManager.getPeopleRewardDataByExcel(list,peopleService,stringBuffer,unitService,fullImport,rewardService);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),dutyList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,dutyList,null).getJson();
+                    }
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        }
+    }
+    public String importPeopleAssessmentExcel(MultipartFile excelFile,String fullImport,StringBuffer stringBuffer){
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList=ExcelFileGenerator.readeExcelHeaderBySheetName(excelFile.getInputStream(),"A06考核",1);
+            if (headList.size()>0){
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+                    stringBuffer.append("考核表："+ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
+                }else {
+                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelDataBySheetName(excelFile.getInputStream(),"A06考核",1,2);
+                    List<SYS_Assessment> dutyList= PeopleManager.getPeopleAssessmentDataByExcel(list,peopleService,stringBuffer,unitService,fullImport,assessmentService);
+                    if (stringBuffer.length()>0){
+                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),dutyList,null).getJson();
+                    }else {
+                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,dutyList,null).getJson();
                     }
                 }
             }else {

@@ -368,4 +368,98 @@ public class ExcelFileGenerator <T>{
         }
         return headers;
     }
+    /**
+     * 或Excel表头
+     * @param excelInputSteam
+     * @param sheetname 数据表sheet名
+     * @param headerNumber 表头开始位置 0开始
+     * @return
+     * @throws IOException
+     * @throws InvalidFormatException
+     */
+    public static List<String> readeExcelHeaderBySheetName(InputStream excelInputSteam,
+                                                String sheetname,
+                                                int headerNumber) throws IOException, InvalidFormatException {
+        //要返回的数据
+        List<String> headers = new ArrayList<String>();
+        //生成工作表
+        Workbook workbook = WorkbookFactory.create(excelInputSteam);
+        Sheet sheet = workbook.getSheet(sheetname);
+        Row header = sheet.getRow(headerNumber);
+        DataFormatter dataFormatter = new DataFormatter();
+        for (int i = 0; i < header.getLastCellNum(); i++) {
+            //获取单元格
+            Cell cell = header.getCell(i);
+            headers.add(dataFormatter.formatCellValue(cell));
+        }
+        return headers;
+    }
+    /**
+     * 读取Excel表数据
+     * @param excelInputSteam
+     * @param sheetName 读取Excel表名
+     * @param headerNumber 表头位置 0开始
+     * @param rowStart 读取开始位置 0开始
+     * @return
+     * @throws IOException
+     * @throws InvalidFormatException
+     */
+    public static List<Map<String, Object>> readeExcelDataBySheetName(InputStream excelInputSteam,
+                                                           String sheetName,
+                                                           int headerNumber,
+                                                           int rowStart) throws IOException, InvalidFormatException {
+        //需要的变量以及要返回的数据
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        List<String> headers = new ArrayList<String>();
+        //生成工作表
+        Workbook workbook = WorkbookFactory.create(excelInputSteam);
+        Sheet sheet = workbook.getSheet(sheetName);
+        Row header = sheet.getRow(headerNumber);
+        //最后一行数据
+        int rowEnd = sheet.getLastRowNum();
+        DataFormatter dataFormatter = new DataFormatter();
+        //获取标题信息
+        for (int i = 0; i < header.getLastCellNum(); ++i) {
+            Cell cell = header.getCell(i);
+            headers.add(dataFormatter.formatCellValue(cell));
+        }
+        //获取内容信息
+        for (int i = rowStart; i <= rowEnd; ++i) {
+            Row currentRow = sheet.getRow(i);
+            if (Objects.isNull(currentRow)) {
+                continue;
+            }
+            Map<String, Object> dataMap = new HashMap<>();
+            for (int j = 0; j < currentRow.getLastCellNum(); ++j) {
+                //将null转化为Blank
+                Cell data = currentRow.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                if (Objects.isNull(data)) {     //感觉这个if有点多余
+                    dataMap.put(headers.get(j), null);
+                } else {
+                    switch (data.getCellType()) {   //不同的类型分别进行存储
+                        case Cell.CELL_TYPE_STRING:
+                            dataMap.put(headers.get(j), data.getRichStringCellValue().getString());
+                            break;
+                        case Cell.CELL_TYPE_NUMERIC:
+                            if (DateUtil.isCellDateFormatted(data)) {
+                                dataMap.put(headers.get(j), data.getDateCellValue());
+                            } else {
+                                dataMap.put(headers.get(j), data.getNumericCellValue());
+                            }
+                            break;
+                        case Cell.CELL_TYPE_FORMULA:
+                            dataMap.put(headers.get(j), data.getCellFormula());
+                            break;
+                        case Cell.CELL_TYPE_BOOLEAN:
+                            dataMap.put(headers.get(j), data.getBooleanCellValue());
+                            break;
+                        default:
+                            dataMap.put(headers.get(j), null);
+                    }
+                }
+            }
+            result.add(dataMap);
+        }
+        return result;
+    }
 }

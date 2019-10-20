@@ -140,9 +140,9 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "导入单位", notes = "导入单位", httpMethod = "POST", tags = "导入单位接口")
+    @ApiOperation(value = "导入人员", notes = "导入人员", httpMethod = "POST", tags = "导入人员接口")
     @RequestMapping(value = "/import")
-    public String importUnitExcel(@RequestParam("excelFile") MultipartFile excelFile,@RequestParam(value = "fullImport", required = false) String fullImport){
+    public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile,@RequestParam(value = "fullImport", required = false) String fullImport){
         StringBuffer stringBuffer=new StringBuffer();
         try {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件

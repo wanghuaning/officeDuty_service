@@ -219,6 +219,18 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 10)
     private String buildCounty;
 
+    @ApiModelProperty("联系人")
+    @Comment("联系人")
+    @Column("contact")
+    @ColDefine(type = ColType.VARCHAR,width = 64)
+    private String contact;
+
+    @ApiModelProperty("联系电话")
+    @Comment("联系电话")
+    @Column("contact_Number")
+    @ColDefine(type = ColType.VARCHAR,width = 64)
+    private String contactNumber;
+
     private String[] areaStrs;
     private boolean hasChildren;
     private List<SYS_UNIT> children;

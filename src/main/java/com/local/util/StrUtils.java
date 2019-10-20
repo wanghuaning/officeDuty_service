@@ -192,7 +192,7 @@ public class StrUtils {
     }
 
     public static int stoi(String string, int defaultValue) {
-        if ((string == null) || (string.equalsIgnoreCase(""))) {
+        if ((string == null) || (string.equalsIgnoreCase("")) || "null".equals(string)) {
             return defaultValue;
         }
         int id;
@@ -260,6 +260,14 @@ public class StrUtils {
             return DateUtils.parseDate(string, parsePatterns);
         } catch (ParseException e) {
             return null;
+        }
+    }
+    public static String toNullStr(Object object){
+        String string=String.valueOf(object);
+        if (isBlank(string) || "null".equals(string)){
+            return "";
+        }else {
+            return string;
         }
     }
     public static void main(String[] args) {

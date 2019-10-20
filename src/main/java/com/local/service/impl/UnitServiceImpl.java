@@ -24,6 +24,34 @@ public class UnitServiceImpl implements UnitService {
     @Autowired
     private Dao dao;
 
+    private static List<SYS_UNIT> cunits=new ArrayList<>();
+    @Override
+    public List<SYS_UNIT> selectAllChildUnits(String parentId){
+        Criteria criteria=Cnd.cri();
+        List<SYS_UNIT> unitList=new ArrayList<>();
+        if (!StrUtils.isBlank(parentId)){
+            criteria.where().andEquals("parent_Id",parentId);
+            unitList=dao.query(SYS_UNIT.class,criteria);
+            cunits.addAll(unitList);
+            return  unitList;
+        }else {
+            return new ArrayList<SYS_UNIT>();
+        }
+    }
+
+    public void getAllChildUnits(List<SYS_UNIT> unitList){
+        for (SYS_UNIT unit : unitList)  {
+            if (countUnit(unit.getId()) > 0) {
+                List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
+                if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {
+                    cunits.add(unit);
+                    getAllChildUnits(cunitList);
+                }else {
+                    cunits.add(unit);
+                }
+            }
+        }
+    }
     @Override
     public List<SYS_UNIT> selectUnitsByParam(String name, String enabled) {
         Criteria cri = Cnd.cri();
