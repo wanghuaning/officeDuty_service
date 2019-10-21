@@ -2,6 +2,10 @@ package com.local.service;
 
 
 import com.local.entity.sys.SYS_USER;
+import com.local.util.Result;
+import org.nutz.dao.QueryResult;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -14,5 +18,6 @@ public interface UserService {
 
     void updateUser(SYS_USER user);
 
+    QueryResult selectUsersByUnitId(int pageSize, int pageNumber, String unitId, String name, String enabled);
 
 }

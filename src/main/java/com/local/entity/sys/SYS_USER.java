@@ -65,8 +65,8 @@ public class SYS_USER implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String peopleId;
 
-    @ApiModelProperty("人员ID")
-    @Comment("人员ID")
+    @ApiModelProperty("单位ID")
+    @Comment("单位ID")
     @Column("unit_id")
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String unitId;
@@ -80,10 +80,19 @@ public class SYS_USER implements Serializable {
     @ApiModelProperty("用于系统免登陆")
     private String token;
 
+    private SYS_UNIT unit;
 
 //    @ApiModelProperty("用户关联所有菜单[已去重]")
 //    private List<SYS_Menu> menus;
 
+
+    public SYS_UNIT getUnit() {
+        return unit;
+    }
+
+    public void setUnit(SYS_UNIT unit) {
+        this.unit = unit;
+    }
 
     public String getId() {
         return id;

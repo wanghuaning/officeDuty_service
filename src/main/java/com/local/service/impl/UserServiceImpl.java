@@ -2,13 +2,14 @@ package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
 import com.local.entity.REG_User;
-import com.local.entity.sys.SYS_App;
-import com.local.entity.sys.SYS_Menu;
-import com.local.entity.sys.SYS_USER;
+import com.local.entity.sys.*;
 import com.local.service.UserService;
+import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
 import org.nutz.dao.Dao;
+import org.nutz.dao.QueryResult;
+import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +75,33 @@ public class UserServiceImpl implements UserService {
     @SLog(tag = "修改用户", type = "U")
     public void updateUser(SYS_USER user){
         dao.update(user);
+    }
+
+    private static List<String> cunits=new ArrayList<>();
+    @Override
+    public QueryResult selectUsersByUnitId(int pageSize, int pageNumber,String unitId, String name, String enabled){
+        Pager pager=new Pager();
+        pager.setPageNumber(pageNumber+1);
+        pager.setPageSize(pageSize);
+        List<SYS_USER> userList=new ArrayList<>();
+        Criteria cri= Cnd.cri();
+        if (!StrUtils.isBlank(name)){//市
+            cri.where().andLike("user_account","%"+name+"%");
+        }
+        if (!StrUtils.isBlank(enabled)){
+            if ("enabled".equals(enabled)){
+                cri.where().andEquals("enabled","0");
+            }else if ("notEnabled".equals(enabled)){
+                cri.where().andEquals("enabled","1");
+            }
+        }
+        cri.where().andEquals("unit_Id",unitId);
+        userList = dao.query(SYS_USER.class,cri,pager);
+        if (StrUtils.isBlank(pager)){
+            pager=new Pager();
+        }
+        pager.setRecordCount(dao.count(SYS_USER.class,cri));
+        QueryResult queryResult=new QueryResult(userList,pager);
+        return queryResult;
     }
 }

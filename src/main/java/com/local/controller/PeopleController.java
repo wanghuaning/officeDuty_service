@@ -2,8 +2,10 @@ package com.local.controller;
 
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
+import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
+import com.local.entity.sys.SYS_USER;
 import com.local.service.PeopleService;
 import com.local.service.UnitService;
 import com.local.util.*;
@@ -36,7 +38,8 @@ public class PeopleController {
 
     @Autowired
     private PeopleService peopleService;
-
+    @Autowired
+    private RedisUtil redisUtil;
     @Autowired
     private UnitService unitService;
 
@@ -49,8 +52,18 @@ public class PeopleController {
                              @RequestParam(value = "name", required = false) String name,
                              @RequestParam(value = "idcard", required = false) String idcard,
                              @RequestParam(value = "politicalStatus", required = false) String politicalStatus,
-                             @RequestParam(value = "enabled", required = false) String enabled) {
+                             @RequestParam(value = "enabled", required = false) String enabled,HttpServletRequest request) {
         try {
+            if (StrUtils.isBlank(unitId)){
+                String token=request.getHeader("userToken");
+                if (token == null || "".equals(token)){
+                    token=request.getParameter("userToken");//从请求的url中获取
+                }
+                SYS_USER user=redisUtil.getUserByKey(token);
+                if (user!=null){
+                unitId=user.getUnitId();
+                }
+            }
             QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, enabled);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {

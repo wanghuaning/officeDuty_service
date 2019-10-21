@@ -10,6 +10,7 @@ import com.local.service.UnitService;
 import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
+import org.nutz.dao.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,11 @@ public class UserController {
         //返回前台的对象
         HashMap<String,Object> token=new HashMap<>();
         searchUser=userService.selectUserByPassword(user.getUserAccount());
+        SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
+        if (unit!=null){
+            token.put("unit",unit);
+            searchUser.setUnit(unit);
+        }
         //查询菜单
 //        searchUser=userService.selectRoleMenu(searchUser);
         //将用户id放入redis
@@ -72,8 +78,6 @@ public class UserController {
         //前台去除密码
         searchUser.setUserPassword("");
         token.put("token",searchUser);
-        SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
-        token.put("unit",unit);
         logger.info(ResultMsg.LOGIN_SUCCESS);
         return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_SUCCESS,token,null).getJson();
     }
@@ -146,6 +150,32 @@ public class UserController {
             }
         }else{
             return new Result(ResultCode.ERROR.toString(),ResultMsg.UPDATE_ERROR,null,null).getJson();
+        }
+    }
+    @ApiOperation(value = "用户信息", notes = "用户信息", httpMethod = "GET", tags = "用户信息接口")
+    @GetMapping("/account")
+    @ResponseBody
+    public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+                             @RequestParam(value = "unitId", required = false) String unitId,
+                             @RequestParam(value = "name", required = false) String name,
+                             @RequestParam(value = "enabled", required = false) String enabled,HttpServletRequest request) {
+        try {
+            if (StrUtils.isBlank(unitId)){
+                String token=request.getHeader("userToken");
+                if (token == null || "".equals(token)){
+                    token=request.getParameter("userToken");//从请求的url中获取
+                }
+                SYS_USER user=redisUtil.getUserByKey(token);
+                if (user!=null){
+                    unitId=user.getUnitId();
+                }
+            }
+            QueryResult queryResult = userService.selectUsersByUnitId(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, enabled);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
 }

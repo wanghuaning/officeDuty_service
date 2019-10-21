@@ -33,6 +33,7 @@ public class UnitServiceImpl implements UnitService {
             criteria.where().andEquals("parent_Id",parentId);
             unitList=dao.query(SYS_UNIT.class,criteria);
             cunits.addAll(unitList);
+            getAllChildUnits(unitList);
             return  unitList;
         }else {
             return new ArrayList<SYS_UNIT>();
