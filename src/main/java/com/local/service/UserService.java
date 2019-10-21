@@ -12,5 +12,7 @@ public interface UserService {
     // 查询该用户所有角色和菜单信息
     SYS_USER selectRoleMenu(SYS_USER user);
 
+    void updateUser(SYS_USER user);
+
 
 }

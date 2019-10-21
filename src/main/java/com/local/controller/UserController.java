@@ -121,4 +121,31 @@ public class UserController {
             stream.close();
         }
     }
+
+
+    @ApiOperation(value = "修改密码",notes = "修改密码\"",httpMethod = "GET",tags = "修改密码接口")
+    @GetMapping("/updatePass")
+    public String updatePass(@RequestParam(value = "oldPass",required = true) String oldPass,
+                             @RequestParam(value = "newPass",required = true) String newPass,HttpServletRequest request){
+        //从请求的header中取出当前登录的登录
+        String token=request.getHeader("userToken");
+        if (token==null || "".equals(token)){
+            //从请求的url中取出当前登录的登录
+            token=request.getParameter("userToken");
+        }
+        //通过token从redis中取出当前登录
+        SYS_USER user=redisUtil.getUserByKey(token);
+        if (user!=null){
+            String passStr=MD5Utils.encryptPassword(oldPass);
+            if (passStr.equals(user.getUserPassword())){
+                user.setUserPassword(MD5Utils.encryptPassword(newPass));
+                userService.updateUser(user);
+                return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_ERROR_PASS,user,null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.UPDATE_SUCCESS,null,null).getJson();
+            }
+        }else{
+            return new Result(ResultCode.ERROR.toString(),ResultMsg.UPDATE_ERROR,null,null).getJson();
+        }
+    }
 }

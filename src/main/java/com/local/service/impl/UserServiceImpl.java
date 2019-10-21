@@ -13,6 +13,7 @@ import org.nutz.dao.sql.Criteria;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,5 +67,12 @@ public class UserServiceImpl implements UserService {
 //            user.setMenus(new ArrayList<>());
             return user;
         }
+    }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "修改用户", type = "U")
+    public void updateUser(SYS_USER user){
+        dao.update(user);
     }
 }

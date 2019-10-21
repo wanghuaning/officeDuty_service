@@ -25,7 +25,6 @@ public @interface SLog {
 
     /**
      * 是否异步执行,默认为true
-     *
      * @return true, 如果需要异步执行
      */
     boolean async() default true;
