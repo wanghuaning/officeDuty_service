@@ -6,7 +6,7 @@ import com.local.entity.sys.SYS_UNIT;
 import java.util.List;
 
 public interface UnitService {
-    List<SYS_UNIT> selectUnitsByParam(String name, String enabled);
+    List<SYS_UNIT> selectUnitsByParam(String name, String enabled,String parentId);
 
     void insertUnit(SYS_UNIT unit);
 

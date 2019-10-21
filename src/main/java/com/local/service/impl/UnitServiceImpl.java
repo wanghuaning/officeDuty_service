@@ -53,7 +53,7 @@ public class UnitServiceImpl implements UnitService {
         }
     }
     @Override
-    public List<SYS_UNIT> selectUnitsByParam(String name, String enabled) {
+    public List<SYS_UNIT> selectUnitsByParam(String name, String enabled,String parentId) {
         Criteria cri = Cnd.cri();
         if (!StrUtils.isBlank(name)) {//部门名称不为空
             cri.where().andLike("name", "%" + name.trim() + "%");
@@ -61,7 +61,7 @@ public class UnitServiceImpl implements UnitService {
                 cri.where().andEquals("enabled", enabled);
             }
         } else {
-            cri.where().andEquals("parent_Id", null);
+            cri.where().andEquals("id", parentId);
             if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
                 cri.where().andEquals("enabled", enabled);
             }

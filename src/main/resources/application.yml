@@ -8,7 +8,5 @@ server:
 spring:
   profiles:
     active: dev
-logging:
-  file: D:\log\my.log
 swagger:
   enable : true

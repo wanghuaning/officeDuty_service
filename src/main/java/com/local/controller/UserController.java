@@ -3,8 +3,10 @@ package com.local.controller;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
 import com.local.common.redis.util.RedisUtil;
+import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
 import com.local.model.ImgResult;
+import com.local.service.UnitService;
 import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +33,9 @@ public class UserController {
     @Resource
     private RedisUtil redisUtil;
 
+    @Autowired
+    private UnitService unitService;
+
     @ApiOperation(value = "登录",notes = "登录",httpMethod = "POST",tags = "登录管理接口")
     @PostMapping("/login")
     public String Login(@Validated @RequestBody SYS_USER user){
@@ -48,7 +53,6 @@ public class UserController {
             //查询用户名和密码是否匹配，密码需要先解密（前台），再加密（后台），然后匹配
             user.setUserPassword(MD5Utils.encryptPassword(user.getUserPassword()));
             searchUser=userService.selectUserByModel(user);
-
             if (searchUser==null){
                 return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,null,null).getJson();
             }
@@ -68,6 +72,8 @@ public class UserController {
         //前台去除密码
         searchUser.setUserPassword("");
         token.put("token",searchUser);
+        SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
+        token.put("unit",unit);
         logger.info(ResultMsg.LOGIN_SUCCESS);
         return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_SUCCESS,token,null).getJson();
     }

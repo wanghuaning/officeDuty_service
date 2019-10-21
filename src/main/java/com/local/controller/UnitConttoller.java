@@ -2,6 +2,7 @@ package com.local.controller;
 
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
+import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.*;
 import com.local.service.*;
 import com.local.util.*;
@@ -11,11 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -52,16 +53,35 @@ public class UnitConttoller {
     @Autowired
     private RewardService rewardService;
 
+    @Resource
+    private RedisUtil redisUtil;
+
     @Autowired
     private EducationService educationService;
     @ApiOperation(value = "查询单位", notes = "查询单位", httpMethod = "GET", tags = "查询单位接口")
     @GetMapping("/unit")
     @ResponseBody
     public String getUnits(@RequestParam(value = "name", required = false) String name,
-                           @RequestParam(value = "enabled", required = false) String enabled ) {
+                           @RequestParam(value = "enabled", required = false) String enabled,HttpServletRequest request ) {
         try {
-            List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            //从请求的header中取出当前登录的登录
+            String token=request.getHeader("userToken");
+            if (token == null || "".equals(token)){
+                token=request.getParameter("userToken");//从请求的url中获取
+            }
+            SYS_USER user=redisUtil.getUserByKey(token);
+            if (user!=null){
+                String parentId=user.getUnitId();
+                if (!StrUtils.isBlank(parentId)){
+                    List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled,parentId);
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.GET_FIND_ERROR,null,null).getJson();
+                }
+
+            }else {
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.GET_FIND_ERROR,null,null).getJson();
+            }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
@@ -154,7 +174,7 @@ public class UnitConttoller {
         System.out.println("导出");
         try {
             List<SYS_UNIT> unitList=unitService.selectUnitAll();
-            Resource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
+            ClassPathResource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
 //            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xls");
 //            String path=file.getPath();
             String path=resource.getFile().getPath();
@@ -177,7 +197,7 @@ public class UnitConttoller {
     @RequestMapping(value = "/unit/outExcelModel")
     public String getUnitExcelModel(HttpServletRequest request, HttpServletResponse response,@RequestParam("flag") String flag){
         try {
-            Resource  resource=null;
+            ClassPathResource  resource=null;
             String excelName="全部信息采集表.xls";
             String sheetName="填报说明";
             if ("all".equals(flag)){
@@ -187,8 +207,8 @@ public class UnitConttoller {
                 excelName="单位信息采集表.xls";
                 sheetName="单位信息";
             }else if ("people".equals(flag)){
-                resource=new ClassPathResource("exportExcel/exportPeopleInfo.xlsx");
-                excelName="人员信息采集表.xlsx";
+                resource=new ClassPathResource("exportExcel/exportPeopleInfo.xls");
+                excelName="人员信息采集表.xls";
                 sheetName="人员信息";
             }
             String path=resource.getFile().getPath();

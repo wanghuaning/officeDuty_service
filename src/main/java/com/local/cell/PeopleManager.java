@@ -31,21 +31,21 @@ public class PeopleManager {
                         if (!StrUtils.isBlank(birthdayStr)){
                             people.setBirthday(DateUtil.stringToDate(birthdayStr));
                         }
-                        people.setSex(String.valueOf(map.get("性别")));
-                        people.setBirthplace(String.valueOf(map.get("籍贯")));
-                        people.setNationality(String.valueOf(map.get("民族 ")));
+                        people.setSex(StrUtils.toNullStr(map.get("性别")));
+                        people.setBirthplace(StrUtils.toNullStr(map.get("籍贯")));
+                        people.setNationality(StrUtils.toNullStr(map.get("民族 ")));
                         String workdayStr=String.valueOf(map.get("参加工作时间"));
                         if (!StrUtils.isBlank(workdayStr)){
                             people.setWorkday(DateUtil.stringToDate(workdayStr));
                         }
-                        people.setParty(String.valueOf(map.get("政治面貌")));
+                        people.setParty(StrUtils.toNullStr(map.get("政治面貌")));
                         String partyTimeStr=String.valueOf(map.get("入党时间"));
                         if (!StrUtils.isBlank(partyTimeStr)){
                             people.setPartyTime(DateUtil.stringToDate(partyTimeStr));
                         }
-                        people.setSecondParty(String.valueOf(map.get("第二党派")));
-                        people.setThirdParty(String.valueOf(map.get("第三党派")));
-                        people.setPosition(String.valueOf(map.get("现职务层次")));
+                        people.setSecondParty(StrUtils.toNullStr(map.get("第二党派")));
+                        people.setThirdParty(StrUtils.toNullStr(map.get("第三党派")));
+                        people.setPosition(StrUtils.toNullStr(map.get("现职务层次")));
                         String positionTimeStr=String.valueOf(map.get("任现职务层次时间"));
                         if (!StrUtils.isBlank(positionTimeStr)){
                             people.setPositionTime(DateUtil.stringToDate(positionTimeStr));
@@ -55,19 +55,19 @@ public class PeopleManager {
                         if (!StrUtils.isBlank(positionLevelTimeStr)){
                             people.setPositionLevelTime(DateUtil.stringToDate(positionLevelTimeStr));
                         }
-                        people.setBaseWorker(String.valueOf(map.get("是否具有两年以上基层工作经历")));
-                        people.setPoliticalStatus(String.valueOf(map.get("编制类型")));
+                        people.setBaseWorker(StrUtils.toNullStr(map.get("是否具有两年以上基层工作经历")));
+                        people.setPoliticalStatus(StrUtils.toNullStr(map.get("编制类型")));
                         String createTimeStr=String.valueOf(map.get("公务员登记时间"));
                         if (!StrUtils.isBlank(createTimeStr)){
                             people.setPositionLevelTime(DateUtil.stringToDate(createTimeStr));
                         }
-                        String enableStr=String.valueOf(map.get("现职"));
+                        String enableStr=StrUtils.toNullStr(map.get("现职"));
                         if ("否".equals(enableStr)){
                             people.setEnabled("1");
                         }else {
                             people.setEnabled("0");
                         }
-                        people.setDetail(String.valueOf(map.get("备注")));
+                        people.setDetail(StrUtils.toNullStr(map.get("备注")));
                         SYS_People people1 =service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
                         if (people1 != null) {
                             if ("1".equals(fullImport)){
@@ -127,11 +127,11 @@ public class PeopleManager {
                             if (!StrUtils.isBlank(creatTime)){
                                 duty.setCreateTime(DateUtil.stringToDate(creatTime));
                             }
-                            duty.setLeaderType(String.valueOf(map.get("成员类别")));
-                            duty.setLeader(String.valueOf(map.get("是否领导班子成员")));
-                            duty.setName(String.valueOf(map.get("领导职务名称")));
-                            duty.setSelectionMethod(String.valueOf(map.get("选拔任用方式")));
-                            duty.setStatus(String.valueOf(map.get("任职状态")));
+                            duty.setLeaderType(StrUtils.toNullStr(map.get("成员类别")));
+                            duty.setLeader(StrUtils.toNullStr(map.get("是否领导班子成员")));
+                            duty.setName(StrUtils.toNullStr(map.get("领导职务名称")));
+                            duty.setSelectionMethod(StrUtils.toNullStr(map.get("选拔任用方式")));
+                            duty.setStatus(StrUtils.toNullStr(map.get("任职状态")));
                             String serveTime=String.valueOf(map.get("免职时间"));
                             if (!StrUtils.isBlank(serveTime)){
                                 duty.setServeTime(DateUtil.stringToDate(serveTime));
@@ -199,14 +199,14 @@ public class PeopleManager {
                         SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
                         if (people!=null){
                             rank.setPeopleId(people.getId());
-                            rank.setName(String.valueOf(map.get("职级层次")));
+                            rank.setName(StrUtils.toNullStr(map.get("职级层次")));
                             String creatTime=String.valueOf(map.get("任职时间"));
                             if (!StrUtils.isBlank(creatTime)){
                                 rank.setCreateTime(DateUtil.stringToDate(creatTime));
                             }
-                            rank.setRankType(String.valueOf(map.get("类别（职级标志）")));
-                            rank.setStatus(String.valueOf(map.get("状态")));
-                            rank.setBatch(String.valueOf(map.get("批次")));
+                            rank.setRankType(StrUtils.toNullStr(map.get("类别（职级标志）")));
+                            rank.setStatus(StrUtils.toNullStr(map.get("状态")));
+                            rank.setBatch(StrUtils.toNullStr(map.get("批次")));
                             String serveTime=String.valueOf(map.get("终止日期"));
                             if (!StrUtils.isBlank(serveTime)){
                                 rank.setServeTime(DateUtil.stringToDate(serveTime));
@@ -274,12 +274,12 @@ public class PeopleManager {
                         SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
                         if (people!=null){
                             education.setPeopleId(people.getId());
-                            education.setName(String.valueOf(map.get("学历名称")));
+                            education.setName(StrUtils.toNullStr(map.get("学历名称")));
                             String creatTime=String.valueOf(map.get("入学时间"));
                             if (!StrUtils.isBlank(creatTime)){
                                 education.setCreateTime(DateUtil.stringToDate(creatTime));
                             }
-                            education.setDegree(String.valueOf(map.get("学位名称")));
+                            education.setDegree(StrUtils.toNullStr(map.get("学位名称")));
                             String serveTime=String.valueOf(map.get("毕（肄）业时间"));
                             if (!StrUtils.isBlank(serveTime)){
                                 education.setEndTime(DateUtil.stringToDate(serveTime));
@@ -349,12 +349,12 @@ public class PeopleManager {
                         SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
                         if (people!=null){
                             reward.setPeopleId(people.getId());
-                            reward.setName(String.valueOf(map.get("奖惩名称")));
+                            reward.setName(StrUtils.toNullStr(map.get("奖惩名称")));
                             String creatTime=String.valueOf(map.get("批准日期"));
                             if (!StrUtils.isBlank(creatTime)){
                                 reward.setCreateTime(DateUtil.stringToDate(creatTime));
                             }
-                            reward.setNameType(String.valueOf(map.get("奖惩名称代码")));
+                            reward.setNameType(StrUtils.toNullStr(map.get("奖惩名称代码")));
                             String serveTime=String.valueOf(map.get("撤销日期"));
                             if (!StrUtils.isBlank(serveTime)){
                                 reward.setRevocationDate(DateUtil.stringToDate(serveTime));
@@ -423,7 +423,7 @@ public class PeopleManager {
                         SYS_People people=service.selectPeopleByIdcardAndUnitId(String.valueOf(map.get("身份证号")),unit.getId());
                         if (people!=null){
                             assessment.setPeopleId(people.getId());
-                            assessment.setName(String.valueOf(map.get("考核结论")));
+                            assessment.setName(StrUtils.toNullStr(map.get("考核结论")));
                             assessment.setYear(Integer.parseInt(String.valueOf(map.get("考核年度"))));
                             SYS_Assessment assessment1=assessmentService.selectAssessmentByNameAndTime(assessment.getName(),people.getId(),assessment.getYear());
                             if ("1".equals(fullImport)){//覆盖导入

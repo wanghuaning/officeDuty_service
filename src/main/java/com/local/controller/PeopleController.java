@@ -14,8 +14,10 @@ import org.nutz.dao.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +30,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/people")
+@Component
 public class PeopleController {
     private final static Logger logger = LoggerFactory.getLogger(PeopleController.class);
 
@@ -122,9 +125,7 @@ public class PeopleController {
                                @RequestParam(value = "isChild", required = false) String isChild){
         try {
             List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unitId,isChild);
-            Resource resource=new ClassPathResource("exportExcel/exportPeopleInfo.xlsx");
-//            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xls");
-//            String path=file.getPath();
+            ClassPathResource resource=new ClassPathResource("exportExcel/exportPeopleInfo.xls");
             String path=resource.getFile().getPath();
             String[] arr={"name","unitName","birthday","idcard","sex","birthplace","nationality","workday","party","partyTime","secondParty","thirdParty",
                     "position","positionTime","positionLevel","positionLevelTime","baseWorker","politicalStatus","createTime","isEnable","detail"};

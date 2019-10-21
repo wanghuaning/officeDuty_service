@@ -12,6 +12,7 @@
     <artifactId>officeDuty_service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>officeDuty_service</name>
+    <packaging>war</packaging><!--war包部署-->
     <description>公务员职务管理</description>
 
     <properties>
