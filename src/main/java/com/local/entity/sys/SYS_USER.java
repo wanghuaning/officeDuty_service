@@ -14,7 +14,6 @@ import java.util.List;
 @Comment("用户表")
 public class SYS_USER implements Serializable {
     @Name
-    @Prev(els = {@EL("uuid")})
     @ApiModelProperty("用户id")//用在属性上，对属性做注释
     @Comment("用户id")//定义脚本中添加comment属性来添加注释
     @Column("id")
@@ -82,9 +81,19 @@ public class SYS_USER implements Serializable {
 
     private SYS_UNIT unit;
 
+    private SYS_People people;
+
 //    @ApiModelProperty("用户关联所有菜单[已去重]")
 //    private List<SYS_Menu> menus;
 
+
+    public SYS_People getPeople() {
+        return people;
+    }
+
+    public void setPeople(SYS_People people) {
+        this.people = people;
+    }
 
     public SYS_UNIT getUnit() {
         return unit;

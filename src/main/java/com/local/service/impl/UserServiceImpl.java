@@ -35,8 +35,9 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
     @Override
-    public SYS_USER selectUserByPassword(String loginName){
+    public SYS_USER selectUserByName(String loginName){
         List<SYS_USER> list = new ArrayList<>();
         Criteria criteria = Cnd.cri();
         criteria.where().andEquals("user_account", loginName);
@@ -103,5 +104,32 @@ public class UserServiceImpl implements UserService {
         pager.setRecordCount(dao.count(SYS_USER.class,cri));
         QueryResult queryResult=new QueryResult(userList,pager);
         return queryResult;
+    }
+
+    @Transactional
+    @SLog(tag = "新增用户", type = "C")
+    @Override
+    public void insertUser(SYS_USER user){
+        dao.insert(user);
+    }
+
+    @Override
+    public SYS_USER selectUserByNameNotId(String loginName,String id){
+        List<SYS_USER> list = new ArrayList<>();
+        Criteria criteria = Cnd.cri();
+        criteria.where().andEquals("user_account", loginName).andNotEquals("id",id);
+        list = dao.query(SYS_USER.class, criteria);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    @SLog(tag = "删除用户", type = "D")
+   public void deleteUser(String id){
+        dao.delete(SYS_USER.class,id);
     }
 }

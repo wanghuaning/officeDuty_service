@@ -182,4 +182,20 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
         }
     }
+    @ApiOperation(value = "人员列表", notes = "人员列表", httpMethod = "GET", tags = "人员列表接口")
+    @GetMapping(value = "/peoples")
+    @ResponseBody
+    public String selectPeople(@RequestParam(value = "unitId", required = false) String unitId) {
+        try {
+            if (StrUtils.isBlank(unitId)){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }else {
+                List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unitId,"0");
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, peopleList, null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_FIND_ERROR,e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }

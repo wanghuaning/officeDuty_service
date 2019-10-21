@@ -11,13 +11,17 @@ public interface UserService {
 
     SYS_USER selectUserByModel(SYS_USER user);
     // 查询用户
-    SYS_USER selectUserByPassword(String loginName);
+    SYS_USER selectUserByName(String loginName);
 
     // 查询该用户所有角色和菜单信息
     SYS_USER selectRoleMenu(SYS_USER user);
 
     void updateUser(SYS_USER user);
-
+    void insertUser(SYS_USER user);
+    // 查询用户
     QueryResult selectUsersByUnitId(int pageSize, int pageNumber, String unitId, String name, String enabled);
+    SYS_USER selectUserByNameNotId(String loginName,String id);
+
+    void deleteUser(String id);
 
 }

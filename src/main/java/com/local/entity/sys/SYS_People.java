@@ -189,6 +189,25 @@ public class SYS_People implements Serializable {
     }
   }
 
+  private String value;
+  private String label;
+
+  public String getValue() {
+    return id;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  public String getLabel() {
+    return name;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
   public String getEducation() {
     return education;
   }

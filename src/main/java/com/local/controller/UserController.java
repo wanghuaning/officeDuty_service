@@ -2,10 +2,13 @@ package com.local.controller;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
+import com.local.cell.UnitManager;
 import com.local.common.redis.util.RedisUtil;
+import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
 import com.local.model.ImgResult;
+import com.local.service.PeopleService;
 import com.local.service.UnitService;
 import com.local.service.UserService;
 import com.local.util.*;
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -36,6 +40,8 @@ public class UserController {
 
     @Autowired
     private UnitService unitService;
+    @Autowired
+    private PeopleService peopleService;
 
     @ApiOperation(value = "登录",notes = "登录",httpMethod = "POST",tags = "登录管理接口")
     @PostMapping("/login")
@@ -65,11 +71,16 @@ public class UserController {
         }
         //返回前台的对象
         HashMap<String,Object> token=new HashMap<>();
-        searchUser=userService.selectUserByPassword(user.getUserAccount());
+        searchUser=userService.selectUserByName(user.getUserAccount());
         SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
         if (unit!=null){
             token.put("unit",unit);
             searchUser.setUnit(unit);
+        }
+        SYS_People people=peopleService.selectPeopleById(searchUser.getPeopleId());
+        if (people!=null){
+            token.put("people",people);
+            searchUser.setPeople(people);
         }
         //查询菜单
 //        searchUser=userService.selectRoleMenu(searchUser);
@@ -176,6 +187,53 @@ public class UserController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "新增用户", notes = "新增用户", httpMethod = "POST", tags = "新增用户接口")
+    @PostMapping(value = "/add")
+    @ResponseBody
+    public String createUser(@Validated @RequestBody SYS_USER user) {
+        try {
+            SYS_USER unitbyname = userService.selectUserByName(user.getUserAccount());
+            if (unitbyname != null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();
+            }
+            String uuid= UUID.randomUUID().toString();
+            user.setId(uuid);
+            user.setEnabled("0");
+            userService.insertUser(user);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, user, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "修改用户", notes = "修改用户", httpMethod = "POST", tags = "修改用户接口")
+    @PostMapping(value = "/update")
+    @ResponseBody
+    public String updateUser(@Validated @RequestBody SYS_USER user) {
+        try {
+            SYS_USER unitbyname = userService.selectUserByNameNotId(user.getUserAccount(),user.getId());
+            if (unitbyname != null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();
+            }
+            userService.updateUser(user);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, user, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "删除用户", notes = "删除用户", httpMethod = "POST", tags = "删除用户接口")
+    @PostMapping(value = "/delete")
+    @ResponseBody
+    public String deleteUser(@RequestParam(value = "id",required = true) String id) {
+        try {
+            userService.deleteUser(id);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, null, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
 }
