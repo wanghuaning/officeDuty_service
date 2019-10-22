@@ -45,7 +45,7 @@ public class SYS_Log implements Serializable {
 
   @Column("op_by")
   @Comment("操作人id")
-  @ColDefine(type = ColType.VARCHAR, width = 32)
+  @ColDefine(type = ColType.VARCHAR, width = 128)
   private String opBy;
 
   @Column("op_name")
