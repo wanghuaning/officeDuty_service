@@ -8,8 +8,10 @@ import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
 import com.local.service.PeopleService;
 import com.local.service.UnitService;
+import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
+import org.apache.catalina.User;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +45,8 @@ public class PeopleController {
     private RedisUtil redisUtil;
     @Autowired
     private UnitService unitService;
+    @Autowired
+    private UserService userService;
 
     @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
     @GetMapping("/info")
@@ -123,6 +128,12 @@ public class PeopleController {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             }else {
                 peopleService.deletePeople(id);
+                List<SYS_USER> userList=userService.selectUsersByPeopleId(id);
+                if (userList!=null){
+                    for (SYS_USER user:userList){
+                        userService.deleteUser(user.getId());
+                    }
+                }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
             }
         }catch (Exception e){
@@ -191,7 +202,11 @@ public class PeopleController {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }else {
                 List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unitId,"0");
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, peopleList, null).getJson();
+                if (peopleList!=null){
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, peopleList, null).getJson();
+                }else {
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, new ArrayList<SYS_People>(), null).getJson();
+                }
             }
         }catch (Exception e){
             logger.error(ResultMsg.GET_FIND_ERROR,e);

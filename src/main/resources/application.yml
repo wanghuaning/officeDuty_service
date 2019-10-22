@@ -7,6 +7,6 @@ server:
     max-http-post-size: 0
 spring:
   profiles:
-    active: dev
+    active: pro
 swagger:
   enable : true

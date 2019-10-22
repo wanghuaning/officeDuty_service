@@ -132,4 +132,17 @@ public class UserServiceImpl implements UserService {
    public void deleteUser(String id){
         dao.delete(SYS_USER.class,id);
     }
+
+    @Override
+    public List<SYS_USER> selectUsersByPeopleId(String pid){
+        List<SYS_USER> list = new ArrayList<>();
+        Criteria criteria = Cnd.cri();
+        criteria.where().andEquals("people_Id", pid);
+        list = dao.query(SYS_USER.class, criteria);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
 }

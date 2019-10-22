@@ -1,9 +1,15 @@
 package com.local.entity.sys;
 
+import com.local.service.PeopleService;
+import com.local.util.StrUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
@@ -70,6 +76,17 @@ public class SYS_USER implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String unitId;
 
+    @ApiModelProperty("人员姓名")
+    @Comment("人员姓名")
+    @Column("people_Name")
+    @ColDefine(type = ColType.VARCHAR,width = 64)
+    private String peopleName;
+    @ApiModelProperty("单位名")
+    @Comment("单位名")
+    @Column("unit_Name")
+    @ColDefine(type = ColType.VARCHAR,width = 64)
+    private String unitName;
+
     @ApiModelProperty("验证码ID")
     private String uuid;
 
@@ -87,8 +104,9 @@ public class SYS_USER implements Serializable {
 //    private List<SYS_Menu> menus;
 
 
+
     public SYS_People getPeople() {
-        return people;
+     return people;
     }
 
     public void setPeople(SYS_People people) {
@@ -109,6 +127,22 @@ public class SYS_USER implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getPeopleName() {
+        return peopleName;
+    }
+
+    public void setPeopleName(String peopleName) {
+        this.peopleName = peopleName;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
     public String getAvatar() {

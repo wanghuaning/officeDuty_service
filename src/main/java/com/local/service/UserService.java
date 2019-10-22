@@ -24,4 +24,5 @@ public interface UserService {
 
     void deleteUser(String id);
 
+    List<SYS_USER> selectUsersByPeopleId(String pid);
 }

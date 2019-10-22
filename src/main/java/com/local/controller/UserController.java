@@ -198,6 +198,17 @@ public class UserController {
             if (unitbyname != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();
             }
+            SYS_People people=peopleService.selectPeopleById(user.getPeopleId());
+            if (people!=null){
+                user.setPeople(people);
+                user.setPeopleName(people.getName());
+            }
+            SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+            if (unit!=null){
+                user.setUnit(unit);
+                user.setUnitName(unit.getName());
+            }
+            user.setUserPassword(MD5Utils.encryptPassword(user.getUserPassword()));
             String uuid= UUID.randomUUID().toString();
             user.setId(uuid);
             user.setEnabled("0");
@@ -217,6 +228,12 @@ public class UserController {
             if (unitbyname != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();
             }
+            SYS_People people=peopleService.selectPeopleById(user.getPeopleId());
+            if (people!=null){
+                user.setPeople(people);
+                user.setPeopleName(people.getName());
+            }
+            user.setUserPassword(MD5Utils.encryptPassword(user.getUserPassword()));
             userService.updateUser(user);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, user, null).getJson();
         } catch (Exception e) {
