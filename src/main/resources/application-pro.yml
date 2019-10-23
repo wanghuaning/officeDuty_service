@@ -51,3 +51,6 @@ redis:
     timeout: 5000
 logging:
   file: C:\log\my.log
+
+config:
+  dataFile: file:C:\Program Files\MySQL\MySQL Server 5.7\bin

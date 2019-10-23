@@ -2,7 +2,11 @@ package com.local.controller;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
+import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
+import com.local.common.config.ConfigProperties;
+import com.local.common.data.DatabaseTool;
+import com.local.common.filter.FileUtil;
 import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
@@ -19,12 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -251,6 +255,58 @@ public class UserController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+    @Autowired
+    private ConfigProperties configProperties;
+    @ApiOperation(value = "数据库备份", notes = "数据库备份", httpMethod = "GET", tags = "数据库备份接口")
+    @GetMapping(value = "/backup")
+    @ResponseBody
+    public String exportDatabase() {
+        try {
+            String str= PeopleManager.getGetBatchNumber();
+            boolean bs=DatabaseTool.exportDatabase("127.0.0.1","3306",configProperties.getUsername(),configProperties.getPassword(),
+                    "C:\\databaseBackup",str+".sql","officeDuty",configProperties.getDataFileUrl());
+            if (bs){
+                return new Result(ResultCode.SUCCESS.toString(),"'数据库成功备份'", str+".sql", null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(),"数据库备份失败", null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), "数据库备份失败", null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "数据库还原", notes = "数据库还原", httpMethod = "GET", tags = "数据库还原接口")
+    @PostMapping(value = "/importDatabase")
+    @ResponseBody
+    public String importDatabase(HttpServletResponse response,@RequestParam("excelFile") MultipartFile excelFile) {
+        try {
+            PrintWriter writer = response.getWriter();
+            File f = null;
+            if(excelFile.equals("")||excelFile.getSize()<=0){
+                excelFile = null;
+            }else{
+                InputStream ins = excelFile.getInputStream();
+                f=new File(excelFile.getOriginalFilename());
+                FileUtil.inputStreamToFile(ins, f);
+            }
+            writer.flush();
+            writer.close();
+            File del = new File(f.toURI());
+            boolean bs=DatabaseTool.importDatabase("127.0.0.1","3306",configProperties.getUsername(),configProperties.getPassword(),
+                    "C:\\databaseBackup",del.getPath(),"first");
+            String path=del.getPath();
+            del.delete();
+            if (bs){
+                return new Result(ResultCode.SUCCESS.toString(),"'数据库成功备份'", path, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(),"数据库备份失败", null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), "数据库备份失败", null, null).getJson();
         }
     }
 }

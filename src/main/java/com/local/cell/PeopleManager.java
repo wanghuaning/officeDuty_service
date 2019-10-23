@@ -7,10 +7,7 @@ import com.local.util.StrUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PeopleManager {
     private final static Logger logger= LoggerFactory.getLogger(PeopleManager.class);
@@ -463,5 +460,18 @@ public class PeopleManager {
             }
         }
         return peopleList;
+    }
+    /**
+     * 获取批次号
+     */
+    public static String getGetBatchNumber() {
+        Date date = new Date();
+        String day = String.valueOf(DateUtil.getDay(date));
+        String month = String.valueOf(DateUtil.getMonth(date))+1;
+        String year = String.valueOf(DateUtil.getYear(date));
+        String hour=String.valueOf(DateUtil.getHour(date));
+        String minute=String.valueOf(DateUtil.getMinute(date));
+        String num = year + month + day + "_" + hour+minute;
+        return num;
     }
 }
