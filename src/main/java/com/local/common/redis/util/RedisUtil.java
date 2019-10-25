@@ -532,8 +532,12 @@ public class RedisUtil {
      */
     public static  SYS_USER getUserByKey(String key)  {
         try {
-            SYS_USER user=(SYS_USER) redisTemplate.opsForValue().get(key);
-            return user;
+            if (!StrUtils.isBlank(key)){
+                SYS_USER user=(SYS_USER) redisTemplate.opsForValue().get(key);
+                return user;
+            }else {
+                return null;
+            }
         }catch (Exception e){
             e.printStackTrace();
             return null;

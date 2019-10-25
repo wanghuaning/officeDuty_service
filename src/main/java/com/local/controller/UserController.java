@@ -18,6 +18,7 @@ import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
 import org.nutz.dao.QueryResult;
+import org.nutz.mvc.annotation.GET;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -47,54 +49,89 @@ public class UserController {
     @Autowired
     private PeopleService peopleService;
 
+    @GetMapping("/systemUser")
+    public String setSystemUser()throws Exception{
+        SYS_USER user=new SYS_USER();
+        String uuid=UUID.randomUUID().toString();
+        user.setId(uuid);
+        user.setUserAccount("system");
+        SYS_UNIT unit= unitService.selectUnitByName("云南省昆明市");
+        user.setUnitId(unit.getId());
+        String password=RSAUtils.encrypt("916295778",RSAUtils.PUBLICKEY);
+        user.setUserPassword(password);
+        user.setRoles("1");
+        user.setEnabled("0");
+        user.setUnitName("云南省昆明市");
+        RedisUtil.set("token",user);
+        userService.insertUser(user);
+        return user.getUserAccount();
+    }
     @ApiOperation(value = "登录",notes = "登录",httpMethod = "POST",tags = "登录管理接口")
     @PostMapping("/login")
     public String Login(@Validated @RequestBody SYS_USER user){
-        Object code=redisUtil.get(user.getUuid());
+        try {
+            Object code=redisUtil.get(user.getUuid());
 //        System.out.println(user.getUserAccount()+"=>"+user.getUuid()+"=>"+code+"->"+user.getCode());
-        if (StrUtils.isBlank(code)){
-            return new Result(ResultCode.ERROR.toString(),ResultMsg.CHECK_EXPIRE,null,null).getJson();
-        }
-        if (StrUtils.isBlank(user.getUuid()) || !user.getCode().equalsIgnoreCase(String.valueOf(code))){//不区分大小写equalsIgnoreCase
-            return new Result(ResultCode.ERROR.toString(),ResultMsg.CHECK_ERROR,null,null).getJson();
-        }
-        SYS_USER searchUser=null;
-        //如果不是免密登录
-        if (StrUtils.isBlank(user.getToken())){
-            //查询用户名和密码是否匹配，密码需要先解密（前台），再加密（后台），然后匹配
-            user.setUserPassword(MD5Utils.encryptPassword(user.getUserPassword()));
-            searchUser=userService.selectUserByModel(user);
-            if (searchUser==null){
-                return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,null,null).getJson();
+            if (StrUtils.isBlank(code)){
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.CHECK_EXPIRE,null,null).getJson();
             }
-        }else{
-            searchUser=RedisUtil.getUserByKey(user.getToken());
-            if (StrUtils.isBlank(searchUser)){
-                return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGOUT_ERROR,null,null).getJson();
+            if (StrUtils.isBlank(user.getUuid()) || !user.getCode().equalsIgnoreCase(String.valueOf(code))){//不区分大小写equalsIgnoreCase
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.CHECK_ERROR,null,null).getJson();
             }
-        }
-        //返回前台的对象
-        HashMap<String,Object> token=new HashMap<>();
-        searchUser=userService.selectUserByName(user.getUserAccount());
-        SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
-        if (unit!=null){
-            token.put("unit",unit);
-            searchUser.setUnit(unit);
-        }
-        SYS_People people=peopleService.selectPeopleById(searchUser.getPeopleId());
-        if (people!=null){
-            token.put("people",people);
-            searchUser.setPeople(people);
-        }
-        //查询菜单
+            SYS_USER searchUser=null;
+            //如果不是免密登录
+            if (StrUtils.isBlank(user.getToken())){
+                //查询用户名和密码是否匹配，密码需要先解密（前台），再加密（后台），然后匹配
+                if ("system".equals(user.getUserAccount())){
+                    searchUser=userService.selectUserByName(user.getUserAccount());
+                    if (searchUser!=null){
+                        if (!user.getUserPassword().equals(RSAUtils.decrypt (searchUser.getUserPassword(),RSAUtils.PRIVATEKEY))){
+                            return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,null,null).getJson();
+                        }
+                    }else {
+                        return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,null,null).getJson();
+                    }
+                }else {
+                    user.setUserPassword(MD5Utils.encryptPassword(user.getUserPassword()));
+                    searchUser=userService.selectUserByModel(user);
+                    if (searchUser==null){
+                        return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,null,null).getJson();
+                    }
+                }
+            }else{
+                searchUser=RedisUtil.getUserByKey(user.getToken());
+                if (StrUtils.isBlank(searchUser)){
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGOUT_ERROR,null,null).getJson();
+                }
+            }
+            //返回前台的对象
+            HashMap<String,Object> token=new HashMap<>();
+            searchUser=userService.selectUserByName(user.getUserAccount());
+            SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
+            if (unit!=null){
+                token.put("unit",unit);
+                searchUser.setUnit(unit);
+            }
+            SYS_People people=peopleService.selectPeopleById(searchUser.getPeopleId());
+            if (people!=null){
+                token.put("people",people);
+                searchUser.setPeople(people);
+            }
+            //查询菜单
 //        searchUser=userService.selectRoleMenu(searchUser);
-        //将用户id放入redis
-        redisUtil.set(searchUser.getId(),searchUser,3600*24);
-        //前台去除密码
-        searchUser.setUserPassword("");
-        token.put("token",searchUser);
-        logger.info(ResultMsg.LOGIN_SUCCESS);
-        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_SUCCESS,token,null).getJson();
+            searchUser.setLastTime(new Date());
+            //将用户id放入redis
+            redisUtil.set(searchUser.getId(),searchUser,3600*24);
+            userService.updateUser(searchUser);
+            //前台去除密码
+            searchUser.setUserPassword("");
+            token.put("token",searchUser);
+            logger.info(ResultMsg.LOGIN_SUCCESS);
+            return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_SUCCESS,token,null).getJson();
+        }catch (Exception e){
+            logger.error(ResultMsg.ERROR,e);
+            return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,e,null).getJson();
+        }
     }
     /**
      * 获取用户信息
@@ -198,6 +235,9 @@ public class UserController {
     @ResponseBody
     public String createUser(@Validated @RequestBody SYS_USER user) {
         try {
+            if ("system".equals(user.getUserAccount())){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();
+            }
             SYS_USER unitbyname = userService.selectUserByName(user.getUserAccount());
             if (unitbyname != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();

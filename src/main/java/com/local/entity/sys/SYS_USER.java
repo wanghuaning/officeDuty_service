@@ -56,7 +56,7 @@ public class SYS_USER implements Serializable {
     @Comment("最后修改密码的日期")
     @Column("last_password_reset_time")
     @ColDefine(type = ColType.DATE)
-    private String lastTime;
+    private Date lastTime;
 
     @ApiModelProperty("状态：1启用、0禁用")
     @Comment("状态：1启用、0禁用")
@@ -81,11 +81,18 @@ public class SYS_USER implements Serializable {
     @Column("people_Name")
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String peopleName;
+
     @ApiModelProperty("单位名")
     @Comment("单位名")
     @Column("unit_Name")
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String unitName;
+
+    @ApiModelProperty("用户角色：0:普通用户，1:管理员")
+    @Comment("用户角色：0:普通用户，1:管理员")
+    @Column("roles")
+    @ColDefine(type = ColType.VARCHAR,width = 1)
+    private String roles;
 
     @ApiModelProperty("验证码ID")
     private String uuid;
@@ -104,6 +111,13 @@ public class SYS_USER implements Serializable {
 //    private List<SYS_Menu> menus;
 
 
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
 
     public SYS_People getPeople() {
      return people;
@@ -177,11 +191,11 @@ public class SYS_USER implements Serializable {
         this.userPassword = userPassword;
     }
 
-    public String getLastTime() {
+    public Date getLastTime() {
         return lastTime;
     }
 
-    public void setLastTime(String lastTime) {
+    public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
     }
 
