@@ -74,6 +74,50 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String batch;
 
+  @ApiModelProperty("民主测评结果")
+  @Comment("民主测评结果")
+  @Column("democracy")
+  @ColDefine(type = ColType.VARCHAR, width = 255)
+  private String democracy;
+
+  @ApiModelProperty("备注")
+  @Comment("备注")
+  @Column("detail")
+  @ColDefine(type = ColType.VARCHAR, width = 255)
+  private String detail;
+
+  @ApiModelProperty("审批时间")
+  @Comment("审批时间")
+  @Column("approval_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date approvalTime;
+
+  public String getDemocracy() {
+    return democracy;
+  }
+
+  public void setDemocracy(String democracy) {
+    this.democracy = democracy;
+  }
+
+  public Date getApprovalTime() {
+    return approvalTime;
+  }
+
+  public void setApprovalTime(Date approvalTime) {
+    this.approvalTime = approvalTime;
+  }
+
+  public String getDetail() {
+    return detail;
+  }
+
+  public void setDetail(String detail) {
+    this.detail = detail;
+  }
+
   public String getId() {
     return id;
   }

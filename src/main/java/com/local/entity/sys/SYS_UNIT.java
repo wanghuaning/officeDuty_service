@@ -92,18 +92,6 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 6)
     private long referOfficialNum;
 
-    @ApiModelProperty("厅局级正职领导职数")
-    @Comment("厅局级正职领导职数")
-    @Column("main_Hall_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long mainHallNum;
-
-    @ApiModelProperty("厅局级副职领导职数")
-    @Comment("厅局级副职领导职数")
-    @Column("deputy_Hall_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long deputyHallNum;
-
     @ApiModelProperty("县处级正职领导职数")
     @Comment("县处级正职领导职数")
     @Column("right_Place_Num")
@@ -115,6 +103,18 @@ public class SYS_UNIT implements Serializable {
     @Column("deputy_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
     private long deputyPlaceNum;
+
+    @ApiModelProperty("乡科级正职领导职数")
+    @Comment("乡科级正职领导职数")
+    @Column("main_Hall_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long mainHallNum;
+
+    @ApiModelProperty("乡科级副职领导职数")
+    @Comment("乡科级副职领导职数")
+    @Column("deputy_Hall_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long deputyHallNum;
 
     @ApiModelProperty("一级巡视员职数")
     @Comment("一级巡视员职数")
@@ -128,53 +128,32 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.INT,width = 6)
     private long towInspectorNum;
 
-    @ApiModelProperty("一级调研员职数")
-    @Comment("一级调研员职数")
-    @Column("one_Researcher_Num")
+    @ApiModelProperty("一级和二级调研员职数")
+    @Comment("一级和二级调研员职数")
+    @Column("one_Tow_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long oneResearcherNum;
+    private long oneTowResearcherNum;
 
-    @ApiModelProperty("二级调研员职数")
-    @Comment("二级调研员职数")
-    @Column("tow_Researcher_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long towResearcherNum;
 
-    @ApiModelProperty("三级调研员职数")
-    @Comment("三级调研员职数")
-    @Column("three_Researcher_Num")
+    @ApiModelProperty("三级和四级调研员职数")
+    @Comment("三级和四级调研员职数")
+    @Column("three_Four_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long threeResearcherNum;
+    private long threeFourResearcherNum;
 
-    @ApiModelProperty("四级调研员职数")
-    @Comment("四级调研员职数")
-    @Column("four_Researcher_Num")
+    @ApiModelProperty("一级和二级主任科员职数")
+    @Comment("一级和二级主任科员职数")
+    @Column("one_Tow_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long fourResearcherNum;
+    private long oneTowClerkNum;
 
-    @ApiModelProperty("一级主任科员职数")
-    @Comment("一级主任科员职数")
-    @Column("one_Clerk_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long oneClerkNum;
 
-    @ApiModelProperty("二级主任科员职数")
-    @Comment("二级主任科员职数")
-    @Column("tow_Clerk_Num")
+    @ApiModelProperty("三级和四级主任科员职数")
+    @Comment("三级和四级主任科员职数")
+    @Column("three_Four_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long towClerkNum;
+    private long threeFourClerkNum;
 
-    @ApiModelProperty("三级主任科员职数")
-    @Comment("三级主任科员职数")
-    @Column("three_Clerk_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long threeClerkNum;
-
-    @ApiModelProperty("四级主任科员职数")
-    @Comment("四级主任科员职数")
-    @Column("four_Clerk_Num")
-    @ColDefine(type = ColType.INT,width = 6)
-    private long fourClerkNum;
 
 
     @ApiModelProperty("机构状态0:可用 1：停用 2：导入单位没有找到上级")
@@ -397,68 +376,36 @@ public class SYS_UNIT implements Serializable {
         this.towInspectorNum = towInspectorNum;
     }
 
-    public long getOneResearcherNum() {
-        return oneResearcherNum;
+    public long getOneTowResearcherNum() {
+        return oneTowResearcherNum;
     }
 
-    public void setOneResearcherNum(long oneResearcherNum) {
-        this.oneResearcherNum = oneResearcherNum;
+    public void setOneTowResearcherNum(long oneTowResearcherNum) {
+        this.oneTowResearcherNum = oneTowResearcherNum;
     }
 
-    public long getTowResearcherNum() {
-        return towResearcherNum;
+    public long getThreeFourResearcherNum() {
+        return threeFourResearcherNum;
     }
 
-    public void setTowResearcherNum(long towResearcherNum) {
-        this.towResearcherNum = towResearcherNum;
+    public void setThreeFourResearcherNum(long threeFourResearcherNum) {
+        this.threeFourResearcherNum = threeFourResearcherNum;
     }
 
-    public long getThreeResearcherNum() {
-        return threeResearcherNum;
+    public long getOneTowClerkNum() {
+        return oneTowClerkNum;
     }
 
-    public void setThreeResearcherNum(long threeResearcherNum) {
-        this.threeResearcherNum = threeResearcherNum;
+    public void setOneTowClerkNum(long oneTowClerkNum) {
+        this.oneTowClerkNum = oneTowClerkNum;
     }
 
-    public long getFourResearcherNum() {
-        return fourResearcherNum;
+    public long getThreeFourClerkNum() {
+        return threeFourClerkNum;
     }
 
-    public void setFourResearcherNum(long fourResearcherNum) {
-        this.fourResearcherNum = fourResearcherNum;
-    }
-
-    public long getOneClerkNum() {
-        return oneClerkNum;
-    }
-
-    public void setOneClerkNum(long oneClerkNum) {
-        this.oneClerkNum = oneClerkNum;
-    }
-
-    public long getTowClerkNum() {
-        return towClerkNum;
-    }
-
-    public void setTowClerkNum(long towClerkNum) {
-        this.towClerkNum = towClerkNum;
-    }
-
-    public long getThreeClerkNum() {
-        return threeClerkNum;
-    }
-
-    public void setThreeClerkNum(long threeClerkNum) {
-        this.threeClerkNum = threeClerkNum;
-    }
-
-    public long getFourClerkNum() {
-        return fourClerkNum;
-    }
-
-    public void setFourClerkNum(long fourClerkNum) {
-        this.fourClerkNum = fourClerkNum;
+    public void setThreeFourClerkNum(long threeFourClerkNum) {
+        this.threeFourClerkNum = threeFourClerkNum;
     }
 
     public String getEnabled() {
@@ -570,14 +517,10 @@ public class SYS_UNIT implements Serializable {
                 deputyPlaceNum == unit.deputyPlaceNum &&
                 oneInspectorNum == unit.oneInspectorNum &&
                 towInspectorNum == unit.towInspectorNum &&
-                oneResearcherNum == unit.oneResearcherNum &&
-                towResearcherNum == unit.towResearcherNum &&
-                threeResearcherNum == unit.threeResearcherNum &&
-                fourResearcherNum == unit.fourResearcherNum &&
-                oneClerkNum == unit.oneClerkNum &&
-                towClerkNum == unit.towClerkNum &&
-                threeClerkNum == unit.threeClerkNum &&
-                fourClerkNum == unit.fourClerkNum &&
+                oneTowResearcherNum == unit.oneTowResearcherNum &&
+                threeFourResearcherNum == unit.threeFourResearcherNum &&
+                oneTowClerkNum== unit.oneTowClerkNum &&
+                threeFourClerkNum == unit.threeFourClerkNum &&
 //                hasChildren == unit.hasChildren &&
                 Objects.equals(id, unit.id) &&
                 Objects.equals(code, unit.code) &&
@@ -604,7 +547,7 @@ public class SYS_UNIT implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, code, name, parentId, area, affiliation, category, level, referOfficialDocument, referOfficialDate, officialNum, referOfficialNum, mainHallNum, deputyHallNum, rightPlaceNum, deputyPlaceNum, oneInspectorNum, towInspectorNum, oneResearcherNum, towResearcherNum, threeResearcherNum, fourResearcherNum, oneClerkNum, towClerkNum, threeClerkNum, fourClerkNum, enabled, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, hasChildren, children, value, label);
+        int result = Objects.hash(id, code, name, parentId, area, affiliation, category, level, referOfficialDocument, referOfficialDate, officialNum, referOfficialNum, mainHallNum, deputyHallNum, rightPlaceNum, deputyPlaceNum, oneInspectorNum, towInspectorNum, oneTowResearcherNum, threeFourResearcherNum, oneTowClerkNum, threeFourClerkNum, enabled, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, hasChildren, children, value, label);
         result = 31 * result + Arrays.hashCode(areaStrs);
         return result;
     }
