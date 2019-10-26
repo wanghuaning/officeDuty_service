@@ -23,13 +23,13 @@ public class SYS_USER implements Serializable {
     @ApiModelProperty("用户id")//用在属性上，对属性做注释
     @Comment("用户id")//定义脚本中添加comment属性来添加注释
     @Column("id")
-    @ColDefine(type = ColType.VARCHAR,width = 64)
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     private String id;
 
     @ApiModelProperty("头像地址")
     @Comment("头像地址")
     @Column("avatar")
-    @ColDefine(type = ColType.VARCHAR,width = 255)
+    @ColDefine(type = ColType.VARCHAR, width = 255)
     private String avatar;
 
     @ApiModelProperty("创建日期")
@@ -42,14 +42,14 @@ public class SYS_USER implements Serializable {
     @Comment("账号")
     @NotEmpty(message = "请输入用户名!")
     @Column("user_account")
-    @ColDefine(type = ColType.VARCHAR,width = 255)
+    @ColDefine(type = ColType.VARCHAR, width = 255)
     private String userAccount;
 
     @ApiModelProperty("密码")
     @Comment("密码")
     @NotEmpty(message = "请输入密码!")
     @Column("user_password")
-    @ColDefine(type = ColType.VARCHAR,width = 255)
+    @ColDefine(type = ColType.VARCHAR, width = 255)
     private String userPassword;
 
     @ApiModelProperty("最后修改密码的日期")
@@ -67,31 +67,31 @@ public class SYS_USER implements Serializable {
     @ApiModelProperty("人员ID")
     @Comment("人员ID")
     @Column("people_id")
-    @ColDefine(type = ColType.VARCHAR,width = 64)
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     private String peopleId;
 
     @ApiModelProperty("单位ID")
     @Comment("单位ID")
     @Column("unit_id")
-    @ColDefine(type = ColType.VARCHAR,width = 64)
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     private String unitId;
 
     @ApiModelProperty("人员姓名")
     @Comment("人员姓名")
     @Column("people_Name")
-    @ColDefine(type = ColType.VARCHAR,width = 64)
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     private String peopleName;
 
     @ApiModelProperty("单位名")
     @Comment("单位名")
     @Column("unit_Name")
-    @ColDefine(type = ColType.VARCHAR,width = 64)
+    @ColDefine(type = ColType.VARCHAR, width = 64)
     private String unitName;
 
     @ApiModelProperty("用户角色：0:普通用户，1:管理员")
     @Comment("用户角色：0:普通用户，1:管理员")
     @Column("roles")
-    @ColDefine(type = ColType.VARCHAR,width = 1)
+    @ColDefine(type = ColType.VARCHAR, width = 1)
     private String roles;
 
     @ApiModelProperty("验证码ID")
@@ -102,6 +102,9 @@ public class SYS_USER implements Serializable {
 
     @ApiModelProperty("用于系统免登陆")
     private String token;
+
+    private String permission;
+
 
     private SYS_UNIT unit;
 
@@ -119,8 +122,24 @@ public class SYS_USER implements Serializable {
         this.roles = roles;
     }
 
+    public String getPermission() {
+        if ("system".equals(userAccount)) {
+            return "超级管理员";
+        } else {
+            if ("1".equals(roles)) {
+                return "管理员";
+            } else {
+                return "普通用户";
+            }
+        }
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
+
     public SYS_People getPeople() {
-     return people;
+        return people;
     }
 
     public void setPeople(SYS_People people) {
