@@ -28,13 +28,14 @@ public class UnitServiceImpl implements UnitService {
     @Override
     public List<SYS_UNIT> selectAllChildUnits(String parentId){
         Criteria criteria=Cnd.cri();
+        cunits=new ArrayList<>();
         List<SYS_UNIT> unitList=new ArrayList<>();
         if (!StrUtils.isBlank(parentId)){
             criteria.where().andEquals("parent_Id",parentId);
             unitList=dao.query(SYS_UNIT.class,criteria);
-            cunits.addAll(unitList);
+//            cunits.addAll(unitList);
             getAllChildUnits(unitList);
-            return  unitList;
+            return  cunits;
         }else {
             return new ArrayList<SYS_UNIT>();
         }
@@ -42,13 +43,12 @@ public class UnitServiceImpl implements UnitService {
 
     public void getAllChildUnits(List<SYS_UNIT> unitList){
         for (SYS_UNIT unit : unitList)  {
+//            System.out.println(unit.getName());
+            cunits.add(unit);
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
                 if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {
-                    cunits.add(unit);
                     getAllChildUnits(cunitList);
-                }else {
-                    cunits.add(unit);
                 }
             }
         }
@@ -114,11 +114,11 @@ public class UnitServiceImpl implements UnitService {
 //                    unit.setAreaStrs(arr);
                     getUnits(unitList, enabled, name);
                 } else {
-                    unit.setChildren(new ArrayList<>());
+//                    unit.setChildren(new ArrayList<SYS_UNIT>());
                     unit.setHasChildren(false);
                 }
             } else {
-                unit.setChildren(new ArrayList<>());
+//                unit.setChildren(new ArrayList<SYS_UNIT>());
             }
             if (unit.getBuildCounty()!=null){
                 String[] arr={unit.getBuildProvince(),unit.getBuildCity(),unit.getBuildCounty()};

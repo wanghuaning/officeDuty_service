@@ -1,6 +1,7 @@
 package com.local.controller;
 
 import com.local.entity.sys.SYS_CODE;
+import com.local.model.ResultModel;
 import com.local.service.CodeService;
 import com.local.util.Result;
 import com.local.util.ResultCode;
@@ -202,6 +203,27 @@ public class CodeController {
         List<SYS_CODE> codes=codeService.selectCodesByPid("370");
         if (codes!=null){
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "民主测评结果", notes = "民主测评结果", httpMethod = "GET", tags = {"民主测评结果查询接口"})
+    @GetMapping("/democracy")
+    @ResponseBody
+    public String getDemocracy(){
+        List<ResultModel> list=new ArrayList<>();
+        ResultModel model1=new ResultModel();
+        model1.setValue("");
+        model1.setLabel("无");
+        list.add(model1);
+        for (int i=100;i>0;i--){
+            ResultModel model=new ResultModel();
+            model.setLabel(i+"%");
+            model.setValue(i+"%");
+            list.add(model);
+        }
+        if (list.size()>0){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,list,null).getJson();
         }else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }

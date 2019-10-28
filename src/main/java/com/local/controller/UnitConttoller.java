@@ -58,10 +58,11 @@ public class UnitConttoller {
 
     @Autowired
     private EducationService educationService;
+
     @ApiOperation(value = "查询单位", notes = "查询单位", httpMethod = "GET", tags = "查询单位接口")
     @GetMapping("/unit")
     @ResponseBody
-    public String getUnits(@RequestParam(value = "name", required = false) String name,
+    public String getUnitsTree(@RequestParam(value = "name", required = false) String name,
                            @RequestParam(value = "enabled", required = false) String enabled,HttpServletRequest request ) {
         try {
             //从请求的header中取出当前登录的登录
@@ -74,6 +75,35 @@ public class UnitConttoller {
                 String parentId=user.getUnitId();
                 if (!StrUtils.isBlank(parentId)){
                     List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled,parentId);
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, user).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.GET_FIND_ERROR,null,null).getJson();
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.GET_FIND_ERROR,null,null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "查询单位", notes = "查询单位", httpMethod = "GET", tags = "查询单位接口")
+    @GetMapping("/unitSelect")
+    @ResponseBody
+    public String getUnitsSelect(HttpServletRequest request) {
+        try {
+            //从请求的header中取出当前登录的登录
+            String token=request.getHeader("userToken");
+            if (token == null || "".equals(token)){
+                token=request.getParameter("userToken");//从请求的url中获取
+            }
+            SYS_USER user=redisUtil.getUserByKey(token);
+            if (user!=null){
+                String parentId=user.getUnitId();
+                if (!StrUtils.isBlank(parentId)){
+                    List<SYS_UNIT> queryResult =new ArrayList<>();
+                    queryResult.add(user.getUnit());
+                    queryResult.addAll(unitService.selectAllChildUnits(parentId));
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, user).getJson();
                 }else {
                     return new Result(ResultCode.ERROR.toString(),ResultMsg.GET_FIND_ERROR,null,null).getJson();
@@ -168,26 +198,35 @@ public class UnitConttoller {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "导出单位", notes = "导出单位", httpMethod = "GET", tags = "导出单位接口")
+    @ApiOperation(value = "导出单位", notes = "导出单位", httpMethod = "POST", tags = "导出单位接口")
     @RequestMapping(value = "/unit/outExcel")
-    public String getUnitExcel(HttpServletRequest request, HttpServletResponse response){
-        System.out.println("导出");
+    public String getUnitExcel(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitId") String unitId){
         try {
-            List<SYS_UNIT> unitList=unitService.selectUnitAll();
-            ClassPathResource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
-//            File file= ResourceUtils.getFile("classpath:exportExcel/exportUnitInfo.xls");
-//            String path=file.getPath();
-            String path=resource.getFile().getPath();
-            String[] arr={"name","code","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","officialNum","referOfficialNum","referOfficialDate","referOfficialDocument","mainHallNum","deputyHallNum",
-            "rightPlaceNum","deputyPlaceNum","oneInspectorNum","towInspectorNum","oneResearcherNum","towResearcherNum","threeResearcherNum"
-                    ,"fourResearcherNum","oneClerkNum","towClerkNum","threeClerkNum","fourClerkNum","detail"};
-            Workbook temp=ExcelFileGenerator.getTeplet(path);
-            ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
-            excelFileGenerator.setExcleNAME(response,"单位信息表导出.xls");
-            excelFileGenerator.createExcelFile(temp.getSheet("单位信息"),2,unitList,arr);
-            temp.write(response.getOutputStream());
-            temp.close();
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, unitList, null).getJson();
+                if (!StrUtils.isBlank(unitId)) {
+                    List<SYS_UNIT> unitList=new ArrayList<>();
+                    SYS_UNIT unit=unitService.selectUnitById(unitId);
+                    if (unit!=null){
+                        unitList.add(unit);
+                    }
+                    List<SYS_UNIT> cunitList=unitService.selectAllChildUnits(unitId);
+                    if (cunitList.size()>0){
+                        unitList.addAll(cunitList);
+                    }
+                    ClassPathResource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
+                    String path=resource.getFile().getPath();
+                    String[] arr={"name","code","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","officialNum","referOfficialNum","referOfficialDate","referOfficialDocument","mainHallNum","deputyHallNum",
+                            "rightPlaceNum","deputyPlaceNum","oneInspectorNum","towInspectorNum","oneResearcherNum","towResearcherNum","threeResearcherNum"
+                            ,"fourResearcherNum","oneClerkNum","towClerkNum","threeClerkNum","fourClerkNum","detail"};
+                    Workbook temp=ExcelFileGenerator.getTeplet(path);
+                    ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
+                    excelFileGenerator.setExcleNAME(response,"单位信息表导出.xls");
+                    excelFileGenerator.createExcelFile(temp.getSheet("单位信息"),2,unitList,arr);
+                    temp.write(response.getOutputStream());
+                    temp.close();
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, unitList, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+                }
         }catch (Exception e){
             logger.error(ResultMsg.GET_EXCEL_ERROR,e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();

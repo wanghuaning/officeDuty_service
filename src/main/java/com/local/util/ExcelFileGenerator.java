@@ -1,6 +1,7 @@
 package com.local.util;
 
 import com.local.controller.UnitConttoller;
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.sound.midi.Soundbank;
 import java.io.*;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -22,31 +24,34 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ExcelFileGenerator <T>{
+public class ExcelFileGenerator<T> {
     private final static Logger logger = LoggerFactory.getLogger(ExcelFileGenerator.class);
-    private static Map<String, byte[]> templetes=new HashMap<>();
+    private static Map<String, byte[]> templetes = new HashMap<>();
+
     public static Workbook getTeplet(String path) throws IOException, InvalidFormatException {
-        if (!templetes.containsKey(path)){
-            templetes.put(path,fileToByteArray(path));
+        if (!templetes.containsKey(path)) {
+            templetes.put(path, fileToByteArray(path));
         }
         return WorkbookFactory.create(new ByteArrayInputStream(templetes.get(path)));
     }
+
     public static byte[] fileToByteArray(String path) throws IOException {
-        File file=new File(path);
-        int fileSize=(int) file.length();
-        byte[] dataArr=new byte[fileSize];
-        FileInputStream data=new FileInputStream(path);
-        int readCount= (int) data.read(dataArr);
-        int totleCount=0;
-        while (readCount>0){
-            totleCount+=totleCount;
-            readCount=data.read(dataArr,totleCount,fileSize-readCount);
+        File file = new File(path);
+        int fileSize = (int) file.length();
+        byte[] dataArr = new byte[fileSize];
+        FileInputStream data = new FileInputStream(path);
+        int readCount = (int) data.read(dataArr);
+        int totleCount = 0;
+        while (readCount > 0) {
+            totleCount += totleCount;
+            readCount = data.read(dataArr, totleCount, fileSize - readCount);
         }
         return dataArr;
     }
 
     /**
      * 设置Excel表名
+     *
      * @param response
      * @param fileName
      * @throws UnsupportedEncodingException
@@ -56,30 +61,58 @@ public class ExcelFileGenerator <T>{
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
-    public int  createExcelFile(Sheet sheet, int dataStartIndex, List<T> data, String[] columns)throws Exception{
-        CellStyle cellStyle=sheet.getWorkbook().createCellStyle();
-        cellStyle.setBorderBottom(BorderStyle.DOUBLE ); //下边框
-        cellStyle.setBorderLeft(BorderStyle.THICK); //左边框
-        cellStyle.setBorderTop(BorderStyle.MEDIUM); //上边框
-        cellStyle.setBorderRight(BorderStyle.DASH_DOT); //右边框
+    /**
+     * @param sheet
+     * @return
+     * @throws Exception
+     */
+    public int createExcelFileFixedRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
-        Font font=sheet.getWorkbook().createFont();
+        Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
         font.setFontHeightInPoints((short) 12);//设置行高像素
         font.setFontName("仿宋");
         cellStyle.setFont(font);
         cellStyle.setWrapText(true);
-        int rowIndex=dataStartIndex;
-        if(data.size()>0){
-            Class classType=data.get(0).getClass();
-            for(Object d:data){
-                Row row=sheet.createRow(rowIndex);
+        Row row = sheet.getRow(rowIndex);
+        for (int i = 0; i < columns.length; i++) {
+            Cell c = null;
+            if (row.getCell(i)!=null){
+                c=row.getCell(colIndex[i]);
+            }else {
+                row.createCell(colIndex[i]);
+            }
+            c.setCellStyle(cellStyle);
+            setCellFormattedValue(c, columns[i]);
+        }
+        return rowIndex;
+    }
+
+    public int createExcelFile(Sheet sheet, int dataStartIndex, List<T> data, String[] columns) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setBorderBottom(BorderStyle.DOUBLE); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THICK); //左边框
+        cellStyle.setBorderTop(BorderStyle.MEDIUM); //上边框
+        cellStyle.setBorderRight(BorderStyle.DASH_DOT); //右边框
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        int rowIndex = dataStartIndex;
+        if (data.size() > 0) {
+            Class classType = data.get(0).getClass();
+            for (Object d : data) {
+                Row row = sheet.createRow(rowIndex);
                 boolean isChanged = false;
-                for (int i=0;i <columns.length;i++) {
+                for (int i = 0; i < columns.length; i++) {
                     Cell c = row.createCell(i);
                     c.setCellStyle(cellStyle);
                     if (columns[i] != null && columns[i].length() > 0) {
-                        String normalName = columns[i].substring(0,1).toUpperCase() + columns[i].substring(1);
+                        String normalName = columns[i].substring(0, 1).toUpperCase() + columns[i].substring(1);
                         Object rs = classType.getMethod("get" + normalName).invoke(d);
                         if (rs != null) {
                             isChanged = true;
@@ -92,11 +125,11 @@ public class ExcelFileGenerator <T>{
         }
         return rowIndex;
     }
+
     /**
      * 设置单元格的值，并判断是否数字
-     *
      */
-    private static void  setCellFormattedValue(Cell cell, Object value) {
+    private static void setCellFormattedValue(Cell cell, Object value) {
         String textValue = null;
         if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
@@ -115,7 +148,7 @@ public class ExcelFileGenerator <T>{
                 textValue = "否";
             }
         } else if (value instanceof Date) {
-            String pattern="yyyy-MM-dd HH:mm:ss";
+            String pattern = "yyyy-MM-dd HH:mm:ss";
             SimpleDateFormat sdf = new SimpleDateFormat(pattern);
             textValue = sdf.format((Date) value);
         } else {
@@ -131,53 +164,57 @@ public class ExcelFileGenerator <T>{
                 // 是数字当作double处理
                 cell.setCellValue(Double.parseDouble(textValue));
             } else {
+                cell.setCellType(CellType.STRING);
                 XSSFRichTextString richString = new XSSFRichTextString(textValue);
                 cell.setCellValue(richString);
             }
         }
     }
+
     /**
      * 创建Excel表压缩文件包
      * * @param tableName  压缩包名字
+     *
      * @param userAgent  处理firefox乱码
      * @param sheetIndex 名字所在表坐标
      * @param rowIndex   获取名字row的坐标
      * @param colIndex   获取名字col坐标
      */
- public static void creatExcelZip(List<Workbook> workBookList, String tableName, String excleName, HttpServletResponse response,
-                                  String userAgent, int sheetIndex, int rowIndex, int colIndex) throws UnsupportedEncodingException ,IOException{
-     String fileName = tableName + ".zip";
-     String zipFileName = "";
-     if (userAgent.toLowerCase().indexOf("firefox") > 0) {
-         zipFileName = new String(fileName.getBytes("UTF-8"), "ISO8859-1");
-     } else {
-         zipFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
-     }
-     String zipName = zipFileName;
-     response.setContentType("APPLICATION/OCTET-STREAM");
-     response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
-     ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream());
-     int i = 0;
-     for (Workbook workBook: workBookList) {
-         String name = workBook.getSheetName(0);
-         if (rowIndex == 0 && colIndex == 0) {
-             zipOut.putNextEntry(new ZipEntry(excleName + ".xls"));
-         } else {
-             Sheet sheet = workBook.getSheetAt(0);
-              name = sheet.getRow(rowIndex).getCell(colIndex).getStringCellValue().trim();
-             zipOut.putNextEntry(new ZipEntry(excleName+i + ".xls"));
-         }
-         i += 1;
-         workBook.write(zipOut);
-         workBook.close();
-         System.out.println("压缩好第"+i+"个");
-     }
-     zipOut.close();
- }
+    public static void creatExcelZip(List<Workbook> workBookList, String tableName, String excleName, HttpServletResponse response,
+                                     String userAgent, int sheetIndex, int rowIndex, int colIndex) throws UnsupportedEncodingException, IOException {
+        String fileName = tableName + ".zip";
+        String zipFileName = "";
+        if (userAgent.toLowerCase().indexOf("firefox") > 0) {
+            zipFileName = new String(fileName.getBytes("UTF-8"), "ISO8859-1");
+        } else {
+            zipFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
+        }
+        String zipName = zipFileName;
+        response.setContentType("APPLICATION/OCTET-STREAM");
+        response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
+        ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream());
+        int i = 0;
+        for (Workbook workBook : workBookList) {
+            String name = workBook.getSheetName(0);
+            if (rowIndex == 0 && colIndex == 0) {
+                zipOut.putNextEntry(new ZipEntry(excleName + ".xls"));
+            } else {
+                Sheet sheet = workBook.getSheetAt(0);
+                name = sheet.getRow(rowIndex).getCell(colIndex).getStringCellValue().trim();
+                zipOut.putNextEntry(new ZipEntry(excleName + i + ".xls"));
+            }
+            i += 1;
+            workBook.write(zipOut);
+            workBook.close();
+            System.out.println("压缩好第" + i + "个");
+        }
+        zipOut.close();
+    }
 
 
     /**
      * excelz转为List
+     *
      * @param inputStream
      * @return
      */
@@ -218,6 +255,7 @@ public class ExcelFileGenerator <T>{
 
     /**
      * Excel数据返回
+     *
      * @param inputStream
      * @param index
      * @return
@@ -275,10 +313,11 @@ public class ExcelFileGenerator <T>{
 
     /**
      * 读取Excel表数据
+     *
      * @param excelInputSteam
-     * @param sheetNumber 读取Excel表位置 0开始
-     * @param headerNumber 表头位置 0开始
-     * @param rowStart 读取开始位置 0开始
+     * @param sheetNumber     读取Excel表位置 0开始
+     * @param headerNumber    表头位置 0开始
+     * @param rowStart        读取开始位置 0开始
      * @return
      * @throws IOException
      * @throws InvalidFormatException
@@ -344,9 +383,10 @@ public class ExcelFileGenerator <T>{
 
     /**
      * 或Excel表头
+     *
      * @param excelInputSteam
-     * @param sheetNumber 数据表序号 0开始
-     * @param headerNumber 表头开始位置 0开始
+     * @param sheetNumber     数据表序号 0开始
+     * @param headerNumber    表头开始位置 0开始
      * @return
      * @throws IOException
      * @throws InvalidFormatException
@@ -368,18 +408,20 @@ public class ExcelFileGenerator <T>{
         }
         return headers;
     }
+
     /**
      * 或Excel表头
+     *
      * @param excelInputSteam
-     * @param sheetname 数据表sheet名
-     * @param headerNumber 表头开始位置 0开始
+     * @param sheetname       数据表sheet名
+     * @param headerNumber    表头开始位置 0开始
      * @return
      * @throws IOException
      * @throws InvalidFormatException
      */
     public static List<String> readeExcelHeaderBySheetName(InputStream excelInputSteam,
-                                                String sheetname,
-                                                int headerNumber) throws IOException, InvalidFormatException {
+                                                           String sheetname,
+                                                           int headerNumber) throws IOException, InvalidFormatException {
         //要返回的数据
         List<String> headers = new ArrayList<String>();
         //生成工作表
@@ -394,20 +436,22 @@ public class ExcelFileGenerator <T>{
         }
         return headers;
     }
+
     /**
      * 读取Excel表数据
+     *
      * @param excelInputSteam
-     * @param sheetName 读取Excel表名
-     * @param headerNumber 表头位置 0开始
-     * @param rowStart 读取开始位置 0开始
+     * @param sheetName       读取Excel表名
+     * @param headerNumber    表头位置 0开始
+     * @param rowStart        读取开始位置 0开始
      * @return
      * @throws IOException
      * @throws InvalidFormatException
      */
     public static List<Map<String, Object>> readeExcelDataBySheetName(InputStream excelInputSteam,
-                                                           String sheetName,
-                                                           int headerNumber,
-                                                           int rowStart) throws IOException, InvalidFormatException {
+                                                                      String sheetName,
+                                                                      int headerNumber,
+                                                                      int rowStart) throws IOException, InvalidFormatException {
         //需要的变量以及要返回的数据
         List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
         List<String> headers = new ArrayList<String>();

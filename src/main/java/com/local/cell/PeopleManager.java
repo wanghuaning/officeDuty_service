@@ -204,11 +204,16 @@ public class PeopleManager {
                             rank.setRankType(StrUtils.toNullStr(map.get("类别（职级标志）")));
                             rank.setStatus(StrUtils.toNullStr(map.get("状态")));
                             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
+                            rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
                             String serveTime=String.valueOf(map.get("终止日期"));
                             if (!StrUtils.isBlank(serveTime)){
                                 rank.setServeTime(DateUtil.stringToDate(serveTime));
                             }
                             rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
+                            String approvalTime=String.valueOf(map.get("审批日期"));
+                            if (!StrUtils.isBlank(serveTime)){
+                                rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
+                            }
                             SYS_Rank rank1=rankService.selectRankByNameAndTime(rank.getName(),people.getId(),rank.getCreateTime());
                             if ("1".equals(fullImport)){//覆盖导入
                                 if (rank1!=null){

@@ -268,6 +268,9 @@ public class UserController {
     @ResponseBody
     public String updateUser(@Validated @RequestBody SYS_USER user) {
         try {
+            if ("system".equals(user.getUserAccount())){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.PRIV_ERROR, null, null).getJson();
+            }
             SYS_USER unitbyname = userService.selectUserByNameNotId(user.getUserAccount(),user.getId());
             if (unitbyname != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_EXIST, null, null).getJson();
@@ -288,8 +291,19 @@ public class UserController {
     @ApiOperation(value = "删除用户", notes = "删除用户", httpMethod = "POST", tags = "删除用户接口")
     @PostMapping(value = "/delete")
     @ResponseBody
-    public String deleteUser(@RequestParam(value = "id",required = true) String id) {
+    public String deleteUser(@RequestParam(value = "id",required = true) String id,HttpServletRequest request) {
         try {
+            SYS_USER user=userService.selectUserById(id);
+            if ("system".equals(user.getUserAccount())){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.PRIV_ERROR, null, null).getJson();
+            }
+            String token=request.getHeader("userToken");
+            if (token == null || "".equals(token)){
+                token=request.getParameter("userToken");//从请求的url中获取
+            }
+            if (id.equals(token)){
+                return new Result(ResultCode.ERROR.toString(), "不可删除自己！", null, null).getJson();
+            }
             userService.deleteUser(id);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, null, null).getJson();
         } catch (Exception e) {

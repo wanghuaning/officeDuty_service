@@ -155,6 +155,54 @@ public class SYS_UNIT implements Serializable {
     private long threeFourClerkNum;
 
 
+    @ApiModelProperty("一级调研员职数")
+    @Comment("一级调研员职数")
+    @Column("one_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long oneResearcherNum;
+
+    @ApiModelProperty("二级调研员职数")
+    @Comment("二级调研员职数")
+    @Column("tow_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long towResearcherNum;
+
+
+    @ApiModelProperty("三级调研员职数")
+    @Comment("三级调研员职数")
+    @Column("three_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long threeResearcherNum;
+
+    @ApiModelProperty("四级调研员职数")
+    @Comment("四级调研员职数")
+    @Column("four_Researcher_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long fourResearcherNum;
+
+    @ApiModelProperty("一级主任科员职数")
+    @Comment("一级主任科员职数")
+    @Column("one_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long oneClerkNum;
+
+    @ApiModelProperty("二级主任科员职数")
+    @Comment("二级主任科员职数")
+    @Column("tow_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long towClerkNum;
+
+    @ApiModelProperty("三级主任科员职数")
+    @Comment("三级主任科员职数")
+    @Column("three_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long threeClerkNum;
+
+    @ApiModelProperty("四级主任科员职数")
+    @Comment("四级主任科员职数")
+    @Column("four_Clerk_Num")
+    @ColDefine(type = ColType.INT,width = 6)
+    private long fourClerkNum;
 
     @ApiModelProperty("机构状态0:可用 1：停用 2：导入单位没有找到上级")
     @Comment("机构状态")
@@ -230,6 +278,70 @@ public class SYS_UNIT implements Serializable {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public long getOneResearcherNum() {
+        return oneResearcherNum;
+    }
+
+    public void setOneResearcherNum(long oneResearcherNum) {
+        this.oneResearcherNum = oneResearcherNum;
+    }
+
+    public long getTowResearcherNum() {
+        return towResearcherNum;
+    }
+
+    public void setTowResearcherNum(long towResearcherNum) {
+        this.towResearcherNum = towResearcherNum;
+    }
+
+    public long getThreeResearcherNum() {
+        return threeResearcherNum;
+    }
+
+    public void setThreeResearcherNum(long threeResearcherNum) {
+        this.threeResearcherNum = threeResearcherNum;
+    }
+
+    public long getFourResearcherNum() {
+        return fourResearcherNum;
+    }
+
+    public void setFourResearcherNum(long fourResearcherNum) {
+        this.fourResearcherNum = fourResearcherNum;
+    }
+
+    public long getOneClerkNum() {
+        return oneClerkNum;
+    }
+
+    public void setOneClerkNum(long oneClerkNum) {
+        this.oneClerkNum = oneClerkNum;
+    }
+
+    public long getTowClerkNum() {
+        return towClerkNum;
+    }
+
+    public void setTowClerkNum(long towClerkNum) {
+        this.towClerkNum = towClerkNum;
+    }
+
+    public long getThreeClerkNum() {
+        return threeClerkNum;
+    }
+
+    public void setThreeClerkNum(long threeClerkNum) {
+        this.threeClerkNum = threeClerkNum;
+    }
+
+    public long getFourClerkNum() {
+        return fourClerkNum;
+    }
+
+    public void setFourClerkNum(long fourClerkNum) {
+        this.fourClerkNum = fourClerkNum;
     }
 
     public String getId() {
@@ -521,7 +633,7 @@ public class SYS_UNIT implements Serializable {
                 threeFourResearcherNum == unit.threeFourResearcherNum &&
                 oneTowClerkNum== unit.oneTowClerkNum &&
                 threeFourClerkNum == unit.threeFourClerkNum &&
-//                hasChildren == unit.hasChildren &&
+                hasChildren == unit.hasChildren &&
                 Objects.equals(id, unit.id) &&
                 Objects.equals(code, unit.code) &&
                 Objects.equals(name, unit.name) &&
@@ -540,7 +652,7 @@ public class SYS_UNIT implements Serializable {
                 Objects.equals(buildCity, unit.buildCity) &&
                 Objects.equals(buildCounty, unit.buildCounty) &&
                 Arrays.equals(areaStrs, unit.areaStrs) &&
-//                Objects.equals(children, unit.children) &&
+                Objects.equals(children, unit.children) &&
                 Objects.equals(value, unit.value) &&
                 Objects.equals(label, unit.label);
     }

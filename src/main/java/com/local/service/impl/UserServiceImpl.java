@@ -145,4 +145,17 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public SYS_USER selectUserById(String id){
+        List<SYS_USER> list = new ArrayList<>();
+        Criteria criteria = Cnd.cri();
+        criteria.where().andEquals("id", id);
+        list = dao.query(SYS_USER.class, criteria);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
 }
