@@ -633,7 +633,7 @@ public class SYS_UNIT implements Serializable {
                 threeFourResearcherNum == unit.threeFourResearcherNum &&
                 oneTowClerkNum== unit.oneTowClerkNum &&
                 threeFourClerkNum == unit.threeFourClerkNum &&
-                hasChildren == unit.hasChildren &&
+//                hasChildren == unit.hasChildren &&
                 Objects.equals(id, unit.id) &&
                 Objects.equals(code, unit.code) &&
                 Objects.equals(name, unit.name) &&
@@ -652,7 +652,7 @@ public class SYS_UNIT implements Serializable {
                 Objects.equals(buildCity, unit.buildCity) &&
                 Objects.equals(buildCounty, unit.buildCounty) &&
                 Arrays.equals(areaStrs, unit.areaStrs) &&
-                Objects.equals(children, unit.children) &&
+//                Objects.equals(children, unit.children) &&
                 Objects.equals(value, unit.value) &&
                 Objects.equals(label, unit.label);
     }

@@ -8,6 +8,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -89,6 +90,39 @@ public class ExcelFileGenerator<T> {
         return rowIndex;
     }
 
+    /**
+     * mergeRow 合并日期占两行(4个参数，分别为起始行，结束行，起始列，结束列)
+     *         // 行和列都是从0开始计数，且起始结束都会合并
+     *         // 这里是合并excel中日期的两行为一行
+     * @param sheet
+     * @return
+     * @throws Exception
+     */
+    public int createExcelFileFixedMergeRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns,int cell1,int cell2,int row1,int row2) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        //合并单元格
+        CellRangeAddress address=new CellRangeAddress(cell1,cell2,row1,row2);
+        sheet.addMergedRegion(address);
+        cellStyle.setWrapText(true);
+        Row row = sheet.getRow(rowIndex);
+        for (int i = 0; i < columns.length; i++) {
+            Cell c = null;
+            if (row.getCell(i)!=null){
+                c=row.getCell(colIndex[i]);
+            }else {
+                row.createCell(colIndex[i]);
+            }
+            c.setCellStyle(cellStyle);
+            setCellFormattedValue(c, columns[i]);
+        }
+        return rowIndex;
+    }
     public int createExcelFile(Sheet sheet, int dataStartIndex, List<T> data, String[] columns) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
         cellStyle.setBorderBottom(BorderStyle.DOUBLE); //下边框
