@@ -66,6 +66,48 @@ public class SYS_Education implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date degreeTime;
 
+  @ApiModelProperty("学校类型")
+  @Comment("学校类型")
+  @Column("school_Type")
+  @ColDefine(type = ColType.VARCHAR, width = 16)
+  private String schoolType;
+
+  @ApiModelProperty("毕业学校")
+  @Comment("毕业学校")
+  @Column("school")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String school;
+
+  @ApiModelProperty("专业")
+  @Comment("专业")
+  @Column("profession")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String profession;
+
+  public String getSchoolType() {
+    return schoolType;
+  }
+
+  public void setSchoolType(String schoolType) {
+    this.schoolType = schoolType;
+  }
+
+  public String getSchool() {
+    return school;
+  }
+
+  public void setSchool(String school) {
+    this.school = school;
+  }
+
+  public String getProfession() {
+    return profession;
+  }
+
+  public void setProfession(String profession) {
+    this.profession = profession;
+  }
+
   public String getId() {
     return id;
   }

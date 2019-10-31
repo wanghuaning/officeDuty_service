@@ -1,6 +1,7 @@
 package com.local.util;
 
 import com.local.controller.UnitConttoller;
+import com.local.model.ReimbursementModel;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -166,13 +167,12 @@ public class ExcelFileGenerator<T> {
     private static void setCellFormattedValue(Cell cell, Object value) {
         String textValue = null;
         if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
+            cell.setCellValue(StrUtils.strToInt(String.valueOf(value)));
         } else if (value instanceof Float) {
             textValue = String.valueOf((Float) value);
             cell.setCellValue(textValue);
         } else if (value instanceof Double) {
-            textValue = String.valueOf((Double) value);
-            cell.setCellValue(textValue);
+            cell.setCellValue(StrUtils.strToDouble(String.valueOf(value)));
         } else if (value instanceof Long) {
             cell.setCellValue((Long) value);
         }
@@ -198,6 +198,7 @@ public class ExcelFileGenerator<T> {
                 // 是数字当作double处理
                 cell.setCellValue(Double.parseDouble(textValue));
             } else {
+                System.out.println(textValue+">");
                 cell.setCellType(CellType.STRING);
                 XSSFRichTextString richString = new XSSFRichTextString(textValue);
                 cell.setCellValue(richString);
@@ -539,5 +540,61 @@ public class ExcelFileGenerator<T> {
             result.add(dataMap);
         }
         return result;
+    }
+
+    /**
+     * row:行
+     * @param sheet
+     * @param y
+     * @param x
+     * @param value
+     * @return
+     */
+    public static Cell setValue(Sheet sheet,int x,int y,String value){
+        Row row = sheet.getRow(x);
+        Cell c = null;
+        if (row.getCell(y)!=null){
+            c=row.getCell(y);
+        }else {
+            row.createCell(y);
+        }
+        if (value!=null){
+            c.setCellValue(value);
+        }else {
+            c.setCellValue("");
+        }
+//        setCellFormattedValue(c, value);
+        return c;
+    }
+    public void createReimbursementExcel(Sheet sheet, ReimbursementModel data) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        setValue(sheet,2,2,data.getName());
+        setValue(sheet,2,8,data.getSex());
+        setValue(sheet,2,12,data.getYears());
+        setValue(sheet,4,2,data.getBirthplace());
+        setValue(sheet,4,8,data.getNationality());
+        setValue(sheet,4,12,data.getParty());
+        setValue(sheet,5,5,data.getUnitAndDuty());
+        setValue(sheet,5,12,data.getWorkday());
+        setValue(sheet,7,5,data.getFullTimeEducation());
+        setValue(sheet,7,11,data.getFullTimeSchool());
+        setValue(sheet,9,5,data.getWorkEducation());
+        setValue(sheet,9,11,data.getWorkSchool());
+        setValue(sheet,11,3,data.getDutyAndRank());
+        setValue(sheet,11,11,data.getDutyAndRankTime());
+        setValue(sheet,11,14,data.getLevel());
+        setValue(sheet,14,0,data.getSuperYears());
+        setValue(sheet,14,4,data.getCompetentYears());
+        setValue(sheet,14,6,data.getNotCompetentYears());
+        setValue(sheet,12,11,data.getIntendedRank());
+        setValue(sheet,15,4,data.getConvertYears());
+        setValue(sheet,14,11,data.getDeposeRank());
     }
 }

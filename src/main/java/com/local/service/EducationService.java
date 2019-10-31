@@ -15,4 +15,6 @@ public interface EducationService {
     void deleteEducation(String id);
 
     void updateEducation(SYS_Education education);
+
+    SYS_Education selectEducationByPidAndSchoolOrderByTime(String pid,String schoolType);
 }

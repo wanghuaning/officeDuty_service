@@ -57,6 +57,19 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
+    public SYS_Education selectEducationByPidAndSchoolOrderByTime(String pid,String schoolType){
+        List<SYS_Education> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid).andEquals("school_Type",schoolType);
+        cir.getOrderBy().desc("create_Time");
+        list = dao.query(SYS_Education.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
     public SYS_Education selectEducationByNameAndTime(String name, String peopleId, Date createTime) {
         List<SYS_Education> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
