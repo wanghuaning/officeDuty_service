@@ -128,6 +128,20 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date positionLevelTime;
 
+  @ApiModelProperty("套转职级")
+  @Comment("套转职级")
+  @Column("turn_Rank")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String turnRank;
+
+  @ApiModelProperty("套转职级时间")
+  @Comment("套转职级时间")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @Column("turn_Rank_Time")
+  @ColDefine(type = ColType.DATETIME)
+  private Date turnRankTime;
+
   @ApiModelProperty("是否具有两年以上基层工作经历")
   @Comment("是否具有两年以上基层工作经历")
   @Column("base_Worker")
@@ -166,8 +180,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String education;
 
-  @ApiModelProperty("人员状态1:禁用；0：在用")
-  @Comment("人员状态1:禁用；0：在用")
+  @ApiModelProperty("是否兼职:是；0：否")
+  @Comment("是否兼职:是；0：否")
   @Column("enabled")
   @ColDefine(type = ColType.VARCHAR, width = 1)
   private String enabled;
@@ -191,6 +205,22 @@ public class SYS_People implements Serializable {
 
   private String value;
   private String label;
+
+  public String getTurnRank() {
+    return turnRank;
+  }
+
+  public void setTurnRank(String turnRank) {
+    this.turnRank = turnRank;
+  }
+
+  public Date getTurnRankTime() {
+    return turnRankTime;
+  }
+
+  public void setTurnRankTime(Date turnRankTime) {
+    this.turnRankTime = turnRankTime;
+  }
 
   public String getValue() {
     return id;
