@@ -182,7 +182,7 @@ public class ExcelFileGenerator<T> {
                 textValue = "否";
             }
         } else if (value instanceof Date) {
-            String pattern = "yyyy-MM-dd HH:mm:ss";
+            String pattern = "yyyy-MM-dd";
             SimpleDateFormat sdf = new SimpleDateFormat(pattern);
             textValue = sdf.format((Date) value);
         } else {
@@ -198,7 +198,6 @@ public class ExcelFileGenerator<T> {
                 // 是数字当作double处理
                 cell.setCellValue(Double.parseDouble(textValue));
             } else {
-                System.out.println(textValue+">");
                 cell.setCellType(CellType.STRING);
                 XSSFRichTextString richString = new XSSFRichTextString(textValue);
                 cell.setCellValue(richString);

@@ -164,6 +164,10 @@ public class UnitConttoller {
                         return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                     }
                 }
+                SYS_UNIT punit=unitService.selectUnitById(unit.getParentId());
+                if (punit!=null){
+                    unit.setParentName(punit.getName());
+                }
                 UnitManager.setUnitArea(unit);
                 unit.setUnitOrder(unitById.getUnitOrder());
                 unitService.updateUnit(unit);
@@ -214,9 +218,9 @@ public class UnitConttoller {
                     }
                     ClassPathResource  resource=new ClassPathResource("exportExcel/exportUnitInfo.xls");
                     String path=resource.getFile().getPath();
-                    String[] arr={"name","code","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","officialNum","referOfficialNum","referOfficialDate","referOfficialDocument","mainHallNum","deputyHallNum",
-                            "rightPlaceNum","deputyPlaceNum","oneInspectorNum","towInspectorNum","oneResearcherNum","towResearcherNum","threeResearcherNum"
-                            ,"fourResearcherNum","oneClerkNum","towClerkNum","threeClerkNum","fourClerkNum","detail"};
+                    String[] arr={"name","code","parentName","buildProvince","buildCity","buildCounty","affiliation","category","level","officialNum","officialRealNum","referOfficialNum","referOfficialRealNum","referOfficialDate","referOfficialDocument",
+                            "rightPlaceNum","deputyPlaceNum","mainHallNum","deputyHallNum","oneTowResearcherNum","threeFourResearcherNum","oneTowClerkNum","threeFourClerkNum",
+                            "contact","contactNumber","detail"};
                     Workbook temp=ExcelFileGenerator.getTeplet(path);
                     ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
                     excelFileGenerator.setExcleNAME(response,"单位信息表导出.xls");
