@@ -56,25 +56,29 @@ public class UnitManager {
                     }
                     unit.setBuildProvince(StrUtils.toNullStr(map.get("所在省")));
                     unit.setBuildCity(StrUtils.toNullStr(map.get("所在市")));
-                    unit.setBuildCounty(StrUtils.toNullStr(map.get("所在县")));
-                    unit.setArea(StrUtils.toNullStr(map.get("所在省")) + StrUtils.toNullStr(map.get("所在市")) + StrUtils.toNullStr(map.get("所在县")));
+                    unit.setBuildCounty(StrUtils.toNullStr(map.get("所在县（区）")));
+                    unit.setArea(StrUtils.toNullStr(map.get("所在省")) + StrUtils.toNullStr(map.get("所在市")) + StrUtils.toNullStr(map.get("所在县（区）")));
                     unit.setAffiliation(StrUtils.toNullStr(map.get("隶属关系")));
                     unit.setCategory(StrUtils.toNullStr(map.get("所属序列")));
                     unit.setLevel(StrUtils.toNullStr(map.get("单位级别")));
                     unit.setOfficialNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("行政编制数"))));
-                    unit.setReferOfficialNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("事业编制数（参公）"))));
+                    unit.setOfficialRealNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("（行政)实有人数"))));
+                    unit.setReferOfficialNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("参照公务员法管理事业单位编制数"))));
+                    unit.setReferOfficialRealNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("（参公）实有人数"))));
                     unit.setReferOfficialDate(DateUtil.stringToDate(StrUtils.toNullStr(map.get("参照公务员法管理审批时间"))));
                     unit.setReferOfficialDocument(StrUtils.toNullStr(map.get("参照公务员法管理审批文号")));
                     unit.setMainHallNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("乡科级正职领导职数"))));
                     unit.setDeputyHallNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("乡科级副职领导职数"))));
                     unit.setRightPlaceNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("县处级正职领导职数"))));
                     unit.setDeputyPlaceNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("县处级副职领导职数"))));
-                    unit.setOneInspectorNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级巡视员职数"))));
-                    unit.setTowInspectorNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("二级巡视员职数"))));
-                    unit.setOneTowResearcherNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级和二级调研员职数"))));
-                    unit.setThreeFourResearcherNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("三级和四级调研员职数"))));
-                    unit.setOneTowClerkNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级和二级主任科员职数"))));
-                    unit.setThreeFourClerkNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("三级和四级主任科员职数"))));
+//                    unit.setOneInspectorNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级巡视员职数"))));
+//                    unit.setTowInspectorNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("二级巡视员职数"))));
+                    unit.setOneTowResearcherNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级调研员和二级调研员职数"))));
+                    unit.setThreeFourResearcherNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("三级级调研员和四级调研员职数"))));
+                    unit.setOneTowClerkNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级主任科员和二级主任科员职数"))));
+                    unit.setThreeFourClerkNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("三级主任科员和四级主任科员职数"))));
+                    unit.setContact("联系人");
+                    unit.setContactNumber("联系电话");
                     unit.setDetail(StrUtils.toNullStr(map.get("备注")));
                     unit.setEnabled("0");
                     SYS_UNIT unit1 = unitService.selectUnitByNameAndParent(unit.getName(), unit.getParentName());
@@ -87,10 +91,16 @@ public class UnitManager {
                             stringBuffer.append("单位表：第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
                             logger.error("单位表：第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
                         }else {
-                            String uuid = UUID.randomUUID().toString();
-                            unit.setId(uuid);
-                            unitService.insertUnit(unit);
-                            unitList.add(unit);
+                            SYS_UNIT unitbyname=unitService.selectUnitByName(unit.getName());
+                            if (unitbyname!=null){
+                                stringBuffer.append(unit.getName()+":单位已存在，请核查！");
+                                logger.error(unit.getName()+":单位已存在，请核查！");
+                            }else {
+                                String uuid = UUID.randomUUID().toString();
+                                unit.setId(uuid);
+                                unitService.insertUnit(unit);
+                                unitList.add(unit);
+                            }
                         }
                     }
                 } else {

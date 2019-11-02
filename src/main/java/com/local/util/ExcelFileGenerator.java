@@ -1,6 +1,7 @@
 package com.local.util;
 
 import com.local.controller.UnitConttoller;
+import com.local.model.ApproalModel;
 import com.local.model.ReimbursementModel;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
@@ -101,6 +102,10 @@ public class ExcelFileGenerator<T> {
      */
     public int createExcelFileFixedMergeRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns,int cell1,int cell2,int row1,int row2) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
@@ -126,10 +131,10 @@ public class ExcelFileGenerator<T> {
     }
     public int createExcelFile(Sheet sheet, int dataStartIndex, List<T> data, String[] columns) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
-        cellStyle.setBorderBottom(BorderStyle.DOUBLE); //下边框
-        cellStyle.setBorderLeft(BorderStyle.THICK); //左边框
-        cellStyle.setBorderTop(BorderStyle.MEDIUM); //上边框
-        cellStyle.setBorderRight(BorderStyle.DASH_DOT); //右边框
+        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
@@ -595,5 +600,68 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,12,11,data.getIntendedRank());
         setValue(sheet,15,4,data.getConvertYears());
         setValue(sheet,14,11,data.getDeposeRank());
+    }
+
+    /**
+     * 标题
+     * @param sheet
+     * @param data
+     * @throws Exception
+     */
+    public void createTitleExcel(Sheet sheet, String data) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(true);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        setValue(sheet,0,0,data);
+    }
+
+    /**
+     * 职级职数使用审批表
+     * @param sheet
+     * @param data
+     * @throws Exception
+     */
+    public void createApprovalExcel(Sheet sheet, ApproalModel data) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        setValue(sheet,1,1,data.getUnitName());
+        setValue(sheet,1,5,data.getUnitType());
+        setValue(sheet,1,7,data.getLevel());
+        setValue(sheet,1,9,data.getOfficialNum());
+        setValue(sheet,5,0,data.getResearcherTotal());
+        setValue(sheet,5,1,data.getOneTowResearcherNum());
+        setValue(sheet,5,3,data.getThreeFourResearcherNum());
+        setValue(sheet,6,1,data.getOneResearcherNum());
+        setValue(sheet,6,2,data.getTowResearcherNum());
+        setValue(sheet,6,3,data.getThreeResearcherNum());
+        setValue(sheet,6,4,data.getFourResearcherNum());
+        setValue(sheet,5,5,data.getClerkTotal());
+        setValue(sheet,5,6,data.getOneTowClerkNum());
+        setValue(sheet,5,8,data.getThreeFourClerkNum());
+        setValue(sheet,6,6,data.getOneClerkNum());
+        setValue(sheet,6,7,data.getTowClerkNum());
+        setValue(sheet,6,8,data.getThreeClerkNum());
+        setValue(sheet,6,9,data.getFourClerkNum());
+        setValue(sheet,10,5,data.getUserTotal());
+        setValue(sheet,10,6,data.getOneClerkUserNum());
+        setValue(sheet,10,7,data.getTowClerkUserNum());
+        setValue(sheet,10,8,data.getThreeClerkUserNum());
+        setValue(sheet,10,9,data.getFourClerkUserNum());
+        setValue(sheet,14,5,data.getVacancyTotal());
+        setValue(sheet,14,6,data.getOneClerkVacancyNum());
+        setValue(sheet,14,7,data.getTowClerkVacancyNum());
+        setValue(sheet,14,8,data.getThreeClerkVacancyNum());
+        setValue(sheet,14,9,data.getFourClerkVacancyNum());
     }
 }

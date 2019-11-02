@@ -1,6 +1,7 @@
 package com.local.cell;
 
 import com.local.entity.sys.*;
+import com.local.model.ApproalModel;
 import com.local.model.RankModel;
 import com.local.model.ReimbursementModel;
 import com.local.service.*;
@@ -12,6 +13,7 @@ import org.nutz.lang.random.R;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.text.StyledEditorKit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,10 +42,16 @@ public class DataManager {
                     rankModel.setWorkday(DateUtil.parseDateYMD(people.getWorkday()));
                     rankModel.setDemocracy(ranks.getDemocracy());
                     if (rank!=null){
-                        rankModel.setNowRank(rank.getName());
+                        if (rank.getCreateTime()!=null){
+                            rankModel.setNowRank(rank.getName()+"\n"+DateUtil.dateToString(rank.getCreateTime()));
+                        }else {
+                            rankModel.setNowRank(rank.getName());
+                        }
                     }
                     rankModel.setNewRank(ranks.getName());
-                    rankModel.setNewRankTime(DateUtil.parseDateYMD(ranks.getCreateTime()));
+                    if (ranks.getCreateTime()!=null){
+                        rankModel.setNewRankTime(DateUtil.parseDateYMD(ranks.getCreateTime()));
+                    }
                     rankModel.setDetail(ranks.getDetail());
                     rankModel.setOrder(order);
                     rankModels.add(rankModel);
@@ -58,6 +66,8 @@ public class DataManager {
                 Workbook temp= ExcelFileGenerator.getTeplet(path);
                 ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
                 excelFileGenerator.setExcleNAME(response,"公务员晋升职级人员备案名册.xls");
+                String name=unit.getName()+"公务员晋升职级人员备案名册";
+                excelFileGenerator.createTitleExcel(temp.getSheet("备案名册"),name);
                 excelFileGenerator.createExcelFileFixedRow(temp.getSheet("备案名册"),1,new int[]{2,6,11},arr1);
                 excelFileGenerator.createExcelFile(temp.getSheet("备案名册"),6,rankModels,arr);
                 excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"),rankModels.size()+5,new int[]{0},new String[]{"填表要求：备注需注明军转干部、实名制管理干部、领导职务干部"},rankModels.size()+5,rankModels.size()+5,0,12);
@@ -142,5 +152,123 @@ public class DataManager {
         }else {
             return null;
         }
+    }
+
+    public static ApproalModel approvalExport(UnitService unitService, String unitName, HttpServletResponse response,
+                               PeopleService peopleService, RankService rankService)throws Exception{
+        SYS_UNIT unit=unitService.selectUnitByName(unitName);
+        List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unit.getId(),"0");
+        ApproalModel approalModel=new ApproalModel();
+        approalModel.setUnitName(unitName);
+        approalModel.setUnitType("");
+        approalModel.setLevel(unit.getLevel());
+        if (unit.getOfficialNum()>0){
+            approalModel.setOfficialNum(String.valueOf(unit.getOfficialNum()));
+        }
+        int researcherTotal=0;
+        if (unit.getOneTowResearcherNum()>0){
+            approalModel.setOneTowResearcherNum(String.valueOf(unit.getOneTowResearcherNum()));
+            researcherTotal+=unit.getOneTowResearcherNum();
+        }
+        if (unit.getThreeFourResearcherNum()>0){
+            approalModel.setThreeFourResearcherNum(String.valueOf(unit.getThreeFourResearcherNum()));
+            researcherTotal+=unit.getThreeFourResearcherNum();
+        }
+        approalModel.setResearcherTotal(String.valueOf(researcherTotal));
+        if (unit.getOneResearcherNum()>0){
+            approalModel.setOneResearcherNum(String.valueOf(unit.getOneResearcherNum()));
+        }
+        if (unit.getTowResearcherNum()>0){
+            approalModel.setTowResearcherNum(String.valueOf(unit.getTowResearcherNum()));
+        }
+        if (unit.getThreeResearcherNum()>0){
+            approalModel.setThreeResearcherNum(String.valueOf(unit.getThreeResearcherNum()));
+        }
+        if (unit.getFourResearcherNum()>0){
+            approalModel.setFourResearcherNum(String.valueOf(unit.getFourResearcherNum()));
+        }
+        int clerkTotal=0;
+        if (unit.getOneTowClerkNum()>0){
+            approalModel.setOneTowClerkNum(String.valueOf(unit.getOneTowClerkNum()));
+            clerkTotal+=unit.getOneTowClerkNum();
+        }
+        if (unit.getThreeFourClerkNum()>0){
+            approalModel.setThreeFourClerkNum(String.valueOf(unit.getThreeFourClerkNum()));
+            clerkTotal+=unit.getThreeFourClerkNum();
+        }
+        approalModel.setClerkTotal(String.valueOf(clerkTotal));
+        if (unit.getOneClerkNum()>0){
+            approalModel.setOneClerkNum(String.valueOf(unit.getOneClerkNum()));
+        }
+        if (unit.getTowClerkNum()>0){
+            approalModel.setTowClerkNum(String.valueOf(unit.getTowClerkNum()));
+        }
+        if (unit.getThreeClerkNum()>0){
+            approalModel.setThreeClerkNum(String.valueOf(unit.getThreeClerkNum()));
+        }
+        if (unit.getFourClerkNum()>0){
+            approalModel.setFourClerkNum(String.valueOf(unit.getFourClerkNum()));
+        }
+        int oneClerkUserNum=0;//一级主任科员职数使用
+        int towClerkUserNum=0;//二级主任科员职数使用
+        int threeClerkUserNum=0;//三级主任科员职数使用
+        int fourClerkUserNum=0;//四级主任科员职数使用
+        int userTotal=0;//使用合计
+        for (SYS_People people:peoples){
+            SYS_Rank rank=rankService.selectAprodRanksByPid(people.getId());
+            if (rank!=null){
+                if ("一级主任科员".equals(rank.getName())){
+                    oneClerkUserNum+=1;
+                }else if ("二级主任科员".equals(rank.getName())){
+                    towClerkUserNum+=1;
+                }else if ("三级主任科员".equals(rank.getName())){
+                    threeClerkUserNum+=1;
+                }else if ("四级主任科员".equals(rank.getName())){
+                    fourClerkUserNum+=1;
+                }
+            }
+        }
+        userTotal=oneClerkUserNum+towClerkUserNum+threeClerkUserNum+fourClerkUserNum;
+        approalModel.setUserTotal(String.valueOf(userTotal));
+       if (oneClerkUserNum>0){
+           approalModel.setOneClerkUserNum(String.valueOf(oneClerkUserNum));
+       }
+        if (towClerkUserNum>0){
+            approalModel.setTowClerkUserNum(String.valueOf(towClerkUserNum));
+        }
+        if (threeClerkUserNum>0){
+            approalModel.setThreeClerkUserNum(String.valueOf(threeClerkUserNum));
+        }
+        if (fourClerkUserNum>0){
+            approalModel.setFourClerkUserNum(String.valueOf(fourClerkUserNum));
+        }
+
+        int vacancyTotal=0;
+        if (unit.getOneClerkNum()>oneClerkUserNum){
+            approalModel.setOneClerkVacancyNum(String.valueOf(unit.getOneClerkNum()-oneClerkUserNum));
+            vacancyTotal+=unit.getOneClerkNum()-oneClerkUserNum;
+        }
+        if (unit.getTowClerkNum()>towClerkUserNum){
+            approalModel.setTowClerkVacancyNum(String.valueOf(unit.getTowClerkNum()-towClerkUserNum));
+            vacancyTotal+=unit.getTowClerkNum()-towClerkUserNum;
+        }
+        if (unit.getThreeClerkNum()>threeClerkUserNum){
+            approalModel.setThreeClerkVacancyNum(String.valueOf(unit.getThreeClerkNum()-threeClerkUserNum));
+            vacancyTotal+=unit.getThreeClerkNum()-threeClerkUserNum;
+        }
+        if (unit.getFourClerkNum()>fourClerkUserNum){
+            approalModel.setFourClerkVacancyNum(String.valueOf(unit.getFourClerkNum()-fourClerkUserNum));
+            vacancyTotal+=unit.getFourClerkNum()-fourClerkUserNum;
+        }
+        approalModel.setVacancyTotal(String.valueOf(vacancyTotal));
+        ClassPathResource resource=new ClassPathResource("exportExcel/approveRank.xls");
+        String path=resource.getFile().getPath();
+        Workbook temp= ExcelFileGenerator.getTeplet(path);
+        ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
+        excelFileGenerator.setExcleNAME(response,"公务员职级职数使用审批表.xls");
+        excelFileGenerator.createApprovalExcel(temp.getSheet("职数使用审批表"),approalModel);
+        temp.write(response.getOutputStream());
+        temp.close();
+        return approalModel;
     }
 }

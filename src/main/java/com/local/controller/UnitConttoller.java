@@ -288,11 +288,11 @@ public class UnitConttoller {
                             if (sys_unit!=null){
                                 SYS_UNIT punit=unitService.selectUnitByName(unit.getParentName());
                                 if (punit!=null){
-                                    unit.setEnabled("0");
-                                    unit.setUnitOrder(sys_unit.getUnitOrder());
-                                    unit.setParentName(punit.getParentName());
-                                    unit.setParentId(punit.getId());
-                                    unitService.updateUnit(unit);
+                                        unit.setEnabled("0");
+                                        unit.setUnitOrder(sys_unit.getUnitOrder());
+                                        unit.setParentName(punit.getParentName());
+                                        unit.setParentId(punit.getId());
+                                        unitService.updateUnit(unit);
                                 }else {
                                     stringBuffer.append(unit.getName()+":上级单位不存在，请核查！");
                                     logger.error(unit.getName()+":上级单位不存在，请核查！");

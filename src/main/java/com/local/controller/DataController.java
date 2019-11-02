@@ -2,6 +2,7 @@ package com.local.controller;
 
 import com.local.cell.DataManager;
 import com.local.entity.sys.SYS_UNIT;
+import com.local.model.ApproalModel;
 import com.local.model.RankModel;
 import com.local.model.ReimbursementModel;
 import com.local.service.*;
@@ -46,7 +47,10 @@ public class DataController {
         try {
             if ("filingList".equals(flag)){
                 List<RankModel> rankModels= DataManager.filingList(unitService,unitName,response,peopleService,rankService);
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, rankModels, null).getJson();
+                return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
+            }if ("approval".equals(flag)){
+                ApproalModel approalModel= DataManager.approvalExport(unitService,unitName,response,peopleService,rankService);
+                return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
             }else {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "OK!", null).getJson();
             }
