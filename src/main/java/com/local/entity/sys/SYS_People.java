@@ -162,8 +162,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
 
-  @ApiModelProperty("备注")
-  @Comment("备注")
+  @ApiModelProperty("特殊人员")
+  @Comment("特殊人员")
   @Column("detail")
   @ColDefine(type = ColType.VARCHAR, width = 2000)
   private String detail;

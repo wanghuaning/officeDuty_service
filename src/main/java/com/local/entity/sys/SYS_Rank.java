@@ -94,6 +94,23 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date approvalTime;
 
+  @ApiModelProperty("任同职务时间")
+  @Comment("任同职务时间")
+  @Column("duty_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date dutyTime;
+
+
+  public Date getDutyTime() {
+    return dutyTime;
+  }
+
+  public void setDutyTime(Date dutyTime) {
+    this.dutyTime = dutyTime;
+  }
+
   public String getDemocracy() {
     return democracy;
   }

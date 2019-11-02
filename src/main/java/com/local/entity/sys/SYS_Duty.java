@@ -79,6 +79,48 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String documentNumber;
 
+  @ApiModelProperty("是否兼任")
+  @Comment("是否兼任")
+  @Column("djunct")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String djunct;
+
+  @ApiModelProperty("任职文号")
+  @Comment("任职文号")
+  @Column("document_Duty")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String documentduty;
+
+  @ApiModelProperty("是否纳入实名制管理")
+  @Comment("是否纳入实名制管理")
+  @Column("real_Name")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String realName;
+
+  public String getDjunct() {
+    return djunct;
+  }
+
+  public void setDjunct(String djunct) {
+    this.djunct = djunct;
+  }
+
+  public String getDocumentduty() {
+    return documentduty;
+  }
+
+  public void setDocumentduty(String documentduty) {
+    this.documentduty = documentduty;
+  }
+
+  public String getRealName() {
+    return realName;
+  }
+
+  public void setRealName(String realName) {
+    this.realName = realName;
+  }
+
   public String getId() {
     return id;
   }

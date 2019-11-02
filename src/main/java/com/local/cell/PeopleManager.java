@@ -11,6 +11,7 @@ import java.util.*;
 
 public class PeopleManager {
     private final static Logger logger= LoggerFactory.getLogger(PeopleManager.class);
+
     public static List<SYS_People> getPeopleDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
                                                         UnitService unitService,String fullImport)throws Exception {
         List<SYS_People> peopleList = new ArrayList<>();
