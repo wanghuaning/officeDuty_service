@@ -1,11 +1,13 @@
 package com.local.entity.sys;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.local.service.PeopleService;
 import com.local.util.DateUtil;
 import com.local.util.StrUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.CascadeType;
 import javax.persistence.JoinColumn;
@@ -35,8 +37,10 @@ public class SYS_USER implements Serializable {
 
     @ApiModelProperty("创建日期")
     @Comment("创建日期")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column("create_time")
-    @ColDefine(type = ColType.DATE)
+    @ColDefine(type = ColType.DATETIME)
     private Date createTime;
 
     private String createTimeStr;
@@ -57,6 +61,8 @@ public class SYS_USER implements Serializable {
 
     @ApiModelProperty("最后修改密码的日期")
     @Comment("最后修改密码的日期")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column("last_password_reset_time")
     @ColDefine(type = ColType.DATE)
     private Date lastTime;

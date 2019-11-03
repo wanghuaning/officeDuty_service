@@ -6,9 +6,11 @@ import com.local.model.RankModel;
 import com.local.model.ReimbursementModel;
 import com.local.service.*;
 import com.local.util.DateUtil;
+import com.local.util.EntityUtil;
 import com.local.util.ExcelFileGenerator;
 import com.local.util.StrUtils;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.poi.ss.formula.functions.Rank;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.lang.random.R;
@@ -18,6 +20,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.StyledEditorKit;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class DataManager {
@@ -635,6 +638,19 @@ public class DataManager {
         return unitList;
     }
 
+    public static List<SYS_USER> getUserJson( Map<String, Object> resultMap,List<SYS_UNIT> units,UserService userService){
+        List<SYS_USER> userList=new ArrayList<>();
+        for (SYS_UNIT unit:units){
+            List<SYS_USER> users=userService.selectUsersByUnitId(unit.getId());
+            if (users!=null){
+                userList.addAll(users);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(userList);
+        resultMap.put("userList",array);
+        return userList;
+    }
+
     /**
      * 人员数据json
      * @param resultMap
@@ -754,7 +770,274 @@ public class DataManager {
         return assessmentList;
     }
 
-    public static void saveUnitJsonModel(JSONArray unitList){
-//        for ()
+    /**
+     * 获取单位json数据
+     * @param unitList
+     * @return
+     */
+    public static List<SYS_UNIT> saveUnitJsonModel(JSONArray unitList){
+        List<SYS_UNIT> units=new ArrayList<>();
+        for (int i=0;i<unitList.size();i++){
+            SYS_UNIT unit=new SYS_UNIT();
+            JSONObject key=(JSONObject) unitList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(unit, key);
+                unit.setReferOfficialDate(DateUtil.stringToDate(String.valueOf(key.get("referOfficialDateStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                units.add(unit);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return units;
+    }
+    public static List<SYS_USER> saveUserJsonModel(JSONArray userList){
+        List<SYS_USER> users=new ArrayList<>();
+        for (int i=0;i<userList.size();i++){
+            SYS_USER user=new SYS_USER();
+            JSONObject key=(JSONObject) userList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(user, key);
+                user.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                user.setLastTime(DateUtil.stringToDate(String.valueOf(key.get("lastTimeStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                users.add(user);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return users;
+    }
+    /**
+     * 获取人员数据json
+     * @param peopleList
+     * @return
+     */
+    public static List<SYS_People> savePeopleJsonModel(JSONArray peopleList){
+        List<SYS_People> peoples=new ArrayList<>();
+        for (int i=0;i<peopleList.size();i++){
+            SYS_People people=new SYS_People();
+            JSONObject key=(JSONObject) peopleList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(people, key);
+                people.setTurnRankTime(DateUtil.stringToDate(String.valueOf(key.get("turnRankTimeStr"))));
+                people.setPositionTime(DateUtil.stringToDate(String.valueOf(key.get("positionTimeStr"))));
+                people.setPartyTime(DateUtil.stringToDate(String.valueOf(key.get("partyTimeStr"))));
+                people.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                people.setBirthday(DateUtil.stringToDate(String.valueOf(key.get("birthdayStr"))));
+                people.setWorkday(DateUtil.stringToDate(String.valueOf(key.get("workdayStr"))));
+                people.setPositionLevelTime(DateUtil.stringToDate(String.valueOf(key.get("positionLevelTimeStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                peoples.add(people);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return peoples;
+    }
+
+    /**
+     * 获取职务json数据
+     * @param dutyList
+     * @return
+     */
+    public static List<SYS_Duty> saveDutyJsonModel(JSONArray dutyList){
+        List<SYS_Duty> duties=new ArrayList<>();
+        for (int i=0;i<dutyList.size();i++){
+            SYS_Duty duty=new SYS_Duty();
+            JSONObject key=(JSONObject) dutyList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(duty, key);
+                duty.setServeTime(DateUtil.stringToDate(String.valueOf(key.get("serveTimeStr"))));
+                duty.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                duties.add(duty);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return duties;
+    }
+
+    /**
+     * 职级json数据
+     * @param rankList
+     * @return
+     */
+    public static List<SYS_Rank> saveRankJsonModel(JSONArray rankList){
+        List<SYS_Rank> ranks=new ArrayList<>();
+        for (int i=0;i<rankList.size();i++){
+            SYS_Rank rank=new SYS_Rank();
+            JSONObject key=(JSONObject) rankList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(rank, key);
+                rank.setServeTime(DateUtil.stringToDate(String.valueOf(key.get("serveTimeStr"))));
+                rank.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                rank.setApprovalTime(DateUtil.stringToDate(String.valueOf(key.get("approvalTimeStr"))));
+                rank.setDutyTime(DateUtil.stringToDate(String.valueOf(key.get("dutyTimeStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                ranks.add(rank);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return ranks;
+    }
+
+    /**
+     * 学历json数据
+     * @param educationList
+     * @return
+     */
+    public static List<SYS_Education> saveEducationJsonModel(JSONArray educationList){
+        List<SYS_Education> educations=new ArrayList<>();
+        for (int i=0;i<educationList.size();i++){
+            SYS_Education education=new SYS_Education();
+            JSONObject key=(JSONObject) educationList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(education, key);
+                education.setEndTime(DateUtil.stringToDate(String.valueOf(key.get("endTimeStr"))));
+                education.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                education.setDegreeTime(DateUtil.stringToDate(String.valueOf(key.get("degreeTimeStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                educations.add(education);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return educations;
+    }
+
+    /**
+     * 奖惩json数据
+     * @param rewardList
+     * @return
+     */
+    public static List<SYS_Reward> saveRewardJsonModel(JSONArray rewardList){
+        List<SYS_Reward> rewards=new ArrayList<>();
+        for (int i=0;i<rewardList.size();i++){
+            SYS_Reward reward=new SYS_Reward();
+            JSONObject key=(JSONObject) rewardList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(reward, key);
+                reward.setRevocationDate(DateUtil.stringToDate(String.valueOf(key.get("revocationDateStr"))));
+                reward.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+//                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
+                rewards.add(reward);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return rewards;
+    }
+    public static List<SYS_Assessment> saveAssessmentJsonModel(JSONArray assessmentList){
+        List<SYS_Assessment> assessments=new ArrayList<>();
+        for (int i=0;i<assessmentList.size();i++){
+            SYS_Assessment assessment=new SYS_Assessment();
+            JSONObject key=(JSONObject) assessmentList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(assessment, key);
+                assessments.add(assessment);
+            }catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return assessments;
     }
 }

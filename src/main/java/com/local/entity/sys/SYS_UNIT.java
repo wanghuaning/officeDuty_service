@@ -87,137 +87,137 @@ public class SYS_UNIT implements Serializable {
     @Comment("行政编制数")
     @Column("official_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long officialNum;
+    private Long officialNum;
 
     @ApiModelProperty("事业编制数（参公）")
     @Comment("事业编制数（参公）")
     @Column("refer_Official_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long referOfficialNum;
+    private Long referOfficialNum;
 
     @ApiModelProperty("行政实有数")
     @Comment("行政实有数")
     @Column("official_Real_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long officialRealNum;
+    private Long officialRealNum;
 
     @ApiModelProperty("事业实有数（参公）")
     @Comment("事业实有数（参公）")
     @Column("refer_Official_Real_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long referOfficialRealNum;
+    private Long referOfficialRealNum;
 
     @ApiModelProperty("县处级正职领导职数")
     @Comment("县处级正职领导职数")
     @Column("right_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long rightPlaceNum;
+    private Long rightPlaceNum;
 
     @ApiModelProperty("县处级副职领导职数")
     @Comment("县处级副职领导职数")
     @Column("deputy_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long deputyPlaceNum;
+    private Long deputyPlaceNum;
 
     @ApiModelProperty("乡科级正职领导职数")
     @Comment("乡科级正职领导职数")
     @Column("main_Hall_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long mainHallNum;
+    private Long mainHallNum;
 
     @ApiModelProperty("乡科级副职领导职数")
     @Comment("乡科级副职领导职数")
     @Column("deputy_Hall_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long deputyHallNum;
+    private Long deputyHallNum;
 
     @ApiModelProperty("一级巡视员职数")
     @Comment("一级巡视员职数")
     @Column("one_Inspector_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long oneInspectorNum;
+    private Long oneInspectorNum;
 
     @ApiModelProperty("二级巡视员职数")
     @Comment("二级巡视员职数")
     @Column("tow_Inspector_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long towInspectorNum;
+    private Long towInspectorNum;
 
     @ApiModelProperty("一级和二级调研员职数")
     @Comment("一级和二级调研员职数")
     @Column("one_Tow_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long oneTowResearcherNum;
+    private Long oneTowResearcherNum;
 
 
     @ApiModelProperty("三级和四级调研员职数")
     @Comment("三级和四级调研员职数")
     @Column("three_Four_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long threeFourResearcherNum;
+    private Long threeFourResearcherNum;
 
     @ApiModelProperty("一级和二级主任科员职数")
     @Comment("一级和二级主任科员职数")
     @Column("one_Tow_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long oneTowClerkNum;
+    private Long oneTowClerkNum;
 
 
     @ApiModelProperty("三级和四级主任科员职数")
     @Comment("三级和四级主任科员职数")
     @Column("three_Four_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long threeFourClerkNum;
+    private Long threeFourClerkNum;
 
 
     @ApiModelProperty("一级调研员职数")
     @Comment("一级调研员职数")
     @Column("one_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long oneResearcherNum;
+    private Long oneResearcherNum;
 
     @ApiModelProperty("二级调研员职数")
     @Comment("二级调研员职数")
     @Column("tow_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long towResearcherNum;
+    private Long towResearcherNum;
 
 
     @ApiModelProperty("三级调研员职数")
     @Comment("三级调研员职数")
     @Column("three_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long threeResearcherNum;
+    private Long threeResearcherNum;
 
     @ApiModelProperty("四级调研员职数")
     @Comment("四级调研员职数")
     @Column("four_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long fourResearcherNum;
+    private Long fourResearcherNum;
 
     @ApiModelProperty("一级主任科员职数")
     @Comment("一级主任科员职数")
     @Column("one_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long oneClerkNum;
+    private Long oneClerkNum;
 
     @ApiModelProperty("二级主任科员职数")
     @Comment("二级主任科员职数")
     @Column("tow_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long towClerkNum;
+    private Long towClerkNum;
 
     @ApiModelProperty("三级主任科员职数")
     @Comment("三级主任科员职数")
     @Column("three_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long threeClerkNum;
+    private Long threeClerkNum;
 
     @ApiModelProperty("四级主任科员职数")
     @Comment("四级主任科员职数")
     @Column("four_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private long fourClerkNum;
+    private Long fourClerkNum;
 
     @ApiModelProperty("机构状态0:可用 1：停用 2：导入单位没有找到上级")
     @Comment("机构状态")
@@ -295,67 +295,67 @@ public class SYS_UNIT implements Serializable {
         this.contactNumber = contactNumber;
     }
 
-    public long getOneResearcherNum() {
+    public Long getOneResearcherNum() {
         return oneResearcherNum;
     }
 
-    public void setOneResearcherNum(long oneResearcherNum) {
+    public void setOneResearcherNum(Long oneResearcherNum) {
         this.oneResearcherNum = oneResearcherNum;
     }
 
-    public long getTowResearcherNum() {
+    public Long getTowResearcherNum() {
         return towResearcherNum;
     }
 
-    public void setTowResearcherNum(long towResearcherNum) {
+    public void setTowResearcherNum(Long towResearcherNum) {
         this.towResearcherNum = towResearcherNum;
     }
 
-    public long getThreeResearcherNum() {
+    public Long getThreeResearcherNum() {
         return threeResearcherNum;
     }
 
-    public void setThreeResearcherNum(long threeResearcherNum) {
+    public void setThreeResearcherNum(Long threeResearcherNum) {
         this.threeResearcherNum = threeResearcherNum;
     }
 
-    public long getFourResearcherNum() {
+    public Long getFourResearcherNum() {
         return fourResearcherNum;
     }
 
-    public void setFourResearcherNum(long fourResearcherNum) {
+    public void setFourResearcherNum(Long fourResearcherNum) {
         this.fourResearcherNum = fourResearcherNum;
     }
 
-    public long getOneClerkNum() {
+    public Long getOneClerkNum() {
         return oneClerkNum;
     }
 
-    public void setOneClerkNum(long oneClerkNum) {
+    public void setOneClerkNum(Long oneClerkNum) {
         this.oneClerkNum = oneClerkNum;
     }
 
-    public long getTowClerkNum() {
+    public Long getTowClerkNum() {
         return towClerkNum;
     }
 
-    public void setTowClerkNum(long towClerkNum) {
+    public void setTowClerkNum(Long towClerkNum) {
         this.towClerkNum = towClerkNum;
     }
 
-    public long getThreeClerkNum() {
+    public Long getThreeClerkNum() {
         return threeClerkNum;
     }
 
-    public void setThreeClerkNum(long threeClerkNum) {
+    public void setThreeClerkNum(Long threeClerkNum) {
         this.threeClerkNum = threeClerkNum;
     }
 
-    public long getFourClerkNum() {
+    public Long getFourClerkNum() {
         return fourClerkNum;
     }
 
-    public void setFourClerkNum(long fourClerkNum) {
+    public void setFourClerkNum(Long fourClerkNum) {
         this.fourClerkNum = fourClerkNum;
     }
 
@@ -447,99 +447,99 @@ public class SYS_UNIT implements Serializable {
         this.referOfficialDate = referOfficialDate;
     }
 
-    public long getOfficialNum() {
+    public Long getOfficialNum() {
         return officialNum;
     }
 
-    public void setOfficialNum(long officialNum) {
+    public void setOfficialNum(Long officialNum) {
         this.officialNum = officialNum;
     }
 
-    public long getReferOfficialNum() {
+    public Long getReferOfficialNum() {
         return referOfficialNum;
     }
 
-    public void setReferOfficialNum(long referOfficialNum) {
+    public void setReferOfficialNum(Long referOfficialNum) {
         this.referOfficialNum = referOfficialNum;
     }
 
-    public long getMainHallNum() {
+    public Long getMainHallNum() {
         return mainHallNum;
     }
 
-    public void setMainHallNum(long mainHallNum) {
+    public void setMainHallNum(Long mainHallNum) {
         this.mainHallNum = mainHallNum;
     }
 
-    public long getDeputyHallNum() {
+    public Long getDeputyHallNum() {
         return deputyHallNum;
     }
 
-    public void setDeputyHallNum(long deputyHallNum) {
+    public void setDeputyHallNum(Long deputyHallNum) {
         this.deputyHallNum = deputyHallNum;
     }
 
-    public long getRightPlaceNum() {
+    public Long getRightPlaceNum() {
         return rightPlaceNum;
     }
 
-    public void setRightPlaceNum(long rightPlaceNum) {
+    public void setRightPlaceNum(Long rightPlaceNum) {
         this.rightPlaceNum = rightPlaceNum;
     }
 
-    public long getDeputyPlaceNum() {
+    public Long getDeputyPlaceNum() {
         return deputyPlaceNum;
     }
 
-    public void setDeputyPlaceNum(long deputyPlaceNum) {
+    public void setDeputyPlaceNum(Long deputyPlaceNum) {
         this.deputyPlaceNum = deputyPlaceNum;
     }
 
-    public long getOneInspectorNum() {
+    public Long getOneInspectorNum() {
         return oneInspectorNum;
     }
 
-    public void setOneInspectorNum(long oneInspectorNum) {
+    public void setOneInspectorNum(Long oneInspectorNum) {
         this.oneInspectorNum = oneInspectorNum;
     }
 
-    public long getTowInspectorNum() {
+    public Long getTowInspectorNum() {
         return towInspectorNum;
     }
 
-    public void setTowInspectorNum(long towInspectorNum) {
+    public void setTowInspectorNum(Long towInspectorNum) {
         this.towInspectorNum = towInspectorNum;
     }
 
-    public long getOneTowResearcherNum() {
+    public Long getOneTowResearcherNum() {
         return oneTowResearcherNum;
     }
 
-    public void setOneTowResearcherNum(long oneTowResearcherNum) {
+    public void setOneTowResearcherNum(Long oneTowResearcherNum) {
         this.oneTowResearcherNum = oneTowResearcherNum;
     }
 
-    public long getThreeFourResearcherNum() {
+    public Long getThreeFourResearcherNum() {
         return threeFourResearcherNum;
     }
 
-    public void setThreeFourResearcherNum(long threeFourResearcherNum) {
+    public void setThreeFourResearcherNum(Long threeFourResearcherNum) {
         this.threeFourResearcherNum = threeFourResearcherNum;
     }
 
-    public long getOneTowClerkNum() {
+    public Long getOneTowClerkNum() {
         return oneTowClerkNum;
     }
 
-    public void setOneTowClerkNum(long oneTowClerkNum) {
+    public void setOneTowClerkNum(Long oneTowClerkNum) {
         this.oneTowClerkNum = oneTowClerkNum;
     }
 
-    public long getThreeFourClerkNum() {
+    public Long getThreeFourClerkNum() {
         return threeFourClerkNum;
     }
 
-    public void setThreeFourClerkNum(long threeFourClerkNum) {
+    public void setThreeFourClerkNum(Long threeFourClerkNum) {
         this.threeFourClerkNum = threeFourClerkNum;
     }
 
@@ -639,19 +639,19 @@ public class SYS_UNIT implements Serializable {
         this.label = name;
     }
 
-    public long getOfficialRealNum() {
+    public Long getOfficialRealNum() {
         return officialRealNum;
     }
 
-    public void setOfficialRealNum(long officialRealNum) {
+    public void setOfficialRealNum(Long officialRealNum) {
         this.officialRealNum = officialRealNum;
     }
 
-    public long getReferOfficialRealNum() {
+    public Long getReferOfficialRealNum() {
         return referOfficialRealNum;
     }
 
-    public void setReferOfficialRealNum(long referOfficialRealNum) {
+    public void setReferOfficialRealNum(Long referOfficialRealNum) {
         this.referOfficialRealNum = referOfficialRealNum;
     }
 

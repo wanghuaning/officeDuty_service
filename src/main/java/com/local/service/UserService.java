@@ -26,5 +26,7 @@ public interface UserService {
 
     List<SYS_USER> selectUsersByPeopleId(String pid);
 
+    List<SYS_USER> selectUsersByUnitId(String unitId);
+
     SYS_USER selectUserById(String id);
 }

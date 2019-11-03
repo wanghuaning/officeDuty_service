@@ -36,7 +36,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/data")
 public class DataController {
-    private final File jsonFile=File.createTempFile("downloadJson",".json");//创建临时文件
+    private final File jsonFile = File.createTempFile("downloadJson", ".json");//创建临时文件
     private final static Logger logger = LoggerFactory.getLogger(DataController.class);
     @Autowired
     private UnitService unitService;
@@ -57,6 +57,9 @@ public class DataController {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private UserService userService;
 
     public DataController() throws IOException {
     }
@@ -144,6 +147,7 @@ public class DataController {
             List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
             objects.addAll(unitList);
             List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
+            List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
             if (peopleList.size() > 0) {
                 objects.addAll(peopleList);
                 List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
@@ -170,51 +174,70 @@ public class DataController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
-        }finally {
+        } finally {
             jsonFile.deleteOnExit();//程序结束 删除临时文件
         }
     }
 
     @ApiOperation(value = "导入上行数据", notes = "导入上行数据", httpMethod = "POST", tags = "导入上行数据接口")
     @RequestMapping(value = "/importUpstreamData")
-    public String importUpstreamData(@RequestParam(value = "excelFile",required = true) MultipartFile excelFile){
-        StringBuffer stringBuffer=new StringBuffer();
+    public String importUpstreamData(@RequestParam(value = "excelFile", required = true) MultipartFile excelFile) {
+        StringBuffer stringBuffer = new StringBuffer();
         try {
-            String jsonStr=FileUtil.readJsonFile(excelFile.getInputStream());
-            JSONObject object=JSONObject.fromObject(jsonStr);
-            String note=String.valueOf(object.get("note"));
-            if (!StrUtils.isBlank(note)){
-                JSONObject key=object.getJSONObject("result");
-                String date=String.valueOf(key.get("date"));
-                String unitId=String.valueOf(key.get("unitId"));
-                String unitName=String.valueOf(key.get("unitName"));
-                JSONArray unitList=key.getJSONArray("unitList");
-                JSONArray peopleList=key.getJSONArray("peopleList");
-                JSONArray rankList=key.getJSONArray("rankList");
-                JSONArray dutyList=key.getJSONArray("dutyList");
-                JSONArray educationList=key.getJSONArray("educationList");
-                JSONArray rewardList=key.getJSONArray("rewardList");
-                JSONArray assessmentList=key.getJSONArray("assessmentList");
-                SYS_UNIT unit=unitService.selectUnitById(unitId);
-                if (unit!=null){
-                    if (unitList!=null){
-
+            List<SYS_UNIT> units = new ArrayList<>();
+            List<SYS_USER> users = new ArrayList<>();
+            List<SYS_People> peoples = new ArrayList<>();
+            List<SYS_Duty> duties = new ArrayList<>();
+            List<SYS_Rank> ranks = new ArrayList<>();
+            List<SYS_Reward> rewards = new ArrayList<>();
+            List<SYS_Education> educations = new ArrayList<>();
+            List<SYS_Assessment> assessments = new ArrayList<>();
+            String jsonStr = FileUtil.readJsonFile(excelFile.getInputStream());
+            JSONObject object = JSONObject.fromObject(jsonStr);
+            String note = String.valueOf(object.get("note"));
+            if (!StrUtils.isBlank(note)) {
+                JSONObject key = object.getJSONObject("result");
+                String date = String.valueOf(key.get("date"));
+                String unitId = String.valueOf(key.get("unitId"));
+                String unitName = String.valueOf(key.get("unitName"));
+                JSONArray unitList = key.getJSONArray("unitList");
+                JSONArray userList = key.getJSONArray("userList");
+                JSONArray peopleList = key.getJSONArray("peopleList");
+                JSONArray rankList = key.getJSONArray("rankList");
+                JSONArray dutyList = key.getJSONArray("dutyList");
+                JSONArray educationList = key.getJSONArray("educationList");
+                JSONArray rewardList = key.getJSONArray("rewardList");
+                JSONArray assessmentList = key.getJSONArray("assessmentList");
+                SYS_UNIT unit = unitService.selectUnitById(unitId);
+                if (unit != null) {
+                    if (unitList != null) {
+                        units = DataManager.saveUnitJsonModel(unitList);
+                        users = DataManager.saveUserJsonModel(userList);
+                        if (peopleList != null) {
+                            peoples = DataManager.savePeopleJsonModel(peopleList);
+                            duties = DataManager.saveDutyJsonModel(dutyList);
+                            ranks = DataManager.saveRankJsonModel(rankList);
+                            rewards = DataManager.saveRewardJsonModel(rewardList);
+                            educations = DataManager.saveEducationJsonModel(educationList);
+                            assessments = DataManager.saveAssessmentJsonModel(assessmentList);
+                        }
                     }
-                }else {
-                    SYS_UNIT unit1=unitService.selectUnitByName(unitName);
-                    if (unit1!=null){
-
-                    }else {
-
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();
+                } else {
+                    SYS_UNIT unit1 = unitService.selectUnitByName(unitName);
+                    if (unit1 != null) {
+                        DataManager.saveUnitJsonModel(unitList);
+                    } else {
+                        return new Result(ResultCode.ERROR.toString(), "单位不存在！", null, null).getJson();
                     }
                 }
             } else {
-                return new Result(ResultCode.ERROR.toString(),"上行数据包不全！",null,null).getJson();
+                return new Result(ResultCode.ERROR.toString(), "上行数据包不全！", null, null).getJson();
             }
             return jsonStr;
-        }catch (Exception e){
-            logger.error(ResultMsg.GET_ERROR,e);
-            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
         }
     }
 }

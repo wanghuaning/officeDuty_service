@@ -47,7 +47,7 @@ public class EntityUtil {
                     }
                 }
             }
-            if (type.equals("class java.lang.Integer")) {
+            if (type.equals("class java.lang.Integer") || type.equals("int")) {
                 if (key.has(name)) {
                     Integer sd = Integer.valueOf(String.valueOf(key.get(name)));
                     name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
@@ -55,6 +55,30 @@ public class EntityUtil {
                     Integer value = (Integer) m.invoke(model);
                     if (value == null) {
                         m = model.getClass().getMethod("set" + name, Integer.class);
+                        m.invoke(model, sd);
+                    }
+                }
+            }
+            if (type.equals("long") || type.equals("class java.lang.Long")) {
+                if (key.has(name)) {
+                    Long sd = Long.valueOf(String.valueOf(key.get(name)));
+                    name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
+                    Method m = model.getClass().getMethod("get" + name);
+                    Long value = (Long) m.invoke(model);
+                    if (value == null) {
+                        m = model.getClass().getMethod("set" + name, Long.class);
+                        m.invoke(model, sd);
+                    }
+                }
+            }
+            if (type.equals("class java.lang.Boolean")) {
+                if (key.has(name)) {
+                    Boolean sd = Boolean.valueOf(String.valueOf(key.get(name)));
+                    name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
+                    Method m = model.getClass().getMethod("get" + name);
+                    Boolean value = (Boolean) m.invoke(model);
+                    if (value == null) {
+                        m = model.getClass().getMethod("set" + name, Boolean.class);
                         m.invoke(model, sd);
                     }
                 }
