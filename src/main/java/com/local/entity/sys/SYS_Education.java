@@ -2,6 +2,7 @@ package com.local.entity.sys;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
@@ -38,6 +39,8 @@ public class SYS_Education implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
 
+  private String createTimeStr;
+
   @ApiModelProperty("人员ID")
   @Comment("人员ID")
   @Column("people_Id")
@@ -58,6 +61,8 @@ public class SYS_Education implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date endTime;
 
+  private String endTimeStr;
+
   @ApiModelProperty("学位授予时间")
   @Comment("学位授予时间")
   @Column("degree_Time")
@@ -65,6 +70,8 @@ public class SYS_Education implements Serializable {
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ColDefine(type = ColType.DATETIME)
   private Date degreeTime;
+
+  private String degreeTimeStr;
 
   @ApiModelProperty("学校类型")
   @Comment("学校类型")
@@ -83,6 +90,30 @@ public class SYS_Education implements Serializable {
   @Column("profession")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String profession;
+
+  public String getCreateTimeStr() {
+    return DateUtil.dateToString(createTime);
+  }
+
+  public void setCreateTimeStr(String createTimeStr) {
+    this.createTimeStr = createTimeStr;
+  }
+
+  public String getEndTimeStr() {
+    return DateUtil.dateToString(endTime);
+  }
+
+  public void setEndTimeStr(String endTimeStr) {
+    this.endTimeStr = endTimeStr;
+  }
+
+  public String getDegreeTimeStr() {
+    return DateUtil.dateToString(degreeTime);
+  }
+
+  public void setDegreeTimeStr(String degreeTimeStr) {
+    this.degreeTimeStr = degreeTimeStr;
+  }
 
   public String getSchoolType() {
     return schoolType;
@@ -125,7 +156,7 @@ public class SYS_Education implements Serializable {
   }
 
   public Date getCreateTime() {
-    return createTime;
+    return DateUtil.parseDateYMD(createTime);
   }
 
   public void setCreateTime(Date createTime) {
@@ -149,7 +180,7 @@ public class SYS_Education implements Serializable {
   }
 
   public Date getEndTime() {
-    return endTime;
+    return DateUtil.parseDateYMD(endTime);
   }
 
   public void setEndTime(Date endTime) {
@@ -157,7 +188,7 @@ public class SYS_Education implements Serializable {
   }
 
   public Date getDegreeTime() {
-    return degreeTime;
+    return DateUtil.parseDateYMD(degreeTime);
   }
 
   public void setDegreeTime(Date degreeTime) {

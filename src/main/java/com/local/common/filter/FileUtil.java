@@ -1,9 +1,6 @@
 package com.local.common.filter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public class FileUtil {
     public static void inputStreamToFile(InputStream ins, File file) {
@@ -21,4 +18,29 @@ public class FileUtil {
         }
     }
 
+    /**
+     * 读取json文件
+     * @param excelInputSteam
+     * @return
+     */
+    public static String readJsonFile(InputStream excelInputSteam){
+        String jsonStr="";
+        try {
+            Reader reader=new InputStreamReader(excelInputSteam,"UTF-8");
+            int ch=0;
+            StringBuffer stringBuffer=new StringBuffer();
+            while ((ch=reader.read())!=-1){
+                stringBuffer.append((char) ch);
+            }
+            reader.close();
+            jsonStr=stringBuffer.toString();
+            return jsonStr;
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+            return null;
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

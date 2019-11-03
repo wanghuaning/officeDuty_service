@@ -1,6 +1,7 @@
 package com.local.entity.sys;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
@@ -79,6 +80,8 @@ public class SYS_UNIT implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @ColDefine(type = ColType.DATETIME)
     private Date referOfficialDate;
+
+    private String referOfficialDateStr;
 
     @ApiModelProperty("行政编制数")
     @Comment("行政编制数")
@@ -428,8 +431,16 @@ public class SYS_UNIT implements Serializable {
         this.referOfficialDocument = referOfficialDocument;
     }
 
+    public String getReferOfficialDateStr() {
+        return DateUtil.dateToString(referOfficialDate);
+    }
+
+    public void setReferOfficialDateStr(String referOfficialDateStr) {
+        this.referOfficialDateStr = referOfficialDateStr;
+    }
+
     public Date getReferOfficialDate() {
-        return referOfficialDate;
+        return DateUtil.parseDateYMD(referOfficialDate);
     }
 
     public void setReferOfficialDate(Date referOfficialDate) {

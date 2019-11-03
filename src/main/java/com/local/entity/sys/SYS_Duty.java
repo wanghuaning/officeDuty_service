@@ -2,6 +2,7 @@ package com.local.entity.sys;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
@@ -34,6 +35,8 @@ public class SYS_Duty implements Serializable {
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
+
+  private String createTimeStr;
 
   @ApiModelProperty("人员ID")
   @Comment("人员ID")
@@ -73,6 +76,8 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date serveTime;
 
+  private String serveTimeStr;
+
   @ApiModelProperty("免职文号")
   @Comment("免职文号")
   @Column("document_Number")
@@ -96,6 +101,22 @@ public class SYS_Duty implements Serializable {
   @Column("real_Name")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String realName;
+
+  public String getCreateTimeStr() {
+    return DateUtil.dateToString(createTime);
+  }
+
+  public void setCreateTimeStr(String createTimeStr) {
+    this.createTimeStr = createTimeStr;
+  }
+
+  public String getServeTimeStr() {
+    return DateUtil.dateToString(serveTime);
+  }
+
+  public void setServeTimeStr(String serveTimeStr) {
+    this.serveTimeStr = serveTimeStr;
+  }
 
   public String getDjunct() {
     return djunct;
@@ -146,7 +167,7 @@ public class SYS_Duty implements Serializable {
   }
 
   public Date getCreateTime() {
-    return createTime;
+    return DateUtil.parseDateYMD(createTime);
   }
 
   public void setCreateTime(Date createTime) {
@@ -186,7 +207,7 @@ public class SYS_Duty implements Serializable {
   }
 
   public Date getServeTime() {
-    return serveTime;
+    return DateUtil.parseDateYMD(serveTime);
   }
 
   public void setServeTime(Date serveTime) {

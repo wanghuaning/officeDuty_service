@@ -1,6 +1,7 @@
 package com.local.entity.sys;
 
 import com.local.service.PeopleService;
+import com.local.util.DateUtil;
 import com.local.util.StrUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,6 +39,8 @@ public class SYS_USER implements Serializable {
     @ColDefine(type = ColType.DATE)
     private Date createTime;
 
+    private String createTimeStr;
+
     @ApiModelProperty("账号")
     @Comment("账号")
     @NotEmpty(message = "请输入用户名!")
@@ -57,6 +60,8 @@ public class SYS_USER implements Serializable {
     @Column("last_password_reset_time")
     @ColDefine(type = ColType.DATE)
     private Date lastTime;
+
+    private String lastTimeStr;
 
     @ApiModelProperty("状态：1启用、0禁用")
     @Comment("状态：1启用、0禁用")
@@ -134,6 +139,22 @@ public class SYS_USER implements Serializable {
         }
     }
 
+    public String getCreateTimeStr() {
+        return DateUtil.dateToString(createTime);
+    }
+
+    public void setCreateTimeStr(String createTimeStr) {
+        this.createTimeStr = createTimeStr;
+    }
+
+    public String getLastTimeStr() {
+        return DateUtil.dateToString(lastTime);
+    }
+
+    public void setLastTimeStr(String lastTimeStr) {
+        this.lastTimeStr = lastTimeStr;
+    }
+
     public void setPermission(String permission) {
         this.permission = permission;
     }
@@ -187,7 +208,7 @@ public class SYS_USER implements Serializable {
     }
 
     public Date getCreateTime() {
-        return createTime;
+        return DateUtil.parseDateYMD(createTime);
     }
 
     public void setCreateTime(Date createTime) {
@@ -211,7 +232,7 @@ public class SYS_USER implements Serializable {
     }
 
     public Date getLastTime() {
-        return lastTime;
+        return DateUtil.parseDateYMD(lastTime);
     }
 
     public void setLastTime(Date lastTime) {

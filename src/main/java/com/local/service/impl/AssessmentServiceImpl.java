@@ -69,6 +69,18 @@ public class AssessmentServiceImpl implements AssessmentService {
     }
 
     @Override
+    public List<SYS_Assessment> selectAssessmentsByPeopleId(String peopleId){
+        List<SYS_Assessment> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", peopleId);
+        list = dao.query(SYS_Assessment.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
     public List<SYS_Assessment> selectKaoHeByPidAndResult(String pid,String result){
         List<SYS_Assessment> list = new ArrayList<>();
         Criteria cir = Cnd.cri();

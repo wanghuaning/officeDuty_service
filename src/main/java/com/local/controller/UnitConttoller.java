@@ -270,7 +270,7 @@ public class UnitConttoller {
     }
     @ApiOperation(value = "导入单位", notes = "导入单位", httpMethod = "POST", tags = "导入单位接口")
     @RequestMapping(value = "/unit/import")
-    public String importUnitExcel(@RequestParam("excelFile") MultipartFile excelFile){
+    public String importUnitExcel(@RequestParam(value = "excelFile",required = false) MultipartFile excelFile){
         StringBuffer stringBuffer=new StringBuffer();
         try {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件

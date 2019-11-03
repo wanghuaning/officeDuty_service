@@ -14,4 +14,5 @@ public interface DutyService {
     void insertDuty(SYS_Duty duty);
     void updateDuty(SYS_Duty duty);
     void deleteDuty(String id);
+    List<SYS_Duty> selectDutysByPeopleId(String pid);
 }

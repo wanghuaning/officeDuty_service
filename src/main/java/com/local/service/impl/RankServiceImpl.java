@@ -72,6 +72,18 @@ public class RankServiceImpl implements RankService {
     }
 
     @Override
+    public List<SYS_Rank> selectRanksByPeopleId(String pid){
+        List<SYS_Rank> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid);
+        list = dao.query(SYS_Rank.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
     public SYS_Rank selectNotAproRanksByPid(String pid){
         List<SYS_Rank> list = new ArrayList<>();
         Criteria cir = Cnd.cri();

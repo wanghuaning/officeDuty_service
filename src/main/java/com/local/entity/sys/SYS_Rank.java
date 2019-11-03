@@ -2,6 +2,7 @@ package com.local.entity.sys;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
@@ -36,6 +37,8 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
 
+  private String createTimeStr;
+
   @ApiModelProperty("人员ID")
   @Comment("人员ID")
   @Column("people_Id")
@@ -61,6 +64,8 @@ public class SYS_Rank implements Serializable {
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ColDefine(type = ColType.DATETIME)
   private Date serveTime;
+
+  private String serveTimeStr;
 
   @ApiModelProperty("批准文号")
   @Comment("批准文号")
@@ -94,6 +99,8 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date approvalTime;
 
+  private String approvalTimeStr;
+
   @ApiModelProperty("任同职务时间")
   @Comment("任同职务时间")
   @Column("duty_Time")
@@ -102,9 +109,42 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date dutyTime;
 
+  private String dutyTimeStr;
+
+  public String getCreateTimeStr() {
+    return DateUtil.dateToString(createTime);
+  }
+
+  public void setCreateTimeStr(String createTimeStr) {
+    this.createTimeStr = createTimeStr;
+  }
+
+  public String getServeTimeStr() {
+    return DateUtil.dateToString(serveTime);
+  }
+
+  public void setServeTimeStr(String serveTimeStr) {
+    this.serveTimeStr = serveTimeStr;
+  }
+
+  public String getApprovalTimeStr() {
+    return DateUtil.dateToString(approvalTime);
+  }
+
+  public void setApprovalTimeStr(String approvalTimeStr) {
+    this.approvalTimeStr = approvalTimeStr;
+  }
+
+  public String getDutyTimeStr() {
+    return DateUtil.dateToString(dutyTime);
+  }
+
+  public void setDutyTimeStr(String dutyTimeStr) {
+    this.dutyTimeStr = dutyTimeStr;
+  }
 
   public Date getDutyTime() {
-    return dutyTime;
+    return DateUtil.parseDateYMD(dutyTime);
   }
 
   public void setDutyTime(Date dutyTime) {
@@ -120,7 +160,7 @@ public class SYS_Rank implements Serializable {
   }
 
   public Date getApprovalTime() {
-    return approvalTime;
+    return DateUtil.parseDateYMD(approvalTime);
   }
 
   public void setApprovalTime(Date approvalTime) {
@@ -152,7 +192,7 @@ public class SYS_Rank implements Serializable {
   }
 
   public Date getCreateTime() {
-    return createTime;
+    return DateUtil.parseDateYMD(createTime);
   }
 
   public void setCreateTime(Date createTime) {
@@ -184,7 +224,7 @@ public class SYS_Rank implements Serializable {
   }
 
   public Date getServeTime() {
-    return serveTime;
+    return DateUtil.parseDateYMD(serveTime);
   }
 
   public void setServeTime(Date serveTime) {

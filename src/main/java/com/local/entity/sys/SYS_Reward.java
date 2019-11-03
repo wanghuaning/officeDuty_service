@@ -2,6 +2,7 @@ package com.local.entity.sys;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
@@ -41,6 +42,8 @@ public class SYS_Reward implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
 
+  private String createTimeStr;
+
   @ApiModelProperty("人员ID")
   @Comment("人员ID")
   @Column("people_Id")
@@ -67,11 +70,29 @@ public class SYS_Reward implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date revocationDate;
 
+  private String revocationDateStr;
+
   @ApiModelProperty("批准机关性质")
   @Comment("批准机关性质")
   @Column("unit_Type")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String unitType;
+
+  public String getCreateTimeStr() {
+    return DateUtil.dateToString(createTime);
+  }
+
+  public void setCreateTimeStr(String createTimeStr) {
+    this.createTimeStr = createTimeStr;
+  }
+
+  public String getRevocationDateStr() {
+    return DateUtil.dateToString(revocationDate);
+  }
+
+  public void setRevocationDateStr(String revocationDateStr) {
+    this.revocationDateStr = revocationDateStr;
+  }
 
   public String getNameType() {
     return nameType;
@@ -98,7 +119,7 @@ public class SYS_Reward implements Serializable {
   }
 
   public Date getCreateTime() {
-    return createTime;
+    return DateUtil.parseDateYMD(createTime);
   }
 
   public void setCreateTime(Date createTime) {
@@ -130,7 +151,7 @@ public class SYS_Reward implements Serializable {
   }
 
   public Date getRevocationDate() {
-    return revocationDate;
+    return DateUtil.parseDateYMD(revocationDate);
   }
 
   public void setRevocationDate(Date revocationDate) {

@@ -42,6 +42,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date birthday;
 
+  private String birthdayStr;
+
   @ApiModelProperty("单位ID")
   @Comment("单位ID")
   @Column("unit_Id")
@@ -74,6 +76,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date workday;
 
+  private String workdayStr;
+
   @ApiModelProperty("政治面貌")
   @Comment("政治面貌")
   @Column("party")
@@ -87,6 +91,8 @@ public class SYS_People implements Serializable {
   @Column("partyTime")
   @ColDefine(type = ColType.DATETIME)
   private Date partyTime;
+
+  private String partyTimeStr;
 
   @ApiModelProperty("第二党派")
   @Comment("第二党派")
@@ -114,6 +120,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date positionTime;
 
+  private String positionTimeStr;
+
   @ApiModelProperty("现职级")
   @Comment("现职级")
   @Column("position_Level")
@@ -128,6 +136,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date positionLevelTime;
 
+  private String positionLevelTimeStr;
+
   @ApiModelProperty("套转职级")
   @Comment("套转职级")
   @Column("turn_Rank")
@@ -141,6 +151,8 @@ public class SYS_People implements Serializable {
   @Column("turn_Rank_Time")
   @ColDefine(type = ColType.DATETIME)
   private Date turnRankTime;
+
+  private String turnRankTimeStr;
 
   @ApiModelProperty("是否具有两年以上基层工作经历")
   @Comment("是否具有两年以上基层工作经历")
@@ -161,6 +173,8 @@ public class SYS_People implements Serializable {
   @Column("create_Time")
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
+
+  private String createTimeStr;
 
   @ApiModelProperty("特殊人员")
   @Comment("特殊人员")
@@ -206,6 +220,62 @@ public class SYS_People implements Serializable {
   private String value;
   private String label;
 
+  public String getBirthdayStr() {
+    return DateUtil.dateToString(birthday);
+  }
+
+  public void setBirthdayStr(String birthdayStr) {
+    this.birthdayStr = birthdayStr;
+  }
+
+  public String getWorkdayStr() {
+    return DateUtil.dateToString(workday);
+  }
+
+  public void setWorkdayStr(String workdayStr) {
+    this.workdayStr = workdayStr;
+  }
+
+  public String getPartyTimeStr() {
+    return DateUtil.dateToString(partyTime);
+  }
+
+  public void setPartyTimeStr(String partyTimeStr) {
+    this.partyTimeStr = partyTimeStr;
+  }
+
+  public String getPositionTimeStr() {
+    return DateUtil.dateToString(positionTime);
+  }
+
+  public void setPositionTimeStr(String positionTimeStr) {
+    this.positionTimeStr = positionTimeStr;
+  }
+
+  public String getPositionLevelTimeStr() {
+    return DateUtil.dateToString(positionLevelTime);
+  }
+
+  public void setPositionLevelTimeStr(String positionLevelTimeStr) {
+    this.positionLevelTimeStr = positionLevelTimeStr;
+  }
+
+  public String getTurnRankTimeStr() {
+    return DateUtil.dateToString(turnRankTime);
+  }
+
+  public void setTurnRankTimeStr(String turnRankTimeStr) {
+    this.turnRankTimeStr = turnRankTimeStr;
+  }
+
+  public String getCreateTimeStr() {
+    return DateUtil.dateToString(createTime);
+  }
+
+  public void setCreateTimeStr(String createTimeStr) {
+    this.createTimeStr = createTimeStr;
+  }
+
   public String getTurnRank() {
     return turnRank;
   }
@@ -215,7 +285,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getTurnRankTime() {
-    return turnRankTime;
+    return DateUtil.parseDateYMD(turnRankTime);
   }
 
   public void setTurnRankTime(Date turnRankTime) {
@@ -271,7 +341,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getBirthday(){
-    return birthday;
+    return DateUtil.parseDateYMD(birthday);
   }
 
   public void setBirthday(Date birthday) {
@@ -311,7 +381,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getWorkday() {
-    return workday;
+    return DateUtil.parseDateYMD(workday);
   }
 
   public void setWorkday(Date workday) {
@@ -327,7 +397,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getPartyTime() {
-    return partyTime;
+    return DateUtil.parseDateYMD(partyTime);
   }
 
   public void setPartyTime(Date partyTime) {
@@ -359,7 +429,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getPositionTime() {
-    return positionTime;
+    return DateUtil.parseDateYMD(positionTime);
   }
 
   public void setPositionTime(Date positionTime) {
@@ -375,7 +445,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getPositionLevelTime() {
-    return positionLevelTime;
+    return DateUtil.parseDateYMD(positionLevelTime);
   }
 
   public void setPositionLevelTime(Date positionLevelTime) {
@@ -399,7 +469,7 @@ public class SYS_People implements Serializable {
   }
 
   public Date getCreateTime() {
-    return createTime;
+    return DateUtil.parseDateYMD(createTime);
   }
 
   public void setCreateTime(Date createTime) {

@@ -64,13 +64,17 @@ public class DateUtil {
     }
 
     public static Date parseDateYMD(Date date){
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String s = sdf.format(date);
-            Date date1 =  sdf.parse(s);
-            return date1;
-        }catch (Exception e){
-            e.printStackTrace();
+        if (date != null && !"".equals(date)) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String s = sdf.format(date);
+                Date date1 =  sdf.parse(s);
+                return date1;
+            }catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        }else {
             return null;
         }
     }

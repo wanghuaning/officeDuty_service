@@ -69,6 +69,18 @@ public class RewardServiceImpl implements RewardService {
     }
 
     @Override
+    public List<SYS_Reward> selectRewardsByPeopleId(String peopleId){
+        List<SYS_Reward> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", peopleId);
+        list = dao.query(SYS_Reward.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
     public SYS_Reward selectRewardById(String id) {
         List<SYS_Reward> list = new ArrayList<>();
         Criteria cir = Cnd.cri();

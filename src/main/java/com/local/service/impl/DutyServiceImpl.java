@@ -72,6 +72,18 @@ public class DutyServiceImpl implements DutyService {
     }
 
     @Override
+    public List<SYS_Duty> selectDutysByPeopleId(String pid){
+        List<SYS_Duty> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid);
+        list = dao.query(SYS_Duty.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
     public SYS_Duty selectDutyById(String id) {
         List<SYS_Duty> list = new ArrayList<>();
         Criteria cir = Cnd.cri();

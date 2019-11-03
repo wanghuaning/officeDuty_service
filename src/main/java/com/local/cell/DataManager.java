@@ -8,6 +8,7 @@ import com.local.service.*;
 import com.local.util.DateUtil;
 import com.local.util.ExcelFileGenerator;
 import com.local.util.StrUtils;
+import net.sf.json.JSONArray;
 import org.apache.poi.ss.formula.functions.Rank;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.lang.random.R;
@@ -613,4 +614,147 @@ public class DataManager {
         return reward;
     }
 
+    /**
+     * 单位数据封装
+     * @param resultMap
+     * @param unitId
+     * @param unitService
+     */
+
+    public static List<SYS_UNIT> getUnitJson( Map<String, Object> resultMap,String unitId,UnitService unitService){
+        SYS_UNIT unit = unitService.selectUnitById(unitId);
+        List<SYS_UNIT> unitList = new ArrayList<>();
+        unitList.add(unit);
+        List<SYS_UNIT> cunitList  = unitService.selectAllChildUnits(unitId);
+        unitList.addAll(cunitList);
+        resultMap.put("unitId",unit.getId());
+        resultMap.put("date", DateUtil.dateToString(new Date()));
+        resultMap.put("unitName",unit.getName());
+        JSONArray array = JSONArray.fromObject(unitList);
+        resultMap.put("unitList",array);
+        return unitList;
+    }
+
+    /**
+     * 人员数据json
+     * @param resultMap
+     * @param units
+     * @param peopleService
+     */
+    public static List<SYS_People> getPeopleJson( Map<String, Object> resultMap,List<SYS_UNIT> units,PeopleService peopleService){
+        List<SYS_People> peopleList=new ArrayList<>();
+        for (SYS_UNIT unit:units){
+            List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unit.getId(),"0");
+            if (peoples!=null){
+                peopleList.addAll(peoples);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(peopleList);
+        resultMap.put("peopleList",array);
+        return peopleList;
+    }
+
+    /**
+     * 上行职务数据json
+     * @param resultMap
+     * @param peoples
+     * @param dutyService
+     * @return
+     */
+    public static List<SYS_Duty> getDutyJson( Map<String, Object> resultMap,List<SYS_People> peoples,DutyService dutyService){
+        List<SYS_Duty> dutyList=new ArrayList<>();
+        for (SYS_People people:peoples){
+            List<SYS_Duty> duties=dutyService.selectDutysByPeopleId(people.getId());
+            if (duties !=null){
+                dutyList.addAll(duties);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(dutyList);
+        resultMap.put("dutyList",array);
+        return dutyList;
+    }
+
+    /**
+     * 职级数据json
+     * @param resultMap
+     * @param peoples
+     * @param rankService
+     * @return
+     */
+    public static List<SYS_Rank> getRankJson( Map<String, Object> resultMap,List<SYS_People> peoples,RankService rankService){
+        List<SYS_Rank> rankList=new ArrayList<>();
+        for (SYS_People people:peoples){
+            List<SYS_Rank> ranks=rankService.selectRanksByPeopleId(people.getId());
+            if (ranks !=null){
+                rankList.addAll(ranks);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(rankList);
+        resultMap.put("rankList",array);
+        return rankList;
+    }
+
+    /**
+     * 学历数据json
+     * @param resultMap
+     * @param peoples
+     * @param educationService
+     * @return
+     */
+    public static List<SYS_Education> getEducationJson( Map<String, Object> resultMap,List<SYS_People> peoples,EducationService educationService){
+        List<SYS_Education> educationList=new ArrayList<>();
+        for (SYS_People people:peoples){
+            List<SYS_Education> educations=educationService.selectEducationsByPeopleId(people.getId());
+            if (educations !=null){
+                educationList.addAll(educations);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(educationList);
+        resultMap.put("educationList",array);
+        return educationList;
+    }
+
+    /**
+     * 奖惩数据json
+     * @param resultMap
+     * @param peoples
+     * @param rewardService
+     * @return
+     */
+    public static List<SYS_Reward> getRewardJson( Map<String, Object> resultMap,List<SYS_People> peoples,RewardService rewardService){
+        List<SYS_Reward> rewardList=new ArrayList<>();
+        for (SYS_People people:peoples){
+            List<SYS_Reward> rewards=rewardService.selectRewardsByPeopleId(people.getId());
+            if (rewards !=null){
+                rewardList.addAll(rewards);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(rewardList);
+        resultMap.put("rewardList",array);
+        return rewardList;
+    }
+
+    /**
+     *
+     * @param resultMap
+     * @param peoples
+     * @param assessmentService
+     * @return
+     */
+    public static List<SYS_Assessment> getAssessmentJson( Map<String, Object> resultMap,List<SYS_People> peoples,AssessmentService assessmentService){
+        List<SYS_Assessment> assessmentList=new ArrayList<>();
+        for (SYS_People people:peoples){
+            List<SYS_Assessment> assessments=assessmentService.selectAssessmentsByPeopleId(people.getId());
+            if (assessments !=null){
+                assessmentList.addAll(assessments);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(assessmentList);
+        resultMap.put("assessmentList",array);
+        return assessmentList;
+    }
+
+    public static void saveUnitJsonModel(JSONArray unitList){
+//        for ()
+    }
 }

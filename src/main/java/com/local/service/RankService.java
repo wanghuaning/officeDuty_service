@@ -13,6 +13,7 @@ public interface RankService {
     SYS_Rank selectRankByNameAndTime(String name, String peopleId, Date createTime);
     SYS_Rank selectNotAproRanksByPid(String pid);
     SYS_Rank selectAprodRanksByPid(String pid);
+    List<SYS_Rank> selectRanksByPeopleId(String pid);
     void insertRank(SYS_Rank rank);
 
     void deleteRank(String id);
