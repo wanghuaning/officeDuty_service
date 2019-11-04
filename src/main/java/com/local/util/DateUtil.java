@@ -15,96 +15,105 @@ public class DateUtil {
     private static String fm7 = "yyyy年MM月dd日";
     private static String fm8 = "yyyy/MM/dd";
     private static String fm9 = "yyyy.MM.dd";
-    public static Date stringToDate(String dateStr)throws  Exception{
-        String[] arr =null;
-        if(dateStr != null && !"".equals(dateStr) && !"null".equals(dateStr)){
-            arr=dateStr.split("-");
-        }else {
+
+    public static Date stringToDate(String dateStr) throws Exception {
+        String[] arr = null;
+        if (dateStr != null && !"".equals(dateStr) && !"null".equals(dateStr)) {
+            arr = dateStr.split("-");
+        } else {
             return null;
         }
-        String format =fm;
-        if(dateStr.contains(":") && dateStr.contains(" ")){
-            format=fm3;
-        } else if(dateStr.contains(":")){
-            format=fm5;
-        }else if (dateStr.contains("/")){
-            format=fm8;
-        }else if (dateStr.contains(".")){
-            format=fm9;
+        String format = fm;
+        if (dateStr.contains(":") && dateStr.contains(" ")) {
+            format = fm3;
+        } else if (dateStr.contains(":")) {
+            format = fm5;
+        } else if (dateStr.contains("/")) {
+            format = fm8;
+        } else if (dateStr.contains(".")) {
+            format = fm9;
         }
-        if(arr != null && arr.length == 2) {
-            return new SimpleDateFormat(format).parse(dateStr+"-01");
-        }else{
+        if (arr != null && arr.length == 2) {
+            return new SimpleDateFormat(format).parse(dateStr + "-01");
+        } else {
             return new SimpleDateFormat(format).parse(dateStr);
         }
     }
-    public static String dateToString(Date date){
-        if (date==null){
+
+    public static String dateToString(Date date) {
+        if (date == null) {
             return null;
         }
-        return  new SimpleDateFormat(fm).format(date);
+        return new SimpleDateFormat(fm).format(date);
     }
-    public static Date addMonths(Date date,int num){
-        Calendar calendar=Calendar.getInstance();
+
+    public static Date addMonths(Date date, int num) {
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.add(Calendar.MONTH,num);
-        return calendar.getTime();
-    }
-    public static Date addDates(Date date,int num){
-        Calendar calendar=Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE,num);
-        return calendar.getTime();
-    }
-    public static Date addSecond(Date date,int num){
-        Calendar calendar=Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.SECOND,1);
+        calendar.add(Calendar.MONTH, num);
         return calendar.getTime();
     }
 
-    public static Date parseDateYMD(Date date){
+    public static Date addDates(Date date, int num) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, num);
+        return calendar.getTime();
+    }
+
+    public static Date addSecond(Date date, int num) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.SECOND, 1);
+        return calendar.getTime();
+    }
+
+    public static Date parseDateYMD(Date date) {
         if (date != null && !"".equals(date)) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String s = sdf.format(date);
-                Date date1 =  sdf.parse(s);
+                Date date1 = sdf.parse(s);
                 return date1;
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
-        }else {
+        } else {
             return null;
         }
     }
-    public static int getDay(Date date){
-        Calendar calendar=Calendar.getInstance();
+
+    public static int getDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int  day=calendar.get(Calendar.DAY_OF_MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
         return day;
     }
-    public static int getMonth(Date date){
-        Calendar calendar=Calendar.getInstance();
+
+    public static int getMonth(Date date) {
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int  day=calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.MONTH);
         return day;
     }
-    public static String getMonStr(Date date){
-        String mon=String .format("%tm",date);
+
+    public static String getMonStr(Date date) {
+        String mon = String.format("%tm", date);
         return mon;
     }
-    public static int getYear(Date date){
-        Calendar calendar=Calendar.getInstance();
+
+    public static int getYear(Date date) {
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int  day=calendar.get(Calendar.YEAR);
+        int day = calendar.get(Calendar.YEAR);
         return day;
     }
+
     /**
      * 功能描述：返回小
      *
-     * @param date
-     *            日期
+     * @param date 日期
      * @return 返回小时
      */
     public static int getHour(Date date) {
@@ -112,11 +121,11 @@ public class DateUtil {
         calendar.setTime(date);
         return calendar.get(Calendar.HOUR_OF_DAY);
     }
+
     /**
      * 功能描述：返回分
      *
-     * @param date
-     *            日期
+     * @param date 日期
      * @return 返回分钟
      */
     public static int getMinute(Date date) {
@@ -128,8 +137,7 @@ public class DateUtil {
     /**
      * 返回秒钟
      *
-     * @param date
-     *            Date 日期
+     * @param date Date 日期
      * @return 返回秒钟
      */
     public static int getSecond(Date date) {
@@ -140,6 +148,7 @@ public class DateUtil {
 
     /**
      * 获取当日0点
+     *
      * @return
      */
     public static Date getStartTime() {
@@ -153,6 +162,7 @@ public class DateUtil {
 
     /**
      * 获取当日23点
+     *
      * @return
      */
     public static Date getnowEndTime() {
@@ -164,9 +174,19 @@ public class DateUtil {
         return todayEnd.getTime();
     }
 
+    /**
+     * 时间序号字符串
+     * @param date
+     * @return
+     */
+    public static String getDateNum(Date date) {
+        return String.valueOf(getYear(date)) + getMonth(date) + getDay(date) + getHour(date) + getMinute(date) + getSecond(date);
+    }
+
     public static void main(String[] args) {
         System.out.println(getMonth(new Date()));
-        String mon=String .format("%tm", new Date());
+        String mon = String.format("%tm", new Date());
+        System.out.println(getDateNum(new Date()));
         System.out.println(mon);
     }
 }

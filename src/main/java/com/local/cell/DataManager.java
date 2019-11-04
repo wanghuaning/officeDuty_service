@@ -1040,4 +1040,54 @@ public class DataManager {
         }
         return assessments;
     }
+
+    /**
+     * 保存备份数据
+     * @param dataId
+     * @param dataType
+     * @param unitId
+     * @param dataService
+     */
+    public static SYS_Data saveData(String dataId,String dataType,String unitId,DataService dataService){
+        SYS_Data data=new SYS_Data();
+        data.setId(dataId);
+        data.setType(dataType);
+        data.setOpTime(new Date());
+        data.setUnitId(unitId);
+        data.setDelFlag("0");
+        SYS_Data data1=dataService.selectDataById(dataId);
+        if (data1!=null){
+            dataService.updateData(data);
+        }else {
+            dataService.inserData(data);
+        }
+        return data;
+    }
+
+    /**
+     * 数据
+     * @param dataId
+     * @param dataType
+     * @param unitId
+     * @param dataInfoService
+     * @return
+     */
+    public static SYS_DataInfo saveDataInfo(String dataId,String dataType,String unitId,DataInfoService dataInfoService,String table,String param){
+        SYS_DataInfo data=new SYS_DataInfo();
+        String id=dataId+table;
+        data.setId(id);
+        data.setType(dataType);
+        data.setOpTime(new Date());
+        data.setUnitId(unitId);
+        data.setDataId(dataId);
+        data.setDelFlag("0");
+        data.setParam(param);
+        SYS_DataInfo data1=dataInfoService.selectDataInfById(id);
+        if (data1!=null){
+            dataInfoService.updateDataInfo(data);
+        }else {
+            dataInfoService.inserDataInfo(data);
+        }
+        return data;
+    }
 }
