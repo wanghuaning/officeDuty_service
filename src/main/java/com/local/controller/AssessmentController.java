@@ -1,7 +1,9 @@
 package com.local.controller;
 
 import com.local.entity.sys.SYS_Assessment;
+import com.local.entity.sys.SYS_People;
 import com.local.service.AssessmentService;
+import com.local.service.PeopleService;
 import com.local.util.Result;
 import com.local.util.ResultCode;
 import com.local.util.ResultMsg;
@@ -23,6 +25,8 @@ public class AssessmentController {
 
     @Autowired
     private AssessmentService assessmentService;
+    @Autowired
+    private PeopleService peopleService;
 
     @ApiOperation(value = "奖惩信息", notes = "奖惩信息", httpMethod = "GET", tags = "奖惩信息接口")
     @GetMapping("/assessmentInof")
@@ -51,6 +55,11 @@ public class AssessmentController {
             }
             String uuid = UUID.randomUUID().toString();
             assessment.setId(uuid);
+            SYS_People people=peopleService.selectPeopleById(assessment.getPeopleId());
+            if (people!=null){
+                assessment.setPeopleName(people.getName());
+                assessment.setUnitId(people.getUnitId());
+            }
             assessmentService.insertAssessment(assessment);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, assessment, null).getJson();
         } catch (Exception e) {

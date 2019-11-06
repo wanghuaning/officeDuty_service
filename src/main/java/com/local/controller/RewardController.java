@@ -1,6 +1,8 @@
 package com.local.controller;
 
+import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_Reward;
+import com.local.service.PeopleService;
 import com.local.service.RewardService;
 import com.local.util.Result;
 import com.local.util.ResultCode;
@@ -23,6 +25,8 @@ public class RewardController {
 
     @Autowired
     private RewardService rewardService;
+    @Autowired
+    private PeopleService peopleService;
 
     @ApiOperation(value = "奖惩信息", notes = "奖惩信息", httpMethod = "GET", tags = "奖惩信息接口")
     @GetMapping("/rewardInof")
@@ -51,6 +55,11 @@ public class RewardController {
             }
             String uuid = UUID.randomUUID().toString();
             reward.setId(uuid);
+            SYS_People people=peopleService.selectPeopleById(reward.getPeopleId());
+            if (people!=null) {
+                reward.setPeopleName(people.getName());
+                reward.setUnitId(people.getUnitId());
+            }
             rewardService.insertReward(reward);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, reward, null).getJson();
         } catch (Exception e) {

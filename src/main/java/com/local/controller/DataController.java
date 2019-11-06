@@ -276,55 +276,13 @@ public class DataController {
                                 //修改
                             }
                         } else {
-                            //人员信息
-                            List<List<SYS_People>> peopleLists = new ArrayList<>();
-                            List<SYS_People> addPeoples = new ArrayList<>();
-                            List<SYS_People> deletePeoples = new ArrayList<>();
-                            List<DataModel> peopleModels=new ArrayList<>();
-                            for (SYS_People people : peoples) {
-                                //新增
-                                SYS_People people1 = peopleService.selectPeopleById(people.getId());
-                                if (people1 == null) {
-                                    addPeoples.add(people);
-                                }else {
-                                    //修改
-                                    StringBuffer peopleStr=new StringBuffer();
-                                    Map<String,List<Object>> map1= CompareFileds.compareFields(people,people1,CompareFileds.PEOPLEARR);
-                                    Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
-                                    DataModel dataModel=new DataModel();
-                                    for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                                        if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                                            peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
-                                        }
-                                    }
-                                    if (peopleStr.length()>0){
-                                        dataModel.setId(people.getId());
-                                        dataModel.setName(people.getName());
-                                        dataModel.setValue(peopleStr.toString());
-                                        peopleModels.add(dataModel);
-                                    }
-                                }
-                            }
-                            //人员删除
-                            for (SYS_People people : localPeoples) {
-                                boolean isdelete = true;
-                                for (SYS_People people1 : peoples) {
-                                    if (people.getId().equals(people1.getId())) {
-                                        isdelete = false;
-                                    }
-                                }
-                                if (isdelete) {
-                                    deletePeoples.add(people);
-                                }
-                            }
-                            if (deletePeoples.size()>0){
-                                resultMap.put("delete",deletePeoples);
-                            }
-                            if (addPeoples.size()>0){
-                                resultMap.put("add",addPeoples);
-                            }
-                            resultMap.put("edit",peopleModels);
-
+                            DataManager.peopleDataCheck( resultMap,peoples,peopleService,localPeoples);
+                            DataManager.dutyDataCheck(resultMap,duties,dutyService,unitId);
+                            DataManager.rankDataCheck(resultMap,ranks,rankService,unitId);
+                            DataManager.educationDataCheck(resultMap,educations,educationService,unitId);
+                            DataManager.rewardDataCheck(resultMap,rewards,rewardService,unitId);
+                            DataManager.assessmentDataCheck(resultMap,assessments,assessmentService,unitId);
+                            DataManager.userDataCheck(resultMap,users,userService,unitId);
                         }
 //                        List<SYS_UNIT> sysUnits=gson.fromJson(sd, new TypeToken<List<SYS_UNIT>>() {}.getType());
 //                        System.out.println(sysUnits.get(0).getName());

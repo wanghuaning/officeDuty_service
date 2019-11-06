@@ -1,6 +1,7 @@
 package com.local.service;
 
 import com.local.entity.sys.SYS_Assessment;
+import com.local.entity.sys.SYS_Duty;
 import org.nutz.dao.QueryResult;
 
 import java.util.Date;
@@ -19,4 +20,5 @@ public interface AssessmentService {
     void updateAssessment(SYS_Assessment assessment);
 
     List<SYS_Assessment> selectKaoHeByPidAndResult(String pid,String result);
+    List<SYS_Assessment> selectAssessmentsByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
 }

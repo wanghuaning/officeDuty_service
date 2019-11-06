@@ -51,6 +51,8 @@ public class DutyController {
             if (people!=null){
                 String uuid= UUID.randomUUID().toString();
                 duty.setId(uuid);
+                duty.setPeopleName(people.getName());
+                duty.setUnitId(people.getUnitId());
                 dutyService.insertDuty(duty);
                 SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
                 if (sys_duty!=null){

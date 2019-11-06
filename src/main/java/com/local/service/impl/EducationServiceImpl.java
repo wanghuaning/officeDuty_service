@@ -2,7 +2,9 @@ package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
 import com.local.entity.sys.SYS_Education;
+import com.local.entity.sys.SYS_Education;
 import com.local.entity.sys.SYS_Rank;
+import com.local.entity.sys.SYS_UNIT;
 import com.local.service.EducationService;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
@@ -106,7 +108,47 @@ public class EducationServiceImpl implements EducationService {
             return null;
         }
     }
-
+    /**
+     * ;//根据单位ID查询，是否包含下级单位的 学历1:包含
+     * @param unitId
+     * @param isChild
+     * @return
+     */
+    @Override
+    public List<SYS_Education> selectEducationsByUnitId(String unitId, String isChild){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unit_Id",unitId);
+        List<SYS_Education> peoples=new ArrayList<>();
+        List<SYS_Education> list=dao.query(SYS_Education.class,cri);
+        if ("1".equals(isChild)){//包含下级单位
+            Criteria criteria=Cnd.cri();
+            criteria.where().andEquals("parent_Id",unitId);
+            List<SYS_UNIT> units=dao.query(SYS_UNIT.class,criteria);
+            getUnits(units,list);
+        }
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    public void getUnits(List<SYS_UNIT> units, List<SYS_Education> peoples){
+        if (!StrUtils.isBlank(units) && units.size()>0){
+//            List<SYS_People> peopleList=new ArrayList<>();
+            for (SYS_UNIT unit:units){
+                Criteria cri = Cnd.cri();
+                cri.where().andEquals("unit_Id",unit.getId());
+                List<SYS_Education> list=dao.query(SYS_Education.class,cri);
+                if (!StrUtils.isBlank(list) && list.size()>0){
+                    peoples.addAll(list);
+                }
+                List<SYS_UNIT> cunits=dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
+                if (!StrUtils.isBlank(cunits) && cunits.size() > 0) {
+                    getUnits(cunits,peoples);
+                }
+            }
+        }
+    }
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "新增学历", type = "C")

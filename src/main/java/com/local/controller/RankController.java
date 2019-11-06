@@ -58,6 +58,8 @@ public class RankController {
             if (people!=null){
                 String uuid= UUID.randomUUID().toString();
                 rank.setId(uuid);
+                rank.setPeopleName(people.getName());
+                rank.setUnitId(people.getUnitId());
                 rankService.insertRank(rank);
                 SYS_Rank sys_rank=rankService.selectRankByPidOrderByTime(people.getId());
                 if (sys_rank!=null){

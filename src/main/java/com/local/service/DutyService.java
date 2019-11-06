@@ -1,6 +1,7 @@
 package com.local.service;
 
 import com.local.entity.sys.SYS_Duty;
+import com.local.entity.sys.SYS_People;
 import org.nutz.dao.QueryResult;
 
 import java.util.Date;
@@ -15,4 +16,6 @@ public interface DutyService {
     void updateDuty(SYS_Duty duty);
     void deleteDuty(String id);
     List<SYS_Duty> selectDutysByPeopleId(String pid);
+
+    List<SYS_Duty> selectDutysByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
 }

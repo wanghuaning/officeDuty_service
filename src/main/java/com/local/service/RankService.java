@@ -1,5 +1,6 @@
 package com.local.service;
 
+import com.local.entity.sys.SYS_Assessment;
 import com.local.entity.sys.SYS_Rank;
 import org.nutz.dao.QueryResult;
 
@@ -19,5 +20,7 @@ public interface RankService {
     void deleteRank(String id);
 
     void updateRank(SYS_Rank rank);
+
+    List<SYS_Rank> selectRanksByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
 
 }

@@ -1,5 +1,6 @@
 package com.local.service;
 
+import com.local.entity.sys.SYS_Rank;
 import com.local.entity.sys.SYS_Reward;
 import org.nutz.dao.QueryResult;
 
@@ -17,4 +18,6 @@ public interface RewardService {
     void deleteReward(String id);
 
     void updateReward(SYS_Reward reward);
+
+    List<SYS_Reward> selectRewardsByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
 }

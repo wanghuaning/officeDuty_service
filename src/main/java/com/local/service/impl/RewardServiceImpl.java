@@ -2,6 +2,8 @@ package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
 import com.local.entity.sys.SYS_Reward;
+import com.local.entity.sys.SYS_Reward;
+import com.local.entity.sys.SYS_UNIT;
 import com.local.service.RewardService;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
@@ -92,7 +94,47 @@ public class RewardServiceImpl implements RewardService {
             return null;
         }
     }
-
+    /**
+     * ;//根据单位ID查询，是否包含下级单位的 奖惩1:包含
+     * @param unitId
+     * @param isChild
+     * @return
+     */
+    @Override
+    public List<SYS_Reward> selectRewardsByUnitId(String unitId, String isChild){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unit_Id",unitId);
+        List<SYS_Reward> peoples=new ArrayList<>();
+        List<SYS_Reward> list=dao.query(SYS_Reward.class,cri);
+        if ("1".equals(isChild)){//包含下级单位
+            Criteria criteria=Cnd.cri();
+            criteria.where().andEquals("parent_Id",unitId);
+            List<SYS_UNIT> units=dao.query(SYS_UNIT.class,criteria);
+            getUnits(units,list);
+        }
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    public void getUnits(List<SYS_UNIT> units, List<SYS_Reward> peoples){
+        if (!StrUtils.isBlank(units) && units.size()>0){
+//            List<SYS_People> peopleList=new ArrayList<>();
+            for (SYS_UNIT unit:units){
+                Criteria cri = Cnd.cri();
+                cri.where().andEquals("unit_Id",unit.getId());
+                List<SYS_Reward> list=dao.query(SYS_Reward.class,cri);
+                if (!StrUtils.isBlank(list) && list.size()>0){
+                    peoples.addAll(list);
+                }
+                List<SYS_UNIT> cunits=dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
+                if (!StrUtils.isBlank(cunits) && cunits.size() > 0) {
+                    getUnits(cunits,peoples);
+                }
+            }
+        }
+    }
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "新增奖惩", type = "C")

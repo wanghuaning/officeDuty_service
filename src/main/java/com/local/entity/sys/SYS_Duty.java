@@ -101,6 +101,33 @@ public class SYS_Duty implements Serializable {
   @Column("real_Name")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String realName;
+  @ApiModelProperty("人员姓名")
+  @Comment("人员姓名")
+  @Column("people_Name")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String peopleName;
+
+  @ApiModelProperty("单位ID")
+  @Comment("单位ID")
+  @Column("unit_Id")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String unitId;
+
+  public String getPeopleName() {
+    return peopleName;
+  }
+
+  public void setPeopleName(String peopleName) {
+    this.peopleName = peopleName;
+  }
+
+  public String getUnitId() {
+    return unitId;
+  }
+
+  public void setUnitId(String unitId) {
+    this.unitId = unitId;
+  }
 
   public String getCreateTimeStr() {
     return DateUtil.dateToString(createTime);

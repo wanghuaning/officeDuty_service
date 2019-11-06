@@ -1,6 +1,7 @@
 package com.local.service;
 
 import com.local.entity.sys.SYS_Education;
+import com.local.entity.sys.SYS_Reward;
 import org.nutz.dao.QueryResult;
 
 import java.util.Date;
@@ -19,4 +20,6 @@ public interface EducationService {
     void updateEducation(SYS_Education education);
 
     SYS_Education selectEducationByPidAndSchoolOrderByTime(String pid,String schoolType);
+
+    List<SYS_Education> selectEducationsByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
 }

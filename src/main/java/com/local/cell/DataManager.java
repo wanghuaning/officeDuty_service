@@ -1,7 +1,9 @@
 package com.local.cell;
 
+import com.local.common.config.CompareFileds;
 import com.local.entity.sys.*;
 import com.local.model.ApproalModel;
+import com.local.model.DataModel;
 import com.local.model.RankModel;
 import com.local.model.ReimbursementModel;
 import com.local.service.*;
@@ -17,6 +19,7 @@ import org.nutz.lang.random.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.unit.DataUnit;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.StyledEditorKit;
@@ -414,6 +417,8 @@ public class DataManager {
                                                          List<Map<String, Object>> list, SYS_People people) throws Exception {
         SYS_Education education = new SYS_Education();
         education.setPeopleId(people.getId());
+        education.setPeopleName(people.getName());
+        education.setUnitId(people.getUnitId());
         education.setName(StrUtils.toNullStr(map.get("学历名称")));
         String creatTime = String.valueOf(map.get("入学时间"));
         if (!StrUtils.isBlank(creatTime)) {
@@ -468,6 +473,8 @@ public class DataManager {
                                                UnitService unitService, String fullImport, DutyService dutyService) throws Exception {
         SYS_Duty duty = new SYS_Duty();
         duty.setPeopleId(people.getId());
+        duty.setPeopleName(people.getName());
+        duty.setUnitId(people.getUnitId());
         String creatTime = String.valueOf(map.get("现任职务时间"));
         if (!StrUtils.isBlank(creatTime)) {
             duty.setCreateTime(DateUtil.stringToDate(creatTime));
@@ -522,6 +529,8 @@ public class DataManager {
                                                     UnitService unitService, String fullImport, RankService rankService) throws Exception {
         SYS_Rank rank = new SYS_Rank();
         rank.setPeopleId(people.getId());
+        rank.setPeopleName(people.getName());
+        rank.setUnitId(people.getUnitId());
         rank.setName(StrUtils.toNullStr(map.get("现任职级")));
         String creatTime = String.valueOf(map.get("现任职级时间"));
         if (!StrUtils.isBlank(creatTime)) {
@@ -581,6 +590,8 @@ public class DataManager {
                                                               UnitService unitService, String fullImport, RewardService rewardService) throws Exception {
         SYS_Reward reward = new SYS_Reward();
         reward.setPeopleId(people.getId());
+        reward.setPeopleName(people.getName());
+        reward.setUnitId(people.getUnitId());
         reward.setName(StrUtils.toNullStr(map.get("奖惩名称")));
         String creatTime = String.valueOf(map.get("批准日期"));
         if (!StrUtils.isBlank(creatTime)) {
@@ -1089,5 +1100,387 @@ public class DataManager {
             dataInfoService.inserDataInfo(data);
         }
         return data;
+    }
+
+    /**
+     * 人员数据上行对比
+     * @param resultMap
+     * @param peoples
+     * @param peopleService
+     * @param localPeoples
+     */
+    public static void peopleDataCheck(Map<String,Object> resultMap,List<SYS_People> peoples,PeopleService peopleService,List<SYS_People> localPeoples){
+        //人员信息
+        List<List<SYS_People>> peopleLists = new ArrayList<>();
+        List<SYS_People> addPeoples = new ArrayList<>();
+        List<SYS_People> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_People people : peoples) {
+            //新增
+            SYS_People people1 = peopleService.selectPeopleById(people.getId());
+            if (people1 == null) {
+                addPeoples.add(people);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(people,people1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(people.getId());
+                    dataModel.setName(people.getName());
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_People people : localPeoples) {
+            boolean isdelete = true;
+            for (SYS_People people1 : peoples) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("peopleDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("peopleAdd",addPeoples);
+        }
+        resultMap.put("peopleEdit",peopleModels);
+    }
+    /**
+     * 职务数据上行对比
+     * @param resultMap
+     */
+    public static void dutyDataCheck(Map<String,Object> resultMap,List<SYS_Duty> duties,DutyService dutyService,String unitId){
+        //人员信息
+        List<SYS_Duty> localDutys=dutyService.selectDutysByUnitId(unitId,"1");
+        List<SYS_Duty> addPeoples = new ArrayList<>();
+        List<SYS_Duty> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_Duty duty: duties) {
+            //新增
+            SYS_Duty duty1 = dutyService.selectDutyById(duty.getId());
+            if (duty1 == null) {
+                addPeoples.add(duty);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(duty.getId());
+                    dataModel.setName(duty.getName()+"/"+ DateUtil.dateToString(duty.getCreateTime()));
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_Duty people : localDutys) {
+            boolean isdelete = true;
+            for (SYS_Duty people1 : duties) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("dutyDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("dutyAdd",addPeoples);
+        }
+        resultMap.put("dutyEdit",peopleModels);
+    }
+    /**
+     * 职级数据上行对比
+     * @param resultMap
+     */
+    public static void rankDataCheck(Map<String,Object> resultMap,List<SYS_Rank> duties,RankService rankService,String unitId){
+        //人员信息
+        List<SYS_Rank> localDutys=rankService.selectRanksByUnitId(unitId,"1");
+        List<SYS_Rank> addPeoples = new ArrayList<>();
+        List<SYS_Rank> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_Rank duty: duties) {
+            //新增
+            SYS_Rank duty1 = rankService.selectRankById(duty.getId());
+            if (duty1 == null) {
+                addPeoples.add(duty);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(duty.getId());
+                    dataModel.setName(duty.getName()+"/"+ DateUtil.dateToString(duty.getCreateTime()));
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_Rank people : localDutys) {
+            boolean isdelete = true;
+            for (SYS_Rank people1 : duties) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("rankDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("rankAdd",addPeoples);
+        }
+        resultMap.put("rankEdit",peopleModels);
+    }
+    /**
+     * 学历数据上行对比
+     * @param resultMap
+     */
+    public static void educationDataCheck(Map<String,Object> resultMap,List<SYS_Education> duties,EducationService educationService,String unitId){
+        //人员信息
+        List<SYS_Education> localDutys=educationService.selectEducationsByUnitId(unitId,"1");
+        List<SYS_Education> addPeoples = new ArrayList<>();
+        List<SYS_Education> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_Education duty: duties) {
+            //新增
+            SYS_Education duty1 = educationService.selectEducationById(duty.getId());
+            if (duty1 == null) {
+                addPeoples.add(duty);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(duty.getId());
+                    dataModel.setName(duty.getName()+"/"+ DateUtil.dateToString(duty.getCreateTime()));
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_Education people : localDutys) {
+            boolean isdelete = true;
+            for (SYS_Education people1 : duties) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("educationDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("educationAdd",addPeoples);
+        }
+        resultMap.put("educationEdit",peopleModels);
+    }
+    /**
+     * 学历数据上行对比
+     * @param resultMap
+     */
+    public static void rewardDataCheck(Map<String,Object> resultMap,List<SYS_Reward> duties,RewardService rewardService,String unitId){
+        //人员信息
+        List<SYS_Reward> localDutys=rewardService.selectRewardsByUnitId(unitId,"1");
+        List<SYS_Reward> addPeoples = new ArrayList<>();
+        List<SYS_Reward> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_Reward duty: duties) {
+            //新增
+            SYS_Reward duty1 = rewardService.selectRewardById(duty.getId());
+            if (duty1 == null) {
+                addPeoples.add(duty);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(duty.getId());
+                    dataModel.setName(duty.getName()+"/"+ DateUtil.dateToString(duty.getCreateTime()));
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_Reward people : localDutys) {
+            boolean isdelete = true;
+            for (SYS_Reward people1 : duties) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("rewardDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("rewardAdd",addPeoples);
+        }
+        resultMap.put("rewardEdit",peopleModels);
+    }
+    /**
+     * 考核数据上行对比
+     * @param resultMap
+     */
+    public static void assessmentDataCheck(Map<String,Object> resultMap,List<SYS_Assessment> duties,AssessmentService assessmentService,String unitId){
+        //人员信息
+        List<SYS_Assessment> localDutys=assessmentService.selectAssessmentsByUnitId(unitId,"1");
+        List<SYS_Assessment> addPeoples = new ArrayList<>();
+        List<SYS_Assessment> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_Assessment duty: duties) {
+            //新增
+            SYS_Assessment duty1 = assessmentService.selectAssessmentById(duty.getId());
+            if (duty1 == null) {
+                addPeoples.add(duty);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(duty.getId());
+                    dataModel.setName(duty.getName()+"/"+ duty.getYear());
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_Assessment people : localDutys) {
+            boolean isdelete = true;
+            for (SYS_Assessment people1 : duties) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("assessmentDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("assessmentAdd",addPeoples);
+        }
+        resultMap.put("assessmentEdit",peopleModels);
+    }
+    /**
+     * 考核数据上行对比
+     * @param resultMap
+     */
+    public static void userDataCheck(Map<String,Object> resultMap,List<SYS_USER> duties,UserService userService,String unitId){
+        //人员信息
+        List<SYS_USER> localDutys=userService.selectUsersByUnitId(unitId);
+        List<SYS_USER> addPeoples = new ArrayList<>();
+        List<SYS_USER> deletePeoples = new ArrayList<>();
+        List<DataModel> peopleModels=new ArrayList<>();
+        for (SYS_USER duty: duties) {
+            //新增
+            SYS_USER duty1 = userService.selectUserById(duty.getId());
+            if (duty1 == null) {
+                addPeoples.add(duty);
+            }else {
+                //修改
+                StringBuffer peopleStr=new StringBuffer();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
+                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                DataModel dataModel=new DataModel();
+                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                    }
+                }
+                if (peopleStr.length()>0){
+                    dataModel.setId(duty.getId());
+                    dataModel.setName(duty.getUserAccount());
+                    dataModel.setValue(peopleStr.toString());
+                    peopleModels.add(dataModel);
+                }
+            }
+        }
+        //人员删除
+        for (SYS_USER people : localDutys) {
+            boolean isdelete = true;
+            for (SYS_USER people1 : duties) {
+                if (people.getId().equals(people1.getId())) {
+                    isdelete = false;
+                }
+            }
+            if (isdelete) {
+                deletePeoples.add(people);
+            }
+        }
+        if (deletePeoples.size()>0){
+            resultMap.put("userDelete",deletePeoples);
+        }
+        if (addPeoples.size()>0){
+            resultMap.put("userAdd",addPeoples);
+        }
+        resultMap.put("userEdit",peopleModels);
     }
 }
