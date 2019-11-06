@@ -95,6 +95,11 @@ public class AssessmentController {
             SYS_Assessment assessmentById = assessmentService.selectAssessmentById(assessment.getId());
             if (assessmentById != null) {
                 assessment.setPeopleId(assessmentById.getPeopleId());
+                SYS_People people=peopleService.selectPeopleById(assessmentById.getPeopleId());
+                if (people!=null){
+                    assessment.setPeopleName(people.getName());
+                    assessment.setUnitId(people.getUnitId());
+                }
                 assessmentService.updateAssessment(assessment);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, assessment, null).getJson();
             } else {

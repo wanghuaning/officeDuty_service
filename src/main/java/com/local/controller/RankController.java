@@ -116,6 +116,8 @@ public class RankController {
                 rank.setPeopleId(rankById.getPeopleId());
                 SYS_People people=peopleService.selectPeopleById(rankById.getPeopleId());
                 if (people!=null){
+                    rank.setPeopleName(people.getName());
+                    rank.setUnitId(people.getUnitId());
                     rankService.updateRank(rank);
                     SYS_Rank sys_rank=rankService.selectRankByPidOrderByTime(people.getId());
                     if (sys_rank!=null){

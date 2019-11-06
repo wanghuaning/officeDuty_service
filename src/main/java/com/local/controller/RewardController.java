@@ -95,6 +95,11 @@ public class RewardController {
             SYS_Reward RewardById = rewardService.selectRewardById(reward.getId());
             if (RewardById != null) {
                 reward.setPeopleId(RewardById.getPeopleId());
+                SYS_People people=peopleService.selectPeopleById(RewardById.getPeopleId());
+                if (people!=null) {
+                    reward.setPeopleName(people.getName());
+                    reward.setUnitId(people.getUnitId());
+                }
                 rewardService.updateReward(reward);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, reward, null).getJson();
             } else {

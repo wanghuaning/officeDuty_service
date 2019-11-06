@@ -109,6 +109,8 @@ public class DutyController {
                 duty.setPeopleId(dutyById.getPeopleId());
                 SYS_People people=peopleService.selectPeopleById(dutyById.getPeopleId());
                 if (people!=null){
+                    duty.setPeopleName(people.getName());
+                    duty.setUnitId(people.getUnitId());
                     dutyService.updateDuty(duty);
                     SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
                     if (sys_duty!=null){

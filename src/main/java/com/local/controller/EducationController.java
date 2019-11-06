@@ -58,6 +58,8 @@ public class EducationController {
             if (people!=null){
                 String uuid= UUID.randomUUID().toString();
                 education.setId(uuid);
+                education.setPeopleName(people.getName());
+                education.setUnitId(people.getUnitId());
                 educationService.insertEducation(education);
                 SYS_Education sys_education=educationService.selectEducationByPidOrderByTime(people.getId());
                 if (sys_education!=null){
@@ -112,6 +114,8 @@ public class EducationController {
                 Education.setPeopleId(EducationById.getPeopleId());
                 SYS_People people=peopleService.selectPeopleById(EducationById.getPeopleId());
                 if (people!=null){
+                    Education.setPeopleName(people.getName());
+                    Education.setUnitId(people.getUnitId());
                     educationService.updateEducation(Education);
                     SYS_Education sys_education=educationService.selectEducationByPidOrderByTime(people.getId());
                     if (sys_education!=null){
