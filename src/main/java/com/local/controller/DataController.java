@@ -5,13 +5,11 @@ import com.google.gson.reflect.TypeToken;
 import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
+import com.local.common.config.CompareFileds;
 import com.local.common.filter.FileUtil;
 import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.*;
-import com.local.model.ApproalModel;
-import com.local.model.RankModel;
-import com.local.model.ReimbursementModel;
-import com.local.model.ResultModel;
+import com.local.model.*;
 import com.local.service.*;
 import com.local.util.*;
 import com.sun.org.apache.regexp.internal.RE;
@@ -224,6 +222,7 @@ public class DataController {
                 }
                 if (unit != null) {
                     SYS_Data data = DataManager.saveData(dataId, dataType, unitId, dataService);
+                    Map<String, Object> resultMap = new HashMap<>();
                     if (unitList != null) {
                         units = DataManager.saveUnitJsonModel(unitList);
                         if (units.size() > 0) {
@@ -260,29 +259,77 @@ public class DataController {
                             }
                         }
                         Map<String, Object> map = new HashMap<>();
-                        Map<String,Object> resultMap = new HashMap<>();
                         List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitId, unitService);//单位
-                        List<SYS_UNIT> deleteUnitList=new ArrayList<>();
-                        for (SYS_UNIT localunit:localUnits){
-
-                            boolean delete=true;
-                            for (SYS_UNIT dataunit:units){
-                                if (localunit.getId().equals(dataunit.getId())){
-                                    delete=false;
+                        List<SYS_UNIT> deleteUnitList = new ArrayList<>();
+                        List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitId, "1");
+                        if (dataType.contains("下行")) {
+                            for (SYS_UNIT localunit : localUnits) {
+                                boolean delete = true;
+                                for (SYS_UNIT dataunit : units) {
+                                    if (localunit.getId().equals(dataunit.getId())) {
+                                        delete = false;
+                                    }
+                                }
+                                if (delete) {
+                                    deleteUnitList.add(localunit);
+                                }
+                                //修改
+                            }
+                        } else {
+                            //人员信息
+                            List<List<SYS_People>> peopleLists = new ArrayList<>();
+                            List<SYS_People> addPeoples = new ArrayList<>();
+                            List<SYS_People> deletePeoples = new ArrayList<>();
+                            List<DataModel> peopleModels=new ArrayList<>();
+                            for (SYS_People people : peoples) {
+                                //新增
+                                SYS_People people1 = peopleService.selectPeopleById(people.getId());
+                                if (people1 == null) {
+                                    addPeoples.add(people);
+                                }else {
+                                    //修改
+                                    StringBuffer peopleStr=new StringBuffer();
+                                    Map<String,List<Object>> map1= CompareFileds.compareFields(people,people1,CompareFileds.PEOPLEARR);
+                                    Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                                    DataModel dataModel=new DataModel();
+                                    for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
+                                        if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
+                                            peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                                        }
+                                    }
+                                    if (peopleStr.length()>0){
+                                        dataModel.setId(people.getId());
+                                        dataModel.setName(people.getName());
+                                        dataModel.setValue(peopleStr.toString());
+                                        peopleModels.add(dataModel);
+                                    }
                                 }
                             }
-                            if (delete){
-                                deleteUnitList.add(localunit);
+                            //人员删除
+                            for (SYS_People people : localPeoples) {
+                                boolean isdelete = true;
+                                for (SYS_People people1 : peoples) {
+                                    if (people.getId().equals(people1.getId())) {
+                                        isdelete = false;
+                                    }
+                                }
+                                if (isdelete) {
+                                    deletePeoples.add(people);
+                                }
                             }
-                            //修改
-                            if (dataType.contains("下行")){
+                            if (deletePeoples.size()>0){
+                                resultMap.put("delete",deletePeoples);
+                            }
+                            if (addPeoples.size()>0){
+                                resultMap.put("add",addPeoples);
+                            }
+                            resultMap.put("edit",peopleModels);
 
-                            }
                         }
 //                        List<SYS_UNIT> sysUnits=gson.fromJson(sd, new TypeToken<List<SYS_UNIT>>() {}.getType());
 //                        System.out.println(sysUnits.get(0).getName());
                     }
-                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
                 } else {
                     return new Result(ResultCode.ERROR.toString(), "单位不存在！", null, null).getJson();
                 }

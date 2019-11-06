@@ -3,6 +3,7 @@ package com.local.util;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtil {
     private static String fm = "yyyy-MM-dd";
@@ -39,7 +40,15 @@ public class DateUtil {
             return new SimpleDateFormat(format).parse(dateStr);
         }
     }
-
+    /**
+     * 时间戳转换成日期格式字符串
+     * @param seconds 精确到秒的字符串
+     * @return
+     */
+    public static Date timeStamp2Date(String seconds)throws Exception {
+        Date date = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US).parse(seconds);
+        return date;
+    }
     public static String dateToString(Date date) {
         if (date == null) {
             return null;

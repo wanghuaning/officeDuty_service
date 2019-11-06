@@ -194,8 +194,8 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String education;
 
-  @ApiModelProperty("是否兼职:是；0：否")
-  @Comment("是否兼职:是；0：否")
+  @ApiModelProperty("是否兼职 1:是；0：否")
+  @Comment("是否兼职 1:是；0：否")
   @Column("enabled")
   @ColDefine(type = ColType.VARCHAR, width = 1)
   private String enabled;
@@ -206,9 +206,7 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.INT, width = 6)
   private Integer peopleOrder;
 
-
   private String isEnable;
-
   public String getIsEnable() {
     if ("0".equals(enabled)) {
       return "是";
