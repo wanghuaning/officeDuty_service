@@ -50,6 +50,71 @@ public class CompareFileds {
         map.put("enabled","是否兼职 1:是；0：否");
         return map;
     }
+    public static Map<String,String> getDutyMaps(){
+        Map<String,String> map=new HashMap<>();
+        map.put("name","职务名称");
+        map.put("createTime","任职时间");
+        map.put("leader","是否领导班子成员");
+        map.put("leaderType","成员类别");
+        map.put("selectionMethod","选拔任用方式");
+        map.put("status","任职状态");
+        map.put("serveTime","免职时间");
+        map.put("documentNumber","免职文号");
+        map.put("djunct","是否兼任");
+        map.put("documentduty","任职文号");
+        map.put("realName","是否纳入实名制管理");
+        return map;
+    }
+    public static Map<String,String> getRankMaps(){
+        Map<String,String> map=new HashMap<>();
+        map.put("name","职级层次");
+        map.put("createTime","任职日期");
+        map.put("rankType","类别（职级标志）");
+        map.put("status","状态");
+        map.put("serveTime","终止日期");
+        map.put("documentNumber","批准文号");
+        map.put("batch","批次");
+        map.put("democracy","民主测评结果");
+        map.put("detail","备注");
+        map.put("approvalTime","审批时间");
+        map.put("dutyTime","任同职务时间");
+        return map;
+    }
+    public static Map<String,String> getAssessmentMaps(){
+        Map<String,String> map=new HashMap<>();
+        map.put("name","考核结论");
+        map.put("year","考核年度");
+        return map;
+    }
+    public static Map<String,String> getEducationMaps(){
+        Map<String,String> map=new HashMap<>();
+        map.put("name","学历名称");
+        map.put("createTime","入学时间");
+        map.put("degree","学位名称");
+        map.put("endTime","毕（肄）业时间");
+        map.put("degreeTime","学位授予时间");
+        map.put("schoolType","学校类型");
+        map.put("school","毕业学校");
+        map.put("profession","专业");
+        return map;
+    }
+    public static Map<String,String> getRewardMaps(){
+        Map<String,String> map=new HashMap<>();
+        map.put("name","奖惩名称");
+        map.put("nameType","奖惩名称代码");
+        map.put("createTime","批准日期");
+        map.put("approvalUnit","批准机关");
+        map.put("duty","受奖惩时职务层次");
+        map.put("revocationDate","撤销日期");
+        map.put("unitType","批准机关性质");
+        return map;
+    }
+    public static Map<String,String> getUserMaps(){
+        Map<String,String> map=new HashMap<>();
+        map.put("userAccount","账号");
+        map.put("lastTime","最后修改密码的日期");
+        return map;
+    }
     /**
      * 比较两个实体属性值，返回一个map以有差异的属性名为key，value为一个list分别存obj1,obj2此属性名的值
      * @param obj1 进行属性比较的对象1
@@ -83,6 +148,12 @@ public class CompareFileds {
                         Object objBefore = readMethod.invoke(obj1);
                         // 在obj2上调用get方法等同于获得obj2的属性值
                         Object objAfter = readMethod.invoke(obj2);
+                        if (null==objBefore || "null".equals(objBefore)){
+                            objBefore="";
+                        }
+                        if (null==objAfter || "null".equals(objAfter)){
+                            objAfter="";
+                        }
                         if (objBefore instanceof Timestamp) {
                             objBefore = new Date(((Timestamp) objBefore).getTime());
                         }
@@ -109,6 +180,7 @@ public class CompareFileds {
                             continue;
                         }
                         // 比较这两个值是否相等,不等则放入map
+//                        System.out.println(objBefore +"=>"+objAfter);
                         if (!objBefore.equals(objAfter)) {
                             List<Object> list = new ArrayList<Object>();
                             list.add(objBefore);

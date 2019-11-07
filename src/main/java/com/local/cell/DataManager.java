@@ -603,8 +603,8 @@ public class DataManager {
             reward.setRevocationDate(DateUtil.stringToDate(serveTime));
         }
         reward.setApprovalUnit(StrUtils.toNullStr(map.get("批准机关")));
-        reward.setApprovalUnit(StrUtils.toNullStr(map.get("受奖惩时职务层次")));
-        reward.setApprovalUnit(StrUtils.toNullStr(map.get("批准机关性质")));
+        reward.setDuty(StrUtils.toNullStr(map.get("受奖惩时职务层次")));
+        reward.setUnitType(StrUtils.toNullStr(map.get("批准机关性质")));
         SYS_Reward reward1 = rewardService.selectRewardByNameAndTime(reward.getName(), people.getId(), reward.getCreateTime());
         if ("1".equals(fullImport)) {//覆盖导入
             if (reward1 != null) {
@@ -1157,7 +1157,9 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("peopleAdd",addPeoples);
         }
-        resultMap.put("peopleEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("peopleEdit",peopleModels);
+        }
     }
     /**
      * 职务数据上行对比
@@ -1177,18 +1179,19 @@ public class DataManager {
             }else {
                 //修改
                 StringBuffer peopleStr=new StringBuffer();
-                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
-                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.DUTYARR);
+                Map<String,String> peopleMap=CompareFileds.getDutyMaps();
                 DataModel dataModel=new DataModel();
-                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                for (int i=0;i<CompareFileds.DUTYARR.length;i++){
+                    if (map1.get(CompareFileds.DUTYARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.DUTYARR[i])+"："+map1.get(CompareFileds.DUTYARR[i])+ "<br/>");
                     }
                 }
                 if (peopleStr.length()>0){
                     dataModel.setId(duty.getId());
                     dataModel.setName(duty.getName()+"/"+ DateUtil.dateToString(duty.getCreateTime()));
                     dataModel.setValue(peopleStr.toString());
+                    dataModel.setPeopleName(duty.getPeopleName());
                     peopleModels.add(dataModel);
                 }
             }
@@ -1211,7 +1214,9 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("dutyAdd",addPeoples);
         }
-        resultMap.put("dutyEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("dutyEdit",peopleModels);
+        }
     }
     /**
      * 职级数据上行对比
@@ -1231,12 +1236,12 @@ public class DataManager {
             }else {
                 //修改
                 StringBuffer peopleStr=new StringBuffer();
-                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
-                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.RANKARR);
+                Map<String,String> peopleMap=CompareFileds.getRankMaps();
                 DataModel dataModel=new DataModel();
-                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                for (int i=0;i<CompareFileds.RANKARR.length;i++){
+                    if (map1.get(CompareFileds.RANKARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.RANKARR[i])+"："+map1.get(CompareFileds.RANKARR[i])+ "<br/>");
                     }
                 }
                 if (peopleStr.length()>0){
@@ -1265,7 +1270,9 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("rankAdd",addPeoples);
         }
-        resultMap.put("rankEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("rankEdit",peopleModels);
+        }
     }
     /**
      * 学历数据上行对比
@@ -1285,12 +1292,12 @@ public class DataManager {
             }else {
                 //修改
                 StringBuffer peopleStr=new StringBuffer();
-                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
-                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.EDUCATIONARR);
+                Map<String,String> peopleMap=CompareFileds.getEducationMaps();
                 DataModel dataModel=new DataModel();
-                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                for (int i=0;i<CompareFileds.EDUCATIONARR.length;i++){
+                    if (map1.get(CompareFileds.EDUCATIONARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.EDUCATIONARR[i])+"："+map1.get(CompareFileds.EDUCATIONARR[i])+ "<br/>");
                     }
                 }
                 if (peopleStr.length()>0){
@@ -1319,10 +1326,12 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("educationAdd",addPeoples);
         }
-        resultMap.put("educationEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("educationEdit",peopleModels);
+        }
     }
     /**
-     * 学历数据上行对比
+     * 奖惩数据上行对比
      * @param resultMap
      */
     public static void rewardDataCheck(Map<String,Object> resultMap,List<SYS_Reward> duties,RewardService rewardService,String unitId){
@@ -1339,12 +1348,12 @@ public class DataManager {
             }else {
                 //修改
                 StringBuffer peopleStr=new StringBuffer();
-                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
-                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.REWARDARR);
+                Map<String,String> peopleMap=CompareFileds.getRewardMaps();
                 DataModel dataModel=new DataModel();
-                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                for (int i=0;i<CompareFileds.REWARDARR.length;i++){
+                    if (map1.get(CompareFileds.REWARDARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.REWARDARR[i])+"："+map1.get(CompareFileds.REWARDARR[i])+ "<br/>");
                     }
                 }
                 if (peopleStr.length()>0){
@@ -1373,7 +1382,9 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("rewardAdd",addPeoples);
         }
-        resultMap.put("rewardEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("rewardEdit",peopleModels);
+        }
     }
     /**
      * 考核数据上行对比
@@ -1393,12 +1404,12 @@ public class DataManager {
             }else {
                 //修改
                 StringBuffer peopleStr=new StringBuffer();
-                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
-                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.ASSESSMENTARR);
+                Map<String,String> peopleMap=CompareFileds.getAssessmentMaps();
                 DataModel dataModel=new DataModel();
-                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                for (int i=0;i<CompareFileds.ASSESSMENTARR.length;i++){
+                    if (map1.get(CompareFileds.ASSESSMENTARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.ASSESSMENTARR[i])+"："+map1.get(CompareFileds.ASSESSMENTARR[i])+ "<br/>");
                     }
                 }
                 if (peopleStr.length()>0){
@@ -1427,10 +1438,12 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("assessmentAdd",addPeoples);
         }
-        resultMap.put("assessmentEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("assessmentEdit",peopleModels);
+        }
     }
     /**
-     * 考核数据上行对比
+     * 用户数据上行对比
      * @param resultMap
      */
     public static void userDataCheck(Map<String,Object> resultMap,List<SYS_USER> duties,UserService userService,String unitId){
@@ -1447,12 +1460,12 @@ public class DataManager {
             }else {
                 //修改
                 StringBuffer peopleStr=new StringBuffer();
-                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.PEOPLEARR);
-                Map<String,String> peopleMap=CompareFileds.getPeopleMaps();
+                Map<String,List<Object>> map1= CompareFileds.compareFields(duty,duty1,CompareFileds.USERARR);
+                Map<String,String> peopleMap=CompareFileds.getUserMaps();
                 DataModel dataModel=new DataModel();
-                for (int i=0;i<CompareFileds.PEOPLEARR.length;i++){
-                    if (map1.get(CompareFileds.PEOPLEARR[i])!=null){
-                        peopleStr.append(peopleMap.get(CompareFileds.PEOPLEARR[i])+"："+map1.get(CompareFileds.PEOPLEARR[i])+ "<br/>");
+                for (int i=0;i<CompareFileds.USERARR.length;i++){
+                    if (map1.get(CompareFileds.USERARR[i])!=null){
+                        peopleStr.append(peopleMap.get(CompareFileds.USERARR[i])+"："+map1.get(CompareFileds.USERARR[i])+ "<br/>");
                     }
                 }
                 if (peopleStr.length()>0){
@@ -1481,6 +1494,8 @@ public class DataManager {
         if (addPeoples.size()>0){
             resultMap.put("userAdd",addPeoples);
         }
-        resultMap.put("userEdit",peopleModels);
+        if (peopleModels.size()>0){
+            resultMap.put("userEdit",peopleModels);
+        }
     }
 }

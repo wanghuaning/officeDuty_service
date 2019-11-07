@@ -5,5 +5,6 @@ import lombok.Data;
 public class DataModel {
     private String id;
     private String name;
+    private String peopleName;
     private String value;
 }
