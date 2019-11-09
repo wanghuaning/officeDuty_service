@@ -1140,15 +1140,17 @@ public class DataManager {
             }
         }
         //人员删除
-        for (SYS_People people : localPeoples) {
-            boolean isdelete = true;
-            for (SYS_People people1 : peoples) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localPeoples.size()>0){
+            for (SYS_People people : localPeoples) {
+                boolean isdelete = true;
+                for (SYS_People people1 : peoples) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size()>0){
@@ -1197,15 +1199,17 @@ public class DataManager {
             }
         }
         //人员删除
-        for (SYS_Duty people : localDutys) {
-            boolean isdelete = true;
-            for (SYS_Duty people1 : duties) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localDutys.size()>0){
+            for (SYS_Duty people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_Duty people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size()>0){
@@ -1253,15 +1257,17 @@ public class DataManager {
             }
         }
         //人员删除
-        for (SYS_Rank people : localDutys) {
-            boolean isdelete = true;
-            for (SYS_Rank people1 : duties) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localDutys.size()>0){
+            for (SYS_Rank people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_Rank people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size()>0){
@@ -1309,15 +1315,17 @@ public class DataManager {
             }
         }
         //人员删除
-        for (SYS_Education people : localDutys) {
-            boolean isdelete = true;
-            for (SYS_Education people1 : duties) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localDutys.size()>0){
+            for (SYS_Education people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_Education people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size()>0){
@@ -1365,15 +1373,17 @@ public class DataManager {
             }
         }
         //人员删除
-        for (SYS_Reward people : localDutys) {
-            boolean isdelete = true;
-            for (SYS_Reward people1 : duties) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localDutys.size()>0){
+            for (SYS_Reward people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_Reward people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size()>0){
@@ -1421,15 +1431,17 @@ public class DataManager {
             }
         }
         //人员删除
-        for (SYS_Assessment people : localDutys) {
-            boolean isdelete = true;
-            for (SYS_Assessment people1 : duties) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localDutys.size()>0){
+            for (SYS_Assessment people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_Assessment people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size()>0){
@@ -1497,5 +1509,269 @@ public class DataManager {
         if (peopleModels.size()>0){
             resultMap.put("userEdit",peopleModels);
         }
+    }
+
+
+    /**
+     * 上行人员数据恢复
+     * @param peoples
+     * @param peopleService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_People> savePeopleData(List<SYS_People> peoples,PeopleService peopleService,String unitId,UnitService unitService){
+        List<SYS_People> peopleList=new ArrayList<>();
+        for (SYS_People people:peoples){
+            peopleList.add(people);
+            SYS_People people1=peopleService.selectPeopleById(people.getId());
+            if (people1!=null){
+                peopleService.updatePeople(people);
+            }else {
+                SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
+                if (unit!=null) {
+                    peopleService.insertPeoples(people);
+                }
+            }
+        }
+        List<SYS_People> peopless=peopleService.selectPeoplesByUnitId(unitId,"1");
+        if (peopless!=null){
+            for (SYS_People people:peopless){
+                boolean isd=true;
+                for (SYS_People people1:peoples){
+                    if (people.getId().equals(people1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    peopleService.deletePeople(people.getId());
+                }
+            }
+        }
+        return peopleList;
+    }
+
+    /**
+     * 上行职级数据恢复
+     * @param ranks
+     * @param rankService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Rank> saveRankData(List<SYS_Rank> ranks,RankService rankService,String unitId,PeopleService peopleService){
+        List<SYS_Rank> rankList=new ArrayList<>();
+        for (SYS_Rank rank:ranks){
+            rankList.add(rank);
+            SYS_Rank rank1=rankService.selectRankById(rank.getId());
+            if (rank1!=null){
+                rankService.updateRank(rank);
+            }else {
+                SYS_People people=peopleService.selectPeopleById(rank.getPeopleId());
+                if (people!=null) {
+                    rankService.insertRank(rank);
+                }
+            }
+        }
+        List<SYS_Rank> rankss=rankService.selectRanksByUnitId(unitId,"1");
+        if (rankss!=null){
+            for (SYS_Rank rank:rankss){
+                boolean isd=true;
+                for (SYS_Rank rank1:ranks){
+                    if (rank.getId().equals(rank1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    rankService.deleteRank(rank.getId());
+                }
+            }
+        }
+        return rankList;
+    }
+
+    /**
+     * 上行职务数据恢复
+     * @param dutys
+     * @param dutyService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Duty> saveDutyData(List<SYS_Duty> dutys,DutyService dutyService,String unitId,PeopleService peopleService){
+        List<SYS_Duty> dutyList=new ArrayList<>();
+        for (SYS_Duty duty:dutys){
+            dutyList.add(duty);
+            SYS_Duty duty1=dutyService.selectDutyById(duty.getId());
+            if (duty1!=null){
+                dutyService.updateDuty(duty);
+            }else {
+                SYS_People people=peopleService.selectPeopleById(duty.getPeopleId());
+                if (people!=null) {
+                    dutyService.insertDuty(duty);
+                }
+            }
+        }
+        List<SYS_Duty> dutyss=dutyService.selectDutysByUnitId(unitId,"1");
+        if (dutyss!=null){
+            for (SYS_Duty duty:dutyss){
+                boolean isd=true;
+                for (SYS_Duty duty1:dutys){
+                    if (duty.getId().equals(duty1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    dutyService.deleteDuty(duty.getId());
+                }
+            }
+        }
+        return dutyList;
+    }
+
+    /**
+     * 上行学历数据恢复
+     * @param educations
+     * @param educationService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Education> saveEducationData(List<SYS_Education> educations,EducationService educationService,String unitId,PeopleService peopleService){
+        List<SYS_Education> educationList=new ArrayList<>();
+        for (SYS_Education education:educations){
+            educationList.add(education);
+            SYS_Education education1=educationService.selectEducationById(education.getId());
+            if (education1!=null){
+                educationService.updateEducation(education);
+            }else {
+                SYS_People people=peopleService.selectPeopleById(education.getPeopleId());
+                if (people!=null) {
+                    educationService.insertEducation(education);
+                }
+            }
+        }
+        List<SYS_Education> educationss=educationService.selectEducationsByUnitId(unitId,"1");
+        if (educationss!=null){
+            for (SYS_Education education:educationss){
+                boolean isd=true;
+                for (SYS_Education education1:educations){
+                    if (education.getId().equals(education1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    educationService.deleteEducation(education.getId());
+                }
+            }
+        }
+        return educationList;
+    }
+
+    /**
+     * 上行奖惩数据恢复
+     * @param rewards
+     * @param rewardService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Reward> saveRewardData(List<SYS_Reward> rewards,RewardService rewardService,String unitId,PeopleService peopleService){
+        List<SYS_Reward> rewardList=new ArrayList<>();
+        for (SYS_Reward reward:rewards){
+            rewardList.add(reward);
+            SYS_Reward reward1=rewardService.selectRewardById(reward.getId());
+            if (reward1!=null){
+                rewardService.updateReward(reward);
+            }else {
+                SYS_People people=peopleService.selectPeopleById(reward.getPeopleId());
+                if (people!=null) {
+                    rewardService.insertReward(reward);
+                }
+            }
+        }
+        List<SYS_Reward> rewardss=rewardService.selectRewardsByUnitId(unitId,"1");
+        if (rewardss!=null){
+            for (SYS_Reward reward:rewardss){
+                boolean isd=true;
+                for (SYS_Reward reward1:rewards){
+                    if (reward.getId().equals(reward1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    rewardService.deleteReward(reward.getId());
+                }
+            }
+        }
+        return rewardList;
+    }
+
+    /**
+     * 上行考核数据恢复
+     * @param assessments
+     * @param assessmentService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Assessment> saveAssessmentData(List<SYS_Assessment> assessments,AssessmentService assessmentService,String unitId,PeopleService peopleService){
+        List<SYS_Assessment> assessmentList=new ArrayList<>();
+        for (SYS_Assessment assessment:assessments){
+            assessmentList.add(assessment);
+            SYS_Assessment assessment1=assessmentService.selectAssessmentByYear(assessment.getPeopleId(),assessment.getYear());
+            if (assessment1!=null){
+                assessmentService.updateAssessment(assessment);
+            }else {
+                SYS_People people=peopleService.selectPeopleById(assessment.getPeopleId());
+                if (people!=null){
+                    assessmentService.insertAssessment(assessment);
+                }
+            }
+        }
+        List<SYS_Assessment> assessmentss=assessmentService.selectAssessmentsByUnitId(unitId,"1");
+        if (assessmentss!=null){
+            for (SYS_Assessment assessment:assessmentss){
+                boolean isd=true;
+                for (SYS_Assessment assessment1:assessments){
+                    if (assessment.getPeopleId().equals(assessment1.getPeopleId()) && assessment.getYear().equals(assessment1.getYear())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    assessmentService.deleteAssessment(assessment.getId());
+                }
+            }
+        }
+        return assessmentList;
+    }
+
+    /**
+     * 上行用户数据
+     * @param users
+     * @param userService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_USER> saveUserData(List<SYS_USER> users,UserService userService,String unitId){
+        List<SYS_USER> userList=new ArrayList<>();
+        for (SYS_USER user:users){
+            userList.add(user);
+            SYS_USER user1=userService.selectUserById(user.getId());
+            if (user1!=null){
+                userService.updateUser(user);
+            }else {
+                userService.insertUser(user);
+            }
+        }
+        List<SYS_USER> userss=userService.selectUsersByUnitId(unitId);
+        if (userss!=null){
+            for (SYS_USER user:userss){
+                boolean isd=true;
+                for (SYS_USER user1:users){
+                    if (user.getId().equals(user1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    userService.deleteUser(user.getId());
+                }
+            }
+        }
+        return userList;
     }
 }

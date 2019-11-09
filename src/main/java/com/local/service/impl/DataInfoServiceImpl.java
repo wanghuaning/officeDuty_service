@@ -45,4 +45,17 @@ public class DataInfoServiceImpl implements DataInfoService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_DataInfo> selectDataInfosByDataId(String dataId,String type){
+        List<SYS_DataInfo> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("data_Id",dataId).andEquals("type",type);
+        list=dao.query(SYS_DataInfo.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
 }

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +39,7 @@ import java.util.*;
 public class DataController {
     private final File jsonFile = File.createTempFile("downloadJson", ".json");//创建临时文件
     private final static Logger logger = LoggerFactory.getLogger(DataController.class);
+    private final static Gson gson = new Gson();
     @Autowired
     private UnitService unitService;
     @Autowired
@@ -216,13 +218,13 @@ public class DataController {
                 JSONArray rewardList = key.getJSONArray("rewardList");
                 JSONArray assessmentList = key.getJSONArray("assessmentList");
                 SYS_UNIT unit = unitService.selectUnitById(unitId);
-                Gson gson = new Gson();
                 if (unit == null) {
                     unit = unitService.selectUnitByName(unitName);
                 }
                 if (unit != null) {
                     SYS_Data data = DataManager.saveData(dataId, dataType, unitId, dataService);
                     Map<String, Object> resultMap = new HashMap<>();
+                    resultMap.put("dataId",data.getId());
                     if (unitList != null) {
                         units = DataManager.saveUnitJsonModel(unitList);
                         if (units.size() > 0) {
@@ -284,8 +286,6 @@ public class DataController {
                             DataManager.assessmentDataCheck(resultMap,assessments,assessmentService,unitId);
                             DataManager.userDataCheck(resultMap,users,userService,unitId);
                         }
-//                        List<SYS_UNIT> sysUnits=gson.fromJson(sd, new TypeToken<List<SYS_UNIT>>() {}.getType());
-//                        System.out.println(sysUnits.get(0).getName());
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
                 } else {
@@ -298,5 +298,67 @@ public class DataController {
             logger.error(ResultMsg.GET_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
         }
+    }
+
+    @ApiOperation(value = "执行上行数据", notes = "执行上行数据", httpMethod = "POST", tags = "执行上行数据接口")
+    @PostMapping(value = "/agreeImportData")
+    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId) {
+        List<Object> objects=new ArrayList<>();
+            if (!StrUtils.isBlank(dataId)){
+                List<SYS_DataInfo> dataInfos=dataInfoService.selectDataInfosByDataId(dataId,"上行");
+                if (dataInfos!=null){
+                    for (SYS_DataInfo dataInfo:dataInfos){
+                        if (dataInfo.getId().contains("people")){
+                            List<SYS_People> sys_peoples=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_People>>() {}.getType());
+                            if (sys_peoples.size()>0){
+                              DataManager.savePeopleData(sys_peoples,peopleService,dataInfo.getUnitId(),unitService);
+                                objects.add(sys_peoples);
+                            }
+                        }else if (dataInfo.getId().contains("rank")){
+                            List<SYS_Rank> sys_ranks=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Rank>>() {}.getType());
+                            if (sys_ranks.size()>0){
+                                objects.add(sys_ranks);
+                                DataManager.saveRankData(sys_ranks,rankService,dataInfo.getUnitId(),peopleService);
+                            }
+                        }
+                        else if (dataInfo.getId().contains("duty")){
+                            List<SYS_Duty> sys_duties=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Duty>>() {}.getType());
+                            if (sys_duties.size()>0){
+                                DataManager.saveDutyData(sys_duties,dutyService,dataInfo.getUnitId(),peopleService);
+                                objects.add(sys_duties);
+                            }
+                        }else if (dataInfo.getId().contains("education")){
+                            List<SYS_Education> sys_educations=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Education>>() {}.getType());
+                            if (sys_educations.size()>0){
+                                DataManager.saveEducationData(sys_educations,educationService,dataInfo.getUnitId(),peopleService);
+                                objects.add(sys_educations);
+                            }
+                        }else if (dataInfo.getId().contains("reward")){
+                            List<SYS_Reward> sys_rewards=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Reward>>() {}.getType());
+                            if (sys_rewards.size()>0){
+                                DataManager.saveRewardData(sys_rewards,rewardService,dataInfo.getUnitId(),peopleService);
+                                objects.add(sys_rewards);
+                            }
+                        }else if (dataInfo.getId().contains("assessment")){
+                            List<SYS_Assessment> sys_assessments=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Assessment>>() {}.getType());
+                            if (sys_assessments.size()>0){
+                                DataManager.saveAssessmentData(sys_assessments,assessmentService,dataInfo.getUnitId(),peopleService);
+                                objects.add(sys_assessments);
+                            }
+                        }else if (dataInfo.getId().contains("user")){
+                            List<SYS_USER> sys_users=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_USER>>() {}.getType());
+                            if (sys_users.size()>0){
+                                DataManager.saveUserData(sys_users,userService,dataInfo.getUnitId());
+                                objects.add(sys_users);
+                            }
+                        }
+                    }
+                    return new Result(ResultCode.SUCCESS.toString(),ResultMsg.ADD_SUCCESS,objects,null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.ADD_ERROR,null,null).getJson();
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.ADD_ERROR,null,null).getJson();
+            }
     }
 }
