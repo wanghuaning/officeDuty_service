@@ -142,7 +142,6 @@ public class DataController {
     @RequestMapping(value = "/upstreamData")
     public String upstreamData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
                                @RequestParam(value = "dataType", required = false) String dataType) {
-        System.out.println("导出json");
         try {
             List<Object> objects = new ArrayList<>();
             //从请求的header中取出当前登录的登录
@@ -173,7 +172,6 @@ public class DataController {
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
             // 加密
             String paramsCipher = RSAModelUtils.encryptByPublicKey(resultJson.toString(), RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
-            System.out.println(paramsCipher);
             File file = jsonFile;
             Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
             writer.write(paramsCipher);
@@ -203,7 +201,6 @@ public class DataController {
             List<SYS_Assessment> assessments = new ArrayList<>();
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
             String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
-            System.out.println("导入"+jsonStr);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
