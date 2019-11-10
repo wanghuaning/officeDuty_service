@@ -171,13 +171,15 @@ public class DataController {
             JSONObject resultList = JSONObject.fromObject(resultMap);
             paramsMap.put("result", resultList);
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
-            System.out.println(resultJson.toString());
+            // 加密
+            String paramsCipher = RSAModelUtils.encryptByPublicKey(resultJson.toString(), RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+            System.out.println(paramsCipher);
             File file = jsonFile;
             Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-            writer.write(resultJson.toString());
+            writer.write(paramsCipher);
             writer.flush();
             writer.close();
-            return resultJson.toString();
+            return paramsCipher;
         } catch (Exception e) {
             logger.error(ResultMsg.GET_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
@@ -199,7 +201,9 @@ public class DataController {
             List<SYS_Reward> rewards = new ArrayList<>();
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
-            String jsonStr = FileUtil.readJsonFile(excelFile.getInputStream());
+            String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
+            String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
+            System.out.println("导入"+jsonStr);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
@@ -299,7 +303,9 @@ public class DataController {
             List<SYS_Reward> rewards = new ArrayList<>();
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
-            String jsonStr = FileUtil.readJsonFile(excelFile.getInputStream());
+            String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
+            String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
+            System.out.println("导入"+jsonStr);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));

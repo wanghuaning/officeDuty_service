@@ -17,6 +17,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class RSAUtils {
     public final static String PUBLICKEY="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCQsYyflAp9vHV15yzElwqCxqxA6XsdlhUuQdrn7082NDrpcU1JaWlmW3WYBsjmzbQBx8zLi3bmCNTtf8gMXDvVZPVCOXkc20Jl9MnKjMygGzbbmjf4maDDmRGBbqPlOWP3y2omncpWK+9T3mSZJzrF+wreSHaxn7g8QsATpk2lQwIDAQAB";
     public final static String PRIVATEKEY="MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJCxjJ+UCn28dXXnLMSXCoLGrEDpex2WFS5B2ufvTzY0OulxTUlpaWZbdZgGyObNtAHHzMuLduYI1O1/yAxcO9Vk9UI5eRzbQmX0ycqMzKAbNtuaN/iZoMOZEYFuo+U5Y/fLaiadylYr71PeZJknOsX7Ct5IdrGfuDxCwBOmTaVDAgMBAAECgYBM6nUMZ0/kYwg1srvzjS8DMcVjhDn0ElIUEuHhJS+AaudeLOKewbBLvxaVyBWHy5WC1Mki8nIz+kHmNmULXQRYreMzm4MXm2/OTX+vaS+Zj7Lav0BCT/EzyCdJWergUD3sFxqSN07RVyN5Iy1pYK3TnCGxXMl5TQRH9OohYwUUYQJBAOUgNGXPr5BKmc/6h9iYHIfsV6toMWn8lZB51C1seJm30jcdrvd2agX4O4g24KEQWSiHUOZdd0tCg9aEcbbD86kCQQChqiiKO4R+sIkaYAew0UbteySjrNy3EvM490Cb0cBmmpT40YzQTvNDA7AiC7VzqyaDnOwdKlWD2EEBEJG/DOULAkBVXlRngqQlHMaGSRAIUVSACDz57k5K8QNA20OE0R92FplKU9L2/LWwF7cGn3u+RvsRMKmhyz1BWz0H1j0QHZ5RAkAlzP/Fsrz8UpL8U8/4jDaleNHMY7MIK6ore8Tjqlvuod6Lf5QJcSx4UvhwPYSkEzTiOWMMPsXYGky4zwMFRSKZAkEAvQxBkSuUf5o7PhEXzay8KP5LPDFYW+mJQrAmg7/rtSt0wGScPo1bjMnMe8yEZ7LgBHzzVZ9aND9gXzmpPJ+P2w==";
@@ -47,7 +48,7 @@ public class RSAUtils {
         // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
         // 初始化密钥对生成器，密钥大小为96-1024位
-        keyPairGen.initialize(1024,new SecureRandom());
+        keyPairGen.initialize(65536,new SecureRandom());
         // 生成一个密钥对，保存在keyPair中
         KeyPair keyPair = keyPairGen.generateKeyPair();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();   // 得到私钥
