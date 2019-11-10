@@ -1511,6 +1511,44 @@ public class DataManager {
         }
     }
 
+    /**
+     * 插入单位下行数据
+     * @param units
+     * @param unitService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_UNIT> saveUnitData(List<SYS_UNIT> units,UnitService unitService,String unitId){
+        List<SYS_UNIT> unitList=new ArrayList<>();
+        for (SYS_UNIT unit:units){
+            unitList.add(unit);
+            SYS_UNIT unit1=unitService.selectUnitById(unit.getId());
+            if (unit1!=null){
+                unitService.updateUnit(unit);
+            }else {
+                unitService.insertUnit(unit);
+            }
+        }
+        SYS_UNIT unit2=unitService.selectUnitById(unitId);
+        List<SYS_UNIT> unitss=unitService.selectAllChildUnits(unitId);
+        if (unit2!=null){
+            unitss.add(unit2);
+        }
+        if (unitss!=null){
+            for (SYS_UNIT unit:unitss){
+                boolean isd=true;
+                for (SYS_UNIT unit1:units){
+                    if (unit.getId().equals(unit1.getId())){
+                        isd=false;
+                    }
+                }
+                if (isd){
+                    unitService.deleteUnit(unit.getId());
+                }
+            }
+        }
+        return unitList;
+    }
 
     /**
      * 上行人员数据恢复

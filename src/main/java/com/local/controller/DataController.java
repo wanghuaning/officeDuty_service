@@ -138,7 +138,7 @@ public class DataController {
         }
     }
 
-    @ApiOperation(value = "导出上行数据", notes = "导出上行数据", httpMethod = "POST", tags = "导出上行数据接口")
+    @ApiOperation(value = "导出上行下行数据", notes = "导出上行下行数据", httpMethod = "POST", tags = "导出上行下行数据接口")
     @RequestMapping(value = "/upstreamData")
     public String upstreamData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
                                @RequestParam(value = "dataType", required = false) String dataType) {
@@ -224,7 +224,7 @@ public class DataController {
                 if (unit != null) {
                     SYS_Data data = DataManager.saveData(dataId, dataType, unitId, dataService);
                     Map<String, Object> resultMap = new HashMap<>();
-                    resultMap.put("dataId",data.getId());
+                    resultMap.put("dataId", data.getId());
                     if (unitList != null) {
                         units = DataManager.saveUnitJsonModel(unitList);
                         if (units.size() > 0) {
@@ -264,28 +264,13 @@ public class DataController {
                         List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitId, unitService);//单位
                         List<SYS_UNIT> deleteUnitList = new ArrayList<>();
                         List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitId, "1");
-                        if (dataType.contains("下行")) {
-                            for (SYS_UNIT localunit : localUnits) {
-                                boolean delete = true;
-                                for (SYS_UNIT dataunit : units) {
-                                    if (localunit.getId().equals(dataunit.getId())) {
-                                        delete = false;
-                                    }
-                                }
-                                if (delete) {
-                                    deleteUnitList.add(localunit);
-                                }
-                                //修改
-                            }
-                        } else {
-                            DataManager.peopleDataCheck( resultMap,peoples,peopleService,localPeoples);
-                            DataManager.dutyDataCheck(resultMap,duties,dutyService,unitId);
-                            DataManager.rankDataCheck(resultMap,ranks,rankService,unitId);
-                            DataManager.educationDataCheck(resultMap,educations,educationService,unitId);
-                            DataManager.rewardDataCheck(resultMap,rewards,rewardService,unitId);
-                            DataManager.assessmentDataCheck(resultMap,assessments,assessmentService,unitId);
-                            DataManager.userDataCheck(resultMap,users,userService,unitId);
-                        }
+                        DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
+                        DataManager.dutyDataCheck(resultMap, duties, dutyService, unitId);
+                        DataManager.rankDataCheck(resultMap, ranks, rankService, unitId);
+                        DataManager.educationDataCheck(resultMap, educations, educationService, unitId);
+                        DataManager.rewardDataCheck(resultMap, rewards, rewardService, unitId);
+                        DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, unitId);
+                        DataManager.userDataCheck(resultMap, users, userService, unitId);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
                 } else {
@@ -300,65 +285,184 @@ public class DataController {
         }
     }
 
+    @ApiOperation(value = "导入下行数据", notes = "导入下行数据", httpMethod = "POST", tags = "导入下行数据接口")
+    @RequestMapping(value = "/importDownDatabase")
+    public String importDownDatabase(@RequestParam(value = "excelFile", required = true) MultipartFile excelFile, @RequestParam(value = "unitId", required = false) String unitId) {
+        StringBuffer stringBuffer = new StringBuffer();
+        List<Object> objects = new ArrayList<>();
+        try {
+            List<SYS_UNIT> units = new ArrayList<>();
+            List<SYS_USER> users = new ArrayList<>();
+            List<SYS_People> peoples = new ArrayList<>();
+            List<SYS_Duty> duties = new ArrayList<>();
+            List<SYS_Rank> ranks = new ArrayList<>();
+            List<SYS_Reward> rewards = new ArrayList<>();
+            List<SYS_Education> educations = new ArrayList<>();
+            List<SYS_Assessment> assessments = new ArrayList<>();
+            String jsonStr = FileUtil.readJsonFile(excelFile.getInputStream());
+            JSONObject object = JSONObject.fromObject(jsonStr);
+            String note = String.valueOf(object.get("note"));
+            String dataId = String.valueOf(object.get("dataId"));
+            String dataType = String.valueOf(object.get("dataType"));
+            if (!StrUtils.isBlank(note)) {
+                JSONObject key = object.getJSONObject("result");
+                String date = String.valueOf(key.get("date"));
+                String unitID = String.valueOf(key.get("unitId"));
+                if (unitID.equals(unitId)){
+                    return new Result(ResultCode.ERROR.toString(), "非本单位下行数据包！", null, null).getJson();
+                }else {
+                    String unitName = String.valueOf(key.get("unitName"));
+                    JSONArray unitList = key.getJSONArray("unitList");
+                    JSONArray userList = key.getJSONArray("userList");
+                    JSONArray peopleList = key.getJSONArray("peopleList");
+                    JSONArray rankList = key.getJSONArray("rankList");
+                    JSONArray dutyList = key.getJSONArray("dutyList");
+                    JSONArray educationList = key.getJSONArray("educationList");
+                    JSONArray rewardList = key.getJSONArray("rewardList");
+                    JSONArray assessmentList = key.getJSONArray("assessmentList");
+                    SYS_UNIT unit = unitService.selectUnitById(unitID);
+                    if (unit == null) {
+                        unit = unitService.selectUnitByName(unitName);
+                    }
+                    if (unit != null) {
+                        SYS_Data data = DataManager.saveData(dataId, dataType, unitID, dataService);
+                        Map<String, Object> resultMap = new HashMap<>();
+                        resultMap.put("dataId", data.getId());
+                        if (unitList != null) {
+                            units = DataManager.saveUnitJsonModel(unitList);
+                            if (units.size() > 0) {
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "unit", gson.toJson(units));
+                                DataManager.saveUnitData(units, unitService, unitID);
+                                objects.add(units);
+                            }
+                            users = DataManager.saveUserJsonModel(userList);
+                            if (users.size() > 0) {
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "user", gson.toJson(users));
+                                DataManager.saveUserData(users, userService, unitID);
+                                objects.add(users);
+                            }
+                            if (peopleList != null) {
+                                peoples = DataManager.savePeopleJsonModel(peopleList);
+                                if (peoples.size() > 0) {
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "people", gson.toJson(peoples));
+                                    DataManager.savePeopleData(peoples, peopleService, unitID, unitService);
+                                    objects.add(peoples);
+                                }
+                                duties = DataManager.saveDutyJsonModel(dutyList);
+                                if (duties.size() > 0) {
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "duty", gson.toJson(duties));
+                                    DataManager.saveDutyData(duties, dutyService, unitID, peopleService);
+                                    objects.add(duties);
+                                }
+                                ranks = DataManager.saveRankJsonModel(rankList);
+                                if (ranks.size() > 0) {
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "rank", gson.toJson(ranks));
+                                    objects.add(ranks);
+                                    DataManager.saveRankData(ranks, rankService, unitID, peopleService);
+                                }
+                                rewards = DataManager.saveRewardJsonModel(rewardList);
+                                if (rewards.size() > 0) {
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "reward", gson.toJson(rewards));
+                                    DataManager.saveRewardData(rewards, rewardService, unitID, peopleService);
+                                    objects.add(rewards);
+                                }
+                                educations = DataManager.saveEducationJsonModel(educationList);
+                                if (educations.size() > 0) {
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "education", gson.toJson(educations));
+                                    DataManager.saveEducationData(educations, educationService, unitID, peopleService);
+                                    objects.add(educations);
+                                }
+                                assessments = DataManager.saveAssessmentJsonModel(assessmentList);
+                                if (assessments.size() > 0) {
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "assessment", gson.toJson(assessments));
+                                    DataManager.saveAssessmentData(assessments, assessmentService, unitID, peopleService);
+                                    objects.add(assessments);
+                                }
+                            }
+                            Map<String, Object> map = new HashMap<>();
+                            List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitID, unitService);//单位
+                            List<SYS_UNIT> deleteUnitList = new ArrayList<>();
+                            List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitID, "1");
+                        }
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
+                    } else {
+                        return new Result(ResultCode.ERROR.toString(), "单位不存在！", null, null).getJson();
+                    }
+                }
+            } else {
+                return new Result(ResultCode.ERROR.toString(), "上行数据包不全！", null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+        }
+    }
+
     @ApiOperation(value = "执行上行数据", notes = "执行上行数据", httpMethod = "POST", tags = "执行上行数据接口")
     @PostMapping(value = "/agreeImportData")
     public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId) {
-        List<Object> objects=new ArrayList<>();
-            if (!StrUtils.isBlank(dataId)){
-                List<SYS_DataInfo> dataInfos=dataInfoService.selectDataInfosByDataId(dataId,"上行");
-                if (dataInfos!=null){
-                    for (SYS_DataInfo dataInfo:dataInfos){
-                        if (dataInfo.getId().contains("people")){
-                            List<SYS_People> sys_peoples=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_People>>() {}.getType());
-                            if (sys_peoples.size()>0){
-                              DataManager.savePeopleData(sys_peoples,peopleService,dataInfo.getUnitId(),unitService);
-                                objects.add(sys_peoples);
-                            }
-                        }else if (dataInfo.getId().contains("rank")){
-                            List<SYS_Rank> sys_ranks=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Rank>>() {}.getType());
-                            if (sys_ranks.size()>0){
-                                objects.add(sys_ranks);
-                                DataManager.saveRankData(sys_ranks,rankService,dataInfo.getUnitId(),peopleService);
-                            }
+        List<Object> objects = new ArrayList<>();
+        if (!StrUtils.isBlank(dataId)) {
+            List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(dataId, "上行");
+            if (dataInfos != null) {
+                for (SYS_DataInfo dataInfo : dataInfos) {
+                    if (dataInfo.getId().contains("people")) {
+                        List<SYS_People> sys_peoples = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_People>>() {
+                        }.getType());
+                        if (sys_peoples.size() > 0) {
+                            DataManager.savePeopleData(sys_peoples, peopleService, dataInfo.getUnitId(), unitService);
+                            objects.add(sys_peoples);
                         }
-                        else if (dataInfo.getId().contains("duty")){
-                            List<SYS_Duty> sys_duties=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Duty>>() {}.getType());
-                            if (sys_duties.size()>0){
-                                DataManager.saveDutyData(sys_duties,dutyService,dataInfo.getUnitId(),peopleService);
-                                objects.add(sys_duties);
-                            }
-                        }else if (dataInfo.getId().contains("education")){
-                            List<SYS_Education> sys_educations=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Education>>() {}.getType());
-                            if (sys_educations.size()>0){
-                                DataManager.saveEducationData(sys_educations,educationService,dataInfo.getUnitId(),peopleService);
-                                objects.add(sys_educations);
-                            }
-                        }else if (dataInfo.getId().contains("reward")){
-                            List<SYS_Reward> sys_rewards=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Reward>>() {}.getType());
-                            if (sys_rewards.size()>0){
-                                DataManager.saveRewardData(sys_rewards,rewardService,dataInfo.getUnitId(),peopleService);
-                                objects.add(sys_rewards);
-                            }
-                        }else if (dataInfo.getId().contains("assessment")){
-                            List<SYS_Assessment> sys_assessments=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Assessment>>() {}.getType());
-                            if (sys_assessments.size()>0){
-                                DataManager.saveAssessmentData(sys_assessments,assessmentService,dataInfo.getUnitId(),peopleService);
-                                objects.add(sys_assessments);
-                            }
-                        }else if (dataInfo.getId().contains("user")){
-                            List<SYS_USER> sys_users=gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_USER>>() {}.getType());
-                            if (sys_users.size()>0){
-                                DataManager.saveUserData(sys_users,userService,dataInfo.getUnitId());
-                                objects.add(sys_users);
-                            }
+                    } else if (dataInfo.getId().contains("rank")) {
+                        List<SYS_Rank> sys_ranks = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Rank>>() {
+                        }.getType());
+                        if (sys_ranks.size() > 0) {
+                            objects.add(sys_ranks);
+                            DataManager.saveRankData(sys_ranks, rankService, dataInfo.getUnitId(), peopleService);
+                        }
+                    } else if (dataInfo.getId().contains("duty")) {
+                        List<SYS_Duty> sys_duties = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Duty>>() {
+                        }.getType());
+                        if (sys_duties.size() > 0) {
+                            DataManager.saveDutyData(sys_duties, dutyService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_duties);
+                        }
+                    } else if (dataInfo.getId().contains("education")) {
+                        List<SYS_Education> sys_educations = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Education>>() {
+                        }.getType());
+                        if (sys_educations.size() > 0) {
+                            DataManager.saveEducationData(sys_educations, educationService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_educations);
+                        }
+                    } else if (dataInfo.getId().contains("reward")) {
+                        List<SYS_Reward> sys_rewards = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Reward>>() {
+                        }.getType());
+                        if (sys_rewards.size() > 0) {
+                            DataManager.saveRewardData(sys_rewards, rewardService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_rewards);
+                        }
+                    } else if (dataInfo.getId().contains("assessment")) {
+                        List<SYS_Assessment> sys_assessments = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Assessment>>() {
+                        }.getType());
+                        if (sys_assessments.size() > 0) {
+                            DataManager.saveAssessmentData(sys_assessments, assessmentService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_assessments);
+                        }
+                    } else if (dataInfo.getId().contains("user")) {
+                        List<SYS_USER> sys_users = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_USER>>() {
+                        }.getType());
+                        if (sys_users.size() > 0) {
+                            DataManager.saveUserData(sys_users, userService, dataInfo.getUnitId());
+                            objects.add(sys_users);
                         }
                     }
-                    return new Result(ResultCode.SUCCESS.toString(),ResultMsg.ADD_SUCCESS,objects,null).getJson();
-                }else {
-                    return new Result(ResultCode.ERROR.toString(),ResultMsg.ADD_ERROR,null,null).getJson();
                 }
-            }else {
-                return new Result(ResultCode.ERROR.toString(),ResultMsg.ADD_ERROR,null,null).getJson();
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, objects, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
             }
+        } else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
     }
 }
