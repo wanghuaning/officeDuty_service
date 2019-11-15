@@ -45,12 +45,6 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String peopleId;
 
-  @ApiModelProperty("类别（职级标志）")
-  @Comment("类别（职级标志）")
-  @Column("rank_Type")
-  @ColDefine(type = ColType.VARCHAR, width = 64)
-  private String rankType;
-
   @ApiModelProperty("状态")
   @Comment("状态")
   @Column("status")
@@ -313,14 +307,6 @@ public class SYS_Rank implements Serializable {
 
   public void setPeopleId(String peopleId) {
     this.peopleId = peopleId;
-  }
-
-  public String getRankType() {
-    return rankType;
-  }
-
-  public void setRankType(String rankType) {
-    this.rankType = rankType;
   }
 
   public String getStatus() {

@@ -35,7 +35,7 @@ public class DateUtil {
             format = fm9;
         }
         if (arr != null && arr.length == 2) {
-            return new SimpleDateFormat(format).parse(dateStr + "-01");
+            return new SimpleDateFormat(format).parse(dateStr.trim() + "-01");
         } else {
             return new SimpleDateFormat(format).parse(dateStr);
         }

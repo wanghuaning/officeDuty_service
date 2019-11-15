@@ -127,9 +127,7 @@ public class PeopleManager {
                             if (!StrUtils.isBlank(creatTime)){
                                 duty.setCreateTime(DateUtil.stringToDate(creatTime));
                             }
-                            duty.setLeaderType(StrUtils.toNullStr(map.get("成员类别")));
-                            duty.setLeader(StrUtils.toNullStr(map.get("是否领导班子成员")));
-                            duty.setName(StrUtils.toNullStr(map.get("领导职务名称")));
+                            duty.setName(StrUtils.toNullStr(map.get("职务名称")));
                             duty.setSelectionMethod(StrUtils.toNullStr(map.get("选拔任用方式")));
                             duty.setStatus(StrUtils.toNullStr(map.get("任职状态")));
                             String serveTime=String.valueOf(map.get("免职时间"));
@@ -206,7 +204,6 @@ public class PeopleManager {
                             if (!StrUtils.isBlank(creatTime)){
                                 rank.setCreateTime(DateUtil.stringToDate(creatTime));
                             }
-                            rank.setRankType(StrUtils.toNullStr(map.get("类别（职级标志）")));
                             rank.setStatus(StrUtils.toNullStr(map.get("状态")));
                             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
                             rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));

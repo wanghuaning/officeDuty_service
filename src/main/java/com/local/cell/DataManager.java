@@ -291,10 +291,11 @@ public class DataManager {
             if (unit != null) {
                 SYS_People people = savePeopleExcle(map, unit, service, fullImport, stringBuffer, list, peopleList);
                 if (people != null) {
+                    saveDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService);
+                    getPeopleTaoRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService);
+                    getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService);
                     saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people);
                     saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people);
-                    saveDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService);
-                    getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService);
                     getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,rewardService);
                     getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService);
                 }
@@ -368,7 +369,7 @@ public class DataManager {
                     if (!StrUtils.isBlank(turnRankTime)) {
                         people.setTurnRankTime(DateUtil.stringToDate(turnRankTime));
                     }
-                    String enableStr = StrUtils.toNullStr(map.get("现任职务"));
+                    String enableStr = StrUtils.toNullStr(map.get("是否兼任"));
                     if ("否".equals(enableStr)) {
                         people.setEnabled("1");
                     } else {
@@ -417,44 +418,47 @@ public class DataManager {
     public static SYS_Education saveEducationDataByExcel(Map<String, Object> map, SYS_UNIT unit, EducationService educationService, String fullImport, StringBuffer stringBuffer,
                                                           List<Map<String, Object>> list, SYS_People people) throws Exception {
         SYS_Education education = new SYS_Education();
-        education.setPeopleId(people.getId());
-        education.setPeopleName(people.getName());
-        education.setUnitId(people.getUnitId());
-        education.setName(StrUtils.toNullStr(map.get("全日制学历")));
-        String creatTime = String.valueOf(map.get("入学时间"));
-        if (!StrUtils.isBlank(creatTime)) {
-            education.setCreateTime(DateUtil.stringToDate(creatTime));
-        }
-        education.setDegree(StrUtils.toNullStr(map.get("学位名称")));
-        String serveTime = String.valueOf(map.get("毕（肄）业时间"));
-        if (!StrUtils.isBlank(serveTime)) {
-            education.setEndTime(DateUtil.stringToDate(serveTime));
-        }
-        String degreeTime = String.valueOf(map.get("学位授予时间"));
-        if (!StrUtils.isBlank(degreeTime)) {
-            education.setDegreeTime(DateUtil.stringToDate(degreeTime));
-        }
-        education.setSchoolType("全日制教育");
-        education.setSchool(StrUtils.toNullStr(map.get("毕业学校")));
-        education.setProfession(StrUtils.toNullStr(map.get("所学专业")));
-        SYS_Education education1 = educationService.selectEducationByName(education.getName(), people.getId());
-        if ("1".equals(fullImport)) {//覆盖导入
-            if (education1 != null) {
-                education.setId(education1.getId());
-                educationService.updateEducation(education);
-            } else {
-                String uuid = UUID.randomUUID().toString();
-                education.setId(uuid);
-                educationService.insertEducation(education);
+        String name=StrUtils.toNullStr(map.get("全日制学历"));
+        if (!StrUtils.isBlank(name)){
+            education.setPeopleId(people.getId());
+            education.setPeopleName(people.getName());
+            education.setUnitId(people.getUnitId());
+            education.setName(name);
+            String creatTime = String.valueOf(map.get("入学时间"));
+            if (!StrUtils.isBlank(creatTime)) {
+                education.setCreateTime(DateUtil.stringToDate(creatTime));
             }
-        } else {
-            if (education1 != null) {
-                stringBuffer.append("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
-                logger.error("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+            education.setDegree(StrUtils.toNullStr(map.get("学位名称")));
+            String serveTime = String.valueOf(map.get("毕（肄）业时间"));
+            if (!StrUtils.isBlank(serveTime)) {
+                education.setEndTime(DateUtil.stringToDate(serveTime));
+            }
+            String degreeTime = String.valueOf(map.get("学位授予时间"));
+            if (!StrUtils.isBlank(degreeTime)) {
+                education.setDegreeTime(DateUtil.stringToDate(degreeTime));
+            }
+            education.setSchoolType("全日制教育");
+            education.setSchool(StrUtils.toNullStr(map.get("毕业学校")));
+            education.setProfession(StrUtils.toNullStr(map.get("所学专业")));
+            SYS_Education education1 = educationService.selectEducationByName(education.getName(), people.getId());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (education1 != null) {
+                    education.setId(education1.getId());
+                    educationService.updateEducation(education);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    education.setId(uuid);
+                    educationService.insertEducation(education);
+                }
             } else {
-                String uuid = UUID.randomUUID().toString();
-                education.setId(uuid);
-                educationService.insertEducation(education);
+                if (education1 != null) {
+                    stringBuffer.append("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+                    logger.error("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    education.setId(uuid);
+                    educationService.insertEducation(education);
+                }
             }
         }
         return education;
@@ -471,44 +475,47 @@ public class DataManager {
     public static SYS_Education saveEducationDataByExcel2(Map<String, Object> map, SYS_UNIT unit, EducationService educationService, String fullImport, StringBuffer stringBuffer,
                                                          List<Map<String, Object>> list, SYS_People people) throws Exception {
         SYS_Education education = new SYS_Education();
-        education.setPeopleId(people.getId());
-        education.setPeopleName(people.getName());
-        education.setUnitId(people.getUnitId());
-        education.setName(StrUtils.toNullStr(map.get("在职学历")));
-        String creatTime = String.valueOf(map.get("入学时间"));
-        if (!StrUtils.isBlank(creatTime)) {
-            education.setCreateTime(DateUtil.stringToDate(creatTime));
-        }
-        education.setDegree(StrUtils.toNullStr(map.get("在职学位名称")));
-        String serveTime = String.valueOf(map.get("毕（肄）业时间"));
-        if (!StrUtils.isBlank(serveTime)) {
-            education.setEndTime(DateUtil.stringToDate(serveTime));
-        }
-        String degreeTime = String.valueOf(map.get("学位授予时间"));
-        if (!StrUtils.isBlank(degreeTime)) {
-            education.setDegreeTime(DateUtil.stringToDate(degreeTime));
-        }
-        education.setSchoolType("在职教育");
-        education.setSchool(StrUtils.toNullStr(map.get("在职毕业学校")));
-        education.setProfession(StrUtils.toNullStr(map.get("在职所学专业")));
-        SYS_Education education1 = educationService.selectEducationByNameAndTime(education.getName(), people.getId(), education.getCreateTime());
-        if ("1".equals(fullImport)) {//覆盖导入
-            if (education1 != null) {
-                education.setId(education1.getId());
-                educationService.updateEducation(education);
-            } else {
-                String uuid = UUID.randomUUID().toString();
-                education.setId(uuid);
-                educationService.insertEducation(education);
+        String name=StrUtils.toNullStr(map.get("在职学历"));
+        if (!StrUtils.isBlank(name)){
+            education.setPeopleId(people.getId());
+            education.setPeopleName(people.getName());
+            education.setUnitId(people.getUnitId());
+            education.setName(name);
+            String creatTime = String.valueOf(map.get("入学时间"));
+            if (!StrUtils.isBlank(creatTime)) {
+                education.setCreateTime(DateUtil.stringToDate(creatTime));
             }
-        } else {
-            if (education1 != null) {
-                stringBuffer.append("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
-                logger.error("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+            education.setDegree(StrUtils.toNullStr(map.get("在职学位名称")));
+            String serveTime = String.valueOf(map.get("毕（肄）业时间"));
+            if (!StrUtils.isBlank(serveTime)) {
+                education.setEndTime(DateUtil.stringToDate(serveTime));
+            }
+            String degreeTime = String.valueOf(map.get("学位授予时间"));
+            if (!StrUtils.isBlank(degreeTime)) {
+                education.setDegreeTime(DateUtil.stringToDate(degreeTime));
+            }
+            education.setSchoolType("在职教育");
+            education.setSchool(StrUtils.toNullStr(map.get("在职毕业学校")));
+            education.setProfession(StrUtils.toNullStr(map.get("在职所学专业")));
+            SYS_Education education1 = educationService.selectEducationByNameAndTime(education.getName(), people.getId(), education.getCreateTime());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (education1 != null) {
+                    education.setId(education1.getId());
+                    educationService.updateEducation(education);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    education.setId(uuid);
+                    educationService.insertEducation(education);
+                }
             } else {
-                String uuid = UUID.randomUUID().toString();
-                education.setId(uuid);
-                educationService.insertEducation(education);
+                if (education1 != null) {
+                    stringBuffer.append("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+                    logger.error("学历表：第" + list.indexOf(map) + "行;该学历已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    education.setId(uuid);
+                    educationService.insertEducation(education);
+                }
             }
         }
         return education;
@@ -527,54 +534,112 @@ public class DataManager {
     public static SYS_Duty saveDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
                                                UnitService unitService, String fullImport, DutyService dutyService) throws Exception {
         SYS_Duty duty = new SYS_Duty();
-        duty.setPeopleId(people.getId());
-        duty.setPeopleName(people.getName());
-        duty.setUnitId(people.getUnitId());
-        String creatTime = String.valueOf(map.get("现任职务时间"));
-        if (!StrUtils.isBlank(creatTime)) {
-            duty.setCreateTime(DateUtil.stringToDate(creatTime));
-        }
-        duty.setDutyType(StrUtils.toNullStr(map.get("现任职务")));
-        duty.setLeaderType(StrUtils.toNullStr(map.get("成员类别")));
-        duty.setLeader(StrUtils.toNullStr(map.get("是否领导")));
-        duty.setName(StrUtils.toNullStr(map.get("职务名称")));
-        duty.setSelectionMethod(StrUtils.toNullStr(map.get("任职方式")));
-        duty.setStatus(StrUtils.toNullStr(map.get("任职状态")));
-        duty.setDjunct(StrUtils.toNullStr(map.get("是否兼任")));
-        duty.setDocumentduty(StrUtils.toNullStr(map.get("任职文号")));
-        duty.setRealName(StrUtils.toNullStr(map.get("是否纳入实名制管理")));
-        String serveTime = String.valueOf(map.get("免职时间"));
-        if (!StrUtils.isBlank(serveTime)) {
-            duty.setServeTime(DateUtil.stringToDate(serveTime));
-        }
-        String dutyTime = String.valueOf(map.get("同职务层次时间"));
-        if (!StrUtils.isBlank(dutyTime)) {
-            duty.setDutyTime(DateUtil.stringToDate(dutyTime));
-        }
-        duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
-        SYS_Duty duty1 = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
-        if ("1".equals(fullImport)) {//覆盖导入
-            if (duty1 != null) {
-                duty.setId(duty1.getId());
-                dutyService.updateDuty(duty);
-            } else {
-                String uuid = UUID.randomUUID().toString();
-                duty.setId(uuid);
-                dutyService.insertDuty(duty);
+        String name=StrUtils.toNullStr(map.get("职务名称"));
+        if(!StrUtils.isBlank(name)){
+            duty.setPeopleId(people.getId());
+            duty.setPeopleName(people.getName());
+            duty.setUnitId(people.getUnitId());
+            String creatTime = String.valueOf(map.get("现任职务时间"));
+            if (!StrUtils.isBlank(creatTime)) {
+                duty.setCreateTime(DateUtil.stringToDate(creatTime));
             }
-        } else {
-            if (duty1 != null) {
-                stringBuffer.append("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
-                logger.error("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+            duty.setDutyType(StrUtils.toNullStr(map.get("现任职务")));
+            duty.setName(StrUtils.toNullStr(map.get("职务名称")));
+            duty.setSelectionMethod(StrUtils.toNullStr(map.get("任职方式")));
+            duty.setStatus(StrUtils.toNullStr(map.get("任职状态")));
+            duty.setDjunct(StrUtils.toNullStr(map.get("是否兼任")));
+            duty.setDocumentduty(StrUtils.toNullStr(map.get("任职文号")));
+            duty.setRealName(StrUtils.toNullStr(map.get("是否纳入实名制管理")));
+            String serveTime = String.valueOf(map.get("免职时间"));
+            if (!StrUtils.isBlank(serveTime)) {
+                duty.setServeTime(DateUtil.stringToDate(serveTime));
+            }
+            String dutyTime = String.valueOf(map.get("同级职务任职时间"));
+            if (!StrUtils.isBlank(dutyTime)) {
+                duty.setDutyTime(DateUtil.stringToDate(dutyTime));
+            }
+            duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
+            SYS_Duty duty1 = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (duty1 != null) {
+                    duty.setId(duty1.getId());
+                    dutyService.updateDuty(duty);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    duty.setId(uuid);
+                    dutyService.insertDuty(duty);
+                }
             } else {
-                String uuid = UUID.randomUUID().toString();
-                duty.setId(uuid);
-                dutyService.insertDuty(duty);
+                if (duty1 != null) {
+                    stringBuffer.append("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+                    logger.error("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    duty.setId(uuid);
+                    dutyService.insertDuty(duty);
+                }
             }
         }
         return duty;
     }
 
+    /**
+     * 套转职级表导入
+     *
+     * @param list
+     * @param stringBuffer
+     * @param unitService
+     * @param fullImport
+     * @return
+     * @throws Exception
+     */
+    public static SYS_Rank getPeopleTaoRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+                                                    UnitService unitService, String fullImport, RankService rankService) throws Exception {
+        SYS_Rank rank = new SYS_Rank();
+        String name=StrUtils.toNullStr(map.get("套转职级"));
+        if (!StrUtils.isBlank(name)){
+            rank.setPeopleId(people.getId());
+            rank.setPeopleName(people.getName());
+            rank.setUnitId(people.getUnitId());
+            rank.setName(name);
+            String creatTime = String.valueOf(map.get("套转职级时间"));
+            if (!StrUtils.isBlank(creatTime)) {
+                rank.setCreateTime(DateUtil.stringToDate(creatTime));
+            }else {
+                rank.setCreateTime(DateUtil.stringToDate("2019-06-01"));
+            }
+            String rankTime = String.valueOf(map.get("同级职级任职时间"));
+            if (!StrUtils.isBlank(rankTime)) {
+                rank.setRankTime(DateUtil.stringToDate(rankTime));
+            }
+            rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));;
+            String approvalTime = String.valueOf(map.get("审批通过时间"));
+            if (!StrUtils.isBlank(approvalTime)) {
+                rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
+            }
+            SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (rank1 != null) {
+                    rank.setId(rank1.getId());
+                    rankService.updateRank(rank);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    rank.setId(uuid);
+                    rankService.insertRank(rank);
+                }
+            } else {
+                if (rank1 != null) {
+                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+                    logger.error("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    rank.setId(uuid);
+                    rankService.insertRank(rank);
+                }
+            }
+        }
+        return rank;
+    }
     /**
      * 职级表导入
      *
@@ -588,56 +653,58 @@ public class DataManager {
     public static SYS_Rank getPeopleRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
                                                     UnitService unitService, String fullImport, RankService rankService) throws Exception {
         SYS_Rank rank = new SYS_Rank();
-        rank.setPeopleId(people.getId());
-        rank.setPeopleName(people.getName());
-        rank.setUnitId(people.getUnitId());
-        rank.setName(StrUtils.toNullStr(map.get("现任职级（晋升后）")));
-        String creatTime = String.valueOf(map.get("任职级时间"));
-        if (!StrUtils.isBlank(creatTime)) {
-            rank.setCreateTime(DateUtil.stringToDate(creatTime));
-        }
-        String rankTime = String.valueOf(map.get("任同职级层次时间"));
-        if (!StrUtils.isBlank(rankTime)) {
-            rank.setRankTime(DateUtil.stringToDate(rankTime));
-        }
-        rank.setRankType(StrUtils.toNullStr(map.get("类别（职级标志）")));
-        rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));;
-        rank.setStatus(StrUtils.toNullStr(map.get("状态")));
-        rank.setBatch(StrUtils.toNullStr(map.get("批次")));
-        rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
-        rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
-        String serveTime = String.valueOf(map.get("终止日期"));
-        if (!StrUtils.isBlank(serveTime)) {
-            rank.setServeTime(DateUtil.stringToDate(serveTime));
-        }
-        rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
-        String approvalTime = String.valueOf(map.get("审批日期"));
-        if (!StrUtils.isBlank(serveTime)) {
-            rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
-        }
-        rank.setDeposeRank(StrUtils.toNullStr(map.get("免职级事由")));
-        String deposeTime = String.valueOf(map.get("免职级时间"));
-        if (!StrUtils.isBlank(deposeTime)) {
-            rank.setDeposeTime(DateUtil.stringToDate(deposeTime));
-        }
-        SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
-        if ("1".equals(fullImport)) {//覆盖导入
-            if (rank1 != null) {
-                rank.setId(rank1.getId());
-                rankService.updateRank(rank);
-            } else {
-                String uuid = UUID.randomUUID().toString();
-                rank.setId(uuid);
-                rankService.insertRank(rank);
+        String name=StrUtils.toNullStr(map.get("现任职级（晋升后）"));
+        if (!StrUtils.isBlank(name)){
+            rank.setPeopleId(people.getId());
+            rank.setPeopleName(people.getName());
+            rank.setUnitId(people.getUnitId());
+            rank.setName(name);
+            String creatTime = String.valueOf(map.get("任职级时间"));
+            if (!StrUtils.isBlank(creatTime)) {
+                rank.setCreateTime(DateUtil.stringToDate(creatTime));
             }
-        } else {
-            if (rank1 != null) {
-                stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
-                logger.error("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+            String rankTime = String.valueOf(map.get("同级职级任职时间"));
+            if (!StrUtils.isBlank(rankTime)) {
+                rank.setRankTime(DateUtil.stringToDate(rankTime));
+            }
+            rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));;
+            rank.setStatus(StrUtils.toNullStr(map.get("状态")));
+            rank.setBatch(StrUtils.toNullStr(map.get("批次")));
+            rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
+            rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
+            String serveTime = String.valueOf(map.get("终止日期"));
+            if (!StrUtils.isBlank(serveTime)) {
+                rank.setServeTime(DateUtil.stringToDate(serveTime));
+            }
+            rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
+            String approvalTime = String.valueOf(map.get("审批日期"));
+            if (!StrUtils.isBlank(approvalTime)) {
+                rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
+            }
+            rank.setDeposeRank(StrUtils.toNullStr(map.get("免职级事由")));
+            String deposeTime = String.valueOf(map.get("免职级时间"));
+            if (!StrUtils.isBlank(deposeTime)) {
+                rank.setDeposeTime(DateUtil.stringToDate(deposeTime));
+            }
+            SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (rank1 != null) {
+                    rank.setId(rank1.getId());
+                    rankService.updateRank(rank);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    rank.setId(uuid);
+                    rankService.insertRank(rank);
+                }
             } else {
-                String uuid = UUID.randomUUID().toString();
-                rank.setId(uuid);
-                rankService.insertRank(rank);
+                if (rank1 != null) {
+                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+                    logger.error("职级表：第" + list.indexOf(map) + "行;该职级已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    rank.setId(uuid);
+                    rankService.insertRank(rank);
+                }
             }
         }
         return rank;
@@ -656,40 +723,43 @@ public class DataManager {
     public static SYS_Reward getPeopleRewardDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
                                                               UnitService unitService, String fullImport, RewardService rewardService) throws Exception {
         SYS_Reward reward = new SYS_Reward();
-        reward.setPeopleId(people.getId());
-        reward.setPeopleName(people.getName());
-        reward.setUnitId(people.getUnitId());
-        reward.setName(StrUtils.toNullStr(map.get("奖惩名称")));
-        String creatTime = String.valueOf(map.get("批准日期"));
-        if (!StrUtils.isBlank(creatTime)) {
-            reward.setCreateTime(DateUtil.stringToDate(creatTime));
-        }
-        reward.setNameType(StrUtils.toNullStr(map.get("奖惩名称代码")));
-        String serveTime = String.valueOf(map.get("撤销日期"));
-        if (!StrUtils.isBlank(serveTime)) {
-            reward.setRevocationDate(DateUtil.stringToDate(serveTime));
-        }
-        reward.setApprovalUnit(StrUtils.toNullStr(map.get("批准机关")));
-        reward.setDuty(StrUtils.toNullStr(map.get("受奖惩时职务层次")));
-        reward.setUnitType(StrUtils.toNullStr(map.get("批准机关性质")));
-        SYS_Reward reward1 = rewardService.selectRewardByNameAndTime(reward.getName(), people.getId(), reward.getCreateTime());
-        if ("1".equals(fullImport)) {//覆盖导入
-            if (reward1 != null) {
-                reward.setId(reward1.getId());
-                rewardService.updateReward(reward);
-            } else {
-                String uuid = UUID.randomUUID().toString();
-                reward.setId(uuid);
-                rewardService.insertReward(reward);
+        String name=StrUtils.toNullStr(map.get("奖惩名称"));
+        if(!StrUtils.isBlank(name)) {
+            reward.setPeopleId(people.getId());
+            reward.setPeopleName(people.getName());
+            reward.setUnitId(people.getUnitId());
+            reward.setName(name);
+            String creatTime = String.valueOf(map.get("批准日期"));
+            if (!StrUtils.isBlank(creatTime)) {
+                reward.setCreateTime(DateUtil.stringToDate(creatTime));
             }
-        } else {
-            if (reward1 != null) {
-                stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
-                logger.error("奖惩表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+            reward.setNameType(StrUtils.toNullStr(map.get("奖惩名称代码")));
+            String serveTime = String.valueOf(map.get("撤销日期"));
+            if (!StrUtils.isBlank(serveTime)) {
+                reward.setRevocationDate(DateUtil.stringToDate(serveTime));
+            }
+            reward.setApprovalUnit(StrUtils.toNullStr(map.get("批准机关")));
+            reward.setDuty(StrUtils.toNullStr(map.get("受奖惩时职务层次")));
+            reward.setUnitType(StrUtils.toNullStr(map.get("批准机关性质")));
+            SYS_Reward reward1 = rewardService.selectRewardByNameAndTime(reward.getName(), people.getId(), reward.getCreateTime());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (reward1 != null) {
+                    reward.setId(reward1.getId());
+                    rewardService.updateReward(reward);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    reward.setId(uuid);
+                    rewardService.insertReward(reward);
+                }
             } else {
-                String uuid = UUID.randomUUID().toString();
-                reward.setId(uuid);
-                rewardService.insertReward(reward);
+                if (reward1 != null) {
+                    stringBuffer.append("奖惩表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+                    logger.error("奖惩表：第" + list.indexOf(map) + "行;该奖惩已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    reward.setId(uuid);
+                    rewardService.insertReward(reward);
+                }
             }
         }
         return reward;
@@ -705,29 +775,31 @@ public class DataManager {
     public static SYS_Assessment getPeopleRewardDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
                                                         UnitService unitService, String fullImport, AssessmentService assessmentService,String year,String name) throws Exception {
         SYS_Assessment assessment = new SYS_Assessment();
-        assessment.setPeopleId(people.getId());
-        assessment.setPeopleName(people.getName());
-        assessment.setUnitId(people.getUnitId());
-        assessment.setName(StrUtils.toNullStr(map.get(name)));
-        assessment.setYear(StrUtils.strToInt(StrUtils.toNullStr(map.get(year))));
-        SYS_Assessment assessment1 = assessmentService.selectAssessmentByYear(people.getId(), assessment.getYear());
-        if ("1".equals(fullImport)) {//覆盖导入
-            if (assessment1 != null) {
-                assessment.setId(assessment1.getId());
-                assessmentService.updateAssessment(assessment);
+        if(!StrUtils.isBlank(name)) {
+            assessment.setPeopleId(people.getId());
+            assessment.setPeopleName(people.getName());
+            assessment.setUnitId(people.getUnitId());
+            assessment.setName(StrUtils.toNullStr(map.get(name)));
+            assessment.setYear(StrUtils.strToInt(StrUtils.toNullStr(map.get(year))));
+            SYS_Assessment assessment1 = assessmentService.selectAssessmentByYear(people.getId(), assessment.getYear());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (assessment1 != null) {
+                    assessment.setId(assessment1.getId());
+                    assessmentService.updateAssessment(assessment);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    assessment.setId(uuid);
+                    assessmentService.insertAssessment(assessment);
+                }
             } else {
-                String uuid = UUID.randomUUID().toString();
-                assessment.setId(uuid);
-                assessmentService.insertAssessment(assessment);
-            }
-        } else {
-            if (assessment1 != null) {
-                stringBuffer.append("考核表：第" + list.indexOf(map) + "行;该考核已存在，请勿重复导入！");
-                logger.error("考核表：第" + list.indexOf(map) + "行;该考核已存在，请勿重复导入！");
-            } else {
-                String uuid = UUID.randomUUID().toString();
-                assessment.setId(uuid);
-                assessmentService.insertAssessment(assessment);
+                if (assessment1 != null) {
+                    stringBuffer.append("考核表：第" + list.indexOf(map) + "行;该考核已存在，请勿重复导入！");
+                    logger.error("考核表：第" + list.indexOf(map) + "行;该考核已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    assessment.setId(uuid);
+                    assessmentService.insertAssessment(assessment);
+                }
             }
         }
         return assessment;
