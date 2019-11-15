@@ -12,6 +12,7 @@ public interface EducationService {
     SYS_Education selectEducationById(String id);
     SYS_Education selectEducationByPidOrderByTime(String pid);
     SYS_Education selectEducationByNameAndTime(String name, String peopleId, Date createTime);
+    SYS_Education selectEducationByName(String name, String peopleId);
     List<SYS_Education> selectEducationsByPeopleId(String pid);
     void insertEducation(SYS_Education education);
 

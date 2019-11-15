@@ -113,6 +113,46 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String unitId;
 
+  @ApiModelProperty("人员姓名")
+  @Comment("人员姓名")
+  @Column("duty_Type")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String dutyType;
+
+  @ApiModelProperty("同职务层次时间")
+  @Comment("同职务层次时间")
+  @Column("duty_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date dutyTime;
+
+  private String dutyTimeStr;
+
+  public String getDutyTimeStr() {
+    return DateUtil.dateToString(dutyTime);
+  }
+
+  public void setDutyTimeStr(String dutyTimeStr) {
+    this.dutyTimeStr = dutyTimeStr;
+  }
+
+  public Date getDutyTime() {
+    return dutyTime;
+  }
+
+  public void setDutyTime(Date dutyTime) {
+    this.dutyTime = dutyTime;
+  }
+
+  public String getDutyType() {
+    return dutyType;
+  }
+
+  public void setDutyType(String dutyType) {
+    this.dutyType = dutyType;
+  }
+
   public String getPeopleName() {
     return peopleName;
   }

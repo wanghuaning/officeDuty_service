@@ -37,7 +37,7 @@ public class PeopleManager {
                             people.setWorkday(DateUtil.stringToDate(workdayStr));
                         }
                         people.setParty(StrUtils.toNullStr(map.get("政治面貌")));
-                        String partyTimeStr=String.valueOf(map.get("入党时间"));
+                        String partyTimeStr=String.valueOf(map.get("入党（团）时间"));
                         if (!StrUtils.isBlank(partyTimeStr)){
                             people.setPartyTime(DateUtil.stringToDate(partyTimeStr));
                         }

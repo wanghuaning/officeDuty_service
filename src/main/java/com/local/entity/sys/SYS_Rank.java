@@ -85,8 +85,8 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 255)
   private String democracy;
 
-  @ApiModelProperty("备注")
-  @Comment("备注")
+  @ApiModelProperty("任职级事由")
+  @Comment("任职级事由")
   @Column("detail")
   @ColDefine(type = ColType.VARCHAR, width = 255)
   private String detail;
@@ -121,6 +121,87 @@ public class SYS_Rank implements Serializable {
   @Column("unit_Id")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String unitId;
+
+  @ApiModelProperty("是否军转干部首次套转不占职数")
+  @Comment("是否军转干部首次套转不占职数")
+  @Column("leaders")
+  @ColDefine(type = ColType.VARCHAR, width = 8)
+  private String leaders;
+
+  @ApiModelProperty("任同职级时间")
+  @Comment("任同职级时间")
+  @Column("rank_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date rankTime;
+
+  private String rankTimeStr;
+
+
+  @ApiModelProperty("免职级事由")
+  @Comment("免职级事由")
+  @Column("depose_Rank")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String deposeRank;
+
+  @ApiModelProperty("免职级时间")
+  @Comment("免职级时间")
+  @Column("depose_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date deposeTime;
+
+  private String deposeTimeStr;
+
+  public String getDeposeRank() {
+    return deposeRank;
+  }
+
+  public void setDeposeRank(String deposeRank) {
+    this.deposeRank = deposeRank;
+  }
+
+  public Date getDeposeTime() {
+    return deposeTime;
+  }
+
+  public void setDeposeTime(Date deposeTime) {
+    this.deposeTime = deposeTime;
+  }
+
+  public String getDeposeTimeStr() {
+    return DateUtil.dateToString(deposeTime);
+  }
+
+  public void setDeposeTimeStr(String deposeTimeStr) {
+    this.deposeTimeStr = deposeTimeStr;
+  }
+
+  public String getLeaders() {
+    return leaders;
+  }
+
+  public void setLeaders(String leaders) {
+    this.leaders = leaders;
+  }
+
+  public Date getRankTime() {
+    return rankTime;
+  }
+
+  public void setRankTime(Date rankTime) {
+    this.rankTime = rankTime;
+  }
+
+  public String getRankTimeStr() {
+    return DateUtil.dateToString(rankTime);
+  }
+
+  public void setRankTimeStr(String rankTimeStr) {
+    this.rankTimeStr = rankTimeStr;
+  }
 
   public String getPeopleName() {
     return peopleName;

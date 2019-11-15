@@ -83,7 +83,18 @@ public class EducationServiceImpl implements EducationService {
             return null;
         }
     }
-
+    @Override
+    public SYS_Education selectEducationByName(String name, String peopleId) {
+        List<SYS_Education> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("name", name).andEquals("people_Id", peopleId);
+        list = dao.query(SYS_Education.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
     @Override
     public List<SYS_Education> selectEducationsByPeopleId(String pid){
         List<SYS_Education> list = new ArrayList<>();

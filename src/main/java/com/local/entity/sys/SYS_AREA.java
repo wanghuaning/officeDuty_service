@@ -42,10 +42,24 @@ public class SYS_AREA implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 255)
     private String availableFlag;
 
+    @ApiModelProperty("地区排序")
+    @Comment("地区排序")
+    @Column("order_Num")
+    @ColDefine(type = ColType.INT)
+    private Integer orderNum;
+
     private String value;
 
     private String label;
     private List<SYS_AREA> children;
+
+    public Integer getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
+    }
 
     public String getValue() {
         return areaName;

@@ -114,15 +114,15 @@ public class DataController {
         StringBuffer stringBuffer = new StringBuffer();
         try {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
-            List<String> headList = ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(), 0, 1);
+            List<String> headList = ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(), 0, 2);
             if (headList.size() > 0) {
-                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")) {
+                if (!headList.get(2).contains("姓名") && !headList.get(3).contains("身份证号")) {
                     stringBuffer.append(ResultMsg.IMPORT_EXCEL_FILE_ERROR);
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.IMPORT_EXCEL_FILE_ERROR, null, null).getJson();
                 } else {
-                    List<Map<String, Object>> list = ExcelFileGenerator.readeExcelData(excelFile.getInputStream(), 0, 1, 2);
+                    List<Map<String, Object>> list = ExcelFileGenerator.readeExcelData(excelFile.getInputStream(), 0, 2, 3);
                     List<SYS_People> peopleList = DataManager.getPeopleDataByExcel(list, peopleService, stringBuffer, unitService, fullImport, educationService,
-                            dutyService, rankService, rewardService);
+                            dutyService, rankService, rewardService,assessmentService);
                     if (stringBuffer.length() > 0) {
                         return new Result(ResultCode.SUCCESS.toString(), stringBuffer.toString(), peopleList, null).getJson();
                     } else {

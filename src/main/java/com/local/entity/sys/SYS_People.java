@@ -218,6 +218,20 @@ public class SYS_People implements Serializable {
   private String value;
   private String label;
 
+  @ApiModelProperty("单列管理事由")
+  @Comment("单列管理事由")
+  @Column("real_Name")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String realName;
+
+  public String getRealName() {
+    return realName;
+  }
+
+  public void setRealName(String realName) {
+    this.realName = realName;
+  }
+
   public String getBirthdayStr() {
     return DateUtil.dateToString(birthday);
   }

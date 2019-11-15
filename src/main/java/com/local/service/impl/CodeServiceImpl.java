@@ -8,6 +8,7 @@ import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.util.cri.SimpleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class CodeServiceImpl implements CodeService {
       List<SYS_AREA> list=new ArrayList<>();
       Criteria criteria= Cnd.cri();
       criteria.where().andEquals("Up_Code",upCode);
+      criteria.getOrderBy().asc("order_Num");
       list=dao.query(SYS_AREA.class,criteria);
       getAreas(list);
       if (list.size()>0){
