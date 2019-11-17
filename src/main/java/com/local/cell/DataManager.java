@@ -297,11 +297,14 @@ public class DataManager {
                     saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people);
                     saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people);
                     getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,rewardService);
-                    getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService);
+                    getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService);
                 }
             } else {
-                logger.error("人员表：第" + list.indexOf(map) + "行;单位不存在！");
-                stringBuffer.append("人员表：第" + list.indexOf(map) + "行;单位不存在！");
+                String name=StrUtils.toNullStr(map.get("姓名"));
+                if (!StrUtils.isBlank(name)){
+                    logger.error("人员表：第" + list.indexOf(map) + "行;单位不存在！");
+                    stringBuffer.append("人员表：第" + list.indexOf(map) + "行;单位不存在！");
+                }
             }
         }
         return peopleList;
@@ -309,7 +312,6 @@ public class DataManager {
 
     /**
      * 人员基本信息
-     *
      * @param map
      * @param unit
      * @param service
@@ -333,7 +335,7 @@ public class DataManager {
                     if (!StrUtils.isBlank(birthdayStr)) {
                         people.setBirthday(DateUtil.stringToDate(birthdayStr));
                     }
-                    people.setSex(StrUtils.toNullStr(map.get("性别")).trim());
+                    people.setSex(StrUtils.toNullStr(map.get("性别")));
                     people.setBirthplace(StrUtils.toNullStr(map.get("籍贯")));
                     people.setNationality(StrUtils.toNullStr(map.get("民族 ")));
                     String workdayStr = String.valueOf(map.get("参加工作时间"));
@@ -352,7 +354,7 @@ public class DataManager {
                     if (!StrUtils.isBlank(positionTimeStr)) {
                         people.setPositionTime(DateUtil.stringToDate(positionTimeStr));
                     }
-                    people.setPositionLevel(String.valueOf(map.get("现任职级（晋升后）")));
+                    people.setPositionLevel(StrUtils.toNullStr(map.get("现任职级（晋升后）")));
                     String positionLevelTimeStr = String.valueOf(map.get("任职级时间"));
                     if (!StrUtils.isBlank(positionLevelTimeStr)) {
                         people.setPositionLevelTime(DateUtil.stringToDate(positionLevelTimeStr));
@@ -764,18 +766,18 @@ public class DataManager {
         }
         return reward;
     }
-    public static void getPeopleRewardDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+    public static void getPeopleAssessmentDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
                                                             UnitService unitService, String fullImport, AssessmentService assessmentService) throws Exception {
-        getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份1","结果1");
-        getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份2","结果2");
-        getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份3","结果3");
-        getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份4","结果4");
-        getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份5","结果5");
+        getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份1","结果1");
+        getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份2","结果2");
+        getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份3","结果3");
+        getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份4","结果4");
+        getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService,"年份5","结果5");
     }
-    public static SYS_Assessment getPeopleRewardDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+    public static SYS_Assessment getPeopleAssessmentDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
                                                         UnitService unitService, String fullImport, AssessmentService assessmentService,String year,String name) throws Exception {
         SYS_Assessment assessment = new SYS_Assessment();
-        if(!StrUtils.isBlank(name)) {
+        if(!StrUtils.isBlank(StrUtils.toNullStr(map.get(name)))) {
             assessment.setPeopleId(people.getId());
             assessment.setPeopleName(people.getName());
             assessment.setUnitId(people.getUnitId());
