@@ -149,6 +149,20 @@ public class SYS_Rank implements Serializable {
 
   private String deposeTimeStr;
 
+  @ApiModelProperty("类型")
+  @Comment("类型，1：套转、0：晋升")
+  @Column("flag")
+  @ColDefine(type = ColType.VARCHAR, width = 8)
+  private String flag;
+
+  public String getFlag() {
+    return flag;
+  }
+
+  public void setFlag(String flag) {
+    this.flag = flag;
+  }
+
   public String getDeposeRank() {
     return deposeRank;
   }

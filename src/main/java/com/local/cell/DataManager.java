@@ -291,10 +291,10 @@ public class DataManager {
             if (unit != null) {
                 SYS_People people = savePeopleExcle(map, unit, service, fullImport, stringBuffer, list, peopleList);
                 if (people != null) {
-                    saveDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService);
-                    getPeopleTaoRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService);
-                    getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService);
-                    saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people);
+                    saveDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService,service);
+                    getPeopleTaoRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService,service);
+                    getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService,service);
+                    saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people,service);
                     saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people);
                     getPeopleRewardDataByExcel(map, list,people,stringBuffer,unitService,fullImport,rewardService);
                     getPeopleAssessmentDataByExcel(map, list,people,stringBuffer,unitService,fullImport,assessmentService);
@@ -418,7 +418,7 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Education saveEducationDataByExcel(Map<String, Object> map, SYS_UNIT unit, EducationService educationService, String fullImport, StringBuffer stringBuffer,
-                                                          List<Map<String, Object>> list, SYS_People people) throws Exception {
+                                                          List<Map<String, Object>> list, SYS_People people,PeopleService peopleService) throws Exception {
         SYS_Education education = new SYS_Education();
         String name=StrUtils.toNullStr(map.get("全日制学历"));
         if (!StrUtils.isBlank(name)){
@@ -443,6 +443,8 @@ public class DataManager {
             education.setSchool(StrUtils.toNullStr(map.get("毕业学校")));
             education.setProfession(StrUtils.toNullStr(map.get("所学专业")));
             SYS_Education education1 = educationService.selectEducationByName(education.getName(), people.getId());
+            people.setEducation(education.getName());
+            peopleService.updatePeople(people);
             if ("1".equals(fullImport)) {//覆盖导入
                 if (education1 != null) {
                     education.setId(education1.getId());
@@ -534,7 +536,7 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Duty saveDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                               UnitService unitService, String fullImport, DutyService dutyService) throws Exception {
+                                               UnitService unitService, String fullImport, DutyService dutyService,PeopleService peopleService) throws Exception {
         SYS_Duty duty = new SYS_Duty();
         String name=StrUtils.toNullStr(map.get("职务名称"));
         if(!StrUtils.isBlank(name)){
@@ -561,6 +563,9 @@ public class DataManager {
                 duty.setDutyTime(DateUtil.stringToDate(dutyTime));
             }
             duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
+            people.setPosition(duty.getName());
+            people.setPositionTime(duty.getCreateTime());
+            peopleService.updatePeople(people);
             SYS_Duty duty1 = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
             if ("1".equals(fullImport)) {//覆盖导入
                 if (duty1 != null) {
@@ -596,7 +601,7 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Rank getPeopleTaoRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                                    UnitService unitService, String fullImport, RankService rankService) throws Exception {
+                                                    UnitService unitService, String fullImport, RankService rankService,PeopleService peopleService) throws Exception {
         SYS_Rank rank = new SYS_Rank();
         String name=StrUtils.toNullStr(map.get("套转职级"));
         if (!StrUtils.isBlank(name)){
@@ -616,10 +621,14 @@ public class DataManager {
             }
             rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));;
             String approvalTime = String.valueOf(map.get("审批通过时间"));
+            rank.setFlag("1");
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
             SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            people.setPositionLevel(rank.getName());
+            people.setPositionLevelTime(rank.getCreateTime());
+            peopleService.updatePeople(people);
             if ("1".equals(fullImport)) {//覆盖导入
                 if (rank1 != null) {
                     rank.setId(rank1.getId());
@@ -653,7 +662,7 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Rank getPeopleRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                                    UnitService unitService, String fullImport, RankService rankService) throws Exception {
+                                                    UnitService unitService, String fullImport, RankService rankService,PeopleService peopleService) throws Exception {
         SYS_Rank rank = new SYS_Rank();
         String name=StrUtils.toNullStr(map.get("现任职级（晋升后）"));
         if (!StrUtils.isBlank(name)){
@@ -684,11 +693,15 @@ public class DataManager {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
             rank.setDeposeRank(StrUtils.toNullStr(map.get("免职级事由")));
+            rank.setFlag("0");
             String deposeTime = String.valueOf(map.get("免职级时间"));
             if (!StrUtils.isBlank(deposeTime)) {
                 rank.setDeposeTime(DateUtil.stringToDate(deposeTime));
             }
             SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            people.setPositionLevel(rank.getName());
+            people.setPositionLevelTime(rank.getCreateTime());
+            peopleService.updatePeople(people);
             if ("1".equals(fullImport)) {//覆盖导入
                 if (rank1 != null) {
                     rank.setId(rank1.getId());

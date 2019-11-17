@@ -20,4 +20,5 @@ public interface PeopleService {
     SYS_People selectPeopleByIdcardAndUnitId(String idcard,String uid);//查询身份证
 
     List<SYS_People> selectPeoplesByUnitId(String unitId,String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
+    List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId,String rank);
 }

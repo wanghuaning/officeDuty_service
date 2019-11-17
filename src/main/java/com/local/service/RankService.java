@@ -22,5 +22,6 @@ public interface RankService {
     void updateRank(SYS_Rank rank);
 
     List<SYS_Rank> selectRanksByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
+    List<SYS_Rank> selectRanksFlagByUnitId(String unitId, String flag,String name);//1:套转 0：晋升
 
 }
