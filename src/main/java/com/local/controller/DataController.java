@@ -73,8 +73,8 @@ public class DataController {
     public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
             , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds) {
         try {
-            if ("filingList".equals(flag)) {
-                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService);
+            if ("filingList".equals(flag)) {//备案表
+                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,dutyService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }
             if ("approval".equals(flag)) {

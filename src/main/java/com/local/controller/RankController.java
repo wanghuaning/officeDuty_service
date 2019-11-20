@@ -63,9 +63,15 @@ public class RankController {
                 rankService.insertRank(rank);
                 SYS_Rank sys_rank=rankService.selectRankByPidOrderByTime(people.getId());
                 if (sys_rank!=null){
-                    people.setPositionLevel(sys_rank.getName());
-                    people.setPositionLevelTime(sys_rank.getCreateTime());
-                    peopleService.updatePeople(people);
+                    if (sys_rank.getStatus().contains("在任")){
+                        people.setPositionLevel(sys_rank.getName());
+                        people.setPositionLevelTime(sys_rank.getCreateTime());
+                        peopleService.updatePeople(people);
+                    }else {
+                        people.setPositionLevel("");
+                        people.setPositionLevelTime(null);
+                        peopleService.updatePeople(people);
+                    }
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
             }else {

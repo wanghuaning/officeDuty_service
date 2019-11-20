@@ -136,6 +136,32 @@ public class PeopleServiceImpl implements PeopleService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId).andEquals("position",duty);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId).andNotEquals("real_Name","").andNotEquals("real_Name",null);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
     /**
      * //根据单位ID查询，是否包含下级单位的 人员
      * @param unitId

@@ -49,6 +49,19 @@ public class DutyServiceImpl implements DutyService {
     public SYS_Duty selectDutyByPidOrderByTime(String pid) {
         List<SYS_Duty> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid);
+        cir.getOrderBy().desc("create_Time");
+        list = dao.query(SYS_Duty.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Duty selectEnableDutyByPidOrderByTime(String pid){
+        List<SYS_Duty> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
         cir.where().andEquals("people_Id", pid).andEquals("status","在任");
         cir.getOrderBy().desc("create_Time");
         list = dao.query(SYS_Duty.class, cir);
@@ -58,7 +71,6 @@ public class DutyServiceImpl implements DutyService {
             return null;
         }
     }
-
     @Override
     public SYS_Duty selectDutyByNameAndTime(String name, String peopleId, Date createTime) {
         List<SYS_Duty> list = new ArrayList<>();

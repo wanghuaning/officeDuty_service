@@ -2,6 +2,7 @@ package com.local.util;
 
 import com.local.controller.UnitConttoller;
 import com.local.model.ApproalModel;
+import com.local.model.RegModel;
 import com.local.model.ReimbursementModel;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
@@ -117,12 +118,58 @@ public class ExcelFileGenerator<T> {
         sheet.addMergedRegion(address);
         cellStyle.setWrapText(true);
         Row row = sheet.getRow(rowIndex);
+        if (row==null){
+            row = sheet.createRow(rowIndex);
+        }
+        row.setHeightInPoints(25);
         for (int i = 0; i < columns.length; i++) {
             Cell c = null;
-            if (row.getCell(i)!=null){
+            if (row.getCell(colIndex[i])!=null){
                 c=row.getCell(colIndex[i]);
             }else {
-                row.createCell(colIndex[i]);
+                c=row.createCell(colIndex[i]);
+            }
+            c.setCellStyle(cellStyle);
+            setCellFormattedValue(c, columns[i]);
+        }
+        return rowIndex;
+    }
+    /**
+     * mergeRow 合并日期占两行(4个参数，分别为起始行，结束行，起始列，结束列)
+     *         // 行和列都是从0开始计数，且起始结束都会合并
+     *         // 这里是合并excel中日期的两行为一行
+     * @param sheet
+     * @return
+     * @throws Exception
+     */
+    public int createExcelFileFixedMergeAreaRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns,int cell1,int cell2,int row1,int row2,HorizontalAlignment area) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
+        cellStyle.setAlignment(area);//HorizontalAlignment.CENTER;
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        //合并单元格
+        CellRangeAddress address=new CellRangeAddress(cell1,cell2,row1,row2);
+        sheet.addMergedRegion(address);
+        cellStyle.setWrapText(true);
+        Row row = sheet.getRow(rowIndex);
+        if (row==null){
+            row = sheet.createRow(rowIndex);
+        }
+        row.setHeightInPoints(25);
+        for (int i = 0; i < columns.length; i++) {
+            Cell c = null;
+            if (row.getCell(colIndex[i])!=null){
+                c=row.getCell(colIndex[i]);
+            }else {
+//                System.out.println(colIndex[i]);
+                c=row.createCell(colIndex[i]);
             }
             c.setCellStyle(cellStyle);
             setCellFormattedValue(c, columns[i]);
@@ -569,6 +616,62 @@ public class ExcelFileGenerator<T> {
         }
 //        setCellFormattedValue(c, value);
         return c;
+    }
+
+    /**
+     * 市级单位科级公务员职务职级任免与升降审核备案表
+     * @param sheet
+     * @param data
+     * @throws Exception
+     */
+    public void createRegReimbursementExcel(Sheet sheet, RegModel data) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        setValue(sheet,7,0,data.getPeopleNums());
+        setValue(sheet,7,1,data.getNdzhengke());
+        setValue(sheet,7,2,data.getNdfuke());
+        setValue(sheet,7,3,data.getXianyouzhengke());
+        setValue(sheet,7,4,data.getXianyoufuke());
+        setValue(sheet,7,5,data.getXianyouganbu());
+        setValue(sheet,7,6,data.getHezhunoneTowClerkNum());
+        setValue(sheet,7,7,data.getHezhunthreeFourClerkNum());
+        setValue(sheet,7,8,data.getXianyouoneTowClerkNum());
+        setValue(sheet,7,9,data.getXianyouoneClerkNum());
+        setValue(sheet,7,10,data.getXianyoutowClerkNum());
+        setValue(sheet,7,11,data.getXianyouOneTowJunZhuanNum());
+        setValue(sheet,7,12,data.getXianyouthreeFourClerkNum());
+        setValue(sheet,7,13,data.getXianyouThreeClerkNum());
+        setValue(sheet,7,14,data.getXianyouFourClerkNum());
+        setValue(sheet,7,15,data.getXianyouThreeFourJunZhuanNum());
+        setValue(sheet,7,16,data.getNijinshengzhengke());
+        setValue(sheet,7,17,data.getNijinshengfuke());
+        setValue(sheet,7,18,data.getNijinshengganbu());
+        setValue(sheet,7,19,data.getNijinshengoneClerkNum());
+        setValue(sheet,7,20,data.getNijinshengtowClerkNum());
+        setValue(sheet,7,21,data.getNijinshengThreeClerkNum());
+        setValue(sheet,7,22,data.getNijinshengFourClerkNum());
+        setValue(sheet,7,23,data.getNijinshengJianZhioneClerkNum());
+        setValue(sheet,7,24,data.getNijinshengJiantowClerkNum());
+        setValue(sheet,7,25,data.getNijinshengJianThreeClerkNum());
+        setValue(sheet,7,26,data.getZhengkeGaitowClerkNum());
+        setValue(sheet,7,27,data.getFukeGaiThreeClerkNum());
+        setValue(sheet,7,28,data.getTiaozhengzhengke());
+        setValue(sheet,7,29,data.getTiaozhengfuke());
+        setValue(sheet,7,30,data.getTiaozhengganbu());
+        setValue(sheet,7,31,data.getTiaozhengoneTowClerkNum());
+        setValue(sheet,7,32,data.getTiaozhengoneClerkNum());
+        setValue(sheet,7,33,data.getTiaozhengtowClerkNum());
+        setValue(sheet,7,34,data.getTiaozhengOneTowJunZhuanNum());
+        setValue(sheet,7,35,data.getTiaozhenghreeFourClerkNum());
+        setValue(sheet,7,36,data.getTiaozhengThreeClerkNum());
+        setValue(sheet,7,37,data.getTiaozhengFourClerkNum());
+        setValue(sheet,7,38,data.getTiaozhengThreeFourJunZhuanNum());
     }
     public void createReimbursementExcel(Sheet sheet, ReimbursementModel data) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
