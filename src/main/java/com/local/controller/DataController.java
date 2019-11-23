@@ -26,6 +26,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -210,7 +211,18 @@ public class DataController {
             paramsMap.put("result", resultList);
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
             // 加密
-            String paramsCipher = RSAModelUtils.encryptByPublicKey(resultJson.toString(), RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+//            System.out.println("加密前：" + resultJson.toString());
+            byte[] encode = AESUtil.encrypt(resultJson.toString(),AESUtil.privateKey);
+            //传输过程,不转成16进制的字符串，就等着程序崩溃掉吧
+            String paramsCipher = AESUtil.parseByte2HexStr(encode);
+//            System.out.println("密文字符串：" + paramsCipher);
+//            String paramsCipher = RSAModelUtils.encryptByPublicKey(code, RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+//            // 解密
+//            byte[] decode = AESUtil.parseHexStr2Byte(paramsCipher);
+//            byte[] decryptResult = AESUtil.decrypt(decode,AESUtil.privateKey);
+//            System.out.println("解密后：" + new String(decryptResult, "UTF-8")); //不转码会乱码
+//            String jsonStr=new String(decryptResult, "UTF-8");
+//            System.out.println(jsonStr);
             File file = jsonFile;
             Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
             writer.write(paramsCipher);
@@ -240,7 +252,12 @@ public class DataController {
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
-            String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
+            // 解密
+            byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
+            byte[] decryptResult = AESUtil.decrypt(decode,AESUtil.privateKey);
+//            System.out.println("解密后：" + new String(decryptResult, "UTF-8")); //不转码会乱码
+            String jsonStr=new String(decryptResult, "UTF-8");
+//            String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
@@ -276,7 +293,7 @@ public class DataController {
                         if (users.size() > 0) {
                             DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "user", gson.toJson(users));
                         }
-                        if (approvalList!=null){
+                        if (approvalList.size()>0){
                             approals=DataManager.saveApproalJsonModel(approvalList);
                             if (approals.size()>0){
                                 DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "approval", gson.toJson(approals));
@@ -321,8 +338,6 @@ public class DataController {
                         DataManager.userDataCheck(resultMap, users, userService, unitId);
                         if (approals.size()>0){
                             DataManager.approvalDataCheck( resultMap,  approals.get(0),  approvalService,  unitId, dataType);
-                        }else{
-                            resultMap.put("aprovalList", new ArrayList<>());
                         }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();

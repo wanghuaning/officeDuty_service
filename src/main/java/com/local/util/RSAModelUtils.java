@@ -4,6 +4,9 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.*;
@@ -105,6 +108,11 @@ public class RSAModelUtils {
     public static String encryptByPublicKey(String data, RSAPublicKey publicKey)
             throws Exception {
         String mi = "";
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        kgen.init(128, new SecureRandom(data.getBytes()));
+        SecretKey secretKey = kgen.generateKey();
+        byte[] enCodeFormat = secretKey.getEncoded();
+        SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
         Cipher cipher = Cipher.getInstance("RSA", new org.bouncycastle.jce.provider.BouncyCastleProvider());
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         // 模长
@@ -115,7 +123,7 @@ public class RSAModelUtils {
 //        for (String s : datas) {
 //        	mi += bcd2Str(cipher.doFinal(s.getBytes()));
 //        }
-        byte[] dataByte = data.getBytes();
+        byte[] dataByte = data.getBytes("utf-8");
 //        System.out.println("dataByte"+dataByte.length);
         byte[][] arrays=splitArray(dataByte, key_len-11);
         for (byte[] bs : arrays) {
@@ -153,6 +161,11 @@ public class RSAModelUtils {
      */
     private static String decryptByPrivateKey(String data, RSAPrivateKey privateKey, boolean flag)
             throws Exception {
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        kgen.init(128, new SecureRandom(data.getBytes()));
+        SecretKey secretKey = kgen.generateKey();
+        byte[] enCodeFormat = secretKey.getEncoded();
+        SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
         Cipher cipher = Cipher.getInstance("RSA", new org.bouncycastle.jce.provider.BouncyCastleProvider());
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         //模长
@@ -169,7 +182,7 @@ public class RSAModelUtils {
 ////        	ming=new String(cipher.doFinal(arr))+ming;
 //		}
         for(byte[] arr : arrays){
-            ming += new String(cipher.doFinal(arr));
+            ming += new String(cipher.doFinal(arr), "UTF-8");
         }
         if(flag==true){
             ming=new StringBuilder(ming).reverse().toString();

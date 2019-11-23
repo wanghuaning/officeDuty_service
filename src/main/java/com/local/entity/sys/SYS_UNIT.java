@@ -252,13 +252,13 @@ public class SYS_UNIT implements Serializable {
     @ApiModelProperty("市名称")
     @Comment("市名称")
     @Column("build_City")
-    @ColDefine(type = ColType.VARCHAR,width = 10)
+    @ColDefine(type = ColType.VARCHAR,width = 64)
     private String buildCity;
 
     @ApiModelProperty("县名称")
     @Comment("县名称")
     @Column("build_County")
-    @ColDefine(type = ColType.VARCHAR,width = 10)
+    @ColDefine(type = ColType.VARCHAR,width = 64)
     private String buildCounty;
 
     @ApiModelProperty("联系人")
