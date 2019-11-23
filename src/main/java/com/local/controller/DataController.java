@@ -337,7 +337,7 @@ public class DataController {
                         DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, unitId);
                         DataManager.userDataCheck(resultMap, users, userService, unitId);
                         if (approals.size()>0){
-                            DataManager.approvalDataCheck( resultMap,  approals.get(0),  approvalService,  unitId, dataType);
+                            DataManager.approvalDataCheck( resultMap,  approals,  approvalService,  unitId, dataType);
                         }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
@@ -544,7 +544,7 @@ public class DataController {
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, objects, null).getJson();
             } else {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+                return new Result(ResultCode.ERROR.toString(), "此数据包为下行数据包", null, null).getJson();
             }
         } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();

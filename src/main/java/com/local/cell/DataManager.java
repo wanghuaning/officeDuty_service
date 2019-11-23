@@ -2016,26 +2016,28 @@ public class DataManager {
             resultMap.put("userEdit", peopleModels);
         }
     }
-    public static void approvalDataCheck(Map<String, Object> resultMap, Sys_Approal approal, ApprovalService approvalService, String unitId,String dataType) {
+    public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, String unitId,String dataType) {
         //人员信息
         List<Sys_Approal> approalList = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
-        if ("上行".equals(dataType)){
-            Sys_Approal localApproval = approvalService.selectApproval(unitId,"1");
-            if (localApproval!=null){
-                localApproval.setDataFlag("上行前");
-                approalList.add(localApproval);
+        for (Sys_Approal approal:approals){
+            if ("上行".equals(dataType)){
+                Sys_Approal localApproval = approvalService.selectApproval(unitId,"1");
+                if (localApproval!=null){
+                    localApproval.setDataFlag("上行前");
+                    approalList.add(localApproval);
+                }
+                approal.setDataFlag("上行后");
+                approalList.add(approal);
+            }else {
+                Sys_Approal localApproval = approvalService.selectApproval(unitId,"0");
+                if (localApproval!=null){
+                    localApproval.setDataFlag("下行前");
+                    approalList.add(localApproval);
+                }
+                approal.setDataFlag("下行后");
+                approalList.add(approal);
             }
-            approal.setDataFlag("上行后");
-            approalList.add(approal);
-        }else {
-            Sys_Approal localApproval = approvalService.selectApproval(unitId,"0");
-            if (localApproval!=null){
-                localApproval.setDataFlag("下行前");
-                approalList.add(localApproval);
-            }
-            approal.setDataFlag("下行后");
-            approalList.add(approal);
         }
         if (approalList.size() > 0) {
             resultMap.put("aprovalList", approalList);
