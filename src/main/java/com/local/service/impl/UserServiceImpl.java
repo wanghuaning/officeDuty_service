@@ -1,7 +1,6 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.REG_User;
 import com.local.entity.sys.*;
 import com.local.service.UserService;
 import com.local.util.StrUtils;
