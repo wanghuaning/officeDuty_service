@@ -22,10 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,14 +65,131 @@ public class DataController {
 
     public DataController() throws IOException {
     }
+    @ApiOperation(value = "市级机关公务员职级职数使用审批表", notes = "市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "市级机关公务员职级职数使用审批表")
+    @PostMapping(value = "/approvalData")
+    @ResponseBody
+     public String getApprovalData(@RequestParam(value = "unitName", required = false) String unitName){
+        SYS_UNIT unit = unitService.selectUnitByName(unitName);
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        ApproalModel approalModel = new ApproalModel();
+        approalModel.setUnitName(unitName);
+        approalModel.setUnitType(unit.getCategory());
+        approalModel.setLevel(unit.getLevel());
+        if (unit.getOfficialNum() > 0) {
+            approalModel.setOfficialNum(String.valueOf(unit.getOfficialNum()));
+        }
+        int researcherTotal = 0;
+        if (unit.getOneTowResearcherNum() > 0) {
+            approalModel.setOneTowResearcherNum(String.valueOf(unit.getOneTowResearcherNum()));
+            researcherTotal += unit.getOneTowResearcherNum();
+        }
+        if (unit.getThreeFourResearcherNum() > 0) {
+            approalModel.setThreeFourResearcherNum(String.valueOf(unit.getThreeFourResearcherNum()));
+            researcherTotal += unit.getThreeFourResearcherNum();
+        }
+        approalModel.setResearcherTotal(String.valueOf(researcherTotal));
+        if (unit.getOneResearcherNum() > 0) {
+            approalModel.setOneResearcherNum(String.valueOf(unit.getOneResearcherNum()));
+        }
+        if (unit.getTowResearcherNum() > 0) {
+            approalModel.setTowResearcherNum(String.valueOf(unit.getTowResearcherNum()));
+        }
+        if (unit.getThreeResearcherNum() > 0) {
+            approalModel.setThreeResearcherNum(String.valueOf(unit.getThreeResearcherNum()));
+        }
+        if (unit.getFourResearcherNum() > 0) {
+            approalModel.setFourResearcherNum(String.valueOf(unit.getFourResearcherNum()));
+        }
+        int clerkTotal = 0;
+        if (unit.getOneTowClerkNum() > 0) {
+            approalModel.setOneTowClerkNum(String.valueOf(unit.getOneTowClerkNum()));
+            clerkTotal += unit.getOneTowClerkNum();
+        }
+        if (unit.getThreeFourClerkNum() > 0) {
+            approalModel.setThreeFourClerkNum(String.valueOf(unit.getThreeFourClerkNum()));
+            clerkTotal += unit.getThreeFourClerkNum();
+        }
+        approalModel.setClerkTotal(String.valueOf(clerkTotal));
+        if (unit.getOneClerkNum() > 0) {
+            approalModel.setOneClerkNum(String.valueOf(unit.getOneClerkNum()));
+        }
+        if (unit.getTowClerkNum() > 0) {
+            approalModel.setTowClerkNum(String.valueOf(unit.getTowClerkNum()));
+        }
+        if (unit.getThreeClerkNum() > 0) {
+            approalModel.setThreeClerkNum(String.valueOf(unit.getThreeClerkNum()));
+        }
+        if (unit.getFourClerkNum() > 0) {
+            approalModel.setFourClerkNum(String.valueOf(unit.getFourClerkNum()));
+        }
+        int oneClerkUserNum = 0;//一级主任科员职数使用
+        int towClerkUserNum = 0;//二级主任科员职数使用
+        int threeClerkUserNum = 0;//三级主任科员职数使用
+        int fourClerkUserNum = 0;//四级主任科员职数使用
+        int userTotal = 0;//使用合计
+        for (SYS_People people : peoples) {
+            SYS_Rank rank = rankService.selectAprodRanksByPid(people.getId());
+            if (rank != null) {
+                if ("一级主任科员".equals(rank.getName())) {
+                    oneClerkUserNum += 1;
+                } else if ("二级主任科员".equals(rank.getName())) {
+                    towClerkUserNum += 1;
+                } else if ("三级主任科员".equals(rank.getName())) {
+                    threeClerkUserNum += 1;
+                } else if ("四级主任科员".equals(rank.getName())) {
+                    fourClerkUserNum += 1;
+                }
+            }
+        }
+        userTotal = oneClerkUserNum + towClerkUserNum + threeClerkUserNum + fourClerkUserNum;
+        approalModel.setUserTotal(String.valueOf(userTotal));
+        if (oneClerkUserNum > 0) {
+            approalModel.setOneClerkUserNum(String.valueOf(oneClerkUserNum));
+        }
+        if (towClerkUserNum > 0) {
+            approalModel.setTowClerkUserNum(String.valueOf(towClerkUserNum));
+        }
+        if (threeClerkUserNum > 0) {
+            approalModel.setThreeClerkUserNum(String.valueOf(threeClerkUserNum));
+        }
+        if (fourClerkUserNum > 0) {
+            approalModel.setFourClerkUserNum(String.valueOf(fourClerkUserNum));
+        }
 
+        int vacancyTotal = 0;
+        if (unit.getOneClerkNum() > oneClerkUserNum) {
+            approalModel.setOneClerkVacancyNum(String.valueOf(unit.getOneClerkNum() - oneClerkUserNum));
+            vacancyTotal += unit.getOneClerkNum() - oneClerkUserNum;
+        }
+        if (unit.getTowClerkNum() > towClerkUserNum) {
+            approalModel.setTowClerkVacancyNum(String.valueOf(unit.getTowClerkNum() - towClerkUserNum));
+            vacancyTotal += unit.getTowClerkNum() - towClerkUserNum;
+        }
+        if (unit.getThreeClerkNum() > threeClerkUserNum) {
+            approalModel.setThreeClerkVacancyNum(String.valueOf(unit.getThreeClerkNum() - threeClerkUserNum));
+            vacancyTotal += unit.getThreeClerkNum() - threeClerkUserNum;
+        }
+        if (unit.getFourClerkNum() > fourClerkUserNum) {
+            approalModel.setFourClerkVacancyNum(String.valueOf(unit.getFourClerkNum() - fourClerkUserNum));
+            vacancyTotal += unit.getFourClerkNum() - fourClerkUserNum;
+        }
+        approalModel.setVacancyTotal(String.valueOf(vacancyTotal));
+        return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
+     }
+    @ApiOperation(value = "修改单位", notes = "修改单位", httpMethod = "POST", tags = "修改单位接口")
+    @PostMapping(value = "/editData")
+    @ResponseBody
+    public String editData(@Validated @RequestBody ApproalModel approalModel) {
+        System.out.println(approalModel.getOfficialNum());
+        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "OK!", null).getJson();
+    }
     @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "GET", tags = "导出晋升职级人员备案名册接口")
     @RequestMapping(value = "/exportDataExcel")
     public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
             , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds) {
         try {
             if ("filingList".equals(flag)) {//备案表
-                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,dutyService);
+                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,dutyService,assessmentService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }
             if ("approval".equals(flag)) {

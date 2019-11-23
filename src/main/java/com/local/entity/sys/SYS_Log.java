@@ -167,7 +167,7 @@ public class SYS_Log implements Serializable {
         String uid = "";
         String uname = "";
         if(!StrUtils.isBlank(user)&&!StrUtils.isBlank(user.getId())){
-            uid = user.getId();
+            uid = user.getUnitId();
         }
         if(!StrUtils.isBlank(user)&&!StrUtils.isBlank(user.getUserAccount())){
             uname = user.getUserAccount();

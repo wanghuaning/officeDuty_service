@@ -6,6 +6,7 @@ import com.local.model.RegModel;
 import com.local.model.ReimbursementModel;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -72,7 +73,7 @@ public class ExcelFileGenerator<T> {
      */
     public int createExcelFileFixedRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        cellStyle.setAlignment(HorizontalAlignment.LEFT);
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
         font.setFontHeightInPoints((short) 12);//设置行高像素
@@ -103,10 +104,10 @@ public class ExcelFileGenerator<T> {
      */
     public int createExcelFileFixedMergeRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns,int cell1,int cell2,int row1,int row2) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
-        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
-        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
-        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
-        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
+//        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+//        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+//        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+//        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
@@ -144,10 +145,10 @@ public class ExcelFileGenerator<T> {
      */
     public int createExcelFileFixedMergeAreaRow(Sheet sheet, int rowIndex, int[] colIndex, String[] columns,int cell1,int cell2,int row1,int row2,HorizontalAlignment area) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
-        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
-        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
-        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
-        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
+//        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+//        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+//        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+//        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
         cellStyle.setAlignment(area);//HorizontalAlignment.CENTER;
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
@@ -660,7 +661,7 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,7,24,data.getNijinshengJiantowClerkNum());
         setValue(sheet,7,25,data.getNijinshengJianThreeClerkNum());
         setValue(sheet,7,26,data.getZhengkeGaitowClerkNum());
-        setValue(sheet,7,27,data.getFukeGaiThreeClerkNum());
+        setValue(sheet,7,27,data.getFukeGaiFourClerkNum());
         setValue(sheet,7,28,data.getTiaozhengzhengke());
         setValue(sheet,7,29,data.getTiaozhengfuke());
         setValue(sheet,7,30,data.getTiaozhengganbu());
@@ -672,6 +673,63 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,7,36,data.getTiaozhengThreeClerkNum());
         setValue(sheet,7,37,data.getTiaozhengFourClerkNum());
         setValue(sheet,7,38,data.getTiaozhengThreeFourJunZhuanNum());
+    }
+    public static int getIndex(int[] arr, int value) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == value) {
+                return i;
+            }
+        }
+        return -1;//如果未找到返回-1
+    }
+    public int createRankApprovalExcelFile(Sheet sheet, int dataStartIndex, List<T> data, String[] columns) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        int[] colarr={0,2,4,6,8,10,12,14,17,20,23,25,27,29,31,33,35,38};
+        int rowIndex = dataStartIndex;
+        if (data.size() > 0) {
+            Class classType = data.get(0).getClass();
+            for (Object d : data) {
+                Row row = sheet.createRow(rowIndex);
+                boolean isChanged = false;
+                for (int i:colarr) {
+                    //合并单元格
+                    CellRangeAddress address=new CellRangeAddress(rowIndex,rowIndex,i,i+1);
+                    Cell c = row.createCell(i+1);
+                    c.setCellStyle(cellStyle);
+                    if (14==i || i==17 | i==20 || i==35 || i==38){
+                        address=new CellRangeAddress(rowIndex,rowIndex,i,i+2);
+                        c = row.createCell(i+2);
+                        c.setCellStyle(cellStyle);
+                    }
+                    c = row.createCell(i);
+                    c.setCellStyle(cellStyle);
+                    sheet.addMergedRegion(address);
+                    cellStyle.setWrapText(true);
+                    int j=getIndex(colarr,i);
+                    if (columns[j] != null && columns[j].length() > 0) {
+                        String normalName = columns[j].substring(0, 1).toUpperCase() + columns[j].substring(1);
+                        Object rs = classType.getMethod("get" + normalName).invoke(d);
+                        if (rs != null) {
+                            isChanged = true;
+                            setCellFormattedValue(c, rs);
+                        }
+                    }
+                }
+                if (isChanged) rowIndex += 1;
+            }
+        }
+        return rowIndex;
     }
     public void createReimbursementExcel(Sheet sheet, ReimbursementModel data) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();

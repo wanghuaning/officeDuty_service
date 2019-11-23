@@ -69,7 +69,18 @@ public class AssessmentServiceImpl implements AssessmentService {
             return null;
         }
     }
-
+    @Override
+    public List<SYS_Assessment> selectAssessmentsByNameAndTime(String name, String peopleId, int year){
+        List<SYS_Assessment> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("name", name).andEquals("people_Id", peopleId).and("year",">=",year);
+        list = dao.query(SYS_Assessment.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     @Override
     public SYS_Assessment selectAssessmentByYear(String peopleId, int year){
         List<SYS_Assessment> list = new ArrayList<>();

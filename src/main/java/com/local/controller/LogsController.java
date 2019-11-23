@@ -37,7 +37,7 @@ public class LogsController {
     @ApiOperation(value = "操作日志", notes = "操作日志", httpMethod = "GET", tags = "操作日志接口")
     @GetMapping("/user")
     @ResponseBody
-    public String getUnits(@RequestParam(value = "size", required = false) String pageSize,
+    public String getLogs(@RequestParam(value = "size", required = false) String pageSize,
                            @RequestParam(value = "page", required = false) String pageNumber,
                            @RequestParam(value = "name", required = false) String name,HttpServletRequest request) {
         try {
@@ -49,10 +49,35 @@ public class LogsController {
             //通过token从redis中取出当前登录
             SYS_USER user=redisUtil.getUserByKey(token);
             if (user!=null){
-                QueryResult queryResult = logsService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),user.getId(),name);
+                QueryResult queryResult = logsService.selectLogs(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),user.getId(),name);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             }else {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
+    @GetMapping("/logs")
+    @ResponseBody
+    public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+                             @RequestParam(value = "name", required = false) String name,HttpServletRequest request) {
+        try {
+            String token=request.getHeader("userToken");
+            if (token==null || "".equals(token)){
+                //从请求的url中取出当前登录的登录
+                token=request.getParameter("userToken");
+            }
+            //通过token从redis中取出当前登录
+            SYS_USER user=redisUtil.getUserByKey(token);
+            if (user!=null) {
+                QueryResult queryResult = logsService.selectLogss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), name,user.getUnitId());
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
             }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
