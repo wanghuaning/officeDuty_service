@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ApproalModel {
+    private String id;
     private String unitName;
     private String unitType;//机构性质
     private String level;//机构规格

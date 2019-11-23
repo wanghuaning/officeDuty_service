@@ -49,7 +49,7 @@ public class LogsController {
             //通过token从redis中取出当前登录
             SYS_USER user=redisUtil.getUserByKey(token);
             if (user!=null){
-                QueryResult queryResult = logsService.selectLogs(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),user.getId(),name);
+                QueryResult queryResult = logsService.selectLogs(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),user.getUserAccount(),name);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             }else {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();

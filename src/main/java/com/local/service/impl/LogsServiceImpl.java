@@ -23,7 +23,7 @@ public class LogsServiceImpl implements LogsService {
     private Dao dao;
     private static List<SYS_UNIT> cunits=new ArrayList<>();
     @Override
-    public QueryResult selectLogs(int pageSize, int pageNumber, String userId,String name){
+    public QueryResult selectLogs(int pageSize, int pageNumber, String username,String name){
         Pager pager=new Pager();
         pager.setPageNumber(pageNumber+1);
         pager.setPageSize(pageSize);
@@ -32,7 +32,7 @@ public class LogsServiceImpl implements LogsService {
         if (!StrUtils.isBlank(name)){
             cri.where().andLike("tag","%"+name+"%");
         }
-        cri.where().andEquals("op_By",userId);
+        cri.where().andEquals("op_Name",username);
         cri.getOrderBy().desc("op_Time");
         peopleList = dao.query(SYS_Log.class,cri,pager);
         if (StrUtils.isBlank(pager)){
