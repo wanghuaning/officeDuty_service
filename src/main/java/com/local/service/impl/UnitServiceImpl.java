@@ -1,7 +1,6 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.elsys.ElSysDept;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.UnitService;
 import com.local.util.StrUtils;
