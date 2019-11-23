@@ -46,4 +46,30 @@ public class ApprovalServiceImpl implements ApprovalService {
             return null;
         }
     }
+    @Override
+    public List<Sys_Approal> selectApprovals(String unitId){
+        List<Sys_Approal> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("unit_Id", unitId);
+        cir.getOrderBy().desc("create_Time");
+        list = dao.query(Sys_Approal.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Sys_Approal selectApprovalById(String id){
+        List<Sys_Approal> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("id", id);
+        list = dao.query(Sys_Approal.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
 }

@@ -190,6 +190,7 @@ public class DataController {
             objects.addAll(unitList);
             List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
             List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
+            List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService,dataType);
             if (peopleList.size() > 0) {
                 objects.addAll(peopleList);
                 List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
@@ -203,6 +204,8 @@ public class DataController {
                 List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
                 objects.addAll(assessmentList);
             }
+            objects.addAll(userList);
+            objects.addAll(approvalList);
             JSONObject resultList = JSONObject.fromObject(resultMap);
             paramsMap.put("result", resultList);
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
@@ -229,6 +232,7 @@ public class DataController {
         try {
             List<SYS_UNIT> units = new ArrayList<>();
             List<SYS_USER> users = new ArrayList<>();
+            List<Sys_Approal> approals=new ArrayList<>();
             List<SYS_People> peoples = new ArrayList<>();
             List<SYS_Duty> duties = new ArrayList<>();
             List<SYS_Rank> ranks = new ArrayList<>();
@@ -254,6 +258,7 @@ public class DataController {
                 JSONArray educationList = key.getJSONArray("educationList");
                 JSONArray rewardList = key.getJSONArray("rewardList");
                 JSONArray assessmentList = key.getJSONArray("assessmentList");
+                JSONArray approvalList=key.getJSONArray("approvalList");
                 SYS_UNIT unit = unitService.selectUnitById(unitId);
                 if (unit == null) {
                     unit = unitService.selectUnitByName(unitName);
@@ -270,6 +275,12 @@ public class DataController {
                         users = DataManager.saveUserJsonModel(userList);
                         if (users.size() > 0) {
                             DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "user", gson.toJson(users));
+                        }
+                        if (approvalList!=null){
+                            approals=DataManager.saveApproalJsonModel(approvalList);
+                            if (approals.size()>0){
+                                DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "approval", gson.toJson(approals));
+                            }
                         }
                         if (peopleList != null) {
                             peoples = DataManager.savePeopleJsonModel(peopleList);
@@ -308,6 +319,11 @@ public class DataController {
                         DataManager.rewardDataCheck(resultMap, rewards, rewardService, unitId);
                         DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, unitId);
                         DataManager.userDataCheck(resultMap, users, userService, unitId);
+                        if (approals.size()>0){
+                            DataManager.approvalDataCheck( resultMap,  approals.get(0),  approvalService,  unitId, dataType);
+                        }else{
+                            resultMap.put("aprovalList", new ArrayList<>());
+                        }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
                 } else {
@@ -330,6 +346,7 @@ public class DataController {
         try {
             List<SYS_UNIT> units = new ArrayList<>();
             List<SYS_USER> users = new ArrayList<>();
+            List<Sys_Approal> approals = new ArrayList<>();
             List<SYS_People> peoples = new ArrayList<>();
             List<SYS_Duty> duties = new ArrayList<>();
             List<SYS_Rank> ranks = new ArrayList<>();
@@ -353,6 +370,7 @@ public class DataController {
                     String unitName = String.valueOf(key.get("unitName"));
                     JSONArray unitList = key.getJSONArray("unitList");
                     JSONArray userList = key.getJSONArray("userList");
+                    JSONArray aprovalList = key.getJSONArray("approvalList");
                     JSONArray peopleList = key.getJSONArray("peopleList");
                     JSONArray rankList = key.getJSONArray("rankList");
                     JSONArray dutyList = key.getJSONArray("dutyList");
@@ -379,6 +397,12 @@ public class DataController {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "user", gson.toJson(users));
                                 DataManager.saveUserData(users, userService, unitID);
                                 objects.add(users);
+                            }
+                            approals = DataManager.saveApproalJsonModel(aprovalList);
+                            if (approals.size() > 0) {
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals));
+                                DataManager.saveApprovalData(approals,  approvalService, unitID);
+                                objects.add(approals);
                             }
                             if (peopleList != null) {
                                 peoples = DataManager.savePeopleJsonModel(peopleList);
@@ -493,6 +517,13 @@ public class DataController {
                         if (sys_users.size() > 0) {
                             DataManager.saveUserData(sys_users, userService, dataInfo.getUnitId());
                             objects.add(sys_users);
+                        }
+                    }else if (dataInfo.getId().contains("approval")) {
+                        List<Sys_Approal> sys_approals = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Approal>>() {
+                        }.getType());
+                        if (sys_approals.size() > 0) {
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId());
+                            objects.add(sys_approals);
                         }
                     }
                 }

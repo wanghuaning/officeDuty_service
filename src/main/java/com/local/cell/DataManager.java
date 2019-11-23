@@ -1215,6 +1215,25 @@ public class DataManager {
         resultMap.put("assessmentList", array);
         return assessmentList;
     }
+    public static List<Sys_Approal> getApproalJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ApprovalService approvalService,String dataType) {
+        List<Sys_Approal> approvalList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            if ("上行".equals(dataType)){
+                Sys_Approal approals = approvalService.selectApproval(unit.getId(),"0");
+                if (approals != null) {
+                    approvalList.add(approals);
+                }
+            }else {
+                Sys_Approal approal = approvalService.selectApproval(unit.getId(),"1");
+                if (approal != null) {
+                    approvalList.add(approal);
+                }
+            }
+        }
+        JSONArray array = JSONArray.fromObject(approvalList);
+        resultMap.put("approvalList", array);
+        return approvalList;
+    }
 
     /**
      * 获取单位json数据
@@ -1280,7 +1299,33 @@ public class DataManager {
         }
         return users;
     }
-
+    public static List<Sys_Approal> saveApproalJsonModel(JSONArray approalList) {
+        List<Sys_Approal> approals = new ArrayList<>();
+        for (int i = 0; i < approalList.size(); i++) {
+            Sys_Approal approal = new Sys_Approal();
+            JSONObject key = (JSONObject) approalList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(approal, key);
+                approal.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                approals.add(approal);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return approals;
+    }
     /**
      * 获取人员数据json
      *
@@ -1648,7 +1693,7 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys.size() > 0) {
+        if (localDutys!=null) {
             for (SYS_Duty people : localDutys) {
                 boolean isdelete = true;
                 for (SYS_Duty people1 : duties) {
@@ -1888,7 +1933,7 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys.size() > 0) {
+        if (localDutys!=null) {
             for (SYS_Assessment people : localDutys) {
                 boolean isdelete = true;
                 for (SYS_Assessment people1 : duties) {
@@ -1947,16 +1992,18 @@ public class DataManager {
                 }
             }
         }
-        //人员删除
-        for (SYS_USER people : localDutys) {
-            boolean isdelete = true;
-            for (SYS_USER people1 : duties) {
-                if (people.getId().equals(people1.getId())) {
-                    isdelete = false;
+        if (localDutys!=null){
+            //人员删除
+            for (SYS_USER people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_USER people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
+                    }
                 }
-            }
-            if (isdelete) {
-                deletePeoples.add(people);
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
         }
         if (deletePeoples.size() > 0) {
@@ -1969,7 +2016,31 @@ public class DataManager {
             resultMap.put("userEdit", peopleModels);
         }
     }
-
+    public static void approvalDataCheck(Map<String, Object> resultMap, Sys_Approal approal, ApprovalService approvalService, String unitId,String dataType) {
+        //人员信息
+        List<Sys_Approal> approalList = new ArrayList<>();
+        List<DataModel> peopleModels = new ArrayList<>();
+        if ("上行".equals(dataType)){
+            Sys_Approal localApproval = approvalService.selectApproval(unitId,"1");
+            if (localApproval!=null){
+                localApproval.setDataFlag("上行前");
+                approalList.add(localApproval);
+            }
+            approal.setDataFlag("上行后");
+            approalList.add(approal);
+        }else {
+            Sys_Approal localApproval = approvalService.selectApproval(unitId,"0");
+            if (localApproval!=null){
+                localApproval.setDataFlag("下行前");
+                approalList.add(localApproval);
+            }
+            approal.setDataFlag("下行后");
+            approalList.add(approal);
+        }
+        if (approalList.size() > 0) {
+            resultMap.put("aprovalList", approalList);
+        }
+    }
     /**
      * 插入单位下行数据
      *
@@ -2278,5 +2349,26 @@ public class DataManager {
             }
         }
         return userList;
+    }
+
+    /**
+     * 上行或下行
+     * @param approals
+     * @param approvalService
+     * @param unitId
+     * @return
+     */
+    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId) {
+        List<Sys_Approal> approalList = new ArrayList<>();
+        for (Sys_Approal approal : approals) {
+            approalList.add(approal);
+            Sys_Approal approal1 = approvalService.selectApprovalById(approal.getId());
+            if (approal1 != null) {
+                approvalService.updataApproal(approal);
+            } else {
+                approvalService.insertApproal(approal);
+            }
+        }
+        return approalList;
     }
 }
