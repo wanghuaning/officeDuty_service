@@ -61,18 +61,25 @@ public class RankController {
                 rank.setPeopleName(people.getName());
                 rank.setUnitId(people.getUnitId());
                 rankService.insertRank(rank);
-                SYS_Rank sys_rank=rankService.selectRankByPidOrderByTime(people.getId());
+                SYS_Rank sys_rank=rankService.selectNowRankByPidOrderByTime(people.getId());
+                SYS_Rank rankTurn=rankService.selectTurnRankById(people.getId());
+                if (rankTurn!=null){
+                    people.setTurnRank(rankTurn.getName());
+                    people.setTurnRankTime(rankTurn.getCreateTime());
+                }else {
+                    people.setTurnRank("");
+                    people.setTurnRankTime(null);
+                }
                 if (sys_rank!=null){
-                    if (sys_rank.getStatus().contains("在任")){
                         people.setPositionLevel(sys_rank.getName());
                         people.setPositionLevelTime(sys_rank.getCreateTime());
                         peopleService.updatePeople(people);
                     }else {
                         people.setPositionLevel("");
                         people.setPositionLevelTime(null);
+
                         peopleService.updatePeople(people);
                     }
-                }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
             }else {
                 return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
@@ -94,12 +101,24 @@ public class RankController {
             }else {
                 SYS_Rank rank=rankService.selectRankById(id);
                 SYS_People people=peopleService.selectPeopleById(rank.getPeopleId());
+                SYS_Rank rankTurn=rankService.selectTurnRankById(people.getId());
                 if (people!=null){
                     rankService.deleteRank(id);
-                    SYS_Rank sys_rank=rankService.selectRankByPidOrderByTime(people.getId());
+                    SYS_Rank sys_rank=rankService.selectNowRankByPidOrderByTime(people.getId());
+                    if (rankTurn!=null){
+                        people.setTurnRank(rankTurn.getName());
+                        people.setTurnRankTime(rankTurn.getCreateTime());
+                    }else {
+                        people.setTurnRank("");
+                        people.setTurnRankTime(null);
+                    }
                     if (sys_rank!=null){
                         people.setPositionLevel(sys_rank.getName());
                         people.setPositionLevelTime(sys_rank.getCreateTime());
+                        peopleService.updatePeople(people);
+                    }else {
+                        people.setPositionLevel("");
+                        people.setPositionLevelTime(null);
                         peopleService.updatePeople(people);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
@@ -125,10 +144,22 @@ public class RankController {
                     rank.setPeopleName(people.getName());
                     rank.setUnitId(people.getUnitId());
                     rankService.updateRank(rank);
-                    SYS_Rank sys_rank=rankService.selectRankByPidOrderByTime(people.getId());
+                    SYS_Rank sys_rank=rankService.selectNowRankByPidOrderByTime(people.getId());
+                    SYS_Rank rankTurn=rankService.selectTurnRankById(people.getId());
+                    if (rankTurn!=null){
+                        people.setTurnRank(rankTurn.getName());
+                        people.setTurnRankTime(rankTurn.getCreateTime());
+                    }else {
+                        people.setTurnRank("");
+                        people.setTurnRankTime(null);
+                    }
                     if (sys_rank!=null){
                         people.setPositionLevel(sys_rank.getName());
                         people.setPositionLevelTime(sys_rank.getCreateTime());
+                        peopleService.updatePeople(people);
+                    }else {
+                        people.setPositionLevel("");
+                        people.setPositionLevelTime(null);
                         peopleService.updatePeople(people);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, rank, null).getJson();

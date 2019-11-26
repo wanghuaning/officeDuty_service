@@ -54,9 +54,8 @@ public class DutyController {
                 duty.setPeopleName(people.getName());
                 duty.setUnitId(people.getUnitId());
                 dutyService.insertDuty(duty);
-                SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                SYS_Duty sys_duty=dutyService.selectNowDutyByPidOrderByTime(people.getId());
                 if (sys_duty!=null){
-                    if (sys_duty.getStatus().contains("在任")){
                         people.setPosition(sys_duty.getName());
                         people.setPositionTime(sys_duty.getCreateTime());
                         peopleService.updatePeople(people);
@@ -64,7 +63,6 @@ public class DutyController {
                         people.setPosition("");
                         people.setPositionTime(null);
                         peopleService.updatePeople(people);
-                    }
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, duty, null).getJson();
             }else {
@@ -89,9 +87,8 @@ public class DutyController {
                 SYS_People people=peopleService.selectPeopleById(duty.getPeopleId());
                 if (people!=null){
                     dutyService.deleteDuty(id);
-                    SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                    SYS_Duty sys_duty=dutyService.selectNowDutyByPidOrderByTime(people.getId());
                     if (sys_duty!=null){
-                        if (sys_duty.getStatus().contains("在任")){
                             people.setPosition(sys_duty.getName());
                             people.setPositionTime(sys_duty.getCreateTime());
                             peopleService.updatePeople(people);
@@ -99,7 +96,6 @@ public class DutyController {
                             people.setPosition("");
                             people.setPositionTime(null);
                             peopleService.updatePeople(people);
-                        }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
                 }else {
@@ -124,9 +120,8 @@ public class DutyController {
                     duty.setPeopleName(people.getName());
                     duty.setUnitId(people.getUnitId());
                     dutyService.updateDuty(duty);
-                    SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                    SYS_Duty sys_duty=dutyService.selectNowDutyByPidOrderByTime(people.getId());
                     if (sys_duty!=null) {
-                        if (sys_duty.getStatus().contains("在任")) {
                             people.setPosition(sys_duty.getName());
                             people.setPositionTime(sys_duty.getCreateTime());
                             peopleService.updatePeople(people);
@@ -134,7 +129,6 @@ public class DutyController {
                             people.setPosition("");
                             people.setPositionTime(null);
                             peopleService.updatePeople(people);
-                        }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, duty, null).getJson();
                 }else {

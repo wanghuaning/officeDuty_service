@@ -10,8 +10,10 @@ import java.util.List;
 public interface RankService {
     QueryResult selectRanks(int pageSize, int pageNumber, String pid);
     SYS_Rank selectRankById(String id);
+    SYS_Rank selectTurnRankById(String id);
     SYS_Rank selectRankByPidOrderByTime(String pid);
     SYS_Rank selectEnableRankByPidOrderByTime(String pid);
+    SYS_Rank selectNowRankByPidOrderByTime(String pid);
     SYS_Rank selectRankByNameAndTime(String name, String peopleId, Date createTime);
     SYS_Rank selectNotAproRanksByPid(String pid);
     SYS_Rank selectAprodRanksByPid(String pid);

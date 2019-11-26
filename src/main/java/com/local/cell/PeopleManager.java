@@ -207,13 +207,9 @@ public class PeopleManager {
                             rank.setStatus(StrUtils.toNullStr(map.get("状态")));
                             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
                             rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
-                            String serveTime=String.valueOf(map.get("终止日期"));
-                            if (!StrUtils.isBlank(serveTime)){
-                                rank.setServeTime(DateUtil.stringToDate(serveTime));
-                            }
                             rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
                             String approvalTime=String.valueOf(map.get("审批日期"));
-                            if (!StrUtils.isBlank(serveTime)){
+                            if (!StrUtils.isBlank(approvalTime)){
                                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
                             }
                             SYS_Rank rank1=rankService.selectRankByNameAndTime(rank.getName(),people.getId(),rank.getCreateTime());
@@ -474,6 +470,11 @@ public class PeopleManager {
         }
         return peopleList;
     }
+
+//    public SYS_Rank saveTurnRank(String name, String createTime){
+//        SYS_Rank rank=new SYS_Rank();
+//        rank.setId();
+//    }
     /**
      * 获取批次号
      */

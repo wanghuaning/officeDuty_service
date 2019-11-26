@@ -135,27 +135,53 @@ public class DataManager {
         return approalModel;
     }
 
+    public static List<RankModel> filingDataList(UnitService unitService, String unitName, HttpServletResponse response,
+                                             PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService) throws Exception {
+        List<RankModel> rankModels = new ArrayList<>();
+        SYS_UNIT unit = unitService.selectUnitByName(unitName);
+        RegModel model = new RegModel();
+        model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
+        model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
+        model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        if (peoples != null) {
+            Long xianyouZhengke = 0L;
+            Long xianyouFuke = 0L;
+            Long xianyouGanbu=0L;
+            for (SYS_People people : peoples) {
+                SYS_Duty produty = dutyService.selectProDutyByPidOrderByTime(people.getId());
+                SYS_Duty nowduty = dutyService.selectNotProDutyByPidOrderByTime(people.getId());
+                if (produty != null) {
+                    if (nowduty!=null){
+                        if (nowduty.getName().contains("乡科级正职")){
+                            xianyouZhengke++;
+                            if (people.getDetail().contains("实名制管理领导干部")){
+                                xianyouGanbu++;
+                            }
+                        }else if (nowduty.getName().contains("乡科级副职")){
+                            xianyouFuke++;
+                            if (people.getDetail().contains("实名制管理领导干部")){
+                                xianyouGanbu++;
+                            }
+                        }
+                    }
+                }
+            }
+            model.setXianyouzhengke(Long.toString(xianyouZhengke));//现有正科
+            model.setXianyoufuke(Long.toString(xianyouFuke));//现有副科
+            model.setXianyouganbu(Long.toString(xianyouGanbu));//现有
+            model.setHezhunoneTowClerkNum(Long.toString(unit.getOneTowClerkNum()));//核准职级职数一级、二级
+            model.setHezhunthreeFourClerkNum(Long.toString(unit.getThreeFourClerkNum()));//核准职级职数三级、四级
+
+//            SYS_Rank nowRank=rankService.selectAprodRanksByPid()
+
+        }
+        return rankModels;
+    }
     public static List<RankModel> filingList(UnitService unitService, String unitName, HttpServletResponse response,
                                              PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService) throws Exception {
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
         RegModel model = new RegModel();
-        model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));
-        model.setNdzhengke(Long.toString(unit.getMainHallNum()));
-        model.setNdfuke(Long.toString(unit.getDeputyHallNum()));
-        List<SYS_People> zhengkes = peopleService.selectPeoplesByUnitIdAndDuty(unit.getId(), "乡科级正职");
-        if (zhengkes != null) {
-            model.setXianyouzhengke(Integer.toString(zhengkes.size()));
-        }
-        List<SYS_People> fukes = peopleService.selectPeoplesByUnitIdAndDuty(unit.getId(), "乡科级副职");
-        if (fukes != null) {
-            model.setXianyoufuke(Integer.toString(fukes.size()));
-        }
-        List<SYS_People> countRealName = peopleService.selectPeoplesByUnitIdAndRealName(unit.getId());
-        if (countRealName != null) {
-            model.setXianyouganbu(Integer.toString(countRealName.size()));
-        }
-        model.setHezhunoneTowClerkNum(Long.toString(unit.getOneTowClerkNum()));
-        model.setHezhunthreeFourClerkNum(Long.toString(unit.getThreeFourClerkNum()));
         List<SYS_People> oneKranks = peopleService.selectPeoplesByUnitIdAndRank(unit.getId(), "一级主任科员");
         if (oneKranks != null) {
             model.setXianyouoneClerkNum(Long.toString(oneKranks.size()));
@@ -185,6 +211,13 @@ public class DataManager {
             Long jianrenThree = 0L;
             Long gaiTow = 0L;
             Long gaiFour = 0L;
+            Long niZhengke= 0L;
+            Long niFuke=0L;
+            Long niGanBu=0L;
+            Long niOne=0L;
+            Long niTow=0L;
+            Long niThree=0L;
+            Long niFour=0L;
             for (SYS_People people : peoples) {
                 SYS_Rank rank = rankService.selectRankByPidOrderByTime(people.getId());
                 if (rank != null) {
@@ -196,7 +229,7 @@ public class DataManager {
                         }
                     }
                 }
-                SYS_Duty duty = dutyService.selectDutyByPidOrderByTime(people.getId());
+                SYS_Duty duty = dutyService.selectProDutyByPidOrderByTime(people.getId());
                 if (duty != null) {
                     if (duty.getDjunct().contains("是") && duty.getStatus().contains("在任")) {
                         if (rank != null) {
@@ -226,8 +259,25 @@ public class DataManager {
                         }
                     }
                 }
+                model.setXianyouOneTowJunZhuanNum(Long.toString(oneTowRank));
+                model.setXianyouThreeFourJunZhuanNum(Long.toString(threeFourRank));
+                //拟晋升
+                SYS_Duty niduty = dutyService.selectProDutyByPidOrderByTime(people.getId());
+                if (niduty!=null){
+                    if (niduty.getName().contains("乡科级正职")){
+                        niZhengke++;
+                    }else if (niduty.getName().contains("乡科级副职")){
+                        niFuke++;
+                    }
+                }
+                model.setNijinshengJianZhioneClerkNum(Long.toString(jianrenOne));
+                model.setNijinshengJiantowClerkNum(Long.toString(jianrenTow));
+                model.setNijinshengJianThreeClerkNum(Long.toString(jianrenThree));
+                model.setZhengkeGaitowClerkNum(Long.toString(gaiTow));
+                model.setFukeGaiFourClerkNum(Long.toString(gaiFour));
                 SYS_Rank nirenrank = rankService.selectNotAproRanksByPid(people.getId());
                 if (nirenrank != null) {
+
                     order++;
                     int ayear = 2019;
                     SYS_Rank nowrank = rankService.selectAprodRanksByPid(people.getId());
@@ -267,13 +317,6 @@ public class DataManager {
                 }
 
             }
-            model.setXianyouOneTowJunZhuanNum(Long.toString(oneTowRank));
-            model.setXianyouThreeFourJunZhuanNum(Long.toString(threeFourRank));
-            model.setNijinshengJianZhioneClerkNum(Long.toString(jianrenOne));
-            model.setNijinshengJiantowClerkNum(Long.toString(jianrenTow));
-            model.setNijinshengJianThreeClerkNum(Long.toString(jianrenThree));
-            model.setZhengkeGaitowClerkNum(Long.toString(gaiTow));
-            model.setFukeGaiFourClerkNum(Long.toString(gaiFour));
         }
         if (peoples != null) {
             for (SYS_People people : peoples) {
@@ -919,10 +962,6 @@ public class DataManager {
             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
             rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
             rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
-            String serveTime = String.valueOf(map.get("终止日期"));
-            if (!StrUtils.isBlank(serveTime)) {
-                rank.setServeTime(DateUtil.stringToDate(serveTime));
-            }
             rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
             String approvalTime = String.valueOf(map.get("审批日期"));
             if (!StrUtils.isBlank(approvalTime)) {
@@ -1416,7 +1455,6 @@ public class DataManager {
             JSONObject key = (JSONObject) rankList.get(i);
             try {
                 EntityUtil.setReflectModelValue(rank, key);
-                rank.setServeTime(DateUtil.stringToDate(String.valueOf(key.get("serveTimeStr"))));
                 rank.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
                 rank.setApprovalTime(DateUtil.stringToDate(String.valueOf(key.get("approvalTimeStr"))));
                 rank.setDutyTime(DateUtil.stringToDate(String.valueOf(key.get("dutyTimeStr"))));

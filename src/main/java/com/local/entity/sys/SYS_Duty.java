@@ -117,6 +117,58 @@ public class SYS_Duty implements Serializable {
 
   private String dutyTimeStr;
 
+  @ApiModelProperty("审批时间")
+  @Comment("审批时间")
+  @Column("approval_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date approvalTime;
+
+  private String approvalTimeStr;
+
+  @ApiModelProperty("免职审批时间")
+  @Comment("免职审批时间")
+  @Column("serve_Approval_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date serveApprovalTime;
+
+  private String serveApprovalTimeStr;
+
+  public Date getServeApprovalTime() {
+    return serveApprovalTime;
+  }
+
+  public void setServeApprovalTime(Date serveApprovalTime) {
+    this.serveApprovalTime = serveApprovalTime;
+  }
+
+  public String getServeApprovalTimeStr() {
+    return DateUtil.dateToString(serveApprovalTime);
+  }
+
+  public void setServeApprovalTimeStr(String serveApprovalTimeStr) {
+    this.serveApprovalTimeStr = serveApprovalTimeStr;
+  }
+
+  public Date getApprovalTime() {
+    return approvalTime;
+  }
+
+  public void setApprovalTime(Date approvalTime) {
+    this.approvalTime = approvalTime;
+  }
+
+  public String getApprovalTimeStr() {
+    return DateUtil.dateToString(approvalTime);
+  }
+
+  public void setApprovalTimeStr(String approvalTimeStr) {
+    this.approvalTimeStr = approvalTimeStr;
+  }
+
   public String getDutyTimeStr() {
     return DateUtil.dateToString(dutyTime);
   }

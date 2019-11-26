@@ -635,8 +635,8 @@ public class ExcelFileGenerator<T> {
         cellStyle.setFont(font);
         cellStyle.setWrapText(true);
         setValue(sheet,7,0,data.getPeopleNums());
-        setValue(sheet,7,1,data.getNdzhengke());
-        setValue(sheet,7,2,data.getNdfuke());
+        setValue(sheet,7,1,data.getHdzhengke());
+        setValue(sheet,7,2,data.getHdfuke());
         setValue(sheet,7,3,data.getXianyouzhengke());
         setValue(sheet,7,4,data.getXianyoufuke());
         setValue(sheet,7,5,data.getXianyouganbu());

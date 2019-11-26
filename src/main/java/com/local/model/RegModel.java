@@ -5,8 +5,8 @@ import lombok.Data;
 @Data
 public class RegModel {
     private String peopleNums;//编制数
-    private String ndzhengke;//拟定正科
-    private String ndfuke;//拟定副科
+    private String hdzhengke;//核定正科
+    private String hdfuke;//核定副科
     private String xianyouzhengke;//现有正科
     private String xianyoufuke;//现有副科
     private String xianyouganbu;//现有实名制干部

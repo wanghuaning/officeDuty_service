@@ -51,16 +51,6 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String status;
 
-  @ApiModelProperty("终止日期")
-  @Comment("终止日期")
-  @Column("serve_Time")
-  @DateTimeFormat(pattern = "yyyy-MM-dd")
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  @ColDefine(type = ColType.DATETIME)
-  private Date serveTime;
-
-  private String serveTimeStr;
-
   @ApiModelProperty("批准文号")
   @Comment("批准文号")
   @Column("document_Number")
@@ -155,6 +145,31 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 8)
   private String flag;
 
+  @ApiModelProperty("免职审批时间")
+  @Comment("免职审批时间")
+  @Column("serve_Approval_Time")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @ColDefine(type = ColType.DATETIME)
+  private Date serveApprovalTime;
+
+  private String serveApprovalTimeStr;
+
+  public Date getServeApprovalTime() {
+    return serveApprovalTime;
+  }
+
+  public void setServeApprovalTime(Date serveApprovalTime) {
+    this.serveApprovalTime = serveApprovalTime;
+  }
+
+  public String getServeApprovalTimeStr() {
+    return DateUtil.dateToString(serveApprovalTime);
+  }
+
+  public void setServeApprovalTimeStr(String serveApprovalTimeStr) {
+    this.serveApprovalTimeStr = serveApprovalTimeStr;
+  }
   public String getFlag() {
     return flag;
   }
@@ -235,13 +250,6 @@ public class SYS_Rank implements Serializable {
     this.createTimeStr = createTimeStr;
   }
 
-  public String getServeTimeStr() {
-    return DateUtil.dateToString(serveTime);
-  }
-
-  public void setServeTimeStr(String serveTimeStr) {
-    this.serveTimeStr = serveTimeStr;
-  }
 
   public String getApprovalTimeStr() {
     return DateUtil.dateToString(approvalTime);
@@ -329,14 +337,6 @@ public class SYS_Rank implements Serializable {
 
   public void setStatus(String status) {
     this.status = status;
-  }
-
-  public Date getServeTime() {
-    return DateUtil.parseDateYMD(serveTime);
-  }
-
-  public void setServeTime(Date serveTime) {
-    this.serveTime = serveTime;
   }
 
   public String getDocumentNumber() {

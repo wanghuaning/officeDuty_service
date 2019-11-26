@@ -1,7 +1,6 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.elsys.ElSysRole;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;

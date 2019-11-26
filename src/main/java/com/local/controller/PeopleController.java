@@ -91,6 +91,9 @@ public class PeopleController {
                 people.setPeopleOrder(peopleById.getPeopleOrder());
                 people.setUnitId(peopleById.getUnitId());
                 peopleService.updatePeople(people);
+                if (!StrUtils.isBlank(people.getTurnRank())){
+
+                }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, people, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
