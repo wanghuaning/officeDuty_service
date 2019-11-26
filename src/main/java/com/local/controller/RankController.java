@@ -60,6 +60,10 @@ public class RankController {
                 rank.setId(uuid);
                 rank.setPeopleName(people.getName());
                 rank.setUnitId(people.getUnitId());
+                SYS_Rank rankTurn1=rankService.selectTurnRankById(people.getId());
+                if (rankTurn1!=null && "是".equals(rank.getFlag())){
+                    return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
+                }
                 rankService.insertRank(rank);
                 SYS_Rank sys_rank=rankService.selectNowRankByPidOrderByTime(people.getId());
                 SYS_Rank rankTurn=rankService.selectTurnRankById(people.getId());
@@ -143,6 +147,10 @@ public class RankController {
                 if (people!=null){
                     rank.setPeopleName(people.getName());
                     rank.setUnitId(people.getUnitId());
+                    SYS_Rank rank1=rankService.selectTurnNotSelfRankById(people.getId(),rank.getId());
+                    if (rank1!=null && "是".equals(rank.getFlag())){
+                        return new Result(ResultCode.ERROR.toString(), "职级只能有一条！", null, null).getJson();
+                    }
                     rankService.updateRank(rank);
                     SYS_Rank sys_rank=rankService.selectNowRankByPidOrderByTime(people.getId());
                     SYS_Rank rankTurn=rankService.selectTurnRankById(people.getId());

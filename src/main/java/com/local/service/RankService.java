@@ -11,6 +11,7 @@ public interface RankService {
     QueryResult selectRanks(int pageSize, int pageNumber, String pid);
     SYS_Rank selectRankById(String id);
     SYS_Rank selectTurnRankById(String id);
+    SYS_Rank selectTurnNotSelfRankById(String pid,String rid);
     SYS_Rank selectRankByPidOrderByTime(String pid);
     SYS_Rank selectEnableRankByPidOrderByTime(String pid);
     SYS_Rank selectNowRankByPidOrderByTime(String pid);

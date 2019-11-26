@@ -126,6 +126,19 @@ public class RankServiceImpl implements RankService {
             return null;
         }
     }
+
+    @Override
+    public SYS_Rank selectTurnNotSelfRankById(String pid,String rid){
+        List<SYS_Rank> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid).andEquals("flag", "是").andNotEquals("id",rid);
+        list = dao.query(SYS_Rank.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
     @Override
     public SYS_Rank selectNowRankByPidOrderByTime(String pid){
         List<SYS_Rank> list = new ArrayList<>();

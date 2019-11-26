@@ -128,8 +128,8 @@ public class UnitManager {
      * @param um
      */
     public static void saveTurnRank(RankService rankService, String unitId, UnitModel um) {
-        List<SYS_Rank> oneranks = rankService.selectRanksFlagByUnitId(unitId, "1", "一级调研员");
-        List<SYS_Rank> towranks = rankService.selectRanksFlagByUnitId(unitId, "1", "二级调研员");
+        List<SYS_Rank> oneranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级调研员");
+        List<SYS_Rank> towranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级调研员");
         if (oneranks != null) {
             um.setOneResearcherNumTurn(oneranks.size());
         }else {
@@ -141,58 +141,58 @@ public class UnitManager {
             um.setTowResearcherNumTurn(0);
         }
         um.setOneTowResearcherNumTurn(um.getOneResearcherNumTurn() + um.getTowResearcherNumTurn());
-        List<SYS_Rank> threeranks = rankService.selectRanksFlagByUnitId(unitId, "1", "三级调研员");
+        List<SYS_Rank> threeranks = rankService.selectRanksFlagByUnitId(unitId, "是", "三级调研员");
         if (threeranks != null) {
             um.setThreeResearcherNumTurn(threeranks.size());
         }else {
             um.setThreeResearcherNumTurn(0);
         }
-        List<SYS_Rank> fourranks = rankService.selectRanksFlagByUnitId(unitId, "1", "四级调研员");
+        List<SYS_Rank> fourranks = rankService.selectRanksFlagByUnitId(unitId, "是", "四级调研员");
         if (fourranks != null) {
             um.setFourResearcherNumTurn(fourranks.size());
         }else {
             um.setFourResearcherNumTurn(0);
         }
         um.setThreeFourResearcherNumTurn(um.getThreeResearcherNumTurn() + um.getFourResearcherNumTurn());
-        List<SYS_Rank> oneKranks = rankService.selectRanksFlagByUnitId(unitId, "1", "一级主任科员");
+        List<SYS_Rank> oneKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级主任科员");
         if (oneKranks != null) {
             um.setOneClerkNumTurn(oneKranks.size());
         }else {
             um.setOneClerkNumTurn(0);
         }
-        List<SYS_Rank> towKranks = rankService.selectRanksFlagByUnitId(unitId, "1", "二级主任科员");
+        List<SYS_Rank> towKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级主任科员");
         if (towKranks != null) {
             um.setTowClerkNumTurn(towKranks.size());
         }else {
             um.setTowClerkNumTurn(0);
         }
         um.setOneTowClerkNumTurn(um.getOneClerkNumTurn() + um.getTowClerkNumTurn());
-        List<SYS_Rank> threeKranks = rankService.selectRanksFlagByUnitId(unitId, "1", "三级主任科员");
+        List<SYS_Rank> threeKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "三级主任科员");
         if (threeKranks != null) {
             um.setThreeClerkNumTurn(threeKranks.size());
         }else {
             um.setThreeClerkNumTurn(0);
         }
-        List<SYS_Rank> fourKranks = rankService.selectRanksFlagByUnitId(unitId, "1", "四级主任科员");
+        List<SYS_Rank> fourKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "四级主任科员");
         if (fourKranks != null) {
             um.setFourClerkNumTurn(fourKranks.size());
         }else {
             um.setFourClerkNumTurn(0);
         }
         um.setThreeFourClerkNumTurn(um.getThreeClerkNumTurn() + um.getFourClerkNumTurn());
-        List<SYS_Rank> oneKYranks = rankService.selectRanksFlagByUnitId(unitId, "1", "一级科员");
+        List<SYS_Rank> oneKYranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级科员");
         if (oneKYranks != null) {
             um.setOneClerkTurn(oneKYranks.size());
         }else {
             um.setOneClerkTurn(0);
         }
-        List<SYS_Rank> towKYranks = rankService.selectRanksFlagByUnitId(unitId, "1", "二级科员");
+        List<SYS_Rank> towKYranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级科员");
         if (towKYranks != null) {
             um.setTowClerkTurn(towKYranks.size());
         }else {
             um.setTowClerkTurn(0);
         }
-        List<SYS_Rank> shiranks = rankService.selectRanksFlagByUnitId(unitId, "1", "试用期");
+        List<SYS_Rank> shiranks = rankService.selectRanksFlagByUnitId(unitId, "是", "试用期");
         if (shiranks != null) {
             um.setProbationTurn(shiranks.size());
         }else {
