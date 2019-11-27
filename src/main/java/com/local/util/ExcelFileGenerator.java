@@ -1,6 +1,7 @@
 package com.local.util;
 
 import com.local.controller.UnitConttoller;
+import com.local.entity.sys.Sys_Approal;
 import com.local.model.ApproalModel;
 import com.local.model.RegModel;
 import com.local.model.ReimbursementModel;
@@ -787,7 +788,7 @@ public class ExcelFileGenerator<T> {
      * @param data
      * @throws Exception
      */
-    public void createApprovalExcel(Sheet sheet, ApproalModel data) throws Exception {
+    public void createApprovalExcel(Sheet sheet, Sys_Approal data) throws Exception {
         CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         Font font = sheet.getWorkbook().createFont();

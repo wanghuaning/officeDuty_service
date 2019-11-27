@@ -12,7 +12,7 @@ public interface ApprovalService {
 
     void updataApproal(Sys_Approal approal);
 
-    Sys_Approal selectApproval(String unitId,String flag);
+    Sys_Approal selectApproval(String unitId,String flag);//1：已审批 0：未审批
 
     Sys_Approal selectApprovalById(String id);
 

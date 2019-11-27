@@ -76,8 +76,12 @@ public class DataController {
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
         List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
         Sys_Approal approalModel = new Sys_Approal();
-        DataManager.getApprovalDataCell(approalModel,unit,peoples, rankService);
-        return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
+        if (peoples!=null){
+            DataManager.getApprovalDataCell(approalModel,unit,peoples, rankService);
+            return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), "无人员！", null, null).getJson();
+        }
      }
 
     @ApiOperation(value = "保存市级机关公务员职级职数使用审批表", notes = "保存市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "保存市级机关公务员职级职数使用审批表接口")
@@ -115,7 +119,7 @@ public class DataController {
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }
             if ("approval".equals(flag)) {
-                ApproalModel approalModel = DataManager.approvalExport(unitService, unitName, response, peopleService, rankService);
+                Sys_Approal approalModel = DataManager.approvalExport(unitService, unitName, response, peopleService, rankService,approvalService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
             } else {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "OK!", null).getJson();
