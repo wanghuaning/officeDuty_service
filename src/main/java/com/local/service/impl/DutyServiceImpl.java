@@ -3,6 +3,7 @@ package com.local.service.impl;
 import com.local.common.slog.annotation.SLog;
 import com.local.entity.sys.SYS_Duty;
 import com.local.entity.sys.SYS_People;
+import com.local.entity.sys.SYS_Rank;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.DutyService;
 import com.local.util.StrUtils;
@@ -93,6 +94,24 @@ public class DutyServiceImpl implements DutyService {
         list = dao.query(SYS_Duty.class, cir);
         if (list.size() > 0) {
             return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Duty selectNotEnableDutyByPidOrderByTime(String pid){
+        List<SYS_Duty> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid).andEquals("status", "已免").andEquals("serve_Approval_Time", null);
+        cir.getOrderBy().desc("create_Time");
+        list = dao.query(SYS_Duty.class, cir);
+        if (list.size() > 0) {
+            List<SYS_Duty> nowDuty=dao.query(SYS_Duty.class, Cnd.where("parent_Id", "=", pid).and("create_Time",">",list.get(0).getCreateTime()));
+            if (nowDuty!=null){
+                return null;
+            }else {
+                return list.get(0);
+            }
         } else {
             return null;
         }

@@ -101,8 +101,8 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String unitId;
 
-  @ApiModelProperty("人员姓名")
-  @Comment("人员姓名")
+  @ApiModelProperty("任职部门及职务")
+  @Comment("任职部门及职务")
   @Column("duty_Type")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String dutyType;

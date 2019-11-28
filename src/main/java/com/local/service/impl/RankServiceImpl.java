@@ -81,8 +81,8 @@ public class RankServiceImpl implements RankService {
         cir.where().andEquals("people_Id", pid).andEquals("status", "已免").andEquals("serve_Approval_Time", null);
         cir.getOrderBy().desc("create_Time");
         list = dao.query(SYS_Rank.class, cir);
-        if (list.size() > 0) {
-            List<SYS_Rank> nowRank=dao.query(SYS_Rank.class, Cnd.where("parent_Id", "=", pid).and("create_Time",">",list.get(0).getCreateTime()));
+        if (list.size() > 0) {//dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).and(new Static("create_Time > to_date('"+DateUtil.dateToString(list.get(0).getCreateTime())+"')")));
+            List<SYS_Rank> nowRank=dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).and("create_Time",">",list.get(0).getCreateTime()));
             if (nowRank!=null){
                 return null;
             }else {
