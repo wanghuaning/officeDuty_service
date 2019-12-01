@@ -273,11 +273,25 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String contactNumber;
 
+    @ApiModelProperty("注册码")
+    @Comment("注册码")
+    @Column("reg_Code")
+    @ColDefine(type = ColType.TEXT)
+    private String regCode;
+
     private String[] areaStrs;
     private boolean hasChildren;
     private List<SYS_UNIT> children;
     private String value;
     private String label;
+
+    public String getRegCode() {
+        return regCode;
+    }
+
+    public void setRegCode(String regCode) {
+        this.regCode = regCode;
+    }
 
     public String getContact() {
         return contact;

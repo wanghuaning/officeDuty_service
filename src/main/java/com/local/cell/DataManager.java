@@ -2203,6 +2203,9 @@ public class DataManager {
     public static List<SYS_Rank> saveRankData(List<SYS_Rank> ranks, RankService rankService, String unitId, PeopleService peopleService) {
         List<SYS_Rank> rankList = new ArrayList<>();
         for (SYS_Rank rank : ranks) {
+            if (rank.getApprovalTime()==null){
+                rank.setApprovalTime(new Date());
+            }
             rankList.add(rank);
             SYS_Rank rank1 = rankService.selectRankById(rank.getId());
             if (rank1 != null) {
@@ -2242,9 +2245,15 @@ public class DataManager {
     public static List<SYS_Duty> saveDutyData(List<SYS_Duty> dutys, DutyService dutyService, String unitId, PeopleService peopleService) {
         List<SYS_Duty> dutyList = new ArrayList<>();
         for (SYS_Duty duty : dutys) {
+            if (duty.getApprovalTime()==null){
+                duty.setApprovalTime(new Date());
+            }
             dutyList.add(duty);
             SYS_Duty duty1 = dutyService.selectDutyById(duty.getId());
             if (duty1 != null) {
+                if (duty.getApprovalTime()==null){
+                    duty.setApprovalTime(new Date());
+                }
                 dutyService.updateDuty(duty);
             } else {
                 SYS_People people = peopleService.selectPeopleById(duty.getPeopleId());

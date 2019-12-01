@@ -825,5 +825,10 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,14,7,data.getTowClerkVacancyNum());
         setValue(sheet,14,8,data.getThreeClerkVacancyNum());
         setValue(sheet,14,9,data.getFourClerkVacancyNum());
+        setValue(sheet,18,5,data.getDrafting());
+        setValue(sheet,18,6,data.getOneClerkDraftingNum());
+        setValue(sheet,18,7,data.getTowClerkDraftingNum());
+        setValue(sheet,18,8,data.getThreeClerkDraftingNum());
+        setValue(sheet,18,9,data.getFourClerkDraftingNum());
     }
 }

@@ -42,7 +42,7 @@ public class SYS_DataInfo implements Serializable {
   @ApiModelProperty("数据参数")
   @Comment("数据参数")
   @Column("param")
-  @ColDefine(type = ColType.VARCHAR, width = 64)
+  @ColDefine(type = ColType.TEXT)
   private String param;
 
   @ApiModelProperty("操作时间")

@@ -29,7 +29,7 @@ public class RSAUtils {
         //生成公钥和私钥
         genKeyPair();
         //加密字符串
-        String message = "df723820";
+        String message = "96f500b6-15ec-4234-87d7-5673bff296ed";
         System.out.println("随机生成的公钥为:" + keyMap.get(0));
         System.out.println("随机生成的私钥为:" + keyMap.get(1));
 //        String messageEn = encrypt(message,keyMap.get(0));

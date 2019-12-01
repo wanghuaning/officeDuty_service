@@ -12,16 +12,21 @@ import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
 import com.local.model.ImgResult;
+import com.local.model.RegCodeModel;
 import com.local.service.PeopleService;
 import com.local.service.UnitService;
 import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
 import org.nutz.mvc.annotation.GET;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +35,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/user")
@@ -310,6 +313,157 @@ public class UserController {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
+    }
+
+    /**
+     * /api/user/getReg
+     * @param request
+     * @param response
+     * @return
+     */
+    @ApiOperation(value = "延期注册码", notes = "延期注册码", httpMethod = "POST", tags = "延期注册码接口")
+    @RequestMapping(value = "/getReg")
+    public String getRegInfo(HttpServletRequest request,HttpServletResponse response,@RequestParam(value = "regDateStr",required = false) String regDateStr,@RequestParam(value = "unitId",required = false) String unitId){
+        try {
+            List<RegCodeModel> codeModelList=new ArrayList<>();
+            List<SYS_UNIT> unitList=new ArrayList<>();
+                SYS_UNIT unitc=unitService.selectUnitById(unitId);
+            if (unitc != null) {
+                unitList.add(unitc);
+                    List<SYS_UNIT> allunits=unitService.selectAllChildUnits(unitId);
+                    if (allunits.size()>0){
+                        allunits.add(unitc);
+                    }
+                    if (unitList.size()>0){
+                        if (regDateStr!=null){
+                            Date regDate=DateUtil.stringToDate(regDateStr);
+                            for (SYS_UNIT unit:unitList){
+                                String regStr=unit.getId()+";"+DateUtil.dateToString(regDate);
+                                String regCode=RSAModelUtils.encryptByPublicKey(regStr, RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+//                                String regCodeP=RSAModelUtils.decryptByPrivateKey(regCode, RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
+                                RegCodeModel codeModel=new RegCodeModel();
+                                codeModel.setId(unit.getId());
+                                codeModel.setName(unit.getName());
+                                codeModel.setCode(regCode);
+                                codeModelList.add(codeModel);
+                            }
+                            ClassPathResource resource=new ClassPathResource("exportExcel/exportRegCode.xls");
+                            String path=resource.getFile().getPath();
+                            String[] arr={"id","name","code"};
+                            Workbook temp= ExcelFileGenerator.getTeplet(path);
+                            ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
+                            excelFileGenerator.setExcleNAME(response,"导出注册码.xls");
+                            excelFileGenerator.createExcelFile(temp.getSheet("注册码"),2,codeModelList,arr);
+                            temp.write(response.getOutputStream());
+                            temp.close();
+                            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, allunits, null).getJson();
+                        }else {
+                            return new Result(ResultCode.ERROR.toString(), "参数出错", null, null).getJson();
+                        }
+                    }else {
+                        return new Result(ResultCode.ERROR.toString(), "数据出错", null, null).getJson();
+                    }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),"无此权限", null, null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = " 首次注册码", notes = "首次注册码", httpMethod = "POST", tags = "首次注册码接口")
+    @RequestMapping(value = "/getFirstReg")
+    public String getFirstRegInfo(HttpServletRequest request,HttpServletResponse response,@RequestParam(value = "regDateStr",required = false) String regDateStr,@RequestParam(value = "unitId",required = false) String unitId){
+        try {
+            List<RegCodeModel> codeModelList=new ArrayList<>();
+            List<SYS_UNIT> unitList=new ArrayList<>();
+            SYS_UNIT unitc=unitService.selectUnitById(unitId);
+            if (unitc != null) {
+                unitList.add(unitc);
+                List<SYS_UNIT> allunits=unitService.selectAllChildUnits(unitId);
+                if (allunits.size()>0){
+                    allunits.add(unitc);
+                }
+                if (unitList.size()>0){
+                    if (regDateStr!=null){
+                        Date regDate=DateUtil.stringToDate(regDateStr);
+                        for (SYS_UNIT unit:unitList){
+                            List<SYS_UNIT> units=new ArrayList<>();
+                            List<SYS_USER> users=new ArrayList<>();
+                            List<SYS_UNIT> parentUnits=unitService.selectAllParentUnits(unit);
+                            if (parentUnits.size()>0){
+                                for (SYS_UNIT parentUnit:parentUnits){
+                                    String regParentStr=parentUnit.getId()+";"+DateUtil.dateToString(regDate);
+                                    String regParentEncrypt=RSAModelUtils.encryptByPublicKey(regParentStr, RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+                                    unit.setRegCode(regParentEncrypt);
+                                    units.add(parentUnit);
+                                }
+                            }
+                            String regStr=unit.getId()+";"+DateUtil.dateToString(regDate);
+                            String regEncrypt=RSAModelUtils.encryptByPublicKey(regStr, RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+                            unit.setRegCode(regEncrypt);
+                            units.add(unit);
+                            List<SYS_USER> userList=userService.selectUsersByUnitId(unit.getId());
+                            if (userList!=null){
+                                users.addAll(userList);
+                            }
+                            List<SYS_UNIT> childUnits=unitService.selectAllChildUnits(unit.getId());
+                            if (childUnits.size()>0){
+                                for (SYS_UNIT childUnit:childUnits){
+                                    String regChildStr=childUnit.getId()+";"+DateUtil.dateToString(regDate);
+                                    String regChildEncrypt=RSAModelUtils.encryptByPublicKey(regStr, RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+                                    unit.setRegCode(regEncrypt);
+                                    units.add(childUnit);
+                                    List<SYS_USER> userChildList=userService.selectUsersByUnitId(childUnit.getId());
+                                    if (userChildList!=null){
+                                        users.addAll(userChildList);
+                                    }
+                                }
+                            }
+                            Map<String, Object> paramsMap = new HashMap<>();
+                            JSONArray unitArray = JSONArray.fromObject(units);
+                            paramsMap.put("unitList", unitArray);
+                            JSONArray userArray = JSONArray.fromObject(users);
+                            paramsMap.put("userList", userArray);
+                            JSONObject resultJson = JSONObject.fromObject(paramsMap);
+                            String regCode=RSAModelUtils.encryptByPublicKey(resultJson.toString(), RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
+//                                String regCodeP=RSAModelUtils.decryptByPrivateKey(regCode, RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
+                            RegCodeModel codeModel=new RegCodeModel();
+                            codeModel.setId(unit.getId());
+                            codeModel.setName(unit.getName());
+                            codeModel.setCode(regCode);
+                            codeModelList.add(codeModel);
+                        }
+                        ClassPathResource resource=new ClassPathResource("exportExcel/exportRegCode.xls");
+                        String path=resource.getFile().getPath();
+                        String[] arr={"id","name","code"};
+                        Workbook temp= ExcelFileGenerator.getTeplet(path);
+                        ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
+                        excelFileGenerator.setExcleNAME(response,"导出注册码.xls");
+                        excelFileGenerator.createExcelFile(temp.getSheet("注册码"),2,codeModelList,arr);
+                        temp.write(response.getOutputStream());
+                        temp.close();
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, allunits, null).getJson();
+                    }else {
+                        return new Result(ResultCode.ERROR.toString(), "参数出错", null, null).getJson();
+                    }
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), "数据出错", null, null).getJson();
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(),"无此权限", null, null).getJson();
+            }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "系统注册", notes = "系统注册", httpMethod = "POST", tags = "系统注册接口")
+    @PostMapping(value = "/reg")
+    @ResponseBody
+    public String submitReg(@RequestParam(value = "regName",required = false) String regName,@RequestParam(value = "regPassword",required = false) String regPassword,@RequestParam(value = "regCode",required = false) String regCode) {
+
+        return new Result(ResultCode.ERROR.toString(), ResultMsg.REGISTER_ERROR, null, null).getJson();
     }
     @Autowired
     private ConfigProperties configProperties;
