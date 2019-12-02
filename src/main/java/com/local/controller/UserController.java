@@ -2,6 +2,7 @@ package com.local.controller;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
+import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
 import com.local.common.config.ConfigProperties;
@@ -111,26 +112,36 @@ public class UserController {
             HashMap<String,Object> token=new HashMap<>();
             searchUser=userService.selectUserByName(user.getUserAccount());
             SYS_UNIT unit=unitService.selectUnitById(searchUser.getUnitId());
-            if (unit!=null){
-                token.put("unit",unit);
-                searchUser.setUnit(unit);
-            }
-            SYS_People people=peopleService.selectPeopleById(searchUser.getPeopleId());
-            if (people!=null){
-                token.put("people",people);
-                searchUser.setPeople(people);
-            }
-            //查询菜单
+            if (StrUtils.isBlank(unit.getRegCode())){
+                return new Result(ResultCode.ERROR.toString(),ResultMsg.USER_NOREG,null,null).getJson();
+            }else {
+                String regCodeStr=RSAModelUtils.decryptByPrivateKey(unit.getRegCode().trim(), RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
+                System.out.println(regCodeStr.split(";")[0]+"=>"+regCodeStr.split(";")[1]);
+                Date date=DateUtil.addMonths(DateUtil.stringToDate(regCodeStr.split(";")[1]),1);
+                if (date.compareTo(new Date())<0){
+                    return new Result(ResultCode.ERROR.toString(),ResultMsg.USER_OUT,null,null).getJson();
+                }
+                if (unit!=null){
+                    token.put("unit",unit);
+                    searchUser.setUnit(unit);
+                }
+                SYS_People people=peopleService.selectPeopleById(searchUser.getPeopleId());
+                if (people!=null){
+                    token.put("people",people);
+                    searchUser.setPeople(people);
+                }
+                //查询菜单
 //        searchUser=userService.selectRoleMenu(searchUser);
-            searchUser.setLastTime(new Date());
-            //将用户id放入redis
-            redisUtil.set(searchUser.getId(),searchUser,3600*24);
-            userService.updateUser(searchUser);
-            //前台去除密码
-            searchUser.setUserPassword("");
-            token.put("token",searchUser);
-            logger.info(ResultMsg.LOGIN_SUCCESS);
-            return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_SUCCESS,token,null).getJson();
+                searchUser.setLastTime(new Date());
+                //将用户id放入redis
+                redisUtil.set(searchUser.getId(),searchUser,3600*24);
+                userService.updateUser(searchUser);
+                //前台去除密码
+                searchUser.setUserPassword("");
+                token.put("token",searchUser);
+                logger.info(ResultMsg.LOGIN_SUCCESS);
+                return new Result(ResultCode.SUCCESS.toString(),ResultMsg.LOGIN_SUCCESS,token,null).getJson();
+            }
         }catch (Exception e){
             logger.error(ResultMsg.ERROR,e);
             return new Result(ResultCode.ERROR.toString(),ResultMsg.LOGIN_ERROR,e,null).getJson();
@@ -421,11 +432,15 @@ public class UserController {
                                 }
                             }
                             Map<String, Object> paramsMap = new HashMap<>();
+                            Map<String, Object> resultMap = new HashMap<>();
                             JSONArray unitArray = JSONArray.fromObject(units);
                             paramsMap.put("unitList", unitArray);
                             JSONArray userArray = JSONArray.fromObject(users);
                             paramsMap.put("userList", userArray);
-                            JSONObject resultJson = JSONObject.fromObject(paramsMap);
+                            JSONObject resultList = JSONObject.fromObject(paramsMap);
+                            resultMap.put("result", resultList);
+                            resultMap.put("unitId",unit.getId());
+                            JSONObject resultJson = JSONObject.fromObject(resultMap);
                             String regCode=RSAModelUtils.encryptByPublicKey(resultJson.toString(), RSAModelUtils.moduleA,RSAModelUtils.puclicKeyA);
 //                                String regCodeP=RSAModelUtils.decryptByPrivateKey(regCode, RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
                             RegCodeModel codeModel=new RegCodeModel();
@@ -461,9 +476,60 @@ public class UserController {
     @ApiOperation(value = "系统注册", notes = "系统注册", httpMethod = "POST", tags = "系统注册接口")
     @PostMapping(value = "/reg")
     @ResponseBody
-    public String submitReg(@RequestParam(value = "regName",required = false) String regName,@RequestParam(value = "regPassword",required = false) String regPassword,@RequestParam(value = "regCode",required = false) String regCode) {
-
-        return new Result(ResultCode.ERROR.toString(), ResultMsg.REGISTER_ERROR, null, null).getJson();
+    public String submitReg(@RequestParam(value = "regName",required = false) String regName,@RequestParam(value = "regPassword",required = false) String regPassword,@RequestParam(value = "regCode",required = false) String regCode,
+                            @RequestParam(value = "flag",required = false) String flag) {
+       try {
+           if (!StrUtils.isBlank(regCode)){
+               if ("延期".equals(flag)){//延期申请
+                   String regCodeStr=RSAModelUtils.decryptByPrivateKey(regCode.trim(), RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
+                   System.out.println(regCodeStr.split(";")[0]+"=>"+regCodeStr.split(";")[1]);
+                   SYS_UNIT unit=unitService.selectUnitById(regCodeStr.split(";")[0]);
+                   if (unit!=null){
+                       unit.setRegCode(regCode.trim());
+                       unitService.updateUnit(unit);
+                   }
+                   return new Result(ResultCode.SUCCESS.toString(), ResultMsg.REGISTER_SUCCESS, unit, null).getJson();
+               }else {
+                   String jsonStr=RSAModelUtils.decryptByPrivateKey(regCode.trim(), RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
+                   JSONObject object = JSONObject.fromObject(jsonStr);
+                   String unitId = String.valueOf(object.get("unitId"));
+                   if (!StrUtils.isBlank(unitId)){
+                       SYS_UNIT unit=unitService.selectUnitById(unitId);
+                       if (unit!=null){
+                           return new Result(ResultCode.ERROR.toString(), "注册码错误!", null, null).getJson();
+                       }else {
+                           JSONObject key = object.getJSONObject("result");
+                           JSONArray unitList = key.getJSONArray("unitList");
+                           if (unitList != null) {
+                               List<SYS_UNIT> units = DataManager.saveUnitJsonModel(unitList);
+                               if (units.size()>0){
+                                   for (SYS_UNIT sys_unit:units){
+                                       unitService.insertUnit(sys_unit);
+                                   }
+                               }
+                           }
+                           JSONArray userList = key.getJSONArray("userList");
+                           if (userList!=null){
+                               List<SYS_USER> users = DataManager.saveUserJsonModel(userList);
+                                if (users.size()>0){
+                                    for (SYS_USER sys_user:users){
+                                        userService.insertUser(sys_user);
+                                    }
+                                }
+                           }
+                       }
+                   }else {
+                       return new Result(ResultCode.ERROR.toString(), "注册码错误!", null, null).getJson();
+                   }
+                   return new Result(ResultCode.SUCCESS.toString(), ResultMsg.REGISTER_SUCCESS, unitId, null).getJson();
+               }
+           }else {
+               return new Result(ResultCode.ERROR.toString(), "注册码为空!", null, null).getJson();
+           }
+       }catch (Exception e){
+           logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+           return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+       }
     }
     @Autowired
     private ConfigProperties configProperties;

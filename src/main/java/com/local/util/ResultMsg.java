@@ -31,6 +31,8 @@ public class ResultMsg {
     public static final String REGISTER_ERROR = "注册失败，请重新注册";
     public static final String REGISTER_SUCCESS = "注册成功，请登录";
     public static final String USER_EXIST = "账号已存在";
+    public static final String USER_NOREG = "账号未注册";
+    public static final String USER_OUT = "账号已过期";
     public static final String COMPANY_TYPE_ERROR = "该企业类型已存在";
     public static final String UNIT_NAME_ERROE="该单位名已存在";
     public static final String UNIT_CODE_ERROE="该编码已存在";
