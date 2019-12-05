@@ -60,11 +60,7 @@ public class PeopleManager {
                             people.setPositionLevelTime(DateUtil.stringToDate(createTimeStr));
                         }
                         String enableStr=StrUtils.toNullStr(map.get("现职"));
-                        if ("否".equals(enableStr)){
-                            people.setEnabled("1");
-                        }else {
-                            people.setEnabled("0");
-                        }
+                        people.setIsEnable(enableStr);
                         people.setDetail(StrUtils.toNullStr(map.get("备注")));
                         SYS_People people1 =service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
                         if (people1 != null) {

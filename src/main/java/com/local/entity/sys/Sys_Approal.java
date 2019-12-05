@@ -239,6 +239,34 @@ public class Sys_Approal {
   private String vacancyTotal="0";
 
   @Default(value = "0")
+  @ApiModelProperty("一级调研员职数拟定")
+  @Comment("一级调研员职数拟定")
+  @Column("one_Researcher_Drafting_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneResearcherDraftingNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("二级调研员职数拟定")
+  @Comment("二级调研员职数拟定")
+  @Column("tow_Researcher_Drafting_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towResearcherDraftingNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("三级调研员职数拟定")
+  @Comment("三级调研员职数拟定")
+  @Column("three_Researcher_Drafting_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeResearcherDraftingNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("四级调研员职数拟定")
+  @Comment("四级调研员职数拟定")
+  @Column("four_Researcher_Drafting_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourResearcherDraftingNum="0";
+
+  @Default(value = "0")
   @ApiModelProperty("一级主任科员职数拟定")
   @Comment("一级主任科员职数拟定")
   @Column("one_Clerk_Drafting_Num")
@@ -277,6 +305,38 @@ public class Sys_Approal {
 
   public String getDataFlag() {
     return dataFlag;
+  }
+
+  public String getOneResearcherDraftingNum() {
+    return oneResearcherDraftingNum;
+  }
+
+  public void setOneResearcherDraftingNum(String oneResearcherDraftingNum) {
+    this.oneResearcherDraftingNum = oneResearcherDraftingNum;
+  }
+
+  public String getTowResearcherDraftingNum() {
+    return towResearcherDraftingNum;
+  }
+
+  public void setTowResearcherDraftingNum(String towResearcherDraftingNum) {
+    this.towResearcherDraftingNum = towResearcherDraftingNum;
+  }
+
+  public String getThreeResearcherDraftingNum() {
+    return threeResearcherDraftingNum;
+  }
+
+  public void setThreeResearcherDraftingNum(String threeResearcherDraftingNum) {
+    this.threeResearcherDraftingNum = threeResearcherDraftingNum;
+  }
+
+  public String getFourResearcherDraftingNum() {
+    return fourResearcherDraftingNum;
+  }
+
+  public void setFourResearcherDraftingNum(String fourResearcherDraftingNum) {
+    this.fourResearcherDraftingNum = fourResearcherDraftingNum;
   }
 
   public void setDataFlag(String dataFlag) {

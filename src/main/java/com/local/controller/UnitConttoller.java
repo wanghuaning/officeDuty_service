@@ -2,7 +2,7 @@ package com.local.controller;
 
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
-import com.local.common.redis.util.RedisUtil;
+import com.local.cell.UserManager;
 import com.local.entity.sys.*;
 import com.local.model.UnitModel;
 import com.local.service.*;
@@ -55,7 +55,7 @@ public class UnitConttoller {
     private RewardService rewardService;
 
     @Resource
-    private RedisUtil redisUtil;
+    private UserService userService;
 
     @Autowired
     private EducationService educationService;
@@ -67,11 +67,7 @@ public class UnitConttoller {
                                @RequestParam(value = "enabled", required = false) String enabled, HttpServletRequest request) {
         try {
             //从请求的header中取出当前登录的登录
-            String token = request.getHeader("userToken");
-            if (token == null || "".equals(token)) {
-                token = request.getParameter("userToken");//从请求的url中获取
-            }
-            SYS_USER user = redisUtil.getUserByKey(token);
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user != null) {
                 String parentId = user.getUnitId();
                 if (!StrUtils.isBlank(parentId)) {
@@ -95,11 +91,7 @@ public class UnitConttoller {
     public String getUnitsSelect(HttpServletRequest request) {
         try {
             //从请求的header中取出当前登录的登录
-            String token = request.getHeader("userToken");
-            if (token == null || "".equals(token)) {
-                token = request.getParameter("userToken");//从请求的url中获取
-            }
-            SYS_USER user = redisUtil.getUserByKey(token);
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user != null) {
                 String parentId = user.getUnitId();
                 if (!StrUtils.isBlank(parentId)) {

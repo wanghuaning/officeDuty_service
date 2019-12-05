@@ -1,13 +1,14 @@
 package com.local.common.filter;
 
-import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.SYS_USER;
+import com.local.service.UserService;
 import com.local.util.Result;
 import com.local.util.ResultCode;
 import com.local.util.ResultMsg;
 import org.apache.catalina.filters.CorsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.servlet.*;
@@ -25,6 +26,8 @@ public class TokenFilter extends CorsFilter {
     //返回成功信息
     private static final String _200_JSON = new Result(ResultCode.SUCCESS.toString(),ResultMsg.SUCCESS,null,null).getJson();
 
+    @Autowired
+    private UserService userService;
     @Override
     public void destroy() {
     }
@@ -58,18 +61,16 @@ public class TokenFilter extends CorsFilter {
                 //从请求的url中取出当前登录的用户
                 token = req.getParameter("userToken");
             }
+            SYS_USER user=userService.selectUserById(token);
             if (null == token || token.isEmpty()) {
                 response.getWriter().print(_301_JSON);
             }else {
-                if (RedisUtil.hasKey(token)){
-                    SYS_USER user=null;
+                if (user!=null){
                     try {
-                        user=RedisUtil.getUserByKey(token);
+                        user=user;
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-                    //用户操作重新将key的时间重置
-                    RedisUtil.expire(token,3600);
                     if (user ==null) {
                         response.getWriter().print(_301_JSON);
                     }

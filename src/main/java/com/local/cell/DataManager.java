@@ -669,11 +669,7 @@ public class DataManager {
                         people.setTurnRankTime(DateUtil.stringToDate(turnRankTime));
                     }
                     String enableStr = StrUtils.toNullStr(map.get("是否兼任"));
-                    if ("否".equals(enableStr)) {
-                        people.setEnabled("1");
-                    } else {
-                        people.setEnabled("0");
-                    }
+                    people.setIsEnable(enableStr);
                     people.setRealName(StrUtils.toNullStr(map.get("单列管理事由")));
                     people.setDetail(StrUtils.toNullStr(map.get("特殊人员")));
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());

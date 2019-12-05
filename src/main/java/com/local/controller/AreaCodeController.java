@@ -1,6 +1,5 @@
 package com.local.controller;
 
-import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.SYS_AREA;
 import com.local.model.AreaModel;
 import com.local.service.CodeService;
@@ -23,8 +22,6 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/api")
 public class AreaCodeController {
-    @Resource
-    private RedisUtil redisUtil;
 
     private final static Logger logger = LoggerFactory.getLogger(AreaCodeController.class);
     @Autowired
@@ -34,19 +31,13 @@ public class AreaCodeController {
     @GetMapping("/selectArea")
     @ResponseBody
     public String selectAreaCityuCode() {
-        Object res = redisUtil.get("areas");
-//        System.out.println(res);
-        if (res == null) {
             List<SYS_AREA> areas = codeService.selectAreaCodeByUpCode("1");
             //将区域信息放入redis
             if (areas != null) {
-                redisUtil.set("areas", new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, areas, null).getJson(), 3600);
+//                redisUtil.set("areas", new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, areas, null).getJson(), 3600);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, areas, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-        } else {
-            return res.toString();
-        }
     }
 }

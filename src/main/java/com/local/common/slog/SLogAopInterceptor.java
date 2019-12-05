@@ -1,9 +1,12 @@
 package com.local.common.slog;
 
-import com.local.common.redis.util.RedisUtil;
+import com.local.cell.UserManager;
 import com.local.common.slog.annotation.SLog;
 import com.local.entity.sys.SYS_Log;
 import com.local.entity.sys.SYS_USER;
+import com.local.service.PeopleService;
+import com.local.service.UnitService;
+import com.local.service.UserService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,7 +29,13 @@ public class SLogAopInterceptor {
     protected SLogService sLogService;
 
     @Autowired
-    private RedisUtil redisUtil;
+    private UserService userService;
+
+    @Autowired
+    private UnitService unitService;
+
+    @Autowired
+    private PeopleService peopleService;
 
     /**
      * @After 后置通知, 在方法执行之后执行 。
@@ -43,12 +52,7 @@ public class SLogAopInterceptor {
     protected void doLog(JoinPoint joinPoint, SLog slog){
         HttpServletRequest request= ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String ip=request.getRemoteAddr();
-        String token=request.getHeader("userToken");
-        if (token==null || "".equals(token)){
-            token=request.getParameter("userToken");
-        }
-        //通过token从redis中取出当前登录
-        SYS_USER user=redisUtil.getUserByKey(token);
+        SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
         if (user!=null){
             if (sLogService ==null){
                 sLogService=new SLogService();

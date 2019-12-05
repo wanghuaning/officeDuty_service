@@ -1,8 +1,7 @@
 package com.local.controller;
 
 import com.local.cell.PeopleManager;
-import com.local.cell.UnitManager;
-import com.local.common.redis.util.RedisUtil;
+import com.local.cell.UserManager;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
@@ -11,8 +10,6 @@ import com.local.service.UnitService;
 import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
-import org.apache.catalina.User;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
 import org.slf4j.Logger;
@@ -42,8 +39,6 @@ public class PeopleController {
     @Autowired
     private PeopleService peopleService;
     @Autowired
-    private RedisUtil redisUtil;
-    @Autowired
     private UnitService unitService;
     @Autowired
     private UserService userService;
@@ -60,11 +55,7 @@ public class PeopleController {
                              @RequestParam(value = "enabled", required = false) String enabled,HttpServletRequest request) {
         try {
             if (StrUtils.isBlank(unitId)){
-                String token=request.getHeader("userToken");
-                if (token == null || "".equals(token)){
-                    token=request.getParameter("userToken");//从请求的url中获取
-                }
-                SYS_USER user=redisUtil.getUserByKey(token);
+                SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
                 if (user!=null){
                 unitId=user.getUnitId();
                 }
@@ -91,9 +82,6 @@ public class PeopleController {
                 people.setPeopleOrder(peopleById.getPeopleOrder());
                 people.setUnitId(peopleById.getUnitId());
                 peopleService.updatePeople(people);
-                if (!StrUtils.isBlank(people.getTurnRank())){
-
-                }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, people, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();

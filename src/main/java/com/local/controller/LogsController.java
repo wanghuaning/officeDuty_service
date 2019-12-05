@@ -1,10 +1,12 @@
 package com.local.controller;
 
-import com.local.common.redis.util.RedisUtil;
+import com.local.cell.UserManager;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
 import com.local.service.LogsService;
+import com.local.service.PeopleService;
 import com.local.service.UnitService;
+import com.local.service.UserService;
 import com.local.util.Result;
 import com.local.util.ResultCode;
 import com.local.util.ResultMsg;
@@ -31,9 +33,12 @@ public class LogsController {
     private UnitService unitService;
 
     @Autowired
-    private RedisUtil redisUtil;
+    private UserService userService;
     @Autowired
     private LogsService logsService;
+
+    @Autowired
+    private PeopleService peopleService;
     @ApiOperation(value = "操作日志", notes = "操作日志", httpMethod = "GET", tags = "操作日志接口")
     @GetMapping("/user")
     @ResponseBody
@@ -41,13 +46,7 @@ public class LogsController {
                            @RequestParam(value = "page", required = false) String pageNumber,
                            @RequestParam(value = "name", required = false) String name,HttpServletRequest request) {
         try {
-            String token=request.getHeader("userToken");
-            if (token==null || "".equals(token)){
-                //从请求的url中取出当前登录的登录
-                token=request.getParameter("userToken");
-            }
-            //通过token从redis中取出当前登录
-            SYS_USER user=redisUtil.getUserByKey(token);
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user!=null){
                 QueryResult queryResult = logsService.selectLogs(Integer.parseInt(pageSize), Integer.parseInt(pageNumber),user.getUserAccount(),name);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
@@ -66,13 +65,7 @@ public class LogsController {
                              @RequestParam(value = "page", required = false) String pageNumber,
                              @RequestParam(value = "name", required = false) String name,HttpServletRequest request) {
         try {
-            String token=request.getHeader("userToken");
-            if (token==null || "".equals(token)){
-                //从请求的url中取出当前登录的登录
-                token=request.getParameter("userToken");
-            }
-            //通过token从redis中取出当前登录
-            SYS_USER user=redisUtil.getUserByKey(token);
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user!=null) {
                 QueryResult queryResult = logsService.selectLogss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), name,user.getUnitId());
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();

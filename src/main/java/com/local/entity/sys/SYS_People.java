@@ -194,26 +194,17 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String education;
 
-  @ApiModelProperty("是否兼职 1:是；0：否")
-  @Comment("是否兼职 1:是；0：否")
-  @Column("enabled")
-  @ColDefine(type = ColType.VARCHAR, width = 1)
-  private String enabled;
+  @ApiModelProperty("是否兼职")
+  @Comment("是否兼职")
+  @Column("isEnable")
+  @ColDefine(type = ColType.VARCHAR, width = 8)
+  private String isEnable;
 
   @ApiModelProperty("排序")
   @Comment("排序")
   @Column("people_Order")
   @ColDefine(type = ColType.INT, width = 6)
   private Integer peopleOrder;
-
-  private String isEnable;
-  public String getIsEnable() {
-    if ("0".equals(enabled)) {
-      return "是";
-    } else {
-      return "否";
-    }
-  }
 
   private String value;
   private String label;
@@ -223,6 +214,10 @@ public class SYS_People implements Serializable {
   @Column("real_Name")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String realName;
+
+  public String getIsEnable() {
+    return isEnable;
+  }
 
   public String getRealName() {
     return realName;
@@ -502,14 +497,6 @@ public class SYS_People implements Serializable {
 
   public void setUnitName(String unitName) {
     this.unitName = unitName;
-  }
-
-  public String getEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(String enabled) {
-    this.enabled = enabled;
   }
 
   public Integer getPeopleOrder() {
