@@ -80,6 +80,10 @@ public class DataManager {
         if (unit.getFourClerkNum() > 0) {
             approalModel.setFourClerkNum(String.valueOf(unit.getFourClerkNum()));
         }
+        int oneResearcherUserNum = 0;//一级调研员职数使用
+        int towResearcherUserNum = 0;//二级调研员职数使用
+        int threeResearcherUserNum = 0;//三级调研员职数使用
+        int fourResearcherUserNum = 0;//四级调研员职数使用
         int oneClerkUserNum = 0;//一级主任科员职数使用
         int towClerkUserNum = 0;//二级主任科员职数使用
         int threeClerkUserNum = 0;//三级主任科员职数使用
@@ -96,6 +100,14 @@ public class DataManager {
                     threeClerkUserNum += 1;
                 } else if ("四级主任科员".equals(rank.getName())) {
                     fourClerkUserNum += 1;
+                }else if ("一级调研员".equals(rank.getName())) {
+                    oneResearcherUserNum += 1;
+                } else if ("二级调研员".equals(rank.getName())) {
+                    towResearcherUserNum += 1;
+                } else if ("三级调研员".equals(rank.getName())) {
+                    threeResearcherUserNum += 1;
+                } else if ("四级调研员".equals(rank.getName())) {
+                    fourResearcherUserNum += 1;
                 }
             }
         }
@@ -2081,21 +2093,41 @@ public class DataManager {
         }
     }
 
-    public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, String unitId, String dataType) {
+    public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, SYS_UNIT unit,
+                                         String dataType,PeopleService peopleService,RankService rankService) {
         //人员信息
         List<Sys_Approal> approalList = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
         for (Sys_Approal approal : approals) {
             if ("上行".equals(dataType)) {
-                Sys_Approal localApproval = approvalService.selectApproval(unitId, "1");
+                Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "1");
                 if (localApproval != null) {
                     localApproval.setDataFlag("上行前");
                     approalList.add(localApproval);
+                }else {
+                    List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+                    Sys_Approal approalModel = new Sys_Approal();
+                    if (peoples!=null) {
+                        DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
+                    }
+                    approalModel.setDataFlag("上行前");
+                    approalList.add(approalModel);
                 }
                 approal.setDataFlag("上行后");
                 approalList.add(approal);
+                Sys_Approal approalDetail = new Sys_Approal();
+                approalDetail.setOneResearcherDraftingNumDetail(approal.getOneResearcherDraftingNumDetail());
+                approalDetail.setTowResearcherDraftingNumDetail(approal.getTowResearcherDraftingNumDetail());
+                approalDetail.setThreeResearcherDraftingNumDetail(approal.getThreeResearcherDraftingNumDetail());
+                approalDetail.setFourResearcherDraftingNumDetail(approal.getFourResearcherDraftingNumDetail());
+                approalDetail.setOneClerkDraftingNumDetail(approal.getOneClerkDraftingNumDetail());
+                approalDetail.setTowClerkDraftingNumDetail(approal.getTowClerkDraftingNumDetail());
+                approalDetail.setThreeClerkDraftingNumDetail(approal.getThreeClerkDraftingNumDetail());
+                approalDetail.setFourClerkDraftingNumDetail(approal.getFourClerkDraftingNumDetail());
+                approalDetail.setDataFlag("不占职级数人员");
+                approalList.add(approalDetail);
             } else {
-                Sys_Approal localApproval = approvalService.selectApproval(unitId, "0");
+                Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "0");
                 if (localApproval != null) {
                     localApproval.setDataFlag("下行前");
                     approalList.add(localApproval);

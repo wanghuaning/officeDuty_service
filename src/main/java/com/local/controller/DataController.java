@@ -7,7 +7,6 @@ import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
 import com.local.common.config.CompareFileds;
 import com.local.common.filter.FileUtil;
-import com.local.common.redis.util.RedisUtil;
 import com.local.entity.sys.*;
 import com.local.model.*;
 import com.local.service.*;
@@ -341,7 +340,8 @@ public class DataController {
                         DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, unitId);
                         DataManager.userDataCheck(resultMap, users, userService, unitId);
                         if (approals.size()>0){
-                            DataManager.approvalDataCheck( resultMap,  approals,  approvalService,  unitId, dataType);
+                            DataManager.approvalDataCheck( resultMap,  approals,  approvalService,  unit,
+                                     dataType, peopleService, rankService);
                         }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
