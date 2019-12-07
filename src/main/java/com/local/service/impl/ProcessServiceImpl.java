@@ -35,10 +35,46 @@ public class ProcessServiceImpl implements ProcessService {
         dao.update(process);
     }
     @Override
-    public Sys_Process selectProcessByFlag(String flag){
+    public List<Sys_Process> selectApprProcess(String unitId){
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();
-        cir.where().andEquals("flag",flag).andEquals("states","未审批");
+        cir.where().andEquals("unit_Id",unitId).andEquals("states","已审批");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public List<Sys_Process> selectNotApprProcess(String unitId){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId).andEquals("states","未审批");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public Sys_Process selectProcessById(String id){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("id",id);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public Sys_Process selectProcessByFlag(String unitId,String flag){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId).andEquals("flag",flag).andEquals("states","未审批");
         list=dao.query(Sys_Process.class,cir);
         if (list.size()>0){
             return list.get(0);

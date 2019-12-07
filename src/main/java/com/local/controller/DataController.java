@@ -200,6 +200,7 @@ public class DataController {
             List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
             List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
             List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService,dataType);
+            List<Sys_Process>  processeList = DataManager.getProcessJson(resultMap, unitList, processService,dataType);
             if (peopleList.size() > 0) {
                 objects.addAll(peopleList);
                 List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
@@ -215,6 +216,7 @@ public class DataController {
             }
             objects.addAll(userList);
             objects.addAll(approvalList);
+            objects.addAll(processeList);
             JSONObject resultList = JSONObject.fromObject(resultMap);
             paramsMap.put("result", resultList);
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
@@ -253,6 +255,7 @@ public class DataController {
             List<SYS_UNIT> units = new ArrayList<>();
             List<SYS_USER> users = new ArrayList<>();
             List<Sys_Approal> approals=new ArrayList<>();
+            List<Sys_Process> processes=new ArrayList<>();
             List<SYS_People> peoples = new ArrayList<>();
             List<SYS_Duty> duties = new ArrayList<>();
             List<SYS_Rank> ranks = new ArrayList<>();
@@ -284,6 +287,7 @@ public class DataController {
                 JSONArray rewardList = key.getJSONArray("rewardList");
                 JSONArray assessmentList = key.getJSONArray("assessmentList");
                 JSONArray approvalList=key.getJSONArray("approvalList");
+                JSONArray processList=key.getJSONArray("processList");
                 SYS_UNIT unit = unitService.selectUnitById(unitId);
                 if (unit == null) {
                     unit = unitService.selectUnitByName(unitName);
@@ -305,6 +309,12 @@ public class DataController {
                             approals=DataManager.saveApproalJsonModel(approvalList);
                             if (approals.size()>0){
                                 DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "approval", gson.toJson(approals));
+                            }
+                        }
+                        if (processList.size()>0){
+                            processes=DataManager.saveProcessJsonModel(processList);
+                            if (processes.size()>0){
+                                DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "processe", gson.toJson(processes));
                             }
                         }
                         if (peopleList != null) {
@@ -346,7 +356,7 @@ public class DataController {
                         DataManager.userDataCheck(resultMap, users, userService, unitId);
                         if (approals.size()>0){
                             DataManager.approvalDataCheck( resultMap,  approals,  approvalService,  unit,
-                                     dataType, peopleService, rankService);
+                                    dataType, peopleService, rankService);
                         }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
@@ -371,6 +381,7 @@ public class DataController {
             List<SYS_UNIT> units = new ArrayList<>();
             List<SYS_USER> users = new ArrayList<>();
             List<Sys_Approal> approals = new ArrayList<>();
+            List<Sys_Process> processes = new ArrayList<>();
             List<SYS_People> peoples = new ArrayList<>();
             List<SYS_Duty> duties = new ArrayList<>();
             List<SYS_Rank> ranks = new ArrayList<>();
@@ -395,6 +406,7 @@ public class DataController {
                     JSONArray unitList = key.getJSONArray("unitList");
                     JSONArray userList = key.getJSONArray("userList");
                     JSONArray aprovalList = key.getJSONArray("approvalList");
+                    JSONArray processList = key.getJSONArray("processList");
                     JSONArray peopleList = key.getJSONArray("peopleList");
                     JSONArray rankList = key.getJSONArray("rankList");
                     JSONArray dutyList = key.getJSONArray("dutyList");
@@ -427,6 +439,12 @@ public class DataController {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals));
                                 DataManager.saveApprovalData(approals,  approvalService, unitID);
                                 objects.add(approals);
+                            }
+                            processes = DataManager.saveProcessJsonModel(processList);
+                            if (approals.size() > 0) {
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "process", gson.toJson(processes));
+                                DataManager.saveprocessData(processes, processService, "");
+                                objects.add(processes);
                             }
                             if (peopleList != null) {
                                 peoples = DataManager.savePeopleJsonModel(peopleList);
@@ -487,7 +505,7 @@ public class DataController {
 
     @ApiOperation(value = "执行上行数据", notes = "执行上行数据", httpMethod = "POST", tags = "执行上行数据接口")
     @PostMapping(value = "/agreeImportData")
-    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId) {
+    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId,HttpServletRequest request) {
         List<Object> objects = new ArrayList<>();
         if (!StrUtils.isBlank(dataId)) {
             List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(dataId, "上行");
@@ -548,6 +566,25 @@ public class DataController {
                         if (sys_approals.size() > 0) {
                             DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId());
                             objects.add(sys_approals);
+                        }
+                    }else if (dataInfo.getId().contains("process")) {
+                        List<Sys_Process> sys_processes = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Process>>() {
+                        }.getType());
+                        if (sys_processes.size() > 0) {
+                            String name="";
+                            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+                            if (user != null) {
+                                SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+                                if (unit!=null){
+                                    name=unit.getName();
+                                }
+                                SYS_People people=peopleService.selectPeopleById(user.getPeopleId());
+                                if (people!=null){
+                                    name=name+"/"+people.getName();
+                                }
+                            }
+                            DataManager.saveprocessData(sys_processes, processService, name);
+                            objects.add(sys_processes);
                         }
                     }
                 }

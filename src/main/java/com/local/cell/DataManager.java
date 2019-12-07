@@ -1311,6 +1311,33 @@ public class DataManager {
     }
 
     /**
+     * 获取审批表jsan
+     * @param resultMap
+     * @param units
+     * @param processService
+     * @param dataType
+     * @return
+     */
+    public static List<Sys_Process> getProcessJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ProcessService processService, String dataType) {
+        List<Sys_Process> processList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            if ("上行".equals(dataType)) {
+                List<Sys_Process> approals = processService.selectNotApprProcess(unit.getId());
+                if (approals != null) {
+                    processList.addAll(approals);
+                }
+            } else {
+                List<Sys_Process> approal = processService.selectApprProcess(unit.getId());
+                if (approal != null) {
+                    processList.addAll(approal);
+                }
+            }
+        }
+        JSONArray array = JSONArray.fromObject(processList);
+        resultMap.put("processList", array);
+        return processList;
+    }
+    /**
      * 获取单位json数据
      *
      * @param unitList
@@ -1403,6 +1430,37 @@ public class DataManager {
         return approals;
     }
 
+    /**
+     * 保存审批表数据
+     * @return
+     */
+    public static List<Sys_Process> saveProcessJsonModel(JSONArray processList) {
+        List<Sys_Process> processs = new ArrayList<>();
+        for (int i = 0; i < processList.size(); i++) {
+            Sys_Process process = new Sys_Process();
+            JSONObject key = (JSONObject) processList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(process, key);
+                process.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                processs.add(process);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return processs;
+    }
     /**
      * 获取人员数据json
      *
@@ -2476,13 +2534,30 @@ public class DataManager {
             if (approal1 != null) {
                 approvalService.updataApproal(approal);
             } else {
+                approal.setFlag("1");
                 approvalService.insertApproal(approal);
             }
         }
         return approalList;
     }
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name) {
+        List<Sys_Process> approalList = new ArrayList<>();
+        for (Sys_Process process : processes) {
+            approalList.add(process);
+            Sys_Process approal1 = processService.selectProcessById(process.getId());
+            if (approal1 != null) {
+                processService.updateProcess(process);
+            } else {
+                process.setStates("已审核");
+                process.setPeople(name);
+                process.setProcessTime(new Date());
+                processService.insertProcess(process);
+            }
+        }
+        return approalList;
+    }
     public static Sys_Process setProcessDate(ProcessService processService,String flag,SYS_UNIT unit,String name,String param){
-        Sys_Process process=processService.selectProcessByFlag(flag);
+        Sys_Process process=processService.selectProcessByFlag(unit.getId(),flag);
         if (process!=null){
             process.setCreateTime(new Date());
             process.setUnitId(unit.getId());
