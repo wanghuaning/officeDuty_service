@@ -1,9 +1,10 @@
 package com.local.service.impl;
 
-import com.local.entity.sys.SYS_Log;
-import com.local.entity.sys.SYS_People;
+import com.local.common.slog.annotation.SLog;
+import com.local.entity.sys.SYS_Data;
 import com.local.entity.sys.SYS_UNIT;
-import com.local.service.LogsService;
+import com.local.entity.sys.Sys_Process;
+import com.local.service.ProcessService;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -12,70 +13,72 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class LogsServiceImpl implements LogsService {
-
+public class ProcessServiceImpl implements ProcessService {
     @Autowired
     private Dao dao;
-    private static List<SYS_UNIT> cunits=new ArrayList<>();
     @Override
-    public QueryResult selectLogs(int pageSize, int pageNumber, String username,String name){
-        Pager pager=new Pager();
-        pager.setPageNumber(pageNumber+1);
-        pager.setPageSize(pageSize);
-        List<SYS_Log> peopleList=new ArrayList<>();
-        Criteria cri= Cnd.cri();
-        if (!StrUtils.isBlank(name)){
-            cri.where().andLike("tag","%"+name+"%");
-        }
-        cri.where().andEquals("op_Name",username);
-        cri.getOrderBy().desc("op_Time");
-        peopleList = dao.query(SYS_Log.class,cri,pager);
-        if (StrUtils.isBlank(pager)){
-            pager=new Pager();
-        }
-        pager.setRecordCount(dao.count(SYS_Log.class,cri));
-        QueryResult queryResult=new QueryResult(peopleList,pager);
-        return queryResult;
+    @Transactional//声明式事务管理
+    @SLog(tag = "新增审批表", type = "C")
+    public void insertProcess(Sys_Process process){
+        dao.insert(process);
     }
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "修改审批表", type = "U")
+    public void updateProcess(Sys_Process process){
+        dao.update(process);
+    }
+    @Override
+    public Sys_Process selectProcessByFlag(String flag){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("flag",flag).andEquals("states","未审批");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+    private static List<SYS_UNIT> cunits=new ArrayList<>();
 
     @Override
-    public QueryResult selectLogss(int pageSize, int pageNumber, String name,String unitId){
+    public QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag){
         Pager pager=new Pager();
         pager.setPageNumber(pageNumber+1);
         pager.setPageSize(pageSize);
-        List<SYS_Log> peopleList=new ArrayList<>();
+        List<Sys_Process> peopleList=new ArrayList<>();
         Criteria cri= Cnd.cri();
         cunits=new ArrayList<>();
         List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unitId));
         getAllChildUnits(cunitList);
         if (cunits.size()>0){
             for (SYS_UNIT unit:cunits){
-                cri.where().orEquals("op_by",unit.getId());
+                cri.where().orEquals("unit_Id",unit.getId());
             }
-            if (!StrUtils.isBlank(name)){//市
-                cri.where().orLike("op_name","%"+name+"%");
-                cri.where().orLike("op_by","%"+name+"%");
-                cri.where().orLike("src","%"+name+"%");
-                cri.where().orLike("tag","%"+name+"%");
-                cri.where().orLike("type","%"+name+"%");
+            if (!StrUtils.isBlank(unitName)){//市
+                cri.where().orLike("unit_Name","%"+unitName+"%");
             }
-            cri.getOrderBy().desc("op_Time");
-            peopleList = dao.query(SYS_Log.class,cri,pager);
+            if (!StrUtils.isBlank(approveFlag) && !"all".equals(approveFlag)){//市
+                cri.where().andEquals("flag",approveFlag);
+            }
+            cri.getOrderBy().desc("processTime");
+            peopleList = dao.query(Sys_Process.class,cri,pager);
             if (StrUtils.isBlank(pager)){
                 pager=new Pager();
             }
-            pager.setRecordCount(dao.count(SYS_Log.class,cri));
+            pager.setRecordCount(dao.count(Sys_Process.class,cri));
             QueryResult queryResult=new QueryResult(peopleList,pager);
             return queryResult;
         }else {
             return null;
         }
-
     }
     public void getAllChildUnits(List<SYS_UNIT> unitList){
         for (SYS_UNIT unit : unitList)  {

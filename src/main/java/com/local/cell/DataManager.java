@@ -2481,4 +2481,27 @@ public class DataManager {
         }
         return approalList;
     }
+    public static Sys_Process setProcessDate(ProcessService processService,String flag,SYS_UNIT unit,String name,String param){
+        Sys_Process process=processService.selectProcessByFlag(flag);
+        if (process!=null){
+            process.setCreateTime(new Date());
+            process.setUnitId(unit.getId());
+            process.setUnitName(unit.getName());
+            process.setPeople(name);
+            process.setParam(param);
+        }else {
+            process=new Sys_Process();
+            String uuid=UUID.randomUUID().toString();
+            process.setId(uuid);
+            process.setFlag(flag);
+            process.setCreateTime(new Date());
+            process.setUnitId(unit.getId());
+            process.setUnitName(unit.getName());
+            process.setPeople(name);
+            process.setParam(param);
+            process.setStates("未审批");
+            processService.insertProcess(process);
+        }
+        return process;
+    }
 }

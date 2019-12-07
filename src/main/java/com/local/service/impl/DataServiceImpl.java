@@ -1,11 +1,13 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.sys.SYS_Data;
-import com.local.entity.sys.SYS_People;
+import com.local.entity.sys.*;
 import com.local.service.DataService;
+import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
+import org.nutz.dao.QueryResult;
+import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,5 +48,4 @@ public class DataServiceImpl implements DataService {
             return null;
         }
     }
-
 }

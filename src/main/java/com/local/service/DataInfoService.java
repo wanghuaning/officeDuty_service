@@ -2,6 +2,7 @@ package com.local.service;
 
 import com.local.entity.sys.SYS_DataInfo;
 import com.local.entity.sys.Sys_Approal;
+import org.nutz.dao.QueryResult;
 
 import java.util.List;
 

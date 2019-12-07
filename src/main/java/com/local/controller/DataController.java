@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
+import com.local.cell.UserManager;
 import com.local.common.config.CompareFileds;
 import com.local.common.filter.FileUtil;
 import com.local.entity.sys.*;
@@ -16,6 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.nutz.dao.QueryResult;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,8 @@ public class DataController {
     private UserService userService;
 
     @Autowired
+    private ProcessService processService;
+    @Autowired
     private ApprovalService approvalService;
     public DataController() throws IOException {
     }
@@ -87,14 +91,15 @@ public class DataController {
     @PostMapping(value = "/editApprovalData")
     @ResponseBody
     public String editApprovalData(@Validated @RequestBody Sys_Approal approal) {
-        System.out.println(approal.getOfficialNum());
         try {
+            SYS_UNIT unit=unitService.selectUnitById(approal.getUnitId());
             Sys_Approal approalNow = approvalService.selectApproval(approal.getUnitId(), "0");
             if (approalNow != null) {
                 approal.setId(approalNow.getId());
                 BeanUtils.copyProperties(approal,approalNow);
                 approalNow.setCreateTime(new Date());
                 approvalService.updataApproal(approalNow);
+                DataManager.setProcessDate(processService,"1",unit,"",gson.toJson(approalNow));
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, approal, null).getJson();
             } else {
                 String uuid=UUID.randomUUID().toString();
@@ -552,6 +557,27 @@ public class DataController {
             }
         } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "审批信息", notes = "审批信息", httpMethod = "GET", tags = "审批信息接口")
+    @GetMapping("/process")
+    @ResponseBody
+    public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+                             @RequestParam(value = "unitName", required = false) String unitName,
+                             @RequestParam(value = "approveFlag", required = false) String approveFlag,HttpServletRequest request) {
+        try {
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (user!=null){
+                QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
 }
