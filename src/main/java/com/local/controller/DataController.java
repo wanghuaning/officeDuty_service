@@ -600,7 +600,7 @@ public class DataController {
     @ApiOperation(value = "审批信息", notes = "审批信息", httpMethod = "GET", tags = "审批信息接口")
     @GetMapping("/process")
     @ResponseBody
-    public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
+    public String getProcess(@RequestParam(value = "size", required = false) String pageSize,
                              @RequestParam(value = "page", required = false) String pageNumber,
                              @RequestParam(value = "unitName", required = false) String unitName,
                              @RequestParam(value = "approveFlag", required = false) String approveFlag,HttpServletRequest request) {
@@ -615,6 +615,26 @@ public class DataController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "职数审批信息详情", notes = "职数审批信息详情", httpMethod = "POST", tags = "职数审批信息详情接口")
+    @PostMapping(value = "/processDetail")
+    public String getProcessDetail(@RequestParam(value = "rowid", required = false) String rowid) {
+        if (!StrUtils.isBlank(rowid)){
+            Sys_Process process=processService.selectProcessById(rowid);
+            if (process!=null){
+                Sys_Approal sys_processes = gson.fromJson(process.getParam(), new TypeToken<Sys_Approal>() {
+                }.getType());
+                if (sys_processes!=null) {
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, sys_processes, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
 }
