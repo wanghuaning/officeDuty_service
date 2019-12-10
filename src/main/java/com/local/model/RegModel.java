@@ -2,6 +2,8 @@ package com.local.model;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class RegModel {
     private String peopleNums;//编制数
@@ -43,4 +45,12 @@ public class RegModel {
     private String tiaozhengThreeClerkNum;//调整后三级主任科员
     private String tiaozhengFourClerkNum;//调整后四级主任科员
     private String tiaozhengThreeFourJunZhuanNum;//调整后三级和四级主任科员首次套转不占职数军转干部数
+    private List<RankModel> rankModels;//上报审核备案人员名单
+    private String contact;// 联系人
+    private String contactNumber; // 联系电话
+    private String nowDateStr; // 填表日期
+    private String month;
+    private String day;
+    private String peopleName;
+    private String peopleNum;
 }

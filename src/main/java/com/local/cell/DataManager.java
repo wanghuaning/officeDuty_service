@@ -1,5 +1,6 @@
 package com.local.cell;
 
+import com.google.gson.Gson;
 import com.local.common.config.CompareFileds;
 import com.local.entity.sys.*;
 import com.local.model.*;
@@ -146,8 +147,258 @@ public class DataManager {
         approalModel.setVacancyTotal(String.valueOf(vacancyTotal));
         return approalModel;
     }
-
     public static List<RankModel> filingList(UnitService unitService, String unitName, HttpServletResponse response,
+                                             PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService,
+                                             RegModel model,ProcessService processService) throws Exception {
+        List<RankModel> rankModels = new ArrayList<>();
+        SYS_UNIT unit = unitService.selectUnitByName(unitName);
+        model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
+        model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
+        model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        if (peoples != null) {
+            int order = 0;
+            Long xianyouZhengke = 0L, xianyouFuke = 0L, xianyouGanbu = 0L, xianyouOne = 0L, xianyouTow = 0L;
+            Long xianyouOneTowTurn = 0L, xianyouThree = 0L, xianyouFour = 0L, xianyouThreeFourTurn = 0L;
+            Long nidingZhengke = 0L, nidingFuKe = 0L, nidingGanbu = 0L, nidingOne = 0L, nidingTow = 0L, nidingThree = 0L, nidingFour = 0L;
+            Long jianRenZhengKeOne = 0L, jianRenFukeTow = 0L, jianRenFukeThree = 0L;
+            Long zhengKeGaiTow = 0L, fukeGaiFour = 0L;
+            Long tiaozhengZhengKe = 0L, tiaozhengFuke = 0L, tiaozhengGanbu = 0L, tiaozhengOneTow = 0L, tiaozhengOne = 0L, tiaozhengTow = 0L, tiaozhengOneTowTurn = 0L, tiaozhengThreeFour = 0L, tiaozhengThree = 0L, tiaozhengFour = 0L, tiaozhengThreeFourTurn = 0L;
+            for (SYS_People people : peoples) {
+                SYS_Rank nowRank = rankService.selectNowRankByPidOrderByTime(people.getId());
+                SYS_Duty nowduty = dutyService.selectNowDutyByPidOrderByTime(people.getId());
+                if (nowduty != null) {
+                    if ("乡科级正职".equals(nowduty.getName())) {
+                        xianyouZhengke++;
+                        if (people.getDetail() != null) {
+                            if ("实名制管理领导干部".equals(people.getDetail())) {
+                                xianyouGanbu++;
+                            }
+                        }
+                        if (nowRank != null) {
+                            if ("一级主任科员".equals(nowRank.getName())) {
+                                jianRenZhengKeOne++;
+                            }
+                        }
+                    }
+                    if ("乡科级副职".equals(nowduty.getName())) {
+                        xianyouFuke++;
+                        if (people.getDetail() != null) {
+                            if ("实名制管理领导干部".equals(people.getDetail())) {
+                                xianyouGanbu++;
+                            }
+                        }
+                        if (nowRank != null) {
+                            if ("二级主任科员".equals(nowRank.getName())) {
+                                jianRenFukeTow++;
+                            } else if ("三级主任科员".equals(nowRank.getName())) {
+                                jianRenFukeThree++;
+                            }
+                        }
+                    }
+                } else {
+                    SYS_Rank mianRank = rankService.selectNotEnableRankByPidOrderByTime(people.getId());
+                    if (mianRank != null) {
+                        if (nowduty != null) {
+                            if ("二级主任科员".equals(mianRank.getName()) && "乡科级正职".equals(nowduty.getName())) {
+                                zhengKeGaiTow++;
+                            }
+                            if ("四级主任科员".equals(mianRank.getName()) && "乡科级副职".equals(nowduty.getName())) {
+                                fukeGaiFour++;
+                            }
+                        }
+                    }
+                }
+                if (nowRank != null) {
+                    if ("一级主任科员".equals(nowRank.getName())) {
+                        xianyouOne++;
+                        if ("是".equals(nowRank.getLeaders())) {
+                            xianyouOneTowTurn++;
+                        }
+                    }
+                    if ("二级主任科员".equals(nowRank.getName())) {
+                        xianyouTow++;
+                        if ("是".equals(nowRank.getLeaders())) {
+                            xianyouOneTowTurn++;
+                        }
+                    }
+
+                    if ("三级主任科员".equals(nowRank.getName())) {
+                        xianyouThree++;
+                        if ("是".equals(nowRank.getLeaders())) {
+                            xianyouThreeFourTurn++;
+                        }
+                    }
+                    if ("四级主任科员".equals(nowRank.getName())) {
+                        xianyouFour++;
+                        if ("是".equals(nowRank.getLeaders())) {
+                            xianyouThreeFourTurn++;
+                        }
+                    }
+                }
+                SYS_Duty niDuty = dutyService.selectNotProDutyByPidOrderByTime(people.getId());
+                if (niDuty != null) {
+                    if ("乡科级正职".equals(niDuty.getName())) {
+                        nidingZhengke++;
+                        if (people.getDetail() != null) {
+                            if ("实名制管理领导干部".equals(people.getDetail())) {
+                                nidingGanbu++;
+                            }
+                        }
+                    }
+                    if ("乡科级副职".equals(niDuty.getName())) {
+                        nidingFuKe++;
+                        if (people.getDetail() != null) {
+                            if ("实名制管理领导干部".equals(people.getDetail())) {
+                                nidingGanbu++;
+                            }
+                        }
+                    }
+                }
+                SYS_Rank nirenrank = rankService.selectNotAproRanksByPid(people.getId());
+                if (nirenrank != null) {//拟任
+                    if ("一级主任科员".equals(nirenrank.getName())) {
+                        nidingOne++;
+                    }
+                    if ("二级主任科员".equals(nirenrank.getName())) {
+                        nidingTow++;
+                    }
+                    if ("三级主任科员".equals(nirenrank.getName())) {
+                        nidingThree++;
+                    }
+                    if ("四级主任科员".equals(nirenrank.getName())) {
+                        nidingFour++;
+                    }
+                    //上报名册
+                    order++;
+                    int ayear = 2019;
+                    RankModel rankModel = new RankModel();
+                    rankModel.setName(people.getName());
+                    rankModel.setOrder(order);
+                    rankModel.setSex(people.getSex());
+                    rankModel.setEducation(people.getEducation());
+                    rankModel.setBirthday(DateUtil.dateToString(people.getBirthday()));
+                    rankModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
+                    if (nowduty != null) {
+                        rankModel.setRenzhibumen(nowduty.getDutyType());
+                        rankModel.setNowDuty(nowduty.getName());
+                        rankModel.setTongzhiwudate(DateUtil.dateToString(nowduty.getDutyTime()));
+                        rankModel.setNirenduty(nowduty.getName());
+                    }
+                    if (nowRank != null) {
+                        rankModel.setNowRank(nowRank.getName());
+                        rankModel.setTongzhijiDate(DateUtil.dateToString(nowRank.getRankTime()));
+                        ayear = DateUtil.getYear(nowRank.getCreateTime());
+                    }
+                    if (niDuty != null) {
+                        rankModel.setNirenbumen(niDuty.getDutyType());
+                        rankModel.setNirenduty(niDuty.getName());
+                        SYS_Duty niMianDuty = dutyService.selectNotEnableDutyByPidOrderByTime(people.getId());
+                        if (niMianDuty != null) {
+                            rankModel.setNimianduty(niMianDuty.getName());
+                        }
+                    }
+                    rankModel.setNirenrank(nirenrank.getName());
+                    SYS_Rank niMianRank = rankService.selectNotEnableRankByPidOrderByTime(people.getId());
+                    if (niMianRank != null) {
+                        rankModel.setNimianduty(niMianRank.getName());
+                    }
+                    rankModel.setJunzhuanganbu(people.getDetail());
+                    List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByNameAndTime("优秀", people.getId(), ayear);
+                    if (assessments != null) {
+                        StringBuffer sb = new StringBuffer();
+                        for (SYS_Assessment assessment : assessments) {
+                            sb.append(assessment.getYear() + ";");
+                        }
+                        if (sb.length() > 0) {
+                            rankModel.setKaoheyouxiu(sb.toString());
+                        }
+                    }
+                    rankModels.add(rankModel);
+                }
+            }
+            model.setXianyouzhengke(Long.toString(xianyouZhengke));//现有正科
+            model.setXianyoufuke(Long.toString(xianyouFuke));//现有副科
+            model.setXianyouganbu(Long.toString(xianyouGanbu));//现有实名制干部
+            model.setHezhunoneTowClerkNum(Long.toString(unit.getOneTowClerkNum()));//核准职级职数一级、二级
+            model.setHezhunthreeFourClerkNum(Long.toString(unit.getThreeFourClerkNum()));//核准职级职数三级、四级
+            model.setXianyouoneTowClerkNum(Long.toString(xianyouOne + xianyouTow));//现有职级一级、二级合计
+            model.setXianyouoneClerkNum(Long.toString(xianyouOne));//现有职级一级
+            model.setXianyoutowClerkNum(Long.toString(xianyouTow));//现有职级二级
+            model.setXianyouOneTowJunZhuanNum(Long.toString(xianyouOneTowTurn));//现有职级一级、二级军转
+            model.setXianyouthreeFourClerkNum(Long.toString(xianyouThree + xianyouFour));//现有职级三级、四级合计
+            model.setXianyouThreeClerkNum(Long.toString(xianyouThree));//现有职级三级
+            model.setXianyouFourClerkNum(Long.toString(xianyouFour));//现有职级四级
+            model.setXianyouThreeFourJunZhuanNum(Long.toString(xianyouThreeFourTurn));//现有职级三级、四级军转
+            model.setNijinshengzhengke(Long.toString(nidingZhengke));//拟晋升正科
+            model.setNijinshengfuke(Long.toString(nidingFuKe));//拟晋升副科
+            model.setNijinshengganbu(Long.toString(nidingGanbu));//拟晋升干部
+            model.setNijinshengoneClerkNum(Long.toString(nidingOne));//拟晋升一级主任科员
+            model.setNijinshengtowClerkNum(Long.toString(nidingTow));//拟晋升二级主任科员
+            model.setNijinshengThreeClerkNum(Long.toString(nidingThree));//拟晋升三级主任科员
+            model.setNijinshengFourClerkNum(Long.toString(nidingFour));//拟晋升四级主任科员
+            model.setNijinshengJianZhioneClerkNum(Long.toString(jianRenZhengKeOne));//拟晋升兼职一级主任科员
+            model.setNijinshengJiantowClerkNum(Long.toString(jianRenFukeTow));//拟晋升兼职二级主任科员
+            model.setNijinshengJianThreeClerkNum(Long.toString(jianRenFukeThree));//拟晋升兼职三级主任科员
+            model.setZhengkeGaitowClerkNum(Long.toString(zhengKeGaiTow));//正科改任二级主任科员
+            model.setFukeGaiFourClerkNum(Long.toString(fukeGaiFour));//副科改任四级主任科员
+            model.setTiaozhengzhengke(Long.toString(xianyouZhengke + nidingZhengke));//调整后正科
+            model.setTiaozhengfuke(Long.toString(xianyouFuke + nidingFuKe));//调整后副科
+            model.setTiaozhengganbu(Long.toString(xianyouGanbu + nidingGanbu));//调整后干部
+            model.setTiaozhengoneTowClerkNum(Long.toString(xianyouOne + nidingOne + jianRenZhengKeOne + xianyouTow + nidingTow + jianRenFukeTow + xianyouOneTowTurn));//调整后一级和二级主任科员合计
+            model.setTiaozhengoneClerkNum(Long.toString(xianyouOne + nidingOne + jianRenZhengKeOne));//调整后一级主任科员
+            model.setTiaozhengtowClerkNum(Long.toString(xianyouTow + nidingTow + jianRenFukeTow));//调整后二级主任科员
+            model.setTiaozhengOneTowJunZhuanNum(Long.toString(xianyouOneTowTurn));//调整后一级和二级主任科员首次套转不占职数军转干部数
+            model.setTiaozhenghreeFourClerkNum(Long.toString(xianyouThree + nidingThree + jianRenFukeThree + xianyouFour + nidingFour + xianyouThreeFourTurn));//调整后三级和四级主任科员合计
+            model.setTiaozhengThreeClerkNum(Long.toString(xianyouThree + nidingThree + jianRenFukeThree));//调整后三级主任科员
+            model.setTiaozhengFourClerkNum(Long.toString(xianyouFour + nidingFour));//调整后四级主任科员
+            model.setTiaozhengThreeFourJunZhuanNum(Long.toString(xianyouThreeFourTurn));//调整后三级和四级主任科员首次套转不占职数军转干部数
+            model.setContact(unit.getContact());
+            model.setContactNumber(unit.getContactNumber());
+            model.setNowDateStr(DateUtil.dateToString(new Date()));
+        }
+        String contact="";
+        if (model.getContact()!=null){
+            contact= model.getContact();
+        }
+        String contactNum="";
+        if (model.getContactNumber() !=null){
+            contactNum=model.getContactNumber();
+        }
+        String nowDate="";
+        if (model.getNowDateStr()!=null){
+            nowDate=model.getNowDateStr();
+        }
+        model.setContact(contact);
+        model.setContactNumber(contactNum);
+        model.setNowDateStr(nowDate);
+        model.setRankModels(rankModels);
+        saveRegProcess(unit,model,processService);
+        return filingDataList(rankModels, response, unit, model);
+    }
+    private final static Gson gson = new Gson();
+    public static Sys_Process saveRegProcess(SYS_UNIT unit,RegModel model,ProcessService processService){
+        Sys_Process process=processService.selectProcessByFlag(unit.getId(),"0");
+        if (process!=null){
+            process.setCreateTime(new Date());
+            process.setFlag("0");
+            process.setParam(gson.toJson(model));
+            processService.updateProcess(process);
+        }else {
+            process=new Sys_Process();
+            process.setCreateTime(new Date());
+            String uuid=UUID.randomUUID().toString();
+            process.setId(uuid);
+            process.setFlag("0");
+            process.setUnitId(unit.getId());
+            process.setUnitName(unit.getName());
+            process.setStates("未审核");
+            process.setParam(gson.toJson(model));
+            processService.insertProcess(process);
+        }
+        return process;
+    }
+    public static RegModel getRegDataInfo(UnitService unitService, String unitName, HttpServletResponse response,
                                              PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService) throws Exception {
         List<RankModel> rankModels = new ArrayList<>();
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
@@ -354,7 +605,24 @@ public class DataManager {
             model.setTiaozhengFourClerkNum(Long.toString(xianyouFour + nidingFour));//调整后四级主任科员
             model.setTiaozhengThreeFourJunZhuanNum(Long.toString(xianyouThreeFourTurn));//调整后三级和四级主任科员首次套转不占职数军转干部数
         }
-        return filingDataList(rankModels, response, unit, model);
+        String contact="";
+        if (model.getContact()!=null){
+            contact= model.getContact();
+        }
+        String contactNum="";
+        if (model.getContactNumber() !=null){
+            contactNum=model.getContactNumber();
+        }
+        String nowDate="";
+        if (model.getNowDateStr()!=null){
+            nowDate=model.getNowDateStr();
+        }
+        model.setContact(contact);
+        model.setContactNumber(contactNum);
+//        String datestr=DateUtil.getYear(new Date())+"年"+DateUtil.getMonth(new Date()) +"月"+DateUtil.getDay(new Date())+"日";
+        model.setNowDateStr(nowDate);
+        model.setRankModels(rankModels);
+        return model;
     }
 
     public static List<RankModel> filingDataList(List<RankModel> rankModels, HttpServletResponse response, SYS_UNIT unit, RegModel model) throws Exception {
@@ -373,12 +641,15 @@ public class DataManager {
             excelFileGenerator.createRankApprovalExcelFile(temp.getSheet("备案名册"), 11, rankModels, arr);
             excelFileGenerator.createRegReimbursementExcel(temp.getSheet("备案名册"), model);
             excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 11, new int[]{0}, new String[]{"说明"}, rankModels.size() + 11, rankModels.size() + 11, 0, 40, HorizontalAlignment.LEFT);
-            excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 12, new int[]{0}, new String[]{"呈报单位意见:经X月X日党组（党委）会议研究决定，XX等XX名同志职级晋升符合规定的资格条件，同意晋升。"}, rankModels.size() + 12, rankModels.size() + 13, 0, 19);
+            excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 12, new int[]{0}, new String[]{"呈报单位意见:经"+model.getMonth()+"月"+model.getDay()+"日党组（党委）会议研究决定，"+model.getPeopleName()+"等"+model.getPeopleNum()+"名同志职级晋升符合规定的资格条件，同意晋升。"}, rankModels.size() + 12, rankModels.size() + 13, 0, 19);
             excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 14, new int[]{0}, new String[]{"（签章）"}, rankModels.size() + 14, rankModels.size() + 14, 0, 19);
             excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 15, new int[]{0}, new String[]{" 年   月  日"}, rankModels.size() + 15, rankModels.size() + 15, 0, 19);
             excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 12, new int[]{20}, new String[]{"公务员主管部门审核备案意见："}, rankModels.size() + 12, rankModels.size() + 13, 20, 40, HorizontalAlignment.LEFT);
             excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 14, new int[]{20}, new String[]{"（签章）"}, rankModels.size() + 14, rankModels.size() + 14, 20, 40);
             excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 15, new int[]{20}, new String[]{" 年   月  日"}, rankModels.size() + 15, rankModels.size() + 15, 20, 40);
+            excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 16, new int[]{0}, new String[]{"填表人："+model.getContact()}, rankModels.size() + 16, rankModels.size() + 16, 0, 19, HorizontalAlignment.LEFT);
+            excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 16, new int[]{20}, new String[]{"联系电话："+model.getContactNumber()}, rankModels.size() + 16, rankModels.size() + 16, 20, 32, HorizontalAlignment.LEFT);
+            excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 16, new int[]{33}, new String[]{"填表时间："+model.getNowDateStr()}, rankModels.size() + 16, rankModels.size() + 16, 33, 40, HorizontalAlignment.LEFT);
             temp.write(response.getOutputStream());
             temp.close();
             return rankModels;

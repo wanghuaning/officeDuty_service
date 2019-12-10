@@ -113,13 +113,33 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "查询晋升职级人员备案名册", notes = "查询晋升职级人员备案名册", httpMethod = "GET", tags = "查询晋升职级人员备案名册接口")
+    @PostMapping(value = "/getRegData")
+    @ResponseBody
+    public String getRegData(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitName", required = false) String unitName,
+                             @RequestParam(value = "unitIds", required = false) String[] unitIds) {
+        try {
+                RegModel regDataInfo = DataManager.getRegDataInfo(unitService, unitName, response, peopleService, rankService,dutyService,assessmentService);
+                return new Result(ResultCode.SUCCESS.toString(), unitName, regDataInfo, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "GET", tags = "导出晋升职级人员备案名册接口")
     @RequestMapping(value = "/exportDataExcel")
     public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
-            , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds) {
+            , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds,
+                                  @RequestParam(value = "month", required = false) String month, @RequestParam(value = "day", required = false) String day,
+                                  @RequestParam(value = "peopleName", required = false) String peopleName,@RequestParam(value = "peopleNum", required = false) String peopleNum) {
         try {
             if ("filingList".equals(flag)) {//备案表
-                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,dutyService,assessmentService);
+                RegModel model = new RegModel();
+                model.setMonth(month);
+                model.setDay(day);
+                model.setPeopleName(peopleName);
+                model.setPeopleNum(peopleNum);
+                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,dutyService,assessmentService,model,processService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }
             if ("approval".equals(flag)) {
