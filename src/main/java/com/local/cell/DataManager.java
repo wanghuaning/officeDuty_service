@@ -392,7 +392,7 @@ public class DataManager {
             process.setFlag("0");
             process.setUnitId(unit.getId());
             process.setUnitName(unit.getName());
-            process.setStates("未审核");
+            process.setStates("未审批");
             process.setParam(gson.toJson(model));
             processService.insertProcess(process);
         }

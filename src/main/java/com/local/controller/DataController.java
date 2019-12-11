@@ -400,6 +400,9 @@ public class DataController {
                             DataManager.approvalDataCheck( resultMap,  approals,  approvalService,  unit,
                                     dataType, peopleService, rankService);
                         }
+                        if (processes.size()>0){
+                            resultMap.put("processList", processes);
+                        }
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
                 } else {
