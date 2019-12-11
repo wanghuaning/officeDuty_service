@@ -76,13 +76,22 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 8)
   private String states;
 
-  public String getFlag() {
+  private String processFlag;
+
+  public String getProcessFlag() {
     if ("0".equals(flag)){
       return "晋升职级人员备案名册";
     }else {
-     return "职级职数使用审批表";
+      return "职级职数使用审批表";
     }
+  }
 
+  public void setProcessFlag(String processFlag) {
+    this.processFlag = processFlag;
+  }
+
+  public String getFlag() {
+    return flag;
   }
 
   public void setFlag(String flag) {

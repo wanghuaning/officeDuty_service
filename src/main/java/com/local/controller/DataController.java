@@ -126,6 +126,28 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "查询晋升职级人员备案名册", notes = "查询晋升职级人员备案名册", httpMethod = "GET", tags = "查询晋升职级人员备案名册接口")
+    @PostMapping(value = "/getRegDataByRow")
+    @ResponseBody
+    public String getRegDataByRow(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "rowId", required = false) String rowId) {
+        try {
+            Sys_Process process=processService.selectProcessById(rowId);
+            if (process!=null){
+                RegModel sys_processes = gson.fromJson(process.getParam(), new TypeToken<RegModel>() {
+                }.getType());
+                if (sys_processes!=null) {
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, sys_processes, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "GET", tags = "导出晋升职级人员备案名册接口")
     @RequestMapping(value = "/exportDataExcel")
     public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
