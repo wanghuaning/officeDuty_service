@@ -482,7 +482,7 @@ public class DataController {
                             approals = DataManager.saveApproalJsonModel(aprovalList);
                             if (approals.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals));
-                                DataManager.saveApprovalData(approals,  approvalService, unitID);
+                                DataManager.saveApprovalData(approals,  approvalService, unitID,unitService);
                                 objects.add(approals);
                             }
                             processes = DataManager.saveProcessJsonModel(processList);
@@ -609,7 +609,7 @@ public class DataController {
                         List<Sys_Approal> sys_approals = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Approal>>() {
                         }.getType());
                         if (sys_approals.size() > 0) {
-                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId());
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(),unitService);
                             objects.add(sys_approals);
                         }
                     }else if (dataInfo.getId().contains("process")) {

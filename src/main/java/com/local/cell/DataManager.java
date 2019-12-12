@@ -2797,7 +2797,7 @@ public class DataManager {
      * @param unitId
      * @return
      */
-    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId) {
+    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId,UnitService unitService) {
         List<Sys_Approal> approalList = new ArrayList<>();
         for (Sys_Approal approal : approals) {
             approalList.add(approal);
@@ -2807,9 +2807,28 @@ public class DataManager {
             } else {
                 approal.setFlag("1");
                 approvalService.insertApproal(approal);
+                SYS_UNIT unit=unitService.selectUnitById(approal.getUnitId());
+                if (unit!=null){
+                    saveUnitData(unitService,unit,approal);
+                }
             }
         }
         return approalList;
+    }
+    public static SYS_UNIT saveUnitData(UnitService unitService,SYS_UNIT unit,Sys_Approal approal){
+        unit.setOneResearcherNum(StrUtils.strToLong(approal.getOneResearcherNum()));
+        unit.setTowResearcherNum(StrUtils.strToLong(approal.getTowResearcherNum()));
+        unit.setOneTowResearcherNum(StrUtils.strToLong(approal.getOneTowResearcherNum()));
+        unit.setThreeResearcherNum(StrUtils.strToLong(approal.getThreeResearcherNum()));
+        unit.setFourResearcherNum(StrUtils.strToLong(approal.getFourResearcherNum()));
+        unit.setThreeFourResearcherNum(StrUtils.strToLong(approal.getThreeFourResearcherNum()));
+        unit.setOneClerkNum(StrUtils.strToLong(approal.getOneClerkNum()));
+        unit.setTowClerkNum(StrUtils.strToLong(approal.getTowClerkNum()));
+        unit.setOneTowClerkNum(StrUtils.strToLong(approal.getOneTowClerkNum()));
+        unit.setThreeClerkNum(StrUtils.strToLong(approal.getThreeClerkNum()));
+        unit.setFourClerkNum(StrUtils.strToLong(approal.getFourClerkNum()));
+        unit.setThreeFourClerkNum(StrUtils.strToLong(approal.getThreeFourClerkNum()));
+        return unit;
     }
     public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name) {
         List<Sys_Process> approalList = new ArrayList<>();
@@ -2817,6 +2836,9 @@ public class DataManager {
             approalList.add(process);
             Sys_Process approal1 = processService.selectProcessById(process.getId());
             if (approal1 != null) {
+                process.setStates("已审核");
+                process.setPeople(name);
+                process.setProcessTime(new Date());
                 processService.updateProcess(process);
             } else {
                 process.setStates("已审核");
