@@ -51,6 +51,7 @@ public class SYS_AREA implements Serializable {
     private String value;
 
     private String label;
+
     private List<SYS_AREA> children;
 
     public Integer getOrderNum() {

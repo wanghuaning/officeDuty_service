@@ -31,7 +31,7 @@ public class AreaCodeController {
     @GetMapping("/selectArea")
     @ResponseBody
     public String selectAreaCityuCode() {
-            List<SYS_AREA> areas = codeService.selectAreaCodeByUpCode("1");
+            List<SYS_AREA> areas = codeService.selectAreaCodeByUpCode("530000");
             //将区域信息放入redis
             if (areas != null) {
 //                redisUtil.set("areas", new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, areas, null).getJson(), 3600);

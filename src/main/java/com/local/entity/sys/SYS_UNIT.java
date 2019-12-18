@@ -55,6 +55,12 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.VARCHAR,width = 64)
     private String affiliation;
 
+    @ApiModelProperty("单位性质")
+    @Comment("单位性质")
+    @Column("unit_Type")
+    @ColDefine(type = ColType.VARCHAR,width = 64)
+    private String unitType;
+
     @ApiModelProperty("所属序列")
     @Comment("所属序列")
     @Column("category")
@@ -284,6 +290,14 @@ public class SYS_UNIT implements Serializable {
     private List<SYS_UNIT> children;
     private String value;
     private String label;
+
+    public String getUnitType() {
+        return unitType;
+    }
+
+    public void setUnitType(String unitType) {
+        this.unitType = unitType;
+    }
 
     public String getRegCode() {
         return regCode;

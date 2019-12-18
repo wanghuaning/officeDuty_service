@@ -12,7 +12,7 @@ public interface CodeService {
     //机构级别
     List<SYS_CODE> selectLevels();
 
-    //机构类别
+    //所属序列
     List<SYS_CODE> selectCategorys();
 
     //单位隶属关系

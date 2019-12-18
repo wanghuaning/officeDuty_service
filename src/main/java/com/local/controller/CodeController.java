@@ -38,7 +38,7 @@ public class CodeController {
         }
     }
 
-    @ApiOperation(value = "查询机构类别", notes = "机构类别表", httpMethod = "GET", tags = {"字典管理接口"})
+    @ApiOperation(value = "查询所属序列", notes = "查询所属序列", httpMethod = "GET", tags = {"查询所属序列接口"})
     @GetMapping("/category")
     @ResponseBody
     public String getCategorys(){
@@ -170,6 +170,17 @@ public class CodeController {
     @ResponseBody
     public String getUnitType(){
         List<SYS_CODE> codes=codeService.selectCodesByPid("345");
+        if (codes!=null){
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "单位性质", notes = "单位性质", httpMethod = "GET", tags = {"单位性质接口"})
+    @GetMapping("/unitTypes")
+    @ResponseBody
+    public String getUnitTypes(){
+        List<SYS_CODE> codes=codeService.selectCodesByPid("540");
         if (codes!=null){
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
         }else {

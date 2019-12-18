@@ -86,7 +86,7 @@ public class CodeServiceImpl implements CodeService {
         }
     }
     /**
-     * 机构类别
+     * 所属序列
      */
     @Override
     public List<SYS_CODE> selectCategorys(){

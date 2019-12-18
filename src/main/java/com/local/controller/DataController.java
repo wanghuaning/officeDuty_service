@@ -682,4 +682,49 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+
+    /**
+     * 统计表
+     */
+    @ApiOperation(value = "领导职务情况统计表", notes = "领导职务情况统计表", httpMethod = "POST", tags = "领导职务情况统计表接口")
+    @PostMapping(value = "/count")
+    public String countLeaderRank(@RequestParam(value = "unitId", required = false) String unitId){
+        if (!StrUtils.isBlank(unitId)){
+            SYS_UNIT unit=unitService.selectUnitById(unitId);
+            if (unit!=null){
+                DutyCountModel model=new DutyCountModel();
+
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    public void getcountLeaderRank(String name, SYS_UNIT unit){
+        DutyCountModel model=new DutyCountModel();
+        model.setHdZhengKe(unit.getMainHallNum().toString());
+        model.setHdFuKe(unit.getDeputyHallNum().toString());
+        Long total1=unit.getMainHallNum()+unit.getDeputyHallNum();
+        model.setHdTotal(total1.toString());
+//        model.setTzqZhengKeGanBu();
+    }
+
+    @ApiOperation(value = "完成职级晋升情况统计表", notes = "完成职级晋升情况统计表", httpMethod = "POST", tags = "完成职级晋升情况统计表接口")
+    @PostMapping(value = "/complete")
+    public String countCompleteRank(@RequestParam(value = "unitId", required = false) String unitId){
+        if (!StrUtils.isBlank(unitId)){
+            SYS_UNIT unit=unitService.selectUnitById(unitId);
+            if (unit!=null){
+                DutyCountModel model=new DutyCountModel();
+
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+        }else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }
