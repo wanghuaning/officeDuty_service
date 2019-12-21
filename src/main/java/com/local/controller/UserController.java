@@ -9,6 +9,7 @@ import com.local.cell.UserManager;
 import com.local.common.config.ConfigProperties;
 import com.local.common.data.DatabaseTool;
 import com.local.common.filter.FileUtil;
+import com.local.entity.sys.SYS_Message;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
@@ -591,6 +592,61 @@ public class UserController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), "数据库备份失败", null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "用户信息", notes = "用户信息", httpMethod = "GET", tags = "用户信息接口")
+    @GetMapping("/message")
+    @ResponseBody
+    public String getMessages(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber) {
+        try {
+            QueryResult queryResult = userService.selectMessages(Integer.parseInt(pageSize), Integer.parseInt(pageNumber));
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "新增消息", notes = "新增消息", httpMethod = "POST", tags = "新增消息接口")
+    @PostMapping(value = "/addMessage")
+    @ResponseBody
+    public String addMessage(@Validated @RequestBody SYS_Message message) {
+        try {
+            String uuid = UUID.randomUUID().toString();
+            message.setId(uuid);
+            userService.insertMessage(message);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, message, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "修改消息", notes = "修改消息", httpMethod = "POST", tags = "修改消息接口")
+    @PostMapping(value = "/editMessage")
+    @ResponseBody
+    public String editMessage(@Validated @RequestBody SYS_Message message) {
+        try {
+            userService.updateMessage(message);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, message, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "删除消息", notes = "删除消息", httpMethod = "POST", tags = "删除消息接口")
+    @PostMapping(value = "/delMessage")
+    @ResponseBody
+    public String delMessage(@RequestParam(value = "id", required = true) String id, HttpServletRequest request) {
+        try {
+            userService.deleteUser(id);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, null, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
 }

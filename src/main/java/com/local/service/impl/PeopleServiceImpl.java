@@ -136,6 +136,62 @@ public class PeopleServiceImpl implements PeopleService {
         }
     }
 
+    /**
+     * 人员状态查询
+     * @param unitId
+     * @param states
+     * @return
+     */
+    @Override
+    public List<SYS_People> selectIncumbentPeoplesByUnitId(String unitId,String states){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId).andEquals("states",states);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    // 套转人员查询
+    @Override
+   public List<SYS_People> selectTrunPeoplesByUnitId(String unitId){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId).andNotEquals("turn_Rank",null);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+   }
+    @Override
+   public List<SYS_People> selectSexPeoplesByUnitId(String unitId,String sex){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId).andNotEquals("sex",sex);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+   }
+    @Override
+   public List<SYS_People> selectPartyPeoplesByUnitId(String unitId,String party){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId",unitId).andEquals("party",party);
+        List<SYS_People> peoples=new ArrayList<>();
+        List<SYS_People> list=dao.query(SYS_People.class,cri);
+        if (!StrUtils.isBlank(list) && list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+   }
     @Override
     public List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty){
         Criteria cri = Cnd.cri();

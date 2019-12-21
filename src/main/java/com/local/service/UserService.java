@@ -1,6 +1,7 @@
 package com.local.service;
 
 
+import com.local.entity.sys.SYS_Message;
 import com.local.entity.sys.SYS_USER;
 import com.local.util.Result;
 import org.nutz.dao.QueryResult;
@@ -29,4 +30,10 @@ public interface UserService {
     List<SYS_USER> selectUsersByUnitId(String unitId);
 
     SYS_USER selectUserById(String id);
+
+    QueryResult selectMessages(int pageSize, int pageNumber);
+    void updateMessage(SYS_Message message);
+    void insertMessage(SYS_Message message);
+    void deleteMessage(String id);
+    SYS_Message selectMessageById(String id);
 }

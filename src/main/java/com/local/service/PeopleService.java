@@ -24,4 +24,12 @@ public interface PeopleService {
 
     List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty);
     List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId);
+
+
+    List<SYS_People> selectIncumbentPeoplesByUnitId(String unitId,String states);// 在职人员等查询
+    List<SYS_People> selectTrunPeoplesByUnitId(String unitId);// 套转人员查询
+
+    List<SYS_People> selectSexPeoplesByUnitId(String unitId,String sex);// 性别查询
+
+    List<SYS_People> selectPartyPeoplesByUnitId(String unitId,String party);// 党员查询
 }

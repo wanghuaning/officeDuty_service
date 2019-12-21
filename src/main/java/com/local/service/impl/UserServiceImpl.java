@@ -169,4 +169,53 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public QueryResult selectMessages(int pageSize, int pageNumber){
+        Pager pager=new Pager();
+        pager.setPageNumber(pageNumber+1);
+        pager.setPageSize(pageSize);
+        List<SYS_Message> userList=new ArrayList<>();
+        Criteria cri= Cnd.cri();
+        cri.where().andNotEquals("name",null);
+        userList = dao.query(SYS_Message.class,cri,pager);
+        if (StrUtils.isBlank(pager)){
+            pager=new Pager();
+        }
+        pager.setRecordCount(dao.count(SYS_Message.class,cri));
+
+        QueryResult queryResult=new QueryResult(userList,pager);
+        return queryResult;
+    }
+    @Transactional
+    @SLog(tag = "新增消息", type = "C")
+    @Override
+    public void insertMessage(SYS_Message message){
+        dao.insert(message);
+    }
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "修改消息", type = "U")
+    public void updateMessage(SYS_Message message){
+        dao.update(message);
+    }
+    @Override
+    @Transactional
+    @SLog(tag = "删除消息", type = "D")
+    public void deleteMessage(String id){
+        dao.delete(SYS_Message.class,id);
+    }
+
+    @Override
+    public SYS_Message selectMessageById(String id){
+        List<SYS_Message> list = new ArrayList<>();
+        Criteria criteria = Cnd.cri();
+        criteria.where().andEquals("id", id);
+        list = dao.query(SYS_Message.class, criteria);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
 }

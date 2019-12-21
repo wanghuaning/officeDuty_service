@@ -53,6 +53,7 @@ public class SYS_People implements Serializable {
   @ApiModelProperty("性别")
   @Comment("性别")
   @Column("sex")
+  @Default(value = "男")
   @ColDefine(type = ColType.VARCHAR, width = 8)
   private String sex;
 
@@ -214,6 +215,21 @@ public class SYS_People implements Serializable {
   @Column("real_Name")
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String realName;
+
+  @ApiModelProperty("人员状态")
+  @Comment("人员状态")
+  @Column("states")
+  @Default(value = "在职")
+  @ColDefine(type = ColType.VARCHAR, width = 16)
+  private String states;
+
+  public String getStates() {
+    return states;
+  }
+
+  public void setStates(String states) {
+    this.states = states;
+  }
 
   public String getIsEnable() {
     return isEnable;
