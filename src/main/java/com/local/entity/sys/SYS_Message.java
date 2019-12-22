@@ -29,11 +29,25 @@ public class SYS_Message implements Serializable {
     @ColDefine(type = ColType.TEXT)
     private String param;
 
+    @ApiModelProperty("排序")
+    @Comment("排序")
+    @Column("order_Num")
+    @ColDefine(type = ColType.INT, width = 6)
+    private int orderNum;
+
     @ApiModelProperty("状态：0：在用；1:停用")
     @Comment("状态：0：在用；1:停用")
     @Column("states")
     @ColDefine(type = ColType.VARCHAR, width = 8)
     private String states;
+
+    public int getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(int orderNum) {
+        this.orderNum = orderNum;
+    }
 
     public String getId() {
         return id;

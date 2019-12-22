@@ -2,10 +2,7 @@ package com.local.controller;
 
 import com.local.cell.FormManager;
 import com.local.cell.UserManager;
-import com.local.entity.sys.SYS_Assessment;
-import com.local.entity.sys.SYS_People;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.entity.sys.SYS_USER;
+import com.local.entity.sys.*;
 import com.local.model.FormModel;
 import com.local.model.FormRankModel;
 import com.local.service.*;
@@ -306,6 +303,19 @@ public class FormController {
             }else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
             }
+        }catch (Exception e){
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "首页消息查询", notes = "首页消息查询", httpMethod = "GET", tags = "首页消息查询接口")
+    @GetMapping(value = "/formMessage")
+    @ResponseBody
+    public String getFormMessage(HttpServletRequest request) {
+        try {
+            //从请求的header中取出当前登录的登录
+                List<SYS_Message> messages=userService.selectMessages();
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, messages, null).getJson();
         }catch (Exception e){
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();

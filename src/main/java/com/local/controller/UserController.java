@@ -642,7 +642,7 @@ public class UserController {
     @ResponseBody
     public String delMessage(@RequestParam(value = "id", required = true) String id, HttpServletRequest request) {
         try {
-            userService.deleteUser(id);
+            userService.deleteMessage(id);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, null, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);

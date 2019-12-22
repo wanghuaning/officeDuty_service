@@ -178,6 +178,7 @@ public class UserServiceImpl implements UserService {
         List<SYS_Message> userList=new ArrayList<>();
         Criteria cri= Cnd.cri();
         cri.where().andNotEquals("name",null);
+        cri.getOrderBy().asc("order_Num");
         userList = dao.query(SYS_Message.class,cri,pager);
         if (StrUtils.isBlank(pager)){
             pager=new Pager();
@@ -191,18 +192,59 @@ public class UserServiceImpl implements UserService {
     @SLog(tag = "新增消息", type = "C")
     @Override
     public void insertMessage(SYS_Message message){
+        List<SYS_Message> messageList = dao.query(SYS_Message.class, Cnd.where("name", "!=", ""));
+        if (messageList.size()>0){
+            for (SYS_Message message1:messageList){
+                int order=message1.getOrderNum();
+                message1.setOrderNum(order+1);
+                dao.update(message1);
+            }
+        }
+        message.setOrderNum(1);
         dao.insert(message);
     }
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "修改消息", type = "U")
     public void updateMessage(SYS_Message message){
+        List<SYS_Message> messageList1 = dao.query(SYS_Message.class, Cnd.where("id", "=", message.getId()));
+        if (messageList1.size()>0){
+            if (messageList1.get(0).getOrderNum() != message.getOrderNum()){
+                List<SYS_Message> messageList = dao.query(SYS_Message.class, Cnd.where("order_Num", ">", messageList1.get(0).getOrderNum()).and("id","!=",message.getId()));
+                if (messageList.size()>0){
+                    for (SYS_Message message1:messageList){
+                        int order=message1.getOrderNum();
+                        message1.setOrderNum(order-1);
+                        dao.update(message1);
+                    }
+                }
+                List<SYS_Message> messageList2 = dao.query(SYS_Message.class, Cnd.where("order_Num", ">=", message.getOrderNum()).and("id","!=",message.getId()));
+                if (messageList2.size()>0){
+                    for (SYS_Message message1:messageList2){
+                        int order=message1.getOrderNum();
+                        message1.setOrderNum(order+1);
+                        dao.update(message1);
+                    }
+                }
+            }
+        }
         dao.update(message);
     }
     @Override
     @Transactional
     @SLog(tag = "删除消息", type = "D")
     public void deleteMessage(String id){
+        List<SYS_Message> messageList1 = dao.query(SYS_Message.class, Cnd.where("id", "=", id));
+        if (messageList1.size()>0){
+            List<SYS_Message> messageList = dao.query(SYS_Message.class, Cnd.where("order_Num", ">", messageList1.get(0).getOrderNum()));
+            if (messageList.size()>0){
+                for (SYS_Message message1:messageList){
+                    int order=message1.getOrderNum();
+                    message1.setOrderNum(order-1);
+                    dao.update(message1);
+                }
+            }
+        }
         dao.delete(SYS_Message.class,id);
     }
 
@@ -214,6 +256,20 @@ public class UserServiceImpl implements UserService {
         list = dao.query(SYS_Message.class, criteria);
         if (list.size() > 0) {
             return list.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_Message> selectMessages(){
+        List<SYS_Message> list = new ArrayList<>();
+        Criteria criteria = Cnd.cri();
+        criteria.where().andEquals("states", "0");
+        criteria.getOrderBy().asc("order_Num");
+        list = dao.query(SYS_Message.class, criteria);
+        if (list.size() > 0) {
+            return list;
         } else {
             return null;
         }

@@ -36,4 +36,5 @@ public interface UserService {
     void insertMessage(SYS_Message message);
     void deleteMessage(String id);
     SYS_Message selectMessageById(String id);
+    List<SYS_Message> selectMessages();
 }
