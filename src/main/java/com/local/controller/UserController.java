@@ -643,10 +643,11 @@ public class UserController {
     public String delMessage(@RequestParam(value = "id", required = true) String id, HttpServletRequest request) {
         try {
             userService.deleteMessage(id);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, null, null).getJson();
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
+
 }

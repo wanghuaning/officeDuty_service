@@ -321,4 +321,17 @@ public class FormController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
+
+    @ApiOperation(value = "通知消息", notes = "通知消息", httpMethod = "GET", tags = "通知消息接口")
+    @GetMapping(value = "/notice")
+    @ResponseBody
+    public String getNoticeData() {
+        try {
+            List<SYS_Message> messages=userService.selectMessages();
+            return new Result(ResultCode.SUCCESS.toString(), "'数据库成功备份'", messages, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), "数据库备份失败", null, null).getJson();
+        }
+    }
 }

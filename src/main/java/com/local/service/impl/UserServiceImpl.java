@@ -264,10 +264,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<SYS_Message> selectMessages(){
         List<SYS_Message> list = new ArrayList<>();
-        Criteria criteria = Cnd.cri();
-        criteria.where().andEquals("states", "0");
-        criteria.getOrderBy().asc("order_Num");
-        list = dao.query(SYS_Message.class, criteria);
+        list = dao.query(SYS_Message.class, Cnd.where("order_Num", "<", "15").getOrderBy().asc("order_Num"));
         if (list.size() > 0) {
             return list;
         } else {
