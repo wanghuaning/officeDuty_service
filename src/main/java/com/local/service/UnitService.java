@@ -26,4 +26,6 @@ public interface UnitService {
     List<SYS_UNIT> selectAllChildUnits(String parentId);
 
     List<SYS_UNIT> selectAllParentUnits(SYS_UNIT unit);
+
+    String  selectUnitAndChildUnits(String parentId);
 }

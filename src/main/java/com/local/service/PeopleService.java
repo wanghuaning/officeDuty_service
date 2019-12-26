@@ -23,13 +23,15 @@ public interface PeopleService {
     List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId,String rank);
 
     List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty);
+    List<SYS_People> selectPeoplesByUnitIdsAndDuty(String[] units,String duty);
     List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId);
 
-
-    List<SYS_People> selectIncumbentPeoplesByUnitId(String unitId,String states);// 在职人员等查询
-    List<SYS_People> selectTrunPeoplesByUnitId(String unitId);// 套转人员查询
+    List<SYS_People> selectPeoplesByUnitIds(String[] units);
+    List<SYS_People> selectIncumbentPeoplesByUnitId(String [] units,String states);//在职人员等查询
+    List<SYS_People> selectTrunPeoplesByUnitId(String[] units);// 套转人员查询
 
     List<SYS_People> selectSexPeoplesByUnitId(String unitId,String sex);// 性别查询
 
     List<SYS_People> selectPartyPeoplesByUnitId(String unitId,String party);// 党员查询
+    List<SYS_People> selectPartyPeoplesByUnitIds(String[] units ,String party);// 党员查询
 }

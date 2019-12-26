@@ -102,6 +102,7 @@ public class SYS_USER implements Serializable {
     @ApiModelProperty("用户角色：0:普通用户，1:管理员")
     @Comment("用户角色：0:普通用户，1:管理员")
     @Column("roles")
+    @Default(value = "0")
     @ColDefine(type = ColType.VARCHAR, width = 1)
     private String roles;
 

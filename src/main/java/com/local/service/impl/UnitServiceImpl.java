@@ -51,6 +51,32 @@ public class UnitServiceImpl implements UnitService {
                 }
             }
     }
+    private static StringBuffer stringBuffer=new StringBuffer();
+    @Override
+    public String  selectUnitAndChildUnits(String parentId){
+        stringBuffer=new StringBuffer();
+        Criteria criteria=Cnd.cri();
+        List<SYS_UNIT> unitList=new ArrayList<>();
+        if (!StrUtils.isBlank(parentId)){
+            criteria.where().andEquals("parent_Id",parentId);
+            unitList=dao.query(SYS_UNIT.class,criteria);
+            getUnitAndChildUnits(unitList);
+            return  stringBuffer.toString();
+        }else {
+            return null;
+        }
+    }
+    public void getUnitAndChildUnits(List<SYS_UNIT> unitList){
+        for (SYS_UNIT unit : unitList)  {
+            stringBuffer.append(unit.getId()+";");
+            if (countUnit(unit.getId()) > 0) {
+                List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
+                if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {
+                    getUnitAndChildUnits(cunitList);
+                }
+            }
+        }
+    }
     @Override
     public List<SYS_UNIT> selectAllChildUnits(String parentId){
         Criteria criteria=Cnd.cri();

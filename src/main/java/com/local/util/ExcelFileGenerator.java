@@ -610,6 +610,7 @@ public class ExcelFileGenerator<T> {
             c=row.getCell(y);
         }else {
             row.createCell(y);
+            c=row.getCell(y);
         }
         if (value!=null){
             c.setCellValue(value);

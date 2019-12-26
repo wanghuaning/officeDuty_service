@@ -100,6 +100,12 @@ public class UserController {
             //返回前台的对象
             HashMap<String, Object> token = new HashMap<>();
             searchUser = userService.selectUserByName(user.getUserAccount());
+            String units=searchUser.getUnitId()+";";
+            String unitst=unitService.selectUnitAndChildUnits(searchUser.getUnitId());
+            if (units!=null){
+                units=units+unitst;
+                token.put("childUnit",units);
+            }
             SYS_UNIT unit = unitService.selectUnitById(searchUser.getUnitId());
             if ("system".equals(user.getUserAccount())) {
                 if (unit != null) {
