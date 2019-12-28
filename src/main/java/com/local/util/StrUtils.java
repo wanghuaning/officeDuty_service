@@ -270,6 +270,14 @@ public class StrUtils {
             return string;
         }
     }
+
+    public static String intToStr(int val){
+        if (0==val){
+            return "";
+        }else {
+            return String.valueOf(val);
+        }
+    }
     public static void main(String[] args) {
         List<String> attr=new ArrayList<String>();
         for(int i=0;i<10000;i++){

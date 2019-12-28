@@ -2872,4 +2872,52 @@ public class DataManager {
         }
         return process;
     }
+
+    public static CompleteModel getCompleteRank(RankService rankService,PeopleService peopleService,String unitId,List<CompleteModel> models,UnitService unitService){
+        int firstBatch=0,secondBatch=0, thirdBatch=0,fourBatch=0,fiveBatch=0, sexBatch=0,total=0;
+        CompleteModel model=new CompleteModel();
+        List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unitId,"0","在职");
+        if (peopleList!=null){
+            for (SYS_People people:peopleList){
+                SYS_Rank rank=rankService.selectAprodRanksByPidAndBatch(people.getId(),"第1批");
+                if (rank!=null){
+                    firstBatch++;
+                }
+                SYS_Rank rank1=rankService.selectAprodRanksByPidAndBatch(people.getId(),"第2批");
+                if (rank1!=null){
+                    secondBatch++;
+                }
+                SYS_Rank rank2=rankService.selectAprodRanksByPidAndBatch(people.getId(),"第3批");
+                if (rank2!=null){
+                    thirdBatch++;
+                }
+                SYS_Rank rank3=rankService.selectAprodRanksByPidAndBatch(people.getId(),"第4批");
+                if (rank3!=null){
+                    fourBatch++;
+                }
+                SYS_Rank rank4=rankService.selectAprodRanksByPidAndBatch(people.getId(),"第5批");
+                if (rank4!=null){
+                    fiveBatch++;
+                }
+                SYS_Rank rank5=rankService.selectAprodRanksByPidAndBatch(people.getId(),"第6批");
+                if (rank5!=null){
+                    sexBatch++;
+                }
+            }
+        }
+        SYS_UNIT unit=unitService.selectUnitById(unitId);
+        total=firstBatch+secondBatch+thirdBatch+firstBatch+fiveBatch+sexBatch;
+        model.setFirstBatch(StrUtils.intToStr(firstBatch));
+        model.setSecondBatch(StrUtils.intToStr(secondBatch));
+        model.setThirdBatch(StrUtils.intToStr(thirdBatch));
+        model.setFourBatch(StrUtils.intToStr(fourBatch));
+        model.setFiveBatch(StrUtils.intToStr(fiveBatch));
+        model.setSexBatch(StrUtils.intToStr(sexBatch));
+        model.setTotal(StrUtils.intToStr(total));
+        if (unit!=null){
+            model.setName(unit.getName());
+            models.add(model);
+        }
+        return model;
+    }
 }

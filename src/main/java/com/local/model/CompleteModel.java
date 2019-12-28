@@ -7,9 +7,11 @@ public class CompleteModel {
     private String name;
     private String taoUnitNum;
     private String firstBatch;
-    private String SecondBatch;
+    private String secondBatch;
     private String thirdBatch;
     private String fourBatch;
     private String fiveBatch;
     private String sexBatch;
+    private String ganBuNum;
+    private String total;
 }

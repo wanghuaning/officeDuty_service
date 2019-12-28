@@ -54,7 +54,7 @@ public class FormController {
 
             }else {
                 if (!StrUtils.isBlank(childUnit)) {
-                    childUnit = childUnit.substring(0, childUnit.length() - 1);
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
                     arr = childUnit.split(";");
                 }else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
@@ -121,7 +121,7 @@ public class FormController {
 
             }else {
                 if (!StrUtils.isBlank(childUnit)) {
-                    childUnit = childUnit.substring(0, childUnit.length() - 1);
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
                     arr = childUnit.split(";");
                 }else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
@@ -197,7 +197,7 @@ public class FormController {
 
             }else {
                 if (!StrUtils.isBlank(childUnit)) {
-                    childUnit = childUnit.substring(0, childUnit.length() - 1);
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
                     arr = childUnit.split(";");
                 }else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
@@ -238,7 +238,7 @@ public class FormController {
 
             }else {
                 if (!StrUtils.isBlank(childUnit)) {
-                    childUnit = childUnit.substring(0, childUnit.length() - 1);
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
                     arr = childUnit.split(";");
                 }else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
@@ -285,7 +285,7 @@ public class FormController {
 
             }else {
                 if (!StrUtils.isBlank(childUnit)) {
-                    childUnit = childUnit.substring(0, childUnit.length() - 1);
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
                     arr = childUnit.split(";");
                 }else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();

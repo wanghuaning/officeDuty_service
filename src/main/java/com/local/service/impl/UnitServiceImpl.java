@@ -228,7 +228,17 @@ public class UnitServiceImpl implements UnitService {
             return null;
         }
     }
-
+    @Override
+    public SYS_UNIT selectLikeUnitByName(String name){
+        Criteria cri = Cnd.cri();
+        cri.where().andLike("name", "%"+name+"%");
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
+        }
+    }
     /**
      * 根据名称查询单位
      *

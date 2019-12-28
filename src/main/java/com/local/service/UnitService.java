@@ -28,4 +28,6 @@ public interface UnitService {
     List<SYS_UNIT> selectAllParentUnits(SYS_UNIT unit);
 
     String  selectUnitAndChildUnits(String parentId);
+
+    SYS_UNIT selectLikeUnitByName(String name);//根据名称模糊查询单位
 }

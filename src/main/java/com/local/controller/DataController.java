@@ -70,77 +70,81 @@ public class DataController {
     private ProcessService processService;
     @Autowired
     private ApprovalService approvalService;
+
     public DataController() throws IOException {
     }
+
     @ApiOperation(value = "市级机关公务员职级职数使用审批表", notes = "市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "市级机关公务员职级职数使用审批表")
     @PostMapping(value = "/approvalData")
     @ResponseBody
-     public String getApprovalData(@RequestParam(value = "unitName", required = false) String unitName){
+    public String getApprovalData(@RequestParam(value = "unitName", required = false) String unitName) {
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
-        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
         Sys_Approal approalModel = new Sys_Approal();
-        if (peoples!=null){
-            DataManager.getApprovalDataCell(approalModel,unit,peoples, rankService);
+        if (peoples != null) {
+            DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
             return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
-        }else {
+        } else {
             return new Result(ResultCode.ERROR.toString(), "无人员！", null, null).getJson();
         }
-     }
+    }
 
     @ApiOperation(value = "保存市级机关公务员职级职数使用审批表", notes = "保存市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "保存市级机关公务员职级职数使用审批表接口")
     @PostMapping(value = "/editApprovalData")
     @ResponseBody
     public String editApprovalData(@Validated @RequestBody Sys_Approal approal) {
         try {
-            SYS_UNIT unit=unitService.selectUnitById(approal.getUnitId());
+            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
             Sys_Approal approalNow = approvalService.selectApproval(approal.getUnitId(), "0");
             if (approalNow != null) {
                 approal.setId(approalNow.getId());
-                BeanUtils.copyProperties(approal,approalNow);
+                BeanUtils.copyProperties(approal, approalNow);
                 approalNow.setCreateTime(new Date());
                 approvalService.updataApproal(approalNow);
-                DataManager.setProcessDate(processService,"1",unit,"",gson.toJson(approalNow));
+                DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approalNow));
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, approal, null).getJson();
             } else {
-                String uuid=UUID.randomUUID().toString();
+                String uuid = UUID.randomUUID().toString();
                 approal.setId(uuid);
                 approal.setCreateTime(new Date());
                 approvalService.insertApproal(approal);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, approal, null).getJson();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "查询晋升职级人员备案名册", notes = "查询晋升职级人员备案名册", httpMethod = "GET", tags = "查询晋升职级人员备案名册接口")
     @PostMapping(value = "/getRegData")
     @ResponseBody
-    public String getRegData(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitName", required = false) String unitName,
+    public String getRegData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitName", required = false) String unitName,
                              @RequestParam(value = "unitIds", required = false) String[] unitIds) {
         try {
-                RegModel regDataInfo = DataManager.getRegDataInfo(unitService, unitName, response, peopleService, rankService,dutyService,assessmentService);
-                return new Result(ResultCode.SUCCESS.toString(), unitName, regDataInfo, null).getJson();
+            RegModel regDataInfo = DataManager.getRegDataInfo(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService);
+            return new Result(ResultCode.SUCCESS.toString(), unitName, regDataInfo, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "查询晋升职级人员备案名册", notes = "查询晋升职级人员备案名册", httpMethod = "GET", tags = "查询晋升职级人员备案名册接口")
     @PostMapping(value = "/getRegDataByRow")
     @ResponseBody
-    public String getRegDataByRow(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "rowId", required = false) String rowId) {
+    public String getRegDataByRow(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "rowId", required = false) String rowId) {
         try {
-            Sys_Process process=processService.selectProcessById(rowId);
-            if (process!=null){
+            Sys_Process process = processService.selectProcessById(rowId);
+            if (process != null) {
                 RegModel sys_processes = gson.fromJson(process.getParam(), new TypeToken<RegModel>() {
                 }.getType());
-                if (sys_processes!=null) {
+                if (sys_processes != null) {
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, sys_processes, null).getJson();
-                }else {
+                } else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
-            }else {
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
         } catch (Exception e) {
@@ -148,12 +152,13 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "GET", tags = "导出晋升职级人员备案名册接口")
     @RequestMapping(value = "/exportDataExcel")
     public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
             , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds,
                                   @RequestParam(value = "month", required = false) String month, @RequestParam(value = "day", required = false) String day,
-                                  @RequestParam(value = "peopleName", required = false) String peopleName,@RequestParam(value = "peopleNum", required = false) String peopleNum) {
+                                  @RequestParam(value = "peopleName", required = false) String peopleName, @RequestParam(value = "peopleNum", required = false) String peopleNum) {
         try {
             if ("filingList".equals(flag)) {//备案表
                 RegModel model = new RegModel();
@@ -161,11 +166,11 @@ public class DataController {
                 model.setDay(day);
                 model.setPeopleName(peopleName);
                 model.setPeopleNum(peopleNum);
-                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,dutyService,assessmentService,model,processService);
+                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService, model, processService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }
             if ("approval".equals(flag)) {
-                Sys_Approal approalModel = DataManager.approvalExport(unitService, unitName, response, peopleService, rankService,approvalService);
+                Sys_Approal approalModel = DataManager.approvalExport(unitService, unitName, response, peopleService, rankService, approvalService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
             } else {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "OK!", null).getJson();
@@ -209,7 +214,7 @@ public class DataController {
                 } else {
                     List<Map<String, Object>> list = ExcelFileGenerator.readeExcelData(excelFile.getInputStream(), 0, 2, 3);
                     List<SYS_People> peopleList = DataManager.getPeopleDataByExcel(list, peopleService, stringBuffer, unitService, fullImport, educationService,
-                            dutyService, rankService, rewardService,assessmentService);
+                            dutyService, rankService, rewardService, assessmentService);
                     if (stringBuffer.length() > 0) {
                         return new Result(ResultCode.SUCCESS.toString(), stringBuffer.toString(), peopleList, null).getJson();
                     } else {
@@ -241,8 +246,8 @@ public class DataController {
             objects.addAll(unitList);
             List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
             List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
-            List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService,dataType);
-            List<Sys_Process>  processeList = DataManager.getProcessJson(resultMap, unitList, processService,dataType);
+            List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
+            List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType);
             if (peopleList.size() > 0) {
                 objects.addAll(peopleList);
                 List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
@@ -264,7 +269,7 @@ public class DataController {
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
             // 加密
 //            System.out.println("加密前：" + resultJson.toString());
-            byte[] encode = AESUtil.encrypt(resultJson.toString(),AESUtil.privateKey);
+            byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
             //传输过程,不转成16进制的字符串，就等着程序崩溃掉吧
             String paramsCipher = AESUtil.parseByte2HexStr(encode);
 //            System.out.println("密文字符串：" + paramsCipher);
@@ -296,8 +301,8 @@ public class DataController {
         try {
             List<SYS_UNIT> units = new ArrayList<>();
             List<SYS_USER> users = new ArrayList<>();
-            List<Sys_Approal> approals=new ArrayList<>();
-            List<Sys_Process> processes=new ArrayList<>();
+            List<Sys_Approal> approals = new ArrayList<>();
+            List<Sys_Process> processes = new ArrayList<>();
             List<SYS_People> peoples = new ArrayList<>();
             List<SYS_Duty> duties = new ArrayList<>();
             List<SYS_Rank> ranks = new ArrayList<>();
@@ -307,9 +312,9 @@ public class DataController {
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
             // 解密
             byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
-            byte[] decryptResult = AESUtil.decrypt(decode,AESUtil.privateKey);
+            byte[] decryptResult = AESUtil.decrypt(decode, AESUtil.privateKey);
 //            System.out.println("解密后：" + new String(decryptResult, "UTF-8")); //不转码会乱码
-            String jsonStr=new String(decryptResult, "UTF-8");
+            String jsonStr = new String(decryptResult, "UTF-8");
 //            String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
@@ -328,8 +333,8 @@ public class DataController {
                 JSONArray educationList = key.getJSONArray("educationList");
                 JSONArray rewardList = key.getJSONArray("rewardList");
                 JSONArray assessmentList = key.getJSONArray("assessmentList");
-                JSONArray approvalList=key.getJSONArray("approvalList");
-                JSONArray processList=key.getJSONArray("processList");
+                JSONArray approvalList = key.getJSONArray("approvalList");
+                JSONArray processList = key.getJSONArray("processList");
                 SYS_UNIT unit = unitService.selectUnitById(unitId);
                 if (unit == null) {
                     unit = unitService.selectUnitByName(unitName);
@@ -347,15 +352,15 @@ public class DataController {
                         if (users.size() > 0) {
                             DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "user", gson.toJson(users));
                         }
-                        if (approvalList.size()>0){
-                            approals=DataManager.saveApproalJsonModel(approvalList);
-                            if (approals.size()>0){
+                        if (approvalList.size() > 0) {
+                            approals = DataManager.saveApproalJsonModel(approvalList);
+                            if (approals.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "approval", gson.toJson(approals));
                             }
                         }
-                        if (processList.size()>0){
-                            processes=DataManager.saveProcessJsonModel(processList);
-                            if (processes.size()>0){
+                        if (processList.size() > 0) {
+                            processes = DataManager.saveProcessJsonModel(processList);
+                            if (processes.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "processe", gson.toJson(processes));
                             }
                         }
@@ -388,7 +393,7 @@ public class DataController {
                         Map<String, Object> map = new HashMap<>();
                         List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitId, unitService);//单位
                         List<SYS_UNIT> deleteUnitList = new ArrayList<>();
-                        List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitId, "1","在职");
+                        List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitId, "1", "在职");
                         DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
                         DataManager.dutyDataCheck(resultMap, duties, dutyService, unitId);
                         DataManager.rankDataCheck(resultMap, ranks, rankService, unitId);
@@ -396,11 +401,11 @@ public class DataController {
                         DataManager.rewardDataCheck(resultMap, rewards, rewardService, unitId);
                         DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, unitId);
                         DataManager.userDataCheck(resultMap, users, userService, unitId);
-                        if (approals.size()>0){
-                            DataManager.approvalDataCheck( resultMap,  approals,  approvalService,  unit,
+                        if (approals.size() > 0) {
+                            DataManager.approvalDataCheck(resultMap, approals, approvalService, unit,
                                     dataType, peopleService, rankService);
                         }
-                        if (processes.size()>0){
+                        if (processes.size() > 0) {
                             resultMap.put("processList", processes);
                         }
                     }
@@ -434,8 +439,8 @@ public class DataController {
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
-            String jsonStr= RSAModelUtils.decryptByPrivateKey(jsonStrMw,RSAModelUtils.moduleA,RSAModelUtils.privateKeyA);
-            System.out.println("导入"+jsonStr);
+            String jsonStr = RSAModelUtils.decryptByPrivateKey(jsonStrMw, RSAModelUtils.moduleA, RSAModelUtils.privateKeyA);
+            System.out.println("导入" + jsonStr);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
@@ -444,9 +449,9 @@ public class DataController {
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
                 String unitID = String.valueOf(key.get("unitId"));
-                if (unitID.equals(unitId)){
+                if (unitID.equals(unitId)) {
                     return new Result(ResultCode.ERROR.toString(), "非本单位下行数据包！", null, null).getJson();
-                }else {
+                } else {
                     String unitName = String.valueOf(key.get("unitName"));
                     JSONArray unitList = key.getJSONArray("unitList");
                     JSONArray userList = key.getJSONArray("userList");
@@ -482,7 +487,7 @@ public class DataController {
                             approals = DataManager.saveApproalJsonModel(aprovalList);
                             if (approals.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals));
-                                DataManager.saveApprovalData(approals,  approvalService, unitID,unitService);
+                                DataManager.saveApprovalData(approals, approvalService, unitID, unitService);
                                 objects.add(approals);
                             }
                             processes = DataManager.saveProcessJsonModel(processList);
@@ -532,7 +537,7 @@ public class DataController {
                             Map<String, Object> map = new HashMap<>();
                             List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitID, unitService);//单位
                             List<SYS_UNIT> deleteUnitList = new ArrayList<>();
-                            List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitID, "1","在职");
+                            List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitID, "1", "在职");
                         }
                         return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
                     } else {
@@ -550,7 +555,7 @@ public class DataController {
 
     @ApiOperation(value = "执行上行数据", notes = "执行上行数据", httpMethod = "POST", tags = "执行上行数据接口")
     @PostMapping(value = "/agreeImportData")
-    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId,HttpServletRequest request) {
+    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId, HttpServletRequest request) {
         List<Object> objects = new ArrayList<>();
         if (!StrUtils.isBlank(dataId)) {
             List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(dataId, "上行");
@@ -605,27 +610,27 @@ public class DataController {
                             DataManager.saveUserData(sys_users, userService, dataInfo.getUnitId());
                             objects.add(sys_users);
                         }
-                    }else if (dataInfo.getId().contains("approval")) {
+                    } else if (dataInfo.getId().contains("approval")) {
                         List<Sys_Approal> sys_approals = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Approal>>() {
                         }.getType());
                         if (sys_approals.size() > 0) {
-                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(),unitService);
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService);
                             objects.add(sys_approals);
                         }
-                    }else if (dataInfo.getId().contains("process")) {
+                    } else if (dataInfo.getId().contains("process")) {
                         List<Sys_Process> sys_processes = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Process>>() {
                         }.getType());
                         if (sys_processes.size() > 0) {
-                            String name="";
+                            String name = "";
                             SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
                             if (user != null) {
-                                SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
-                                if (unit!=null){
-                                    name=unit.getName();
+                                SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
+                                if (unit != null) {
+                                    name = unit.getName();
                                 }
-                                SYS_People people=peopleService.selectPeopleById(user.getPeopleId());
-                                if (people!=null){
-                                    name=name+"/"+people.getName();
+                                SYS_People people = peopleService.selectPeopleById(user.getPeopleId());
+                                if (people != null) {
+                                    name = name + "/" + people.getName();
                                 }
                             }
                             DataManager.saveprocessData(sys_processes, processService, name);
@@ -648,13 +653,13 @@ public class DataController {
     public String getProcess(@RequestParam(value = "size", required = false) String pageSize,
                              @RequestParam(value = "page", required = false) String pageNumber,
                              @RequestParam(value = "unitName", required = false) String unitName,
-                             @RequestParam(value = "approveFlag", required = false) String approveFlag,HttpServletRequest request) {
+                             @RequestParam(value = "approveFlag", required = false) String approveFlag, HttpServletRequest request) {
         try {
             SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-            if (user!=null){
+            if (user != null) {
                 QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
-            }else {
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
             }
         } catch (Exception e) {
@@ -662,23 +667,24 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "职数审批信息详情", notes = "职数审批信息详情", httpMethod = "POST", tags = "职数审批信息详情接口")
     @PostMapping(value = "/processDetail")
     public String getProcessDetail(@RequestParam(value = "rowid", required = false) String rowid) {
-        if (!StrUtils.isBlank(rowid)){
-            Sys_Process process=processService.selectProcessById(rowid);
-            if (process!=null){
+        if (!StrUtils.isBlank(rowid)) {
+            Sys_Process process = processService.selectProcessById(rowid);
+            if (process != null) {
                 Sys_Approal sys_processes = gson.fromJson(process.getParam(), new TypeToken<Sys_Approal>() {
                 }.getType());
-                if (sys_processes!=null) {
+                if (sys_processes != null) {
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, sys_processes, null).getJson();
-                }else {
+                } else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
-            }else {
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-        }else {
+        } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
@@ -688,43 +694,126 @@ public class DataController {
      */
     @ApiOperation(value = "领导职务情况统计表", notes = "领导职务情况统计表", httpMethod = "POST", tags = "领导职务情况统计表接口")
     @PostMapping(value = "/count")
-    public String countLeaderRank(@RequestParam(value = "unitId", required = false) String unitId){
-        if (!StrUtils.isBlank(unitId)){
-            SYS_UNIT unit=unitService.selectUnitById(unitId);
-            if (unit!=null){
-                DutyCountModel model=new DutyCountModel();
+    public String countLeaderRank(@RequestParam(value = "unitId", required = false) String unitId) {
+        if (!StrUtils.isBlank(unitId)) {
+            SYS_UNIT unit = unitService.selectUnitById(unitId);
+            if (unit != null) {
+                DutyCountModel model = new DutyCountModel();
 
-                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
-            }else {
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-        }else {
+        } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
-    public void getcountLeaderRank(String name, SYS_UNIT unit){
-        DutyCountModel model=new DutyCountModel();
+
+    public void getcountLeaderRank(String name, SYS_UNIT unit) {
+        DutyCountModel model = new DutyCountModel();
         model.setHdZhengKe(unit.getMainHallNum().toString());
         model.setHdFuKe(unit.getDeputyHallNum().toString());
-        Long total1=unit.getMainHallNum()+unit.getDeputyHallNum();
+        Long total1 = unit.getMainHallNum() + unit.getDeputyHallNum();
         model.setHdTotal(total1.toString());
 //        model.setTzqZhengKeGanBu();
     }
 
-    @ApiOperation(value = "完成职级晋升情况统计表", notes = "完成职级晋升情况统计表", httpMethod = "POST", tags = "完成职级晋升情况统计表接口")
-    @PostMapping(value = "/complete")
-    public String countCompleteRank(@RequestParam(value = "unitId", required = false) String unitId){
-        if (!StrUtils.isBlank(unitId)){
-            SYS_UNIT unit=unitService.selectUnitById(unitId);
-            if (unit!=null){
-                DutyCountModel model=new DutyCountModel();
-
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
-            }else {
+    @ApiOperation(value = "完成职级晋升情况统计表", notes = "完成职级晋升情况统计表", httpMethod = "GET", tags = "完成职级晋升情况统计表接口")
+    @GetMapping(value = "/complete")
+    public String countCompleteRank(HttpServletRequest request, @RequestParam(value = "name", required = false) String name) {
+        SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+        List<SYS_UNIT> units = new ArrayList<>();
+        List<CompleteModel> models = new ArrayList<>();
+        if (user != null) {
+            if (!StrUtils.isBlank(name)) {
+                SYS_UNIT unit = unitService.selectLikeUnitByName(name);
+                if (unit != null) {
+                    units.add(unit);
+                }
+            } else {
+                units.add(user.getUnit());
+                List<SYS_UNIT> cunits = unitService.selectAllChildUnits(user.getUnitId());
+                units.addAll(cunits);
+            }
+            if (units != null) {
+                CompleteModel totalModel=new CompleteModel();
+                int firstBatch=0,secondBatch=0, thirdBatch=0,fourBatch=0,fiveBatch=0, sexBatch=0,total=0;
+                for (SYS_UNIT unit : units) {
+                    CompleteModel model=DataManager.getCompleteRank(rankService, peopleService, unit.getId(), models,unitService);
+                    firstBatch+=StrUtils.strToInt(model.getFirstBatch());
+                    secondBatch+=StrUtils.strToInt(model.getSecondBatch());
+                    thirdBatch+=StrUtils.strToInt(model.getThirdBatch());
+                    fourBatch+=StrUtils.strToInt(model.getFourBatch());
+                    fiveBatch+=StrUtils.strToInt(model.getFiveBatch());
+                    sexBatch+=StrUtils.strToInt(model.getSexBatch());
+                    total+=StrUtils.strToInt(model.getTotal());
+                }
+                totalModel.setFirstBatch(StrUtils.intToStr(firstBatch));
+                totalModel.setSecondBatch(StrUtils.intToStr(secondBatch));
+                totalModel.setThirdBatch(StrUtils.intToStr(thirdBatch));
+                totalModel.setFourBatch(StrUtils.intToStr(fourBatch));
+                totalModel.setFiveBatch(StrUtils.intToStr(fiveBatch));
+                totalModel.setSexBatch(StrUtils.intToStr(sexBatch));
+                totalModel.setTotal(StrUtils.intToStr(total));
+                totalModel.setName("合计");
+                models.add(totalModel);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, models, null).getJson();
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-        }else {
+        } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出完成职级晋升情况统计表", notes = "导出完成职级晋升情况统计表", httpMethod = "POST", tags = "导出完成职级晋升情况统计表")
+    @RequestMapping(value = "/outComplete")
+    public String getCompleteRankExcel(HttpServletRequest request, HttpServletResponse response,
+                                       @RequestParam(value = "childUnit", required = false) String childUnit) {
+        childUnit = childUnit.substring(1, childUnit.length() - 1);
+        String[] unitArr;
+        try {
+            List<CompleteModel> models = new ArrayList<>();
+                if (!StrUtils.isBlank(childUnit)) {
+//                    childUnit = childUnit.substring(0, childUnit.length() - 1);
+                    unitArr = childUnit.split(";");
+                }else {
+                    unitArr = new String[]{""};
+                }
+//                units = unitService.selectAllChildUnits(user.getUnitId());
+                    CompleteModel totalModel=new CompleteModel();
+                    int firstBatch=0,secondBatch=0, thirdBatch=0,fourBatch=0,fiveBatch=0, sexBatch=0,total=0;
+                    for (String unitid : unitArr) {
+                        CompleteModel model=DataManager.getCompleteRank(rankService, peopleService, unitid, models,unitService);
+                        firstBatch+=StrUtils.strToInt(model.getFirstBatch());
+                        secondBatch+=StrUtils.strToInt(model.getSecondBatch());
+                        thirdBatch+=StrUtils.strToInt(model.getThirdBatch());
+                        fourBatch+=StrUtils.strToInt(model.getFourBatch());
+                        fiveBatch+=StrUtils.strToInt(model.getFiveBatch());
+                        sexBatch+=StrUtils.strToInt(model.getSexBatch());
+                        total+=StrUtils.strToInt(model.getTotal());
+                    }
+                    totalModel.setFirstBatch(StrUtils.intToStr(firstBatch));
+                    totalModel.setSecondBatch(StrUtils.intToStr(secondBatch));
+                    totalModel.setThirdBatch(StrUtils.intToStr(thirdBatch));
+                    totalModel.setFourBatch(StrUtils.intToStr(fourBatch));
+                    totalModel.setFiveBatch(StrUtils.intToStr(fiveBatch));
+                    totalModel.setSexBatch(StrUtils.intToStr(sexBatch));
+                    totalModel.setTotal(StrUtils.intToStr(total));
+                    totalModel.setName("合计");
+                    models.add(totalModel);
+                ClassPathResource resource = new ClassPathResource("exportExcel/exportCompleteInfo.xls");
+                String path = resource.getFile().getPath();
+                String[] arr = {"name", "firstBatch", "secondBatch", "thirdBatch", "ganBuNum", "fourBatch", "fiveBatch", "sexBatch", "total"};
+                Workbook temp = ExcelFileGenerator.getTeplet(path);
+                ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+                excelFileGenerator.createExcelFile(temp.getSheet("职级晋升情况"), 2, models, arr);
+                temp.write(response.getOutputStream());
+                temp.close();
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, models, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
 }
