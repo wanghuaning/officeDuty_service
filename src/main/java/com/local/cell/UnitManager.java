@@ -206,71 +206,71 @@ public class UnitManager {
      * @param um
      */
     public static void saveNowRank(PeopleService peopleService, String unitId, UnitModel um) {
-        List<SYS_People> oneranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级调研员");
+        List<SYS_People> oneranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级调研员","在职");
         if (oneranks != null) {
             um.setOneResearcherNumNow(oneranks.size());
         }else {
             um.setOneResearcherNumNow(0);
         }
-        List<SYS_People> towranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "二级调研员");
+        List<SYS_People> towranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "二级调研员","在职");
         if (towranks != null) {
             um.setTowResearcherNumNow(towranks.size());
         }else {
             um.setTowResearcherNumNow(0);
         }
         um.setOneTowResearcherNumNow(um.getOneResearcherNumNow() + um.getTowResearcherNumNow());
-        List<SYS_People> threeranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "三级调研员");
+        List<SYS_People> threeranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "三级调研员","在职");
         if (threeranks != null) {
             um.setThreeResearcherNumNow(threeranks.size());
         }else {
             um.setThreeResearcherNumNow(0);
         }
-        List<SYS_People> fourranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "四级调研员");
+        List<SYS_People> fourranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "四级调研员","在职");
         if (fourranks != null) {
             um.setFourResearcherNumNow(fourranks.size());
         }else {
             um.setFourResearcherNumNow(0);
         }
         um.setThreeFourResearcherNumNow(um.getThreeResearcherNumNow() + um.getFourResearcherNumNow());
-        List<SYS_People> oneKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级主任科员");
+        List<SYS_People> oneKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级主任科员","在职");
         if (oneKranks != null) {
             um.setOneClerkNumNow(oneKranks.size());
         }else {
             um.setOneClerkNumNow(0);
         }
-        List<SYS_People> towKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "二级主任科员");
+        List<SYS_People> towKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "二级主任科员","在职");
         if (towKranks != null) {
             um.setTowClerkNumNow(towKranks.size());
         }else {
             um.setTowClerkNumNow(0);
         }
         um.setOneTowClerkNumNow(um.getOneClerkNumNow() + um.getTowClerkNumNow());
-        List<SYS_People> threeKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "三级主任科员");
+        List<SYS_People> threeKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "三级主任科员","在职");
         if (threeKranks != null) {
             um.setThreeClerkNumNow(threeKranks.size());
         }else {
             um.setThreeClerkNumNow(0);
         }
-        List<SYS_People> fourKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "四级主任科员");
+        List<SYS_People> fourKranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "四级主任科员","在职");
         if (fourKranks != null) {
             um.setFourClerkNumNow(fourKranks.size());
         }else {
             um.setFourClerkNumNow(0);
         }
         um.setThreeFourClerkNumNow(um.getThreeClerkNumNow() + um.getFourClerkNumNow());
-        List<SYS_People> oneKYranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级科员");
+        List<SYS_People> oneKYranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级科员","在职");
         if (oneKYranks != null) {
             um.setOneClerkNow(oneKYranks.size());
         }else {
             um.setOneClerkNow(0);
         }
-        List<SYS_People> towKYranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "二级科员");
+        List<SYS_People> towKYranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "二级科员","在职");
         if (towKYranks != null) {
             um.setTowClerkNow(towKYranks.size());
         }else {
             um.setTowClerkNow(0);
         }
-        List<SYS_People> shiranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "试用期");
+        List<SYS_People> shiranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "试用期","在职");
         if (shiranks != null) {
             um.setProbationNow(shiranks.size());
         }else {

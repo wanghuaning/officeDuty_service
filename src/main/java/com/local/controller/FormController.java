@@ -69,7 +69,7 @@ public class FormController {
             if (leavePeoples != null) {
                 model.setLeavePeople(leavePeoples.size());
             }
-            List<SYS_People> turnPeople = peopleService.selectTrunPeoplesByUnitId(arr);
+            List<SYS_People> turnPeople = peopleService.selectTrunPeoplesByUnitId(arr,"在职");
             if (turnPeople != null) {
                 model.setTurnPeople(turnPeople.size());
             }
@@ -90,7 +90,7 @@ public class FormController {
             if (user != null) {
                 SYS_UNIT unit = user.getUnit();
                 FormRankModel model = new FormRankModel();
-                List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(user.getUnitId(), "0");
+                List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(user.getUnitId(), "0","在职");
                 if (peoples != null) {
                     FormManager.getApprovalDataCell(model, unit, peoples, rankService, approvalService);
                 }
@@ -128,7 +128,7 @@ public class FormController {
                 }
             }
                 FormModel model = new FormModel();
-                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr);
+                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr,"在职");
                 if (peoples != null) {
                     int man2 = 0, woman2 = 0, man3 = 0, woman3 = 0, man4 = 0, woman4 = 0, man5 = 0, woman5 = 0, man6 = 0, woman6 = 0;
                     for (SYS_People people : peoples) {
@@ -205,12 +205,12 @@ public class FormController {
             }
                 FormModel model = new FormModel();
                 int notP = 0;
-                List<SYS_People> party = peopleService.selectPartyPeoplesByUnitIds(arr, "中共党员");
+                List<SYS_People> party = peopleService.selectPartyPeoplesByUnitIds(arr, "中共党员","在职");
                 if (party != null) {
                     model.setParty(party.size());
                     notP += party.size();
                 }
-                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr);
+                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr,"在职");
                 if (peoples != null) {
                     model.setNotParty(peoples.size() - notP);
                 }
@@ -245,19 +245,19 @@ public class FormController {
                 }
             }
                 FormModel model = new FormModel();
-                List<SYS_People> fuke = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级副职");
+                List<SYS_People> fuke = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级副职","在职");
                 if (fuke != null) {
                     model.setFuKe(fuke.size());
                 }
-                List<SYS_People> zhengKe = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级正职");
+                List<SYS_People> zhengKe = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级正职","在职");
                 if (zhengKe != null) {
                     model.setZhengChu(zhengKe.size());
                 }
-                List<SYS_People> fuChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级副职");
+                List<SYS_People> fuChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级副职","在职");
                 if (fuChu != null) {
                     model.setFuChu(fuChu.size());
                 }
-                List<SYS_People> zhengChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级正职");
+                List<SYS_People> zhengChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级正职","在职");
                 if (zhengChu != null) {
                     model.setZhengChu(zhengChu.size());
                 }
@@ -293,7 +293,7 @@ public class FormController {
             }
                 FormModel model = new FormModel();
                 int year = DateUtil.getYear(new Date());
-                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr);
+                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr,"在职");
                 if (peoples != null) {
                     int oneYearYouXiu = 0, towYearYouXiu = 0, threeYearYouXiu = 0, fourYearYouXiu = 0, fiveYearYouXiu = 0, oneYearHeGe = 0, towYearHeGe = 0, threeYearHeGe = 0;
                     int fourYearHeGe = 0, fiveYearHeGe = 0, oneYearNotGe = 0, towYearNotGe = 0, threeYearNotGe = 0, fourYearNotGe = 0, fiveYearNotGe = 0;

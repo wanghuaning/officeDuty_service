@@ -126,9 +126,9 @@ public class PeopleServiceImpl implements PeopleService {
     }
 
     @Override
-    public List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId, String rank) {
+    public List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId, String rank,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId).andEquals("position_Level", rank);
+        cri.where().andEquals("unitId", unitId).andEquals("position_Level", rank).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -141,7 +141,6 @@ public class PeopleServiceImpl implements PeopleService {
     /**
      * 人员状态查询
      *
-     * @param unitId
      * @param states
      * @return
      */
@@ -160,9 +159,9 @@ public class PeopleServiceImpl implements PeopleService {
 
     // 套转人员查询
     @Override
-    public List<SYS_People> selectTrunPeoplesByUnitId(String[] units) {
+    public List<SYS_People> selectTrunPeoplesByUnitId(String[] units,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andInStrArray("unitId", units).andNotEquals("turn_Rank", null);
+        cri.where().andInStrArray("unitId", units).andNotEquals("turn_Rank", null).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -173,9 +172,9 @@ public class PeopleServiceImpl implements PeopleService {
     }
 
     @Override
-    public List<SYS_People> selectSexPeoplesByUnitId(String unitId, String sex) {
+    public List<SYS_People> selectSexPeoplesByUnitId(String unitId, String sex,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId).andNotEquals("sex", sex);
+        cri.where().andEquals("unitId", unitId).andNotEquals("sex", sex).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -186,9 +185,9 @@ public class PeopleServiceImpl implements PeopleService {
     }
 
     @Override
-    public List<SYS_People> selectPartyPeoplesByUnitId(String unitId, String party) {
+    public List<SYS_People> selectPartyPeoplesByUnitId(String unitId, String party,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId).andEquals("party", party);
+        cri.where().andEquals("unitId", unitId).andEquals("party", party).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -198,34 +197,9 @@ public class PeopleServiceImpl implements PeopleService {
         }
     }
     @Override
-    public List<SYS_People> selectPartyPeoplesByUnitIds(String[] units, String party) {
+    public List<SYS_People> selectPartyPeoplesByUnitIds(String[] units, String party,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andInStrArray("unitId", units).andEquals("party", party);
-        List<SYS_People> peoples = new ArrayList<>();
-        List<SYS_People> list = dao.query(SYS_People.class, cri);
-        if (!StrUtils.isBlank(list) && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId, String duty) {
-        Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId).andEquals("position", duty);
-        List<SYS_People> peoples = new ArrayList<>();
-        List<SYS_People> list = dao.query(SYS_People.class, cri);
-        if (!StrUtils.isBlank(list) && list.size() > 0) {
-            return list;
-        } else {
-            return null;
-        }
-    }
-    @Override
-    public List<SYS_People> selectPeoplesByUnitIdsAndDuty(String[] units, String duty) {
-        Criteria cri = Cnd.cri();
-        cri.where().andInStrArray("unitId", units).andEquals("position", duty);
+        cri.where().andInStrArray("unitId", units).andEquals("party", party).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -236,9 +210,34 @@ public class PeopleServiceImpl implements PeopleService {
     }
 
     @Override
-    public List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId) {
+    public List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId, String duty,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId).andNotEquals("real_Name", "").andNotEquals("real_Name", null);
+        cri.where().andEquals("unitId", unitId).andEquals("position", duty).andEquals("states",states);
+        List<SYS_People> peoples = new ArrayList<>();
+        List<SYS_People> list = dao.query(SYS_People.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIdsAndDuty(String[] units, String duty,String states) {
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrArray("unitId", units).andEquals("position", duty).andEquals("states",states);
+        List<SYS_People> peoples = new ArrayList<>();
+        List<SYS_People> list = dao.query(SYS_People.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId,String states) {
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unitId", unitId).andNotEquals("real_Name", "").andNotEquals("real_Name", null).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -256,16 +255,16 @@ public class PeopleServiceImpl implements PeopleService {
      * @return
      */
     @Override
-    public List<SYS_People> selectPeoplesByUnitId(String unitId, String isChild) {
+    public List<SYS_People> selectPeoplesByUnitId(String unitId, String isChild,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId);
+        cri.where().andEquals("unitId", unitId).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if ("1".equals(isChild)) {//包含下级单位
             Criteria criteria = Cnd.cri();
             criteria.where().andEquals("parent_Id", unitId);
             List<SYS_UNIT> units = dao.query(SYS_UNIT.class, criteria);
-            getUnits(units, list);
+            getUnits(units, list,states);
         }
         if (!StrUtils.isBlank(list) && list.size() > 0) {
             return list;
@@ -275,9 +274,9 @@ public class PeopleServiceImpl implements PeopleService {
     }
 
     @Override
-    public List<SYS_People> selectPeoplesByUnitIds(String[] units) {
+    public List<SYS_People> selectPeoplesByUnitIds(String[] units,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andInStrArray("unitId", units);
+        cri.where().andInStrArray("unitId", units).andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
@@ -287,19 +286,19 @@ public class PeopleServiceImpl implements PeopleService {
         }
     }
 
-    public void getUnits(List<SYS_UNIT> units, List<SYS_People> peoples) {
+    public void getUnits(List<SYS_UNIT> units, List<SYS_People> peoples,String states) {
         if (!StrUtils.isBlank(units) && units.size() > 0) {
 //            List<SYS_People> peopleList=new ArrayList<>();
             for (SYS_UNIT unit : units) {
                 Criteria cri = Cnd.cri();
-                cri.where().andEquals("unitId", unit.getId());
+                cri.where().andEquals("unitId", unit.getId()).andEquals("states",states);
                 List<SYS_People> list = dao.query(SYS_People.class, cri);
                 if (!StrUtils.isBlank(list) && list.size() > 0) {
                     peoples.addAll(list);
                 }
                 List<SYS_UNIT> cunits = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
                 if (!StrUtils.isBlank(cunits) && cunits.size() > 0) {
-                    getUnits(cunits, peoples);
+                    getUnits(cunits, peoples,states);
                 }
             }
         }

@@ -155,7 +155,7 @@ public class DataManager {
         model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
         model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
         model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
-        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
         if (peoples != null) {
             int order = 0;
             Long xianyouZhengke = 0L, xianyouFuke = 0L, xianyouGanbu = 0L, xianyouOne = 0L, xianyouTow = 0L;
@@ -406,7 +406,7 @@ public class DataManager {
         model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
         model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
         model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
-        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
         if (peoples != null) {
             int order = 0;
             Long xianyouZhengke = 0L, xianyouFuke = 0L, xianyouGanbu = 0L, xianyouOne = 0L, xianyouTow = 0L;
@@ -735,7 +735,7 @@ public class DataManager {
                                              PeopleService peopleService, RankService rankService, ApprovalService approvalService) throws Exception {
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
         Sys_Approal approalModel = new Sys_Approal();
-        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
         approalModel.setUnitName(unitName);
         Sys_Approal approal = approvalService.selectApproval(unit.getId(), "0");
         if (approal != null) {
@@ -1448,7 +1448,7 @@ public class DataManager {
     public static List<SYS_People> getPeopleJson(Map<String, Object> resultMap, List<SYS_UNIT> units, PeopleService peopleService) {
         List<SYS_People> peopleList = new ArrayList<>();
         for (SYS_UNIT unit : units) {
-            List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+            List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
             if (peoples != null) {
                 peopleList.addAll(peoples);
             }
@@ -2434,7 +2434,7 @@ public class DataManager {
                     localApproval.setDataFlag("上行前");
                     approalList.add(localApproval);
                 }else {
-                    List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+                    List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
                     Sys_Approal approalModel = new Sys_Approal();
                     if (peoples!=null) {
                         DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
@@ -2532,7 +2532,7 @@ public class DataManager {
                 }
             }
         }
-        List<SYS_People> peopless = peopleService.selectPeoplesByUnitId(unitId, "1");
+        List<SYS_People> peopless = peopleService.selectPeoplesByUnitId(unitId, "1","在职");
         if (peopless != null) {
             for (SYS_People people : peopless) {
                 boolean isd = true;

@@ -77,7 +77,7 @@ public class DataController {
     @ResponseBody
      public String getApprovalData(@RequestParam(value = "unitName", required = false) String unitName){
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
-        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0");
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
         Sys_Approal approalModel = new Sys_Approal();
         if (peoples!=null){
             DataManager.getApprovalDataCell(approalModel,unit,peoples, rankService);
@@ -388,7 +388,7 @@ public class DataController {
                         Map<String, Object> map = new HashMap<>();
                         List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitId, unitService);//单位
                         List<SYS_UNIT> deleteUnitList = new ArrayList<>();
-                        List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitId, "1");
+                        List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitId, "1","在职");
                         DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
                         DataManager.dutyDataCheck(resultMap, duties, dutyService, unitId);
                         DataManager.rankDataCheck(resultMap, ranks, rankService, unitId);
@@ -532,7 +532,7 @@ public class DataController {
                             Map<String, Object> map = new HashMap<>();
                             List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, unitID, unitService);//单位
                             List<SYS_UNIT> deleteUnitList = new ArrayList<>();
-                            List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitID, "1");
+                            List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(unitID, "1","在职");
                         }
                         return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
                     } else {

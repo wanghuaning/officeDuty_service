@@ -82,7 +82,7 @@ public class ProcessServiceImpl implements ProcessService {
             return null;
         }
     }
-    private static List<SYS_UNIT> cunits=new ArrayList<>();
+    private static List<String> cunits=new ArrayList<>();
 
     @Override
     public QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag){
@@ -95,11 +95,9 @@ public class ProcessServiceImpl implements ProcessService {
         List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unitId));
         getAllChildUnits(cunitList);
         if (cunits.size()>0){
-            for (SYS_UNIT unit:cunits){
-                cri.where().orEquals("unit_Id",unit.getId());
-            }
+            cri.where().andInStrList("unit_Id",cunits);
             if (!StrUtils.isBlank(unitName)){//市
-                cri.where().orLike("unit_Name","%"+unitName+"%");
+                cri.where().andLike("unit_Name","%"+unitName+"%");
             }
             if (!StrUtils.isBlank(approveFlag) && !"all".equals(approveFlag)){//市
                 cri.where().andEquals("flag",approveFlag);
@@ -119,7 +117,7 @@ public class ProcessServiceImpl implements ProcessService {
     public void getAllChildUnits(List<SYS_UNIT> unitList){
         for (SYS_UNIT unit : unitList)  {
 //            System.out.println(unit.getName());
-            cunits.add(unit);
+            cunits.add(unit.getId());
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
                 if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {

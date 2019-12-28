@@ -170,7 +170,7 @@ public class UnitConttoller {
                         return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_NAME_ERROE, null, null).getJson();
                     }
                     SYS_UNIT unitbycode = unitService.selectUnitByCode(unit.getCode());
-                    if (unitbycode != null) {
+                    if (unitbycode != null && unitbycode.getCode()!= unit.getCode()) {
                         return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                     }
                 }
@@ -230,7 +230,7 @@ public class UnitConttoller {
                 }
                 ClassPathResource resource = new ClassPathResource("exportExcel/exportUnitInfo.xls");
                 String path = resource.getFile().getPath();
-                String[] arr = {"name", "code", "parentName", "buildProvince", "buildCity", "buildCounty", "affiliation", "category", "level", "officialNum", "officialRealNum", "referOfficialNum", "referOfficialRealNum", "referOfficialDate", "referOfficialDocument",
+                String[] arr = {"name", "code", "parentName", "buildProvince", "buildCity", "buildCounty","unitType", "affiliation", "category", "level", "officialNum", "officialRealNum", "referOfficialNum", "referOfficialRealNum", "referOfficialDate", "referOfficialDocument",
                         "rightPlaceNum", "deputyPlaceNum", "mainHallNum", "deputyHallNum", "oneTowResearcherNum", "threeFourResearcherNum", "oneTowClerkNum", "threeFourClerkNum",
                         "contact", "contactNumber", "detail"};
                 Workbook temp = ExcelFileGenerator.getTeplet(path);

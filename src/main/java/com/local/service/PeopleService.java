@@ -19,19 +19,19 @@ public interface PeopleService {
 
     SYS_People selectPeopleByIdcardAndUnitId(String idcard,String uid);//查询身份证
 
-    List<SYS_People> selectPeoplesByUnitId(String unitId,String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
-    List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId,String rank);
+    List<SYS_People> selectPeoplesByUnitId(String unitId,String isChild,String states);//根据单位ID查询，是否包含下级单位的 人员1:包含
+    List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId,String rank,String states);
 
-    List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty);
-    List<SYS_People> selectPeoplesByUnitIdsAndDuty(String[] units,String duty);
-    List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId);
+    List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty,String states);
+    List<SYS_People> selectPeoplesByUnitIdsAndDuty(String[] units,String duty,String states);
+    List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId,String states);
 
-    List<SYS_People> selectPeoplesByUnitIds(String[] units);
+    List<SYS_People> selectPeoplesByUnitIds(String[] units,String states);
     List<SYS_People> selectIncumbentPeoplesByUnitId(String [] units,String states);//在职人员等查询
-    List<SYS_People> selectTrunPeoplesByUnitId(String[] units);// 套转人员查询
+    List<SYS_People> selectTrunPeoplesByUnitId(String[] units,String states);// 套转人员查询
 
-    List<SYS_People> selectSexPeoplesByUnitId(String unitId,String sex);// 性别查询
+    List<SYS_People> selectSexPeoplesByUnitId(String unitId,String sex,String states);// 性别查询
 
-    List<SYS_People> selectPartyPeoplesByUnitId(String unitId,String party);// 党员查询
-    List<SYS_People> selectPartyPeoplesByUnitIds(String[] units ,String party);// 党员查询
+    List<SYS_People> selectPartyPeoplesByUnitId(String unitId,String party,String states);// 党员查询
+    List<SYS_People> selectPartyPeoplesByUnitIds(String[] units ,String party,String states);// 党员查询
 }

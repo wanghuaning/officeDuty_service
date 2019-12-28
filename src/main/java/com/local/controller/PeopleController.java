@@ -139,7 +139,7 @@ public class PeopleController {
                                @RequestParam(value = "unitId", required = false) String unitId,
                                @RequestParam(value = "isChild", required = false) String isChild){
         try {
-            List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unitId,isChild);
+            List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unitId,isChild,"在职");
             ClassPathResource resource=new ClassPathResource("exportExcel/exportPeopleInfo.xls");
             String path=resource.getFile().getPath();
             String[] arr={"name","unitName","birthday","idcard","sex","birthplace","nationality","workday","party","partyTime","secondParty","thirdParty",
@@ -192,7 +192,7 @@ public class PeopleController {
             if (StrUtils.isBlank(unitId)){
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }else {
-                List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unitId,"0");
+                List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unitId,"0","在职");
                 if (peopleList!=null){
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, peopleList, null).getJson();
                 }else {
