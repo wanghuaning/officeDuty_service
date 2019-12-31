@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface UnitService {
     List<SYS_UNIT> selectUnitsByParam(String name, String enabled,String parentId);
-
+    Object buildTree(List<SYS_UNIT> unitList);
     void insertUnit(SYS_UNIT unit);
 
     void updateUnit(SYS_UNIT unit);

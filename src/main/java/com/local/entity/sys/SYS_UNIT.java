@@ -285,11 +285,25 @@ public class SYS_UNIT implements Serializable {
     @ColDefine(type = ColType.TEXT)
     private String regCode;
 
+    @ApiModelProperty("是否有子单位0:无，1：有")
+    @Comment("是否有子单位0:无，1：有")
+    @Column("hasChild")
+    @ColDefine(type = ColType.VARCHAR,width = 1)
+    private String hasChild;
+
     private String[] areaStrs;
     private boolean hasChildren;
     private List<SYS_UNIT> children;
     private String value;
     private String label;
+
+    public String getHasChild() {
+        return hasChild;
+    }
+
+    public void setHasChild(String hasChild) {
+        this.hasChild = hasChild;
+    }
 
     public String getUnitType() {
         return unitType;
@@ -688,39 +702,41 @@ public class SYS_UNIT implements Serializable {
         if (this == o) return true;
         if (!(o instanceof SYS_UNIT)) return false;
         SYS_UNIT unit = (SYS_UNIT) o;
-        return officialNum == unit.officialNum &&
-                referOfficialNum == unit.referOfficialNum &&
-                officialRealNum == unit.officialRealNum &&
-                referOfficialRealNum == unit.referOfficialRealNum &&
-                rightPlaceNum == unit.rightPlaceNum &&
-                deputyPlaceNum == unit.deputyPlaceNum &&
-                mainHallNum == unit.mainHallNum &&
-                deputyHallNum == unit.deputyHallNum &&
-                oneInspectorNum == unit.oneInspectorNum &&
-                towInspectorNum == unit.towInspectorNum &&
-                oneTowResearcherNum == unit.oneTowResearcherNum &&
-                threeFourResearcherNum == unit.threeFourResearcherNum &&
-                oneTowClerkNum == unit.oneTowClerkNum &&
-                threeFourClerkNum == unit.threeFourClerkNum &&
-                oneResearcherNum == unit.oneResearcherNum &&
-                towResearcherNum == unit.towResearcherNum &&
-                threeResearcherNum == unit.threeResearcherNum &&
-                fourResearcherNum == unit.fourResearcherNum &&
-                oneClerkNum == unit.oneClerkNum &&
-                towClerkNum == unit.towClerkNum &&
-                threeClerkNum == unit.threeClerkNum &&
-                fourClerkNum == unit.fourClerkNum &&
-                hasChildren == unit.hasChildren &&
+        return hasChildren == unit.hasChildren &&
                 Objects.equals(id, unit.id) &&
                 Objects.equals(code, unit.code) &&
                 Objects.equals(name, unit.name) &&
                 Objects.equals(parentId, unit.parentId) &&
                 Objects.equals(area, unit.area) &&
                 Objects.equals(affiliation, unit.affiliation) &&
+                Objects.equals(unitType, unit.unitType) &&
                 Objects.equals(category, unit.category) &&
                 Objects.equals(level, unit.level) &&
                 Objects.equals(referOfficialDocument, unit.referOfficialDocument) &&
                 Objects.equals(referOfficialDate, unit.referOfficialDate) &&
+                Objects.equals(referOfficialDateStr, unit.referOfficialDateStr) &&
+                Objects.equals(officialNum, unit.officialNum) &&
+                Objects.equals(referOfficialNum, unit.referOfficialNum) &&
+                Objects.equals(officialRealNum, unit.officialRealNum) &&
+                Objects.equals(referOfficialRealNum, unit.referOfficialRealNum) &&
+                Objects.equals(rightPlaceNum, unit.rightPlaceNum) &&
+                Objects.equals(deputyPlaceNum, unit.deputyPlaceNum) &&
+                Objects.equals(mainHallNum, unit.mainHallNum) &&
+                Objects.equals(deputyHallNum, unit.deputyHallNum) &&
+                Objects.equals(oneInspectorNum, unit.oneInspectorNum) &&
+                Objects.equals(towInspectorNum, unit.towInspectorNum) &&
+                Objects.equals(oneTowResearcherNum, unit.oneTowResearcherNum) &&
+                Objects.equals(threeFourResearcherNum, unit.threeFourResearcherNum) &&
+                Objects.equals(oneTowClerkNum, unit.oneTowClerkNum) &&
+                Objects.equals(threeFourClerkNum, unit.threeFourClerkNum) &&
+                Objects.equals(oneResearcherNum, unit.oneResearcherNum) &&
+                Objects.equals(towResearcherNum, unit.towResearcherNum) &&
+                Objects.equals(threeResearcherNum, unit.threeResearcherNum) &&
+                Objects.equals(fourResearcherNum, unit.fourResearcherNum) &&
+                Objects.equals(oneClerkNum, unit.oneClerkNum) &&
+                Objects.equals(towClerkNum, unit.towClerkNum) &&
+                Objects.equals(threeClerkNum, unit.threeClerkNum) &&
+                Objects.equals(fourClerkNum, unit.fourClerkNum) &&
                 Objects.equals(enabled, unit.enabled) &&
                 Objects.equals(parentName, unit.parentName) &&
                 Objects.equals(detail, unit.detail) &&
@@ -730,6 +746,7 @@ public class SYS_UNIT implements Serializable {
                 Objects.equals(buildCounty, unit.buildCounty) &&
                 Objects.equals(contact, unit.contact) &&
                 Objects.equals(contactNumber, unit.contactNumber) &&
+                Objects.equals(regCode, unit.regCode) &&
                 Arrays.equals(areaStrs, unit.areaStrs) &&
                 Objects.equals(children, unit.children) &&
                 Objects.equals(value, unit.value) &&
@@ -738,7 +755,7 @@ public class SYS_UNIT implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, code, name, parentId, area, affiliation, category, level, referOfficialDocument, referOfficialDate, officialNum, referOfficialNum, officialRealNum, referOfficialRealNum, rightPlaceNum, deputyPlaceNum, mainHallNum, deputyHallNum, oneInspectorNum, towInspectorNum, oneTowResearcherNum, threeFourResearcherNum, oneTowClerkNum, threeFourClerkNum, oneResearcherNum, towResearcherNum, threeResearcherNum, fourResearcherNum, oneClerkNum, towClerkNum, threeClerkNum, fourClerkNum, enabled, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, contact, contactNumber, hasChildren, children, value, label);
+        int result = Objects.hash(id, code, name, parentId, area, affiliation, unitType, category, level, referOfficialDocument, referOfficialDate, referOfficialDateStr, officialNum, referOfficialNum, officialRealNum, referOfficialRealNum, rightPlaceNum, deputyPlaceNum, mainHallNum, deputyHallNum, oneInspectorNum, towInspectorNum, oneTowResearcherNum, threeFourResearcherNum, oneTowClerkNum, threeFourClerkNum, oneResearcherNum, towResearcherNum, threeResearcherNum, fourResearcherNum, oneClerkNum, towClerkNum, threeClerkNum, fourClerkNum, enabled, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, contact, contactNumber, regCode, hasChildren, children, value, label);
         result = 31 * result + Arrays.hashCode(areaStrs);
         return result;
     }

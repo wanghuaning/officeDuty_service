@@ -1203,7 +1203,7 @@ public class DataManager {
             ;
             rank.setStatus("在任");
             String approvalTime = String.valueOf(map.get("审批通过时间"));
-            rank.setFlag("1");
+            rank.setFlag("是");
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
@@ -1274,7 +1274,7 @@ public class DataManager {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
             rank.setDeposeRank(StrUtils.toNullStr(map.get("免职级事由")));
-            rank.setFlag("0");
+            rank.setFlag("否");
             String deposeTime = String.valueOf(map.get("免职级时间"));
             if (!StrUtils.isBlank(deposeTime)) {
                 rank.setDeposeTime(DateUtil.stringToDate(deposeTime));

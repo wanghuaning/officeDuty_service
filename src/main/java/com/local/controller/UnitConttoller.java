@@ -72,7 +72,7 @@ public class UnitConttoller {
                 String parentId = user.getUnitId();
                 if (!StrUtils.isBlank(parentId)) {
                     List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled, parentId);
-                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, user).getJson();
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, unitService.buildTree(queryResult), user).getJson();
                 } else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
@@ -148,6 +148,8 @@ public class UnitConttoller {
             SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
             if (punit != null) {
                 unit.setParentName(punit.getName());
+                punit.setHasChild("1");
+                unitService.updateUnit(punit);
             }
             unitService.insertUnit(unit);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
@@ -177,7 +179,11 @@ public class UnitConttoller {
                 SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
                 if (punit != null) {
                     unit.setParentName(punit.getName());
+                    punit.setHasChild("1");
+                    unitService.updateUnit(punit);
                 }
+                unit.setRegCode(unitById.getRegCode());
+                unit.setHasChild(unitById.getHasChild());
                 UnitManager.setUnitArea(unit);
                 unit.setUnitOrder(unitById.getUnitOrder());
                 unitService.updateUnit(unit);
@@ -199,11 +205,21 @@ public class UnitConttoller {
             if (StrUtils.isBlank(id)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             } else {
+                SYS_UNIT unit = unitService.selectUnitById(id);
+                if (unit==null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
+                }
+                SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
+                if (punit != null) {
+                    unit.setParentName(punit.getName());
+                    punit.setHasChild("1");
+                    unitService.updateUnit(punit);
+                }
                 unitService.deleteUnit(id);
                 List<SYS_UNIT> cunits = unitService.selectAllChildUnits(id);
                 if (cunits.size() > 0) {
-                    for (SYS_UNIT unit : cunits) {
-                        unitService.deleteUnit(unit.getId());
+                    for (SYS_UNIT cunit : cunits) {
+                        unitService.deleteUnit(cunit.getId());
                     }
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
@@ -306,6 +322,8 @@ public class UnitConttoller {
                                     unit.setUnitOrder(sys_unit.getUnitOrder());
                                     unit.setParentName(punit.getParentName());
                                     unit.setParentId(punit.getId());
+                                    punit.setHasChild("1");
+                                    unitService.updateUnit(punit);
                                     unitService.updateUnit(unit);
                                 } else {
                                     stringBuffer.append(unit.getName() + ":上级单位不存在，请核查！");

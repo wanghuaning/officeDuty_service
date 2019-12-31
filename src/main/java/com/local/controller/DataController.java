@@ -82,7 +82,12 @@ public class DataController {
         List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
         Sys_Approal approalModel = new Sys_Approal();
         if (peoples != null) {
-            DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
+            Sys_Approal approalNow = approvalService.selectApproval(unit.getId(), "0");
+            if (approalNow != null) {
+                approalModel=approalNow;
+            }else {
+                DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
+            }
             return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
         } else {
             return new Result(ResultCode.ERROR.toString(), "无人员！", null, null).getJson();
@@ -439,8 +444,11 @@ public class DataController {
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
-            String jsonStr = RSAModelUtils.decryptByPrivateKey(jsonStrMw, RSAModelUtils.moduleA, RSAModelUtils.privateKeyA);
-            System.out.println("导入" + jsonStr);
+            byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
+            byte[] decryptResult = AESUtil.decrypt(decode, AESUtil.privateKey);
+            String jsonStr = new String(decryptResult, "UTF-8");
+//            String jsonStr = RSAModelUtils.decryptByPrivateKey(jsonStrMw, RSAModelUtils.moduleA, RSAModelUtils.privateKeyA);
+//            System.out.println("导入" + jsonStr);
             JSONObject object = JSONObject.fromObject(jsonStr);
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
@@ -449,7 +457,7 @@ public class DataController {
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
                 String unitID = String.valueOf(key.get("unitId"));
-                if (unitID.equals(unitId)) {
+                if (!unitID.trim().contains(unitId.trim())) {
                     return new Result(ResultCode.ERROR.toString(), "非本单位下行数据包！", null, null).getJson();
                 } else {
                     String unitName = String.valueOf(key.get("unitName"));

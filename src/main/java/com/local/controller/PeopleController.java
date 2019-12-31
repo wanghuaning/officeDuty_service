@@ -156,6 +156,13 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
+
+    /**
+     * 已取消使用
+     * @param excelFile
+     * @param fullImport
+     * @return
+     */
     @ApiOperation(value = "导入人员", notes = "导入人员", httpMethod = "POST", tags = "导入人员接口")
     @RequestMapping(value = "/import")
     public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile,@RequestParam(value = "fullImport", required = false) String fullImport){

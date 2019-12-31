@@ -25,6 +25,7 @@ public class UnitServiceImpl implements UnitService {
 
     private static List<SYS_UNIT> cunits=new ArrayList<>();
     private static List<SYS_UNIT> punits=new ArrayList<>();
+    private static List<SYS_UNIT> allunits=new ArrayList<>();
 
     @Override
     public List<SYS_UNIT> selectAllParentUnits(SYS_UNIT unit){
@@ -108,6 +109,7 @@ public class UnitServiceImpl implements UnitService {
     @Override
     public List<SYS_UNIT> selectUnitsByParam(String name, String enabled,String parentId) {
         Criteria cri = Cnd.cri();
+        allunits=new ArrayList<SYS_UNIT>();
         if (!StrUtils.isBlank(name)) {//部门名称不为空
             cri.where().andLike("name", "%" + name.trim() + "%");
             if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
@@ -120,10 +122,86 @@ public class UnitServiceImpl implements UnitService {
             }
         }
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
-        getUnits(units, enabled, name);
-        return units;
+        allunits=units;
+        if (units.size()>0 && StrUtils.isBlank(name)){
+            getAllUnit(units, enabled, name);
+        }
+//        getUnits(units, enabled, name);
+        return allunits;
     }
+    public void getAllUnit(List<SYS_UNIT> units, String enabled, String name) {
+        for (SYS_UNIT unit: units) {
+            List<String> aras = new ArrayList<>();
+            if (countUnit(unit.getId()) > 0) {
+                List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0"));
+                if (!StrUtils.isBlank(unitList) && unitList.size() > 0) {
+                    if (!StrUtils.isBlank(name)) {//部门名称不为空
+                        allunits.addAll(unitList);
+                    }
+                    unit.setChildren(unitList);
+                    unit.setHasChildren(true);
+                    getUnits(unitList, enabled, name);
+                } else {
+//                    unit.setChildren(new ArrayList<SYS_UNIT>());
+                    unit.setHasChildren(false);
+                }
+            } else {
+//                unit.setChildren(new ArrayList<SYS_UNIT>());
+            }
+            if (unit.getBuildCounty() != null) {
+                String[] arr = {unit.getBuildProvince(), unit.getBuildCity(), unit.getBuildCounty()};
+                unit.setAreaStrs(arr);
+            } else if (unit.getBuildCity() != null) {
+                String[] arr = {unit.getBuildProvince(), unit.getBuildCity()};
+                unit.setAreaStrs(arr);
+            } else {
+                String[] arr = {unit.getBuildProvince()};
+                unit.setAreaStrs(arr);
+            }
+        }
+    }
+    @Override
+    public Object buildTree(List<SYS_UNIT> unitList){
+        Set<SYS_UNIT> trees = new LinkedHashSet<>();
+        Set<SYS_UNIT> depts= new LinkedHashSet<>();
+        List<String> deptNames = unitList.stream().map(SYS_UNIT::getName).collect(Collectors.toList());
+        Boolean isChild;
+        for (SYS_UNIT deptDTO : unitList) {
+            isChild = false;
+            if ("0".equals(String.valueOf(deptDTO.getParentId()))) {
+                trees.add(deptDTO);
+            }
+            for (SYS_UNIT it : unitList) {
+                if (deptDTO.getId().equals(it.getParentId())) {
+                    isChild = true;
+                    if (deptDTO.getChildren() == null) {
+                        deptDTO.setChildren(new ArrayList<SYS_UNIT>());
+                    }
+                    deptDTO.getChildren().add(it);
+                }
+            }
+            String name="";
+            List<SYS_UNIT> unit = dao.query(SYS_UNIT.class, Cnd.where("id", "=", deptDTO.getId()));
+            if (unit.size()>0){
+                name=unit.get(0).getName();
+            }
+            if(isChild)
+                depts.add(deptDTO);
+            else if(!deptNames.contains(name))
+                depts.add(deptDTO);
+        }
 
+        if (CollectionUtils.isEmpty(trees)) {
+            trees = depts;
+        }
+
+        Integer totalElements = unitList!=null?unitList.size():0;
+
+        Map map = new HashMap();
+//        map.put("totalElements",totalElements);
+        map.put("content",CollectionUtils.isEmpty(trees)?unitList:trees);
+        return CollectionUtils.isEmpty(trees)?unitList:trees;
+    }
     public static List removeDuplicate(List list) {
         HashSet h = new HashSet(list);
         list.clear();
@@ -162,8 +240,6 @@ public class UnitServiceImpl implements UnitService {
                     }
                     unit.setChildren(unitList);
                     unit.setHasChildren(true);
-//                    String[] arr={"内蒙古自治区","赤峰市","元宝山区"};
-//                    unit.setAreaStrs(arr);
                     getUnits(unitList, enabled, name);
                 } else {
 //                    unit.setChildren(new ArrayList<SYS_UNIT>());
