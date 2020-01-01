@@ -1,9 +1,13 @@
 package com.local.entity.sys;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.local.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.nutz.dao.entity.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -293,6 +297,10 @@ public class SYS_UNIT implements Serializable {
 
     private String[] areaStrs;
     private boolean hasChildren;
+
+    @Setter
+    @Getter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<SYS_UNIT> children;
     private String value;
     private String label;
@@ -655,14 +663,6 @@ public class SYS_UNIT implements Serializable {
 
     public void setHasChildren(boolean hasChildren) {
         this.hasChildren = hasChildren;
-    }
-
-    public List<SYS_UNIT> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<SYS_UNIT> children) {
-        this.children = children;
     }
 
     public String getValue() {

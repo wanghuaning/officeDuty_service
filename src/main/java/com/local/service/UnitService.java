@@ -15,7 +15,11 @@ public interface UnitService {
 
     SYS_UNIT selectUnitByName(String name);//根据名称查询单位
 
+    SYS_UNIT selectUnitByNameNotId(String name,String id);//根据名称查询单位
+
     SYS_UNIT selectUnitByCode(String code);//根据名称查询单位
+
+    SYS_UNIT selectUnitByCodeNotId(String code,String id);//根据名称查询单位除本单位以外
 
     SYS_UNIT selectUnitById(String id);
 

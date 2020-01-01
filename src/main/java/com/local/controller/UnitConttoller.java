@@ -119,9 +119,9 @@ public class UnitConttoller {
         UnitModel um = new UnitModel();
         SYS_UNIT unit = unitService.selectUnitById(unitId);
         if (unit != null) {
-            UnitManager.saveTurnRank(rankService,unitId,um);
-            UnitManager.saveNowRank(peopleService,unitId,um);
-            UnitManager.saveLaveRank(unit,um);
+            UnitManager.saveTurnRank(rankService, unitId, um);
+            UnitManager.saveNowRank(peopleService, unitId, um);
+            UnitManager.saveLaveRank(unit, um);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, um, null).getJson();
         } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
@@ -166,15 +166,16 @@ public class UnitConttoller {
         try {
             SYS_UNIT unitById = unitService.selectUnitById(unit.getId());
             if (unitById != null) {
-                if (!unitById.getName().trim().equals(unit.getName().trim())) {
-                    SYS_UNIT unitbyname = unitService.selectUnitByName(unit.getName());
-                    if (unitbyname != null) {
-                        return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_NAME_ERROE, null, null).getJson();
-                    }
-                    SYS_UNIT unitbycode = unitService.selectUnitByCode(unit.getCode());
-                    if (unitbycode != null && unitbycode.getCode()!= unit.getCode()) {
-                        return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
-                    }
+                SYS_UNIT unitbyname = unitService.selectUnitByNameNotId(unit.getName(), unit.getId());
+                if (unitbyname != null) {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_NAME_ERROE, null, null).getJson();
+                }
+                SYS_UNIT unitbycode = unitService.selectUnitByCodeNotId(unit.getCode(), unit.getId());
+                if (unitbycode != null) {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+                if (unit.getId().equals(unit.getParentId())) {
+                    return new Result(ResultCode.ERROR.toString(), "不可选自己为上级！", null, null).getJson();
                 }
                 SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
                 if (punit != null) {
@@ -206,7 +207,7 @@ public class UnitConttoller {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             } else {
                 SYS_UNIT unit = unitService.selectUnitById(id);
-                if (unit==null){
+                if (unit == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
                 }
                 SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
@@ -246,7 +247,7 @@ public class UnitConttoller {
                 }
                 ClassPathResource resource = new ClassPathResource("exportExcel/exportUnitInfo.xls");
                 String path = resource.getFile().getPath();
-                String[] arr = {"name", "code", "parentName", "buildProvince", "buildCity", "buildCounty","unitType", "affiliation", "category", "level", "officialNum", "officialRealNum", "referOfficialNum", "referOfficialRealNum", "referOfficialDate", "referOfficialDocument",
+                String[] arr = {"name", "code", "parentName", "buildProvince", "buildCity", "buildCounty", "unitType", "affiliation", "category", "level", "officialNum", "officialRealNum", "referOfficialNum", "referOfficialRealNum", "referOfficialDate", "referOfficialDocument",
                         "rightPlaceNum", "deputyPlaceNum", "mainHallNum", "deputyHallNum", "oneTowResearcherNum", "threeFourResearcherNum", "oneTowClerkNum", "threeFourClerkNum",
                         "contact", "contactNumber", "detail"};
                 Workbook temp = ExcelFileGenerator.getTeplet(path);

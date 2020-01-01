@@ -124,29 +124,29 @@ public class UnitServiceImpl implements UnitService {
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
         allunits=units;
         if (units.size()>0 && StrUtils.isBlank(name)){
-            getAllUnit(units, enabled, name);
+            List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", parentId).and("enabled", "=", "0"));
+            getAllUnit(unitList, enabled, name);
         }
 //        getUnits(units, enabled, name);
         return allunits;
     }
     public void getAllUnit(List<SYS_UNIT> units, String enabled, String name) {
         for (SYS_UNIT unit: units) {
+            allunits.add(unit);
             List<String> aras = new ArrayList<>();
+//            System.out.println(unit.getName());
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0"));
                 if (!StrUtils.isBlank(unitList) && unitList.size() > 0) {
-                    if (!StrUtils.isBlank(name)) {//部门名称不为空
-                        allunits.addAll(unitList);
-                    }
-                    unit.setChildren(unitList);
+//                    unit.setChildren(unitList);
                     unit.setHasChildren(true);
-                    getUnits(unitList, enabled, name);
+                    getAllUnit(unitList, enabled, name);
                 } else {
-//                    unit.setChildren(new ArrayList<SYS_UNIT>());
+                    unit.setChildren(new ArrayList<SYS_UNIT>());
                     unit.setHasChildren(false);
                 }
             } else {
-//                unit.setChildren(new ArrayList<SYS_UNIT>());
+                unit.setChildren(new ArrayList<SYS_UNIT>());
             }
             if (unit.getBuildCounty() != null) {
                 String[] arr = {unit.getBuildProvince(), unit.getBuildCity(), unit.getBuildCounty()};
@@ -304,6 +304,18 @@ public class UnitServiceImpl implements UnitService {
             return null;
         }
     }
+
+    @Override
+    public SYS_UNIT selectUnitByNameNotId(String name,String id){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("name", name).andNotEquals("id",id);
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
+        }
+    }
     @Override
     public SYS_UNIT selectLikeUnitByName(String name){
         Criteria cri = Cnd.cri();
@@ -333,6 +345,17 @@ public class UnitServiceImpl implements UnitService {
         }
     }
 
+    @Override
+    public SYS_UNIT selectUnitByCodeNotId(String code,String id){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("code", code).andNotEquals("id",id);
+        List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
+        if (units.size() > 0) {
+            return units.get(0);
+        } else {
+            return null;
+        }
+    }
     /**
      * 根据ID查询单位
      *
