@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @ApiModel("审批管理表")//用在模型类上，对模型类做注释；
 @Table("sys_process")
@@ -76,6 +77,12 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 8)
   private String states;
 
+  @ApiModelProperty("父ID")
+  @Comment("父ID")
+  @Column("parent_Id")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String parentId;
+
   private String processFlag;
 
   public String getProcessFlag() {
@@ -84,6 +91,24 @@ public class Sys_Process implements Serializable {
     }else {
       return "职级职数使用审批表";
     }
+  }
+
+  private List<Sys_Process> children;
+
+    public List<Sys_Process> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Sys_Process> children) {
+        this.children = children;
+    }
+
+    public String getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
   }
 
   public void setProcessFlag(String processFlag) {

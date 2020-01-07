@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.lang.random.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.unit.DataUnit;
 
@@ -1595,7 +1596,15 @@ public class DataManager {
             if ("上行".equals(dataType)) {
                 List<Sys_Process> approals = processService.selectNotApprProcess(unit.getId());
                 if (approals != null) {
-                    processList.addAll(approals);
+                    for (Sys_Process process: approals){
+                        List<Sys_Process> cprocesses = processService.selectProcesssByParentId(process.getId());
+                        if (cprocesses!=null){
+                            process.setChildren(cprocesses);
+                        }else {
+                            process.setChildren(new ArrayList<>());
+                        }
+                        processList.add(process);
+                    }
                 }
             } else {
                 List<Sys_Process> approal = processService.selectApprProcess(unit.getId());
@@ -1705,14 +1714,50 @@ public class DataManager {
      * 保存审批表数据
      * @return
      */
-    public static List<Sys_Process> saveProcessJsonModel(JSONArray processList) {
+    public static List<Sys_Process> saveProcessJsonModel(JSONArray processList,SYS_USER user,String flag,SYS_UNIT unit,ProcessService processService) {
         List<Sys_Process> processs = new ArrayList<>();
         for (int i = 0; i < processList.size(); i++) {
             Sys_Process process = new Sys_Process();
             JSONObject key = (JSONObject) processList.get(i);
             try {
                 EntityUtil.setReflectModelValue(process, key);
+                JSONArray cprocessList = key.getJSONArray("children");
+                if (cprocessList.size()>0){
+                    List<Sys_Process> cprocesss = new ArrayList<>();
+                    for (int j = 0; j < cprocessList.size(); j++) {
+                        Sys_Process cprocess = new Sys_Process();
+                        JSONObject ckey = (JSONObject) cprocessList.get(j);
+                        EntityUtil.setReflectModelValue(cprocess, ckey);
+                        cprocess.setCreateTime(DateUtil.stringToDate(String.valueOf(ckey.get("createTimeStr"))));
+                        cprocesss.add(cprocess);
+                    }
+                    process.setChildren(cprocesss);
+                }
                 process.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                if ("上行".equals(flag)){
+                    if (!process.getStates().contains("已审核")){
+                        if (user.getRoles().contains("0")){
+                            Sys_Process cprocess=new Sys_Process();
+                            BeanUtils.copyProperties(process,cprocess);
+                            Sys_Process cprocess2=processService.selectProcessByParentId(process.getId(),"初审");
+                            if (cprocess2!=null){
+                                cprocess.setId(cprocess2.getId());
+                            }else {
+                                String uuid=UUID.randomUUID().toString();
+                                cprocess.setId(uuid);
+                            }
+                            cprocess.setStates("初审");
+                            cprocess.setCreateTime(new Date());
+                            cprocess.setUnitName(unit.getName());
+                            cprocess.setParentId(process.getId());
+                            processs.add(cprocess);
+                            process.setStates("初审");
+                        }
+                    }
+                }
+//                if (process.getChildren().size()>0){
+//                    processs.addAll(process.getChildren());
+//                }
                 processs.add(process);
             } catch (SecurityException e) {
                 e.printStackTrace();
@@ -2037,18 +2082,21 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localPeoples.size() > 0) {
-            for (SYS_People people : localPeoples) {
-                boolean isdelete = true;
-                for (SYS_People people1 : peoples) {
-                    if (people.getId().equals(people1.getId())) {
-                        isdelete = false;
+        if (localPeoples!=null){
+            if (localPeoples.size() > 0) {
+                for (SYS_People people : localPeoples) {
+                    boolean isdelete = true;
+                    for (SYS_People people1 : peoples) {
+                        if (people.getId().equals(people1.getId())) {
+                            isdelete = false;
+                        }
+                    }
+                    if (isdelete) {
+                        deletePeoples.add(people);
                     }
                 }
-                if (isdelete) {
-                    deletePeoples.add(people);
-                }
             }
+
         }
         if (deletePeoples.size() > 0) {
             resultMap.put("peopleDelete", deletePeoples);
@@ -2158,16 +2206,18 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys.size() > 0) {
-            for (SYS_Rank people : localDutys) {
-                boolean isdelete = true;
-                for (SYS_Rank people1 : duties) {
-                    if (people.getId().equals(people1.getId())) {
-                        isdelete = false;
+        if (localDutys!=null){
+            if (localDutys.size() > 0) {
+                for (SYS_Rank people : localDutys) {
+                    boolean isdelete = true;
+                    for (SYS_Rank people1 : duties) {
+                        if (people.getId().equals(people1.getId())) {
+                            isdelete = false;
+                        }
                     }
-                }
-                if (isdelete) {
-                    deletePeoples.add(people);
+                    if (isdelete) {
+                        deletePeoples.add(people);
+                    }
                 }
             }
         }
@@ -2218,16 +2268,18 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys.size() > 0) {
-            for (SYS_Education people : localDutys) {
-                boolean isdelete = true;
-                for (SYS_Education people1 : duties) {
-                    if (people.getId().equals(people1.getId())) {
-                        isdelete = false;
+        if(localDutys!=null){
+            if (localDutys.size() > 0) {
+                for (SYS_Education people : localDutys) {
+                    boolean isdelete = true;
+                    for (SYS_Education people1 : duties) {
+                        if (people.getId().equals(people1.getId())) {
+                            isdelete = false;
+                        }
                     }
-                }
-                if (isdelete) {
-                    deletePeoples.add(people);
+                    if (isdelete) {
+                        deletePeoples.add(people);
+                    }
                 }
             }
         }
@@ -2278,16 +2330,18 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys.size() > 0) {
-            for (SYS_Reward people : localDutys) {
-                boolean isdelete = true;
-                for (SYS_Reward people1 : duties) {
-                    if (people.getId().equals(people1.getId())) {
-                        isdelete = false;
+        if (localDutys!=null){
+            if (localDutys.size() > 0) {
+                for (SYS_Reward people : localDutys) {
+                    boolean isdelete = true;
+                    for (SYS_Reward people1 : duties) {
+                        if (people.getId().equals(people1.getId())) {
+                            isdelete = false;
+                        }
                     }
-                }
-                if (isdelete) {
-                    deletePeoples.add(people);
+                    if (isdelete) {
+                        deletePeoples.add(people);
+                    }
                 }
             }
         }
@@ -2338,16 +2392,18 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys != null) {
-            for (SYS_Assessment people : localDutys) {
-                boolean isdelete = true;
-                for (SYS_Assessment people1 : duties) {
-                    if (people.getId().equals(people1.getId())) {
-                        isdelete = false;
+        if (localDutys!=null){
+            if (localDutys != null) {
+                for (SYS_Assessment people : localDutys) {
+                    boolean isdelete = true;
+                    for (SYS_Assessment people1 : duties) {
+                        if (people.getId().equals(people1.getId())) {
+                            isdelete = false;
+                        }
                     }
-                }
-                if (isdelete) {
-                    deletePeoples.add(people);
+                    if (isdelete) {
+                        deletePeoples.add(people);
+                    }
                 }
             }
         }
@@ -2830,21 +2886,36 @@ public class DataManager {
         unit.setThreeFourClerkNum(StrUtils.strToLong(approal.getThreeFourClerkNum()));
         return unit;
     }
-    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name) {
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name,SYS_USER user) {
         List<Sys_Process> approalList = new ArrayList<>();
         for (Sys_Process process : processes) {
             approalList.add(process);
-            Sys_Process approal1 = processService.selectProcessById(process.getId());
-            if (approal1 != null) {
-                process.setStates("已审核");
-                process.setPeople(name);
-                process.setProcessTime(new Date());
-                processService.updateProcess(process);
-            } else {
-                process.setStates("已审核");
-                process.setPeople(name);
-                process.setProcessTime(new Date());
-                processService.insertProcess(process);
+            if (process.getParentId()==null){
+                Sys_Process approal1 = processService.selectProcessById(process.getId());
+                if (user!=null){
+                    if ("1".equals(user.getRoles())){
+                        process.setStates("已审核");
+                    }
+                }
+                if (approal1 != null) {
+                    process.setPeople(name);
+                    process.setProcessTime(new Date());
+                    processService.updateProcess(process);
+                } else {
+                    process.setPeople(name);
+                    process.setProcessTime(new Date());
+                    processService.insertProcess(process);
+                }
+                if (process.getChildren()!=null){
+                    for (Sys_Process cprocess:process.getChildren()){
+                        Sys_Process capproal1 = processService.selectProcessById(cprocess.getId());
+                        if (capproal1!=null){
+                            processService.updateProcess(capproal1);
+                        }else {
+                            processService.insertProcess(capproal1);
+                        }
+                    }
+                }
             }
         }
         return approalList;

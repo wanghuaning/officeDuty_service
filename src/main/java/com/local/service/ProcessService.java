@@ -10,6 +10,8 @@ public interface ProcessService {
     void updateProcess(Sys_Process process);
     Sys_Process selectProcessById(String id);
     Sys_Process selectProcessByFlag(String unitId,String flag);
+    Sys_Process selectProcessByParentId(String parentId,String states);
+    List<Sys_Process> selectProcesssByParentId(String parentId);
     List<Sys_Process> selectNotApprProcess(String unitId);
     List<Sys_Process> selectApprProcess(String unitId);
     QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag);

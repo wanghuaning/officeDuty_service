@@ -50,7 +50,20 @@ public class ProcessServiceImpl implements ProcessService {
     public List<Sys_Process> selectNotApprProcess(String unitId){
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();
-        cir.where().andEquals("unit_Id",unitId).andEquals("states","未审批");
+        cir.where().andEquals("unit_Id",unitId).andNotEquals("states","已审核").andEquals("parent_Id",null);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Sys_Process> selectProcesssByParentId(String parentId){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("parent_Id",parentId);
         list=dao.query(Sys_Process.class,cir);
         if (list.size()>0){
             return list;
@@ -82,6 +95,18 @@ public class ProcessServiceImpl implements ProcessService {
             return null;
         }
     }
+    @Override
+    public Sys_Process selectProcessByParentId(String parentId,String states){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("parent_Id",parentId).andEquals("states",states);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
     private static List<String> cunits=new ArrayList<>();
 
     @Override
@@ -95,7 +120,7 @@ public class ProcessServiceImpl implements ProcessService {
         List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unitId));
         getAllChildUnits(cunitList);
         if (cunits.size()>0){
-            cri.where().andInStrList("unit_Id",cunits);
+            cri.where().andInStrList("unit_Id",cunits).andEquals("parent_Id",null);
             if (!StrUtils.isBlank(unitName)){//市
                 cri.where().andLike("unit_Name","%"+unitName+"%");
             }
@@ -103,12 +128,24 @@ public class ProcessServiceImpl implements ProcessService {
                 cri.where().andEquals("flag",approveFlag);
             }
             cri.getOrderBy().desc("processTime");
+            List<Sys_Process> processes=new ArrayList<>();
             peopleList = dao.query(Sys_Process.class,cri,pager);
+            if (peopleList.size()>0){
+                for (Sys_Process process:peopleList){
+                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()));
+                    if (cprocessList.size()>0){
+                        process.setChildren(cprocessList);
+                    }else {
+                        process.setChildren(new ArrayList<>());
+                    }
+                    processes.add(process);
+                }
+            }
             if (StrUtils.isBlank(pager)){
                 pager=new Pager();
             }
             pager.setRecordCount(dao.count(Sys_Process.class,cri));
-            QueryResult queryResult=new QueryResult(peopleList,pager);
+            QueryResult queryResult=new QueryResult(processes,pager);
             return queryResult;
         }else {
             return null;
