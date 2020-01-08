@@ -372,7 +372,7 @@ public class DataController {
                                     }
                                 }
                                 if (processList.size() > 0) {
-                                    processes = DataManager.saveProcessJsonModel(processList,user,"上行",unit,processService);
+                                    processes = DataManager.saveProcessJsonModel(processList, user, "上行", unit, processService);
                                     if (processes.size() > 0) {
                                         DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "processe", gson.toJson(processes));
                                     }
@@ -440,6 +440,7 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
         }
     }
+
     @ApiOperation(value = "执行上行数据", notes = "执行上行数据", httpMethod = "POST", tags = "执行上行数据接口")
     @PostMapping(value = "/agreeImportData")
     public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId, HttpServletRequest request) {
@@ -520,7 +521,7 @@ public class DataController {
                                     name = name + "/" + people.getName();
                                 }
                             }
-                            DataManager.saveprocessData(sys_processes, processService, name,user);
+                            DataManager.saveprocessData(sys_processes, processService, name, user);
                             objects.add(sys_processes);
                         }
                     }
@@ -606,11 +607,11 @@ public class DataController {
                                 objects.add(approals);
                             }
                             SYS_UNIT punit = unitService.selectUnitById(unitId);
-                            SYS_USER user=new SYS_USER();
-                            processes = DataManager.saveProcessJsonModel(processList,user,"下行",unit,processService);
+                            SYS_USER user = new SYS_USER();
+                            processes = DataManager.saveProcessJsonModel(processList, user, "下行", unit, processService);
                             if (approals.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "process", gson.toJson(processes));
-                                DataManager.saveprocessData(processes, processService, "",user);
+                                DataManager.saveprocessData(processes, processService, "", user);
                                 objects.add(processes);
                             }
                             if (peopleList != null) {
@@ -839,4 +840,171 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
+
+    @ApiOperation(value = "导出调出数据", notes = "导出调出数据", httpMethod = "GET", tags = "导出调出数据接口")
+    @GetMapping(value = "/outPeople")
+    public String getOutPeople(@RequestParam(value = "peopleId", required = false) String peopleId) {
+        try {
+            SYS_People peopleById = peopleService.selectPeopleById(peopleId);
+            if (peopleById != null) {
+                if (peopleById.getStates().contains("调出")) {
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, peopleById, null).getJson();
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
+                }
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出调出数据", notes = "导出调出数据", httpMethod = "POST", tags = "导出调出数据接口")
+    @RequestMapping(value = "/outPeopleData")
+    public String upstreamData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "peopleId", required = false) String peopleId) {
+        try {
+            List<Object> objects = new ArrayList<>();
+            //从请求的header中取出当前登录的登录
+            Map<String, Object> paramsMap = new HashMap<>();
+            paramsMap.put("note", "调出");
+            paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
+            paramsMap.put("peopleId", peopleId);
+            Map<String, Object> resultMap = new HashMap<>();
+            List<SYS_People> peopleList = new ArrayList<>();
+            SYS_People people = peopleService.selectPeopleById(peopleId);
+            if (people != null) {
+                if (people.getStates().contains("调出")) {
+                    peopleList.add(people);
+                    JSONArray peoples = JSONArray.fromObject(peopleList);
+                    resultMap.put("peopleList", peoples);
+                    objects.add(peoples);
+                    List<SYS_Duty> dutyList = DataManager.getOutPeopleDutyJson(resultMap, people, dutyService);
+                    objects.addAll(dutyList);
+                    List<SYS_Rank> rankList = DataManager.getOutPeopleRankJson(resultMap, people, rankService);
+                    objects.addAll(rankList);
+                    List<SYS_Education> educationList = DataManager.getOutPeopleEducationJson(resultMap, people, educationService);
+                    objects.addAll(educationList);
+                    List<SYS_Reward> rewardList = DataManager.getOutPeopleRewardJson(resultMap, people, rewardService);
+                    objects.addAll(rankList);
+                    List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
+                    objects.addAll(assessmentList);
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
+                }
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            JSONObject resultList = JSONObject.fromObject(resultMap);
+            paramsMap.put("result", resultList);
+            JSONObject resultJson = JSONObject.fromObject(paramsMap);
+            byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
+            String paramsCipher = AESUtil.parseByte2HexStr(encode);
+            File file = jsonFile;
+            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            writer.write(paramsCipher);
+            writer.flush();
+            writer.close();
+            return paramsCipher;
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+        } finally {
+            jsonFile.deleteOnExit();//程序结束 删除临时文件
+        }
+    }
+
+    @ApiOperation(value = "导入调出人员数据", notes = "导入调出人员数据", httpMethod = "POST", tags = "导入调出人员数据接口")
+    @RequestMapping(value = "/importOutPeopleData")
+    public String importOutPeopleData(@RequestParam(value = "excelFile", required = true) MultipartFile excelFile, @RequestParam(value = "peopleId", required = false) String peopleId) {
+        StringBuffer stringBuffer = new StringBuffer();
+        List<Object> objects = new ArrayList<>();
+        try {
+            List<SYS_People> peoples = new ArrayList<>();
+            List<SYS_Duty> duties = new ArrayList<>();
+            List<SYS_Rank> ranks = new ArrayList<>();
+            List<SYS_Reward> rewards = new ArrayList<>();
+            List<SYS_Education> educations = new ArrayList<>();
+            List<SYS_Assessment> assessments = new ArrayList<>();
+            String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
+            byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
+            byte[] decryptResult = AESUtil.decrypt(decode, AESUtil.privateKey);
+            String jsonStr = new String(decryptResult, "UTF-8");
+            JSONObject object = JSONObject.fromObject(jsonStr);
+            String note = String.valueOf(object.get("note"));
+            String dataId = String.valueOf(object.get("dataId"));
+            String peopleDataId = String.valueOf(object.get("peopleId"));
+            if (!StrUtils.isBlank(note)) {
+                if (!"调出".equals(note)) {
+                    return new Result(ResultCode.ERROR.toString(), "非调出数据！", null, null).getJson();
+                }
+                JSONObject key = object.getJSONObject("result");
+                SYS_People lpeople = peopleService.selectPeopleById(peopleDataId);
+                if (lpeople != null) {
+                    return new Result(ResultCode.ERROR.toString(), "单位已存在此人！", null, null).getJson();
+                } else {
+                    JSONArray peopleList = key.getJSONArray("peopleList");
+                    JSONArray rankList = key.getJSONArray("rankList");
+                    JSONArray dutyList = key.getJSONArray("dutyList");
+                    JSONArray educationList = key.getJSONArray("educationList");
+                    JSONArray rewardList = key.getJSONArray("rewardList");
+                    JSONArray assessmentList = key.getJSONArray("assessmentList");
+                    if (peopleList != null) {
+                        peopleService.deletePeople(peopleDataId);
+                        peoples = DataManager.savePeopleJsonModel(peopleList);
+                        if (peoples.size() > 0) {
+                            for (SYS_People people : peoples) {
+                                peopleService.insertPeoples(people);
+                            }
+                            objects.add(peoples);
+                        }
+                        duties = DataManager.saveDutyJsonModel(dutyList);
+                        if (duties.size() > 0) {
+                            for (SYS_Duty duty : duties) {
+                                dutyService.insertDuty(duty);
+                            }
+                            objects.add(duties);
+                        }
+                        ranks = DataManager.saveRankJsonModel(rankList);
+                        if (ranks.size() > 0) {
+                            for (SYS_Rank rank : ranks) {
+                                rankService.insertRank(rank);
+                            }
+                            objects.add(ranks);
+                        }
+                        rewards = DataManager.saveRewardJsonModel(rewardList);
+                        if (rewards.size() > 0) {
+                            for (SYS_Reward reward : rewards) {
+                                rewardService.insertReward(reward);
+                            }
+                            objects.add(rewards);
+                        }
+                        educations = DataManager.saveEducationJsonModel(educationList);
+                        if (educations.size() > 0) {
+                            for (SYS_Education education : educations) {
+                                educationService.insertEducation(education);
+                            }
+                            objects.add(educations);
+                        }
+                        assessments = DataManager.saveAssessmentJsonModel(assessmentList);
+                        if (assessments.size() > 0) {
+                            for (SYS_Assessment assessment : assessments) {
+                                assessmentService.insertAssessment(assessment);
+                            }
+                            objects.add(assessments);
+                        }
+                    }
+                }
+                Map<String, Object> map = new HashMap<>();
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), "调出数据包不全！", null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+        }
+    }
+
 }

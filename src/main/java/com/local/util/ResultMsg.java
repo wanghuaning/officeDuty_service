@@ -68,6 +68,7 @@ public class ResultMsg {
 
     public static final String EXP_SUCCESS = "调出成功";
     public static final String EXP_FAIL = "调出失败";
+    public static final String EXP_NOT = "非调出人员";
 
     public static final String COMPANY_DEL_ERROR = "该企业下有其他人员账号，不能注销企业管理员账号";
 
