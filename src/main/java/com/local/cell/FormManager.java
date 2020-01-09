@@ -5,7 +5,7 @@ import com.local.entity.sys.SYS_Rank;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.Sys_Approal;
 import com.local.model.FormRankModel;
-import com.local.model.UnitModel;
+import com.local.model.RetireModel;
 import com.local.service.ApprovalService;
 import com.local.service.RankService;
 import com.local.util.StrUtils;
@@ -202,4 +202,5 @@ public class FormManager {
             um.setFourClerkDraftingNum(StrUtils.strToLong(approal.getFourClerkDraftingNum()));
         }
     }
+
 }

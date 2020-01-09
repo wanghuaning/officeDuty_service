@@ -955,6 +955,7 @@ public class DataController {
                         peoples = DataManager.savePeopleJsonModel(peopleList);
                         if (peoples.size() > 0) {
                             for (SYS_People people : peoples) {
+                                people.setStates("在职");
                                 peopleService.insertPeoples(people);
                             }
                             objects.add(peoples);
