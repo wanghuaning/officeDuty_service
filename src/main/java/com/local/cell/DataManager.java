@@ -2939,6 +2939,7 @@ public class DataManager {
             process.setUnitName(unit.getName());
             process.setPeople(name);
             process.setParam(param);
+            processService.updateProcess(process);
         } else {
             process = new Sys_Process();
             String uuid = UUID.randomUUID().toString();
