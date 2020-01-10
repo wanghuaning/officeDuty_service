@@ -52,12 +52,12 @@ public class PeopleController {
                              @RequestParam(value = "name", required = false) String name,
                              @RequestParam(value = "idcard", required = false) String idcard,
                              @RequestParam(value = "politicalStatus", required = false) String politicalStatus,
-                             @RequestParam(value = "states", required = false) String states,HttpServletRequest request) {
+                             @RequestParam(value = "states", required = false) String states, HttpServletRequest request) {
         try {
-            if (StrUtils.isBlank(unitId)){
+            if (StrUtils.isBlank(unitId)) {
                 SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-                if (user!=null){
-                unitId=user.getUnitId();
+                if (user != null) {
+                    unitId = user.getUnitId();
                 }
             }
             QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states);
@@ -79,6 +79,10 @@ public class PeopleController {
                 if (peopleByIdcardAndNotId != null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.PEOPLE_IDCARD_ERROE, null, null).getJson();
                 }
+                SYS_UNIT unit = unitService.selectUnitById(peopleById.getUnitId());
+                if (unit != null) {
+                    people.setUnitName(unit.getName());
+                }
                 people.setPeopleOrder(peopleById.getPeopleOrder());
                 people.setUnitId(peopleById.getUnitId());
                 peopleService.updatePeople(people);
@@ -91,19 +95,24 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "新增人员", notes = "新增人员", httpMethod = "POST", tags = "新增人员接口")
     @PostMapping(value = "/add")
     @ResponseBody
     public String insertPeople(@Validated @RequestBody SYS_People people) {
         try {
-                SYS_People peopleByIdcardAndUnitId = peopleService.selectPeopleByIdcardAndUnitId(people.getIdcard(), people.getUnitId());
-                if (peopleByIdcardAndUnitId != null) {
-                    return new Result(ResultCode.ERROR.toString(), ResultMsg.PEOPLE_IDCARD_ERROE, null, null).getJson();
-                }
-                String uuid= UUID.randomUUID().toString();
-                people.setId(uuid);
-                peopleService.insertPeoples(people);
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, people, null).getJson();
+            SYS_People peopleByIdcardAndUnitId = peopleService.selectPeopleByIdcardAndUnitId(people.getIdcard(), people.getUnitId());
+            if (peopleByIdcardAndUnitId != null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.PEOPLE_IDCARD_ERROE, null, null).getJson();
+            }
+            String uuid = UUID.randomUUID().toString();
+            people.setId(uuid);
+            SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+            if (unit != null) {
+                people.setUnitName(unit.getName());
+            }
+            peopleService.insertPeoples(people);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, people, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
@@ -115,20 +124,20 @@ public class PeopleController {
     @ResponseBody
     public String deletePeople(@RequestParam(value = "id", required = false) String id) {
         try {
-            if (StrUtils.isBlank(id)){
+            if (StrUtils.isBlank(id)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
-            }else {
+            } else {
                 peopleService.deletePeople(id);
-                List<SYS_USER> userList=userService.selectUsersByPeopleId(id);
-                if (userList!=null){
-                    for (SYS_USER user:userList){
+                List<SYS_USER> userList = userService.selectUsersByPeopleId(id);
+                if (userList != null) {
+                    for (SYS_USER user : userList) {
                         userService.deleteUser(user.getId());
                     }
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
             }
-        }catch (Exception e){
-            logger.error(ResultMsg.DEL_ERROR,e);
+        } catch (Exception e) {
+            logger.error(ResultMsg.DEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
         }
     }
@@ -136,78 +145,80 @@ public class PeopleController {
     @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
     @RequestMapping(value = "/outExcel")
     public String getPeopleExcel(HttpServletRequest request, HttpServletResponse response,
-                               @RequestParam(value = "unitId", required = false) String unitId,
-                               @RequestParam(value = "isChild", required = false) String isChild){
+                                 @RequestParam(value = "unitId", required = false) String unitId,
+                                 @RequestParam(value = "isChild", required = false) String isChild) {
         try {
-            List<SYS_People> peoples=peopleService.selectPeoplesByUnitId(unitId,isChild,"在职");
-            ClassPathResource resource=new ClassPathResource("exportExcel/exportPeopleInfo.xls");
-            String path=resource.getFile().getPath();
-            String[] arr={"name","unitName","birthday","idcard","sex","birthplace","nationality","workday","party","partyTime","secondParty","thirdParty",
-                    "position","positionTime","positionLevel","positionLevelTime","baseWorker","politicalStatus","createTime","isEnable","detail"};
-            Workbook temp= ExcelFileGenerator.getTeplet(path);
-            ExcelFileGenerator excelFileGenerator=new ExcelFileGenerator();
-            excelFileGenerator.setExcleNAME(response,"人员信息表导出.xls");
-            excelFileGenerator.createExcelFile(temp.getSheet("人员信息"),2,peoples,arr);
+            List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unitId, isChild, "在职");
+            ClassPathResource resource = new ClassPathResource("exportExcel/exportPeopleInfo.xls");
+            String path = resource.getFile().getPath();
+            String[] arr = {"name", "unitName", "birthday", "idcard", "sex", "birthplace", "nationality", "workday", "party", "partyTime", "secondParty", "thirdParty",
+                    "position", "positionTime", "positionLevel", "positionLevelTime", "baseWorker", "politicalStatus", "createTime", "isEnable", "detail"};
+            Workbook temp = ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.setExcleNAME(response, "人员信息表导出.xls");
+            excelFileGenerator.createExcelFile(temp.getSheet("人员信息"), 2, peoples, arr);
             temp.write(response.getOutputStream());
             temp.close();
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, peoples, null).getJson();
-        }catch (Exception e){
-            logger.error(ResultMsg.GET_EXCEL_ERROR,e);
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
 
     /**
      * 已取消使用
+     *
      * @param excelFile
      * @param fullImport
      * @return
      */
     @ApiOperation(value = "导入人员", notes = "导入人员", httpMethod = "POST", tags = "导入人员接口")
     @RequestMapping(value = "/import")
-    public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile,@RequestParam(value = "fullImport", required = false) String fullImport){
-        StringBuffer stringBuffer=new StringBuffer();
+    public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile, @RequestParam(value = "fullImport", required = false) String fullImport) {
+        StringBuffer stringBuffer = new StringBuffer();
         try {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
-            List<String> headList=ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(),0,1);
-            if (headList.size()>0){
-                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")){
+            List<String> headList = ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(), 0, 1);
+            if (headList.size() > 0) {
+                if (!headList.get(0).contains("姓名") && !headList.get(3).contains("身份证号")) {
                     stringBuffer.append(ResultMsg.IMPORT_EXCEL_FILE_ERROR);
-                    return new Result(ResultCode.ERROR.toString(),ResultMsg.IMPORT_EXCEL_FILE_ERROR,null,null).getJson();
-                }else {
-                    List<Map<String, Object>> list=ExcelFileGenerator.readeExcelData(excelFile.getInputStream(),0,1,2);
-                    List<SYS_People> peopleList= PeopleManager.getPeopleDataByExcel(list,peopleService,stringBuffer,unitService,fullImport);
-                    if (stringBuffer.length()>0){
-                        return new Result(ResultCode.SUCCESS.toString(),stringBuffer.toString(),peopleList,null).getJson();
-                    }else {
-                        return new Result(ResultCode.SUCCESS.toString(),ResultMsg.IMPORT_EXCEL_SUCCESS,peopleList,null).getJson();
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.IMPORT_EXCEL_FILE_ERROR, null, null).getJson();
+                } else {
+                    List<Map<String, Object>> list = ExcelFileGenerator.readeExcelData(excelFile.getInputStream(), 0, 1, 2);
+                    List<SYS_People> peopleList = PeopleManager.getPeopleDataByExcel(list, peopleService, stringBuffer, unitService, fullImport);
+                    if (stringBuffer.length() > 0) {
+                        return new Result(ResultCode.SUCCESS.toString(), stringBuffer.toString(), peopleList, null).getJson();
+                    } else {
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.IMPORT_EXCEL_SUCCESS, peopleList, null).getJson();
                     }
                 }
-            }else {
-                return new Result(ResultCode.ERROR.toString(),stringBuffer.toString(),null,null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), stringBuffer.toString(), null, null).getJson();
             }
-        }catch (Exception e){
-            logger.error(ResultMsg.GET_ERROR,e);
-            return new Result(ResultCode.ERROR.toString(),e.toString(),null,null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
         }
     }
+
     @ApiOperation(value = "人员列表", notes = "人员列表", httpMethod = "GET", tags = "人员列表接口")
     @GetMapping(value = "/peoples")
     @ResponseBody
     public String selectPeople(@RequestParam(value = "unitId", required = false) String unitId) {
         try {
-            if (StrUtils.isBlank(unitId)){
+            if (StrUtils.isBlank(unitId)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-            }else {
-                List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unitId,"0","在职");
-                if (peopleList!=null){
+            } else {
+                List<SYS_People> peopleList = peopleService.selectPeoplesByUnitId(unitId, "0", "在职");
+                if (peopleList != null) {
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, peopleList, null).getJson();
-                }else {
+                } else {
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, new ArrayList<SYS_People>(), null).getJson();
                 }
             }
-        }catch (Exception e){
-            logger.error(ResultMsg.GET_FIND_ERROR,e);
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }

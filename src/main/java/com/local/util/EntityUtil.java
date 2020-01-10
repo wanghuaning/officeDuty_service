@@ -1,7 +1,11 @@
 package com.local.util;
 
+import com.local.controller.PeopleController;
 import com.local.entity.sys.SYS_UNIT;
 import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,6 +14,8 @@ import java.util.Date;
 import java.util.List;
 
 public class EntityUtil {
+    private final static Logger log = LoggerFactory.getLogger(EntityUtil.class);
+
     /**
      * 获取实体类型的属性名和类型 从json中
      *
@@ -35,11 +41,11 @@ public class EntityUtil {
             // 将属性的首字母大写
             if (type.equals("class java.lang.String")) {
                 if (key.has(name)) {//给属性设置
-                    Object str =key.get(name);
+                    Object str = key.get(name);
                     if (!StrUtils.isBlank(str)) {
                         try {
                             field[i].set(model, field[i].getType().getConstructor(field[i].getType()).newInstance(String.valueOf(str)));
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             field[i].set(model, field[i].getType().getConstructor(field[i].getType()).newInstance(""));
                             e.printStackTrace();
 //                            throw new Exception("null:=>"+name+"=>"+str);
@@ -99,11 +105,11 @@ public class EntityUtil {
                 if (key.has(name)) {//给属性设置
                     Date date = null;
                     String str = String.valueOf(key.get(name));
-                    if (StrUtils.parseDate(str)!=null) {
+                    if (StrUtils.parseDate(str) != null) {
                         try {
                             date = DateUtil.stringToDate(str);
-                        }catch (Exception e){
-                            throw new Exception("=>"+str);
+                        } catch (Exception e) {
+                            throw new Exception("=>" + str);
                         }
                     }
                     name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
@@ -193,6 +199,47 @@ public class EntityUtil {
                     System.out.println(name + ":" + value.toLocaleString());
                 }
             }
+        }
+    }
+
+    /**
+     * 根据属性名获取属性值
+     *
+     * @param fieldName
+     * @param object
+     * @return
+     */
+    public static String getFieldValueByFieldName(String fieldName, Object object) {
+        try {
+            Field field = object.getClass().getDeclaredField(fieldName);
+            //设置对象的访问权限，保证对private的属性的访问
+            field.setAccessible(true);
+            return (String) field.get(object);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 根据属性名设置属性值
+     *
+     * @param fieldName
+     * @param object
+     * @return
+     */
+    public static void setFieldValueByFieldName(String fieldName, Object object, String value) {
+        try {
+            // 获取obj类的字节文件对象
+            Class c = object.getClass();
+            // 获取该类的成员变量
+            Field f = c.getDeclaredField(fieldName);
+            // 取消语言访问检查
+            f.setAccessible(true);
+            // 给变量赋值
+            f.set(object, value);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 

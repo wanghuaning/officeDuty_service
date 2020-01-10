@@ -27,6 +27,7 @@ public interface PeopleService {
     List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId,String states);
 
     List<SYS_People> selectPeoplesByUnitIds(String[] units,String states);
+    List<SYS_People> selectPeoplesByUnitIds(String[] units);
     List<SYS_People> selectIncumbentPeoplesByUnitId(String [] units,String states);//在职人员等查询
     List<SYS_People> selectTrunPeoplesByUnitId(String[] units,String states);// 套转人员查询
 

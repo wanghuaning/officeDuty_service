@@ -3102,4 +3102,52 @@ public class DataManager {
         return assessmentList;
     }
 
+    public static String getCustomizeData(SYS_People people,String name)throws Exception{
+        String value="";
+         if ("性别".equals(name)){
+            value=people.getSex();
+        }else if ("民族".equals(name)){
+            value=people.getNationality();
+        }else if ("出生日期".equals(name)){
+             if (people.getBirthday()!=null){
+                 value=DateUtil.dateToString(people.getBirthday());
+             }
+        }else if ("年龄".equals(name)){
+             if (people.getBirthday()!=null) {
+                 int age = DateUtil.getAgeByBirth(people.getBirthday());
+                 value = String.valueOf(age);
+             }
+        }else if ("参加工作时间".equals(name)){
+             if (people.getBirthday()!=null) {
+                 value = DateUtil.dateToString(people.getWorkday());
+             }
+        }else if ("入党（团）时间".equals(name)){
+             if (people.getBirthday()!=null) {
+                 value = DateUtil.dateToString(people.getPartyTime());
+             }
+        }else if ("政治面貌".equals(name)){
+            value=people.getParty();
+        }else if ("现任职级".equals(name)){
+            value=people.getPositionLevel();
+        }else if ("套转职级".equals(name)){
+            value=people.getTurnRank();
+        }else if ("现任职务".equals(name)){
+            value=people.getPosition();
+        }else if ("公务员登记时间".equals(name)){
+             if (people.getBirthday()!=null) {
+                 value = DateUtil.dateToString(people.getCreateTime());
+             }
+        }else if ("特殊人员".equals(name)){
+            value=people.getDetail();
+        }else if ("单列管理事由".equals(name)){
+            value=people.getRealName();
+        }else if ("籍贯".equals(name)){
+            value=people.getBirthplace();
+        }else if ("是否基层工作两年以上".equals(name)){
+            value=people.getBaseWorker();
+        }else if ("学历".equals(name)){
+            value=people.getEducation();
+        }
+        return value;
+    }
 }

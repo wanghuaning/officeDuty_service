@@ -1,5 +1,7 @@
 package com.local.controller;
 
+
+import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.local.cell.DataManager;
@@ -1008,4 +1010,53 @@ public class DataController {
         }
     }
 
+
+    @ApiOperation(value = "导出单位自定义信息", notes = "导出单位自定义信息", httpMethod = "POST", tags = "导出单位自定义信息接口")
+    @PostMapping(value = "/customize")
+    @ResponseBody
+    public String getCustomizeData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "transferArr") String transferArr, @RequestParam(value = "unitIds") String unitIds) {
+        try {
+            if (!StrUtils.isBlank(unitIds) && !StrUtils.isBlank(transferArr)) {
+                List<TransferModel> models = new ArrayList<>();
+                String[] strArr = transferArr.split(",");
+                String[] unitArr = unitIds.split(",");
+                String[] arr = new String[strArr.length + 3];
+                List<SYS_People> peopleList = peopleService.selectPeoplesByUnitIds(unitArr);
+                for (SYS_People people : peopleList) {
+                    TransferModel model = new TransferModel();
+                    SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+                    if (unit != null) {
+                        model.setUnitName(unit.getName());
+                    }
+                    model.setName(people.getName());
+                    model.setStates(people.getStates());
+                    arr[0] = "unitName";
+                    arr[1]="name";
+                    arr[2]="states";
+                    for (int i = 3; i < strArr.length + 3; i++) {
+                        String modelName="model" + i;
+                        arr[i] = modelName;
+
+                        String value=DataManager.getCustomizeData(people,strArr[i-3]);
+                        EntityUtil.setFieldValueByFieldName(modelName,model,value);
+                    }
+                    models.add(model);
+                }
+                ClassPathResource resource = new ClassPathResource("exportExcel/exportCustomizeData.xls");
+                String path = resource.getFile().getPath();
+                Workbook temp = ExcelFileGenerator.getTeplet(path);
+                ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+                excelFileGenerator.createExcelHeader(temp.getSheet("单位自定义信息表"), strArr);//表头
+                    excelFileGenerator.createExcelFile(temp.getSheet("单位自定义信息表"), 1, models, arr);
+                temp.write(response.getOutputStream());
+                temp.close();
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, transferArr, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
 }

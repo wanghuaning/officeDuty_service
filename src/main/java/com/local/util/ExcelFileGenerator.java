@@ -836,4 +836,54 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,18,8,data.getThreeClerkDraftingNum());
         setValue(sheet,18,9,data.getFourClerkDraftingNum());
     }
+    /**
+     * row:行
+     * @param sheet
+     * @param y
+     * @param x
+     * @param value
+     * @return
+     */
+    public static Cell setValueStyle(Sheet sheet,int x,int y,String value,CellStyle cellStyle){
+        Row row = sheet.getRow(x);
+        Cell c = null;
+        if (row.getCell(y)!=null){
+            c=row.getCell(y);
+        }else {
+            row.createCell(y);
+            c=row.getCell(y);
+        }
+        if (value!=null){
+            c.setCellValue(value);
+        }else {
+            c.setCellValue("");
+        }
+        c.setCellStyle(cellStyle);
+//        setCellFormattedValue(c, value);
+        return c;
+    }
+
+    /**
+     * 设置表头
+     * @param sheet
+     * @param data
+     * @throws Exception
+     */
+    public void createExcelHeader(Sheet sheet, String[] data) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setBorderBottom(BorderStyle.THIN); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THIN); //左边框
+        cellStyle.setBorderTop(BorderStyle.THIN); //上边框
+        cellStyle.setBorderRight(BorderStyle.THIN); //右边框
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 20);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        for (int i=3;i<data.length+3;i++){
+            setValueStyle(sheet,0,i,data[i-3],cellStyle);
+        }
+    }
 }
