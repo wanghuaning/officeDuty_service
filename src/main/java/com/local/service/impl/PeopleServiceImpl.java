@@ -152,6 +152,18 @@ public class PeopleServiceImpl implements PeopleService {
             return null;
         }
     }
+    @Override
+    public List<SYS_People> selectLevelPeoplesByUnitId(String [] units){
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrArray("unitId", units).andNotEquals("states", "在职");
+        List<SYS_People> peoples = new ArrayList<>();
+        List<SYS_People> list = dao.query(SYS_People.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
 
     // 套转人员查询
     @Override

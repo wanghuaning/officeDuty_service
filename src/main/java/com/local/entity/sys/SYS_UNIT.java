@@ -292,9 +292,16 @@ public class SYS_UNIT implements Serializable {
     @ApiModelProperty("是否有子单位0:无，1：有")
     @Comment("是否有子单位0:无，1：有")
     @Column("hasChild")
+    @Default("0")
     @ColDefine(type = ColType.VARCHAR,width = 1)
     private String hasChild;
 
+    @ApiModelProperty("是否可修改0:可，1：否")
+    @Comment("是否可修改0:可，1：否")
+    @Column("isEdit")
+    @Default("0")
+    @ColDefine(type = ColType.VARCHAR,width = 1)
+    private String isEdit;
     private String[] areaStrs;
     private boolean hasChildren;
 
@@ -304,6 +311,15 @@ public class SYS_UNIT implements Serializable {
     private List<SYS_UNIT> children;
     private String value;
     private String label;
+
+
+    public String getIsEdit() {
+        return isEdit;
+    }
+
+    public void setIsEdit(String isEdit) {
+        this.isEdit = isEdit;
+    }
 
     public String getHasChild() {
         return hasChild;
@@ -737,7 +753,6 @@ public class SYS_UNIT implements Serializable {
                 Objects.equals(towClerkNum, unit.towClerkNum) &&
                 Objects.equals(threeClerkNum, unit.threeClerkNum) &&
                 Objects.equals(fourClerkNum, unit.fourClerkNum) &&
-                Objects.equals(enabled, unit.enabled) &&
                 Objects.equals(parentName, unit.parentName) &&
                 Objects.equals(detail, unit.detail) &&
                 Objects.equals(unitOrder, unit.unitOrder) &&
@@ -755,7 +770,7 @@ public class SYS_UNIT implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, code, name, parentId, area, affiliation, unitType, category, level, referOfficialDocument, referOfficialDate, referOfficialDateStr, officialNum, referOfficialNum, officialRealNum, referOfficialRealNum, rightPlaceNum, deputyPlaceNum, mainHallNum, deputyHallNum, oneInspectorNum, towInspectorNum, oneTowResearcherNum, threeFourResearcherNum, oneTowClerkNum, threeFourClerkNum, oneResearcherNum, towResearcherNum, threeResearcherNum, fourResearcherNum, oneClerkNum, towClerkNum, threeClerkNum, fourClerkNum, enabled, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, contact, contactNumber, regCode, hasChildren, children, value, label);
+        int result = Objects.hash(id, code, name, parentId, area, affiliation, unitType, category, level, referOfficialDocument, referOfficialDate, referOfficialDateStr, officialNum, referOfficialNum, officialRealNum, referOfficialRealNum, rightPlaceNum, deputyPlaceNum, mainHallNum, deputyHallNum, oneInspectorNum, towInspectorNum, oneTowResearcherNum, threeFourResearcherNum, oneTowClerkNum, threeFourClerkNum, oneResearcherNum, towResearcherNum, threeResearcherNum, fourResearcherNum, oneClerkNum, towClerkNum, threeClerkNum, fourClerkNum, parentName, detail, unitOrder, buildProvince, buildCity, buildCounty, contact, contactNumber, regCode, hasChildren, children, value, label);
         result = 31 * result + Arrays.hashCode(areaStrs);
         return result;
     }

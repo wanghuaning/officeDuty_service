@@ -56,13 +56,13 @@ public class UserController {
         String uuid = UUID.randomUUID().toString();
         user.setId(uuid);
         user.setUserAccount("system");
-        SYS_UNIT unit = unitService.selectUnitByName("云南省昆明市");
+        SYS_UNIT unit = unitService.selectUnitByName("单位");
         user.setUnitId(unit.getId());
         String password = RSAUtils.encrypt("916295778", RSAUtils.PUBLICKEY);
         user.setUserPassword(password);
         user.setRoles("1");
         user.setEnabled("0");
-        user.setUnitName("云南省昆明市");
+        user.setUnitName("单位");
         userService.insertUser(user);
         return user.getUserAccount();
     }

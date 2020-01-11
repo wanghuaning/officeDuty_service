@@ -8,48 +8,129 @@ import com.local.model.FormRankModel;
 import com.local.model.RetireModel;
 import com.local.service.ApprovalService;
 import com.local.service.RankService;
+import com.local.service.UnitService;
 import com.local.util.StrUtils;
 
 import java.util.List;
 
 public class FormManager {
-    public static FormRankModel getApprovalDataCell(FormRankModel approalModel, SYS_UNIT unit, List<SYS_People> peoples, RankService rankService,ApprovalService approvalService) {
-        int researcherTotal = 0;
-        if (unit.getOneResearcherNum() > 0) {
-            approalModel.setOneResearcherNum(unit.getOneResearcherNum());
+    public static FormRankModel getApprovalDataCell(FormRankModel approalModel, String[] arr, List<SYS_People> peoples, RankService rankService, ApprovalService approvalService, UnitService unitService) {
+        long oneResearcherUserNum = 0,towResearcherUserNum = 0,threeResearcherUserNum = 0,fourResearcherUserNum = 0,oneClerkUserNum = 0,towClerkUserNum = 0;
+        long threeClerkUserNum = 0,fourClerkUserNum = 0,oneClerk=0l,towClerk=0l,probation=0l;
+        int oneResearcherNumTurn=0,towResearcherNumTurn=0,threeResearcherNumTurn=0,fourResearcherNumTurn=0,oneClerkNumTurn=0,towClerkNumTurn=0;
+        int threeClerkNumTurn=0,fourClerkNumTurn=0,oneClerkTurn=0,towClerkTurn=0,probationTurn=0;
+        long oneResearcherDraftingNum=0l,towResearcherDraftingNum=0l,threeResearcherDraftingNum=0l,fourResearcherDraftingNum=0l,oneClerkDraftingNum=0l;
+        long towClerkDraftingNum=0l,threeClerkDraftingNum=0l,fourClerkDraftingNum=0l;
+        for (int i=0;i<arr.length;i++){
+            SYS_UNIT unit=unitService.selectUnitById(arr[i]);
+            if (unit.getOneResearcherNum() > 0) {
+                approalModel.setOneResearcherNum(unit.getOneResearcherNum());
+            }
+            if (unit.getTowResearcherNum() > 0) {
+                approalModel.setTowResearcherNum(unit.getTowResearcherNum());
+            }
+            if (unit.getThreeResearcherNum() > 0) {
+                approalModel.setThreeResearcherNum(unit.getThreeResearcherNum());
+            }
+            if (unit.getFourResearcherNum() > 0) {
+                approalModel.setFourResearcherNum(unit.getFourResearcherNum());
+            }
+            if (unit.getOneClerkNum() > 0) {
+                approalModel.setOneClerkNum(unit.getOneClerkNum());
+            }
+            if (unit.getTowClerkNum() > 0) {
+                approalModel.setTowClerkNum(unit.getTowClerkNum());
+            }
+            if (unit.getThreeClerkNum() > 0) {
+                approalModel.setThreeClerkNum(unit.getThreeClerkNum());
+            }
+            if (unit.getFourClerkNum() > 0) {
+                approalModel.setFourClerkNum(unit.getFourClerkNum());
+            }
+            //剩余
+            if (unit.getOneClerkNum() > oneClerkUserNum) {
+                approalModel.setOneClerkNumLave(unit.getOneClerkNum() - oneClerkUserNum);
+            }
+            if (unit.getTowClerkNum() > towClerkUserNum) {
+                approalModel.setTowClerkNumLave(unit.getTowClerkNum() - towClerkUserNum);
+            }
+            if (unit.getThreeClerkNum() > threeClerkUserNum) {
+                approalModel.setThreeClerkNumLave(unit.getThreeClerkNum() - threeClerkUserNum);
+            }
+            if (unit.getFourClerkNum() > fourClerkUserNum) {
+                approalModel.setFourClerkNumLave(unit.getFourClerkNum() - fourClerkUserNum);
+            }
+            if (unit.getOneResearcherNum() > oneResearcherUserNum) {
+                approalModel.setOneResearcherNumLave(unit.getOneResearcherNum() - oneResearcherUserNum);
+            }
+            if (unit.getTowResearcherNum() > towResearcherUserNum) {
+                approalModel.setTowResearcherNumLave(unit.getTowResearcherNum() - towResearcherUserNum);
+            }
+            if (unit.getThreeResearcherNum() > threeResearcherUserNum) {
+                approalModel.setThreeResearcherNumLave(unit.getThreeResearcherNum() - threeResearcherUserNum);
+            }
+            if (unit.getFourResearcherNum() > fourResearcherUserNum) {
+                approalModel.setFourResearcherNumLave(unit.getFourResearcherNum() - fourResearcherUserNum);
+            }
+            //套转信息
+            String unitId=arr[i];
+            List<SYS_Rank> oneranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级调研员");
+            List<SYS_Rank> towranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级调研员");
+            if (oneranks != null) {
+                oneResearcherNumTurn+=oneranks.size();
+            }
+            if (towranks != null) {
+                towResearcherNumTurn+=towranks.size();
+            }
+            List<SYS_Rank> threeranks = rankService.selectRanksFlagByUnitId(unitId, "是", "三级调研员");
+            if (threeranks != null) {
+                threeResearcherNumTurn+=threeranks.size();
+            }
+            List<SYS_Rank> fourranks = rankService.selectRanksFlagByUnitId(unitId, "是", "四级调研员");
+            if (fourranks != null) {
+                fourResearcherNumTurn+=fourranks.size();
+            }
+            List<SYS_Rank> oneKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级主任科员");
+            if (oneKranks != null) {
+                oneClerkNumTurn+=oneKranks.size();
+            }
+            List<SYS_Rank> towKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级主任科员");
+            if (towKranks != null) {
+                towClerkNumTurn+=towKranks.size();
+            }
+            List<SYS_Rank> threeKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "三级主任科员");
+            if (threeKranks != null) {
+                threeClerkNumTurn+=threeKranks.size();
+            }
+            List<SYS_Rank> fourKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "四级主任科员");
+            if (fourKranks != null) {
+                fourClerkNumTurn+=fourKranks.size();
+            }
+            List<SYS_Rank> oneKYranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级科员");
+            if (oneKYranks != null) {
+                oneClerkTurn+=oneKYranks.size();
+            }
+            List<SYS_Rank> towKYranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级科员");
+            if (towKYranks != null) {
+                towClerkTurn+=towKYranks.size();
+            }
+            List<SYS_Rank> shiranks = rankService.selectRanksFlagByUnitId(unitId, "是", "试用期");
+            if (shiranks != null) {
+                probationTurn+=shiranks.size();
+            }
+            //拟定使用
+            Sys_Approal approal=approvalService.selectApproval(unitId,"0");
+            if (approal!=null){
+                oneResearcherDraftingNum+=StrUtils.strToLong(approal.getOneResearcherDraftingNum());
+                towResearcherDraftingNum+=StrUtils.strToLong(approal.getTowResearcherDraftingNum());
+                threeResearcherDraftingNum+=StrUtils.strToLong(approal.getThreeResearcherDraftingNum());
+                fourResearcherDraftingNum+=StrUtils.strToLong(approal.getFourResearcherDraftingNum());
+                oneClerkDraftingNum+=StrUtils.strToLong(approal.getOneClerkDraftingNum());
+                towClerkDraftingNum+=StrUtils.strToLong(approal.getTowResearcherDraftingNum());
+                threeClerkDraftingNum+=StrUtils.strToLong(approal.getThreeResearcherDraftingNum());
+                fourClerkDraftingNum+=StrUtils.strToLong(approal.getFourResearcherDraftingNum());
+            }
         }
-        if (unit.getTowResearcherNum() > 0) {
-            approalModel.setTowResearcherNum(unit.getTowResearcherNum());
-        }
-        if (unit.getThreeResearcherNum() > 0) {
-            approalModel.setThreeResearcherNum(unit.getThreeResearcherNum());
-        }
-        if (unit.getFourResearcherNum() > 0) {
-            approalModel.setFourResearcherNum(unit.getFourResearcherNum());
-        }
-        if (unit.getOneClerkNum() > 0) {
-            approalModel.setOneClerkNum(unit.getOneClerkNum());
-        }
-        if (unit.getTowClerkNum() > 0) {
-            approalModel.setTowClerkNum(unit.getTowClerkNum());
-        }
-        if (unit.getThreeClerkNum() > 0) {
-            approalModel.setThreeClerkNum(unit.getThreeClerkNum());
-        }
-        if (unit.getFourClerkNum() > 0) {
-            approalModel.setFourClerkNum(unit.getFourClerkNum());
-        }
-        long oneResearcherUserNum = 0;//一级调研员职数使用
-        long towResearcherUserNum = 0;//二级调研员职数使用
-        long threeResearcherUserNum = 0;//三级调研员职数使用
-        long fourResearcherUserNum = 0;//四级调研员职数使用
-        long oneClerkUserNum = 0;//一级主任科员职数使用
-        long towClerkUserNum = 0;//二级主任科员职数使用
-        long threeClerkUserNum = 0;//三级主任科员职数使用
-        long fourClerkUserNum = 0;//四级主任科员职数使用
-        long oneClerk=0l;//核准一级科员
-        long towClerk=0l;//核准二级科员
-        long probation=0l;//核准试用期
         for (SYS_People people : peoples) {
             SYS_Rank rank = rankService.selectAprodRanksByPid(people.getId());
             if (rank != null) {
@@ -89,118 +170,27 @@ public class FormManager {
         approalModel.setOneClerkNow(oneClerk);
         approalModel.setTowClerkNow(towClerk);
         approalModel.setProbationNow(probation);
-
-        //剩余
-        if (unit.getOneClerkNum() > oneClerkUserNum) {
-            approalModel.setOneClerkNumLave(unit.getOneClerkNum() - oneClerkUserNum);
-        }
-        if (unit.getTowClerkNum() > towClerkUserNum) {
-            approalModel.setTowClerkNumLave(unit.getTowClerkNum() - towClerkUserNum);
-        }
-        if (unit.getThreeClerkNum() > threeClerkUserNum) {
-            approalModel.setThreeClerkNumLave(unit.getThreeClerkNum() - threeClerkUserNum);
-        }
-        if (unit.getFourClerkNum() > fourClerkUserNum) {
-            approalModel.setFourClerkNumLave(unit.getFourClerkNum() - fourClerkUserNum);
-        }
-        if (unit.getOneResearcherNum() > oneResearcherUserNum) {
-            approalModel.setOneResearcherNumLave(unit.getOneResearcherNum() - oneResearcherUserNum);
-        }
-        if (unit.getTowResearcherNum() > towResearcherUserNum) {
-            approalModel.setTowResearcherNumLave(unit.getTowResearcherNum() - towResearcherUserNum);
-        }
-        if (unit.getThreeResearcherNum() > threeResearcherUserNum) {
-            approalModel.setThreeResearcherNumLave(unit.getThreeResearcherNum() - threeResearcherUserNum);
-        }
-        if (unit.getFourResearcherNum() > fourResearcherUserNum) {
-            approalModel.setFourResearcherNumLave(unit.getFourResearcherNum() - fourResearcherUserNum);
-        }
-        getTurnRank(rankService, unit.getId(), approalModel);
-        getNiRank( unit.getId(), approvalService, approalModel);
+        approalModel.setOneResearcherNumTurn(oneResearcherNumTurn);
+        approalModel.setTowResearcherNumTurn(towResearcherNumTurn);
+        approalModel.setThreeResearcherNumTurn(threeResearcherNumTurn);
+        approalModel.setFourResearcherNumTurn(fourResearcherNumTurn);
+        approalModel.setOneClerkNumTurn(oneClerkNumTurn);
+        approalModel.setTowClerkNumTurn(towClerkNumTurn);
+        approalModel.setThreeClerkNumTurn(threeClerkNumTurn);
+        approalModel.setFourClerkNumTurn(fourClerkNumTurn);
+        approalModel.setOneClerkTurn(oneClerkTurn);
+        approalModel.setTowClerkTurn(towClerkTurn);
+        approalModel.setProbationTurn(probationTurn);
+        approalModel.setOneResearcherDraftingNum(oneResearcherDraftingNum);
+        approalModel.setTowResearcherDraftingNum(towResearcherDraftingNum);
+        approalModel.setThreeResearcherDraftingNum(threeResearcherDraftingNum);
+        approalModel.setFourResearcherDraftingNum(fourResearcherDraftingNum);
+        approalModel.setOneClerkDraftingNum(oneClerkDraftingNum);
+        approalModel.setTowClerkDraftingNum(towClerkDraftingNum);
+        approalModel.setThreeClerkDraftingNum(threeClerkDraftingNum);
+        approalModel.setFourClerkDraftingNum(fourClerkDraftingNum);
         return approalModel;
     }
 
-    public static void getTurnRank(RankService rankService, String unitId, FormRankModel um) {
-        List<SYS_Rank> oneranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级调研员");
-        List<SYS_Rank> towranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级调研员");
-        if (oneranks != null) {
-            um.setOneResearcherNumTurn(oneranks.size());
-        }else {
-            um.setOneResearcherNumTurn(0);
-        }
-        if (towranks != null) {
-            um.setTowResearcherNumTurn(towranks.size());
-        }else {
-            um.setTowResearcherNumTurn(0);
-        }
-        List<SYS_Rank> threeranks = rankService.selectRanksFlagByUnitId(unitId, "是", "三级调研员");
-        if (threeranks != null) {
-            um.setThreeResearcherNumTurn(threeranks.size());
-        }else {
-            um.setThreeResearcherNumTurn(0);
-        }
-        List<SYS_Rank> fourranks = rankService.selectRanksFlagByUnitId(unitId, "是", "四级调研员");
-        if (fourranks != null) {
-            um.setFourResearcherNumTurn(fourranks.size());
-        }else {
-            um.setFourResearcherNumTurn(0);
-        }
-        List<SYS_Rank> oneKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级主任科员");
-        if (oneKranks != null) {
-            um.setOneClerkNumTurn(oneKranks.size());
-        }else {
-            um.setOneClerkNumTurn(0);
-        }
-        List<SYS_Rank> towKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级主任科员");
-        if (towKranks != null) {
-            um.setTowClerkNumTurn(towKranks.size());
-        }else {
-            um.setTowClerkNumTurn(0);
-        }
-        List<SYS_Rank> threeKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "三级主任科员");
-        if (threeKranks != null) {
-            um.setThreeClerkNumTurn(threeKranks.size());
-        }else {
-            um.setThreeClerkNumTurn(0);
-        }
-        List<SYS_Rank> fourKranks = rankService.selectRanksFlagByUnitId(unitId, "是", "四级主任科员");
-        if (fourKranks != null) {
-            um.setFourClerkNumTurn(fourKranks.size());
-        }else {
-            um.setFourClerkNumTurn(0);
-        }
-        List<SYS_Rank> oneKYranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级科员");
-        if (oneKYranks != null) {
-            um.setOneClerkTurn(oneKYranks.size());
-        }else {
-            um.setOneClerkTurn(0);
-        }
-        List<SYS_Rank> towKYranks = rankService.selectRanksFlagByUnitId(unitId, "是", "二级科员");
-        if (towKYranks != null) {
-            um.setTowClerkTurn(towKYranks.size());
-        }else {
-            um.setTowClerkTurn(0);
-        }
-        List<SYS_Rank> shiranks = rankService.selectRanksFlagByUnitId(unitId, "是", "试用期");
-        if (shiranks != null) {
-            um.setProbationTurn(shiranks.size());
-        }else {
-            um.setProbationTurn(0);
-        }
-    }
-
-    public static void getNiRank(String unitId, ApprovalService approvalService,FormRankModel um){
-        Sys_Approal approal=approvalService.selectApproval(unitId,"0");
-        if (approal!=null){
-            um.setOneResearcherDraftingNum(StrUtils.strToLong(approal.getOneResearcherDraftingNum()));
-            um.setTowResearcherDraftingNum(StrUtils.strToLong(approal.getTowResearcherDraftingNum()));
-            um.setThreeResearcherDraftingNum(StrUtils.strToLong(approal.getThreeResearcherDraftingNum()));
-            um.setFourResearcherDraftingNum(StrUtils.strToLong(approal.getFourResearcherDraftingNum()));
-            um.setOneClerkDraftingNum(StrUtils.strToLong(approal.getOneClerkDraftingNum()));
-            um.setTowClerkDraftingNum(StrUtils.strToLong(approal.getTowClerkDraftingNum()));
-            um.setThreeClerkDraftingNum(StrUtils.strToLong(approal.getThreeClerkDraftingNum()));
-            um.setFourClerkDraftingNum(StrUtils.strToLong(approal.getFourClerkDraftingNum()));
-        }
-    }
 
 }

@@ -161,23 +161,25 @@ public class UnitServiceImpl implements UnitService {
         }
     }
     @Override
-    public Object buildTree(List<SYS_UNIT> unitList){
+    public Object buildTree(List<SYS_UNIT> unitList,SYS_UNIT punit){
         Set<SYS_UNIT> trees = new LinkedHashSet<>();
         Set<SYS_UNIT> depts= new LinkedHashSet<>();
         List<String> deptNames = unitList.stream().map(SYS_UNIT::getName).collect(Collectors.toList());
         Boolean isChild;
         for (SYS_UNIT deptDTO : unitList) {
             isChild = false;
-            if ("0".equals(String.valueOf(deptDTO.getParentId()))) {
-                trees.add(deptDTO);
-            }
+//            if (deptDTO.getId().contains(punit.getId())){
+//                trees.add(punit);
+//            }
             for (SYS_UNIT it : unitList) {
                 if (deptDTO.getId().equals(it.getParentId())) {
-                    isChild = true;
                     if (deptDTO.getChildren() == null) {
                         deptDTO.setChildren(new ArrayList<SYS_UNIT>());
                     }
                     deptDTO.getChildren().add(it);
+                }
+                if (it.getId().equals(deptDTO.getParentId())){
+                    isChild = true;
                 }
             }
             String name="";
@@ -185,7 +187,7 @@ public class UnitServiceImpl implements UnitService {
             if (unit.size()>0){
                 name=unit.get(0).getName();
             }
-            if(isChild)
+            if(!isChild)
                 depts.add(deptDTO);
             else if(!deptNames.contains(name))
                 depts.add(deptDTO);
@@ -194,9 +196,7 @@ public class UnitServiceImpl implements UnitService {
         if (CollectionUtils.isEmpty(trees)) {
             trees = depts;
         }
-
         Integer totalElements = unitList!=null?unitList.size():0;
-
         Map map = new HashMap();
 //        map.put("totalElements",totalElements);
         map.put("content",CollectionUtils.isEmpty(trees)?unitList:trees);

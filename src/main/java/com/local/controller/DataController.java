@@ -1036,8 +1036,7 @@ public class DataController {
                     for (int i = 3; i < strArr.length + 3; i++) {
                         String modelName="model" + i;
                         arr[i] = modelName;
-
-                        String value=DataManager.getCustomizeData(people,strArr[i-3]);
+                        String value=DataManager.getCustomizeData(people,strArr[i-3],assessmentService);
                         EntityUtil.setFieldValueByFieldName(modelName,model,value);
                     }
                     models.add(model);

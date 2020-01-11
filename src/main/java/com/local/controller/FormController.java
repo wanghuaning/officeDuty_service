@@ -68,7 +68,7 @@ public class FormController {
             if (incumbents != null) {
                 model.setIncumbent(incumbents.size());
             }
-            List<SYS_People> leavePeoples = peopleService.selectIncumbentPeoplesByUnitId(arr, "离职");
+            List<SYS_People> leavePeoples = peopleService.selectLevelPeoplesByUnitId(arr);
             if (leavePeoples != null) {
                 model.setLeavePeople(leavePeoples.size());
             }
@@ -88,19 +88,30 @@ public class FormController {
     @ResponseBody
     public String getFormRankInfo(HttpServletRequest request, @RequestParam(value = "isChild", required = false) String isChild, @RequestParam(value = "childUnit", required = false) String childUnit) {
         try {
-            //从请求的header中取出当前登录的登录
-            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-            if (user != null) {
-                SYS_UNIT unit = user.getUnit();
+            String[] arr;
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+                if (user != null) {
+                    arr = new String[]{user.getUnitId()};
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
                 FormRankModel model = new FormRankModel();
-                List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(user.getUnitId(), "0", "在职");
+                List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr, "在职");
                 if (peoples != null) {
-                    FormManager.getApprovalDataCell(model, unit, peoples, rankService, approvalService);
+                    FormManager.getApprovalDataCell(model, arr, peoples, rankService, approvalService,unitService);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
-            } else {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
-            }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();

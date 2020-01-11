@@ -878,8 +878,8 @@ public class ExcelFileGenerator<T> {
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
-        font.setFontHeightInPoints((short) 20);//设置行高像素
-        font.setFontName("仿宋");
+        font.setFontHeightInPoints((short) 15);//设置行高像素
+        font.setFontName("黑体");
         cellStyle.setFont(font);
         cellStyle.setWrapText(true);
         for (int i=3;i<data.length+3;i++){

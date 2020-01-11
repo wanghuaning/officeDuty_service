@@ -71,8 +71,12 @@ public class UnitConttoller {
             if (user != null) {
                 String parentId = user.getUnitId();
                 if (!StrUtils.isBlank(parentId)) {
+                    SYS_UNIT unit=unitService.selectUnitById(parentId);
                     List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled, parentId);
-                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, unitService.buildTree(queryResult), user).getJson();
+                    if (unit==null){
+                        return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                    }
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, unitService.buildTree(queryResult,unit), user).getJson();
                 } else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }

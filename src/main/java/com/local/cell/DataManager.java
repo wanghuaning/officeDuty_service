@@ -9,6 +9,7 @@ import com.local.util.DateUtil;
 import com.local.util.EntityUtil;
 import com.local.util.ExcelFileGenerator;
 import com.local.util.StrUtils;
+import io.swagger.models.auth.In;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.formula.functions.Rank;
@@ -3103,7 +3104,7 @@ public class DataManager {
         return assessmentList;
     }
 
-    public static String getCustomizeData(SYS_People people,String name)throws Exception{
+    public static String getCustomizeData(SYS_People people,String name,AssessmentService assessmentService)throws Exception{
         String value="";
          if ("性别".equals(name)){
             value=people.getSex();
@@ -3148,7 +3149,13 @@ public class DataManager {
             value=people.getBaseWorker();
         }else if ("学历".equals(name)){
             value=people.getEducation();
-        }
+        } else if (name.contains("考核")){
+             String[] kao=name.split("年");
+             SYS_Assessment assessment=assessmentService.selectAssessmentByYear(people.getId(), Integer.parseInt(kao[0]));
+             if (assessment!=null){
+                 value=assessment.getName();
+             }
+         }
         return value;
     }
 }

@@ -29,6 +29,7 @@ public interface PeopleService {
     List<SYS_People> selectPeoplesByUnitIds(String[] units,String states);
     List<SYS_People> selectPeoplesByUnitIds(String[] units);
     List<SYS_People> selectIncumbentPeoplesByUnitId(String [] units,String states);//在职人员等查询
+    List<SYS_People> selectLevelPeoplesByUnitId(String [] units);//离职人员查询
     List<SYS_People> selectTrunPeoplesByUnitId(String[] units,String states);// 套转人员查询
 
     List<SYS_People> selectSexPeoplesByUnitId(String unitId,String sex,String states);// 性别查询
