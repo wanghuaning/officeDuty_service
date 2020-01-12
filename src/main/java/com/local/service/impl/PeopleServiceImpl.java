@@ -265,7 +265,11 @@ public class PeopleServiceImpl implements PeopleService {
     @Override
     public List<SYS_People> selectPeoplesByUnitId(String unitId, String isChild,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unitId", unitId).andEquals("states",states);
+        if ("全部".equals(states)){
+            cri.where().andEquals("unitId", unitId);
+        }else {
+            cri.where().andEquals("unitId", unitId).andEquals("states",states);
+        }
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if ("1".equals(isChild)) {//包含下级单位
@@ -311,7 +315,11 @@ public class PeopleServiceImpl implements PeopleService {
 //            List<SYS_People> peopleList=new ArrayList<>();
             for (SYS_UNIT unit : units) {
                 Criteria cri = Cnd.cri();
-                cri.where().andEquals("unitId", unit.getId()).andEquals("states",states);
+                if ("全部".equals(states)){
+                    cri.where().andEquals("unitId", unit.getId());
+                }else {
+                    cri.where().andEquals("unitId", unit.getId()).andEquals("states",states);
+                }
                 List<SYS_People> list = dao.query(SYS_People.class, cri);
                 if (!StrUtils.isBlank(list) && list.size() > 0) {
                     peoples.addAll(list);

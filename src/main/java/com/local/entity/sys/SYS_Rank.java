@@ -139,9 +139,10 @@ public class SYS_Rank implements Serializable {
 
   private String deposeTimeStr;
 
-  @ApiModelProperty("类型")
-  @Comment("类型，1：套转、0：晋升")
+  @ApiModelProperty("套转")
+  @Comment("套转")
   @Column("flag")
+  @Default("否")
   @ColDefine(type = ColType.VARCHAR, width = 8)
   private String flag;
 

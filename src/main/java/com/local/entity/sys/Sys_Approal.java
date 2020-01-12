@@ -9,6 +9,7 @@ import org.nutz.dao.entity.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 @ApiModel("职数使用信息表")//用在模型类上，对模型类做注释；
 @Table("sys_approal")
@@ -387,6 +388,8 @@ public class Sys_Approal {
   @ColDefine(type = ColType.VARCHAR,width = 8)
   private String fourClerkDraftingNumDetail="0";
   private String dataFlag;
+
+  private List<Sys_Approal> children;
 
   public String getCreateTimeStr() {
     return DateUtil.dateToString(createTime);

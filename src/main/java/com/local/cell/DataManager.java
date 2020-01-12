@@ -1454,7 +1454,7 @@ public class DataManager {
     public static List<SYS_People> getPeopleJson(Map<String, Object> resultMap, List<SYS_UNIT> units, PeopleService peopleService) {
         List<SYS_People> peopleList = new ArrayList<>();
         for (SYS_UNIT unit : units) {
-            List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
+            List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "全部");
             if (peoples != null) {
                 peopleList.addAll(peoples);
             }
@@ -1596,11 +1596,11 @@ public class DataManager {
      * @param dataType
      * @return
      */
-    public static List<Sys_Process> getProcessJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ProcessService processService, String dataType) {
+    public static List<Sys_Process> getProcessJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ProcessService processService, String dataType,String flag) {
         List<Sys_Process> processList = new ArrayList<>();
         for (SYS_UNIT unit : units) {
             if ("上行".equals(dataType)) {
-                List<Sys_Process> approals = processService.selectNotApprProcess(unit.getId());
+                List<Sys_Process> approals = processService.selectNotApprProcessByFlag(unit.getId(),flag);
                 if (approals != null) {
                     for (Sys_Process process : approals) {
                         List<Sys_Process> cprocesses = processService.selectProcesssByParentId(process.getId());
@@ -2401,7 +2401,6 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys != null) {
             if (localDutys != null) {
                 for (SYS_Assessment people : localDutys) {
                     boolean isdelete = true;
@@ -2415,7 +2414,6 @@ public class DataManager {
                     }
                 }
             }
-        }
         if (deletePeoples.size() > 0) {
             resultMap.put("assessmentDelete", deletePeoples);
         }
@@ -2487,47 +2485,57 @@ public class DataManager {
         }
     }
 
-    public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, SYS_UNIT unit,
+    public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, UnitService unitService,
                                          String dataType, PeopleService peopleService, RankService rankService) {
         //人员信息
         List<Sys_Approal> approalList = new ArrayList<>();
-        List<DataModel> peopleModels = new ArrayList<>();
+        List<Sys_Approal> capproalList = new ArrayList<>();
         for (Sys_Approal approal : approals) {
-            if ("上行".equals(dataType)) {
-                Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "1");
-                if (localApproval != null) {
-                    localApproval.setDataFlag("上行前");
+            SYS_UNIT unit=unitService.selectUnitById(approal.getUnitId());
+            if (unit!=null){
+                if ("上行".equals(dataType)) {
+                    Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "1");
+                    if (localApproval != null) {
+                        localApproval.setDataFlag("上行前");
+                    } else {
+                        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
+                         localApproval = new Sys_Approal();
+                        if (peoples != null) {
+                            DataManager.getApprovalDataCell(localApproval, unit, peoples, rankService);
+                        }
+                        localApproval.setDataFlag("上行前");
+                        String luid=UUID.randomUUID().toString();
+                        localApproval.setId(luid);
+                    }
+                    approal.setDataFlag("上行后");
+                    String uid=UUID.randomUUID().toString();
+                    approal.setId(uid);
+                    capproalList.add(approal);
+                    Sys_Approal approalDetail = new Sys_Approal();
+                    approalDetail.setUnitName(approal.getUnitName());
+                    approalDetail.setOneResearcherDraftingNum(approal.getOneResearcherDraftingNumDetail());
+                    approalDetail.setTowResearcherDraftingNum(approal.getTowResearcherDraftingNumDetail());
+                    approalDetail.setThreeResearcherDraftingNum(approal.getThreeResearcherDraftingNumDetail());
+                    approalDetail.setFourResearcherDraftingNum(approal.getFourResearcherDraftingNumDetail());
+                    approalDetail.setOneClerkDraftingNum(approal.getOneClerkDraftingNumDetail());
+                    approalDetail.setTowClerkDraftingNum(approal.getTowClerkDraftingNumDetail());
+                    approalDetail.setThreeClerkDraftingNum(approal.getThreeClerkDraftingNumDetail());
+                    approalDetail.setFourClerkDraftingNum(approal.getFourClerkDraftingNumDetail());
+                    approalDetail.setDataFlag("不占职级数人员");
+                    String zuid=UUID.randomUUID().toString();
+                    approalDetail.setId(zuid);
+                    capproalList.add(approalDetail);
+                    localApproval.setChildren(capproalList);
                     approalList.add(localApproval);
                 } else {
-                    List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
-                    Sys_Approal approalModel = new Sys_Approal();
-                    if (peoples != null) {
-                        DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
+                    Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "0");
+                    if (localApproval != null) {
+                        localApproval.setDataFlag("下行前");
+                        approalList.add(localApproval);
                     }
-                    approalModel.setDataFlag("上行前");
-                    approalList.add(approalModel);
+                    approal.setDataFlag("下行后");
+                    approalList.add(approal);
                 }
-                approal.setDataFlag("上行后");
-                approalList.add(approal);
-                Sys_Approal approalDetail = new Sys_Approal();
-                approalDetail.setOneResearcherDraftingNumDetail(approal.getOneResearcherDraftingNumDetail());
-                approalDetail.setTowResearcherDraftingNumDetail(approal.getTowResearcherDraftingNumDetail());
-                approalDetail.setThreeResearcherDraftingNumDetail(approal.getThreeResearcherDraftingNumDetail());
-                approalDetail.setFourResearcherDraftingNumDetail(approal.getFourResearcherDraftingNumDetail());
-                approalDetail.setOneClerkDraftingNumDetail(approal.getOneClerkDraftingNumDetail());
-                approalDetail.setTowClerkDraftingNumDetail(approal.getTowClerkDraftingNumDetail());
-                approalDetail.setThreeClerkDraftingNumDetail(approal.getThreeClerkDraftingNumDetail());
-                approalDetail.setFourClerkDraftingNumDetail(approal.getFourClerkDraftingNumDetail());
-                approalDetail.setDataFlag("不占职级数人员");
-                approalList.add(approalDetail);
-            } else {
-                Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "0");
-                if (localApproval != null) {
-                    localApproval.setDataFlag("下行前");
-                    approalList.add(localApproval);
-                }
-                approal.setDataFlag("下行后");
-                approalList.add(approal);
             }
         }
         if (approalList.size() > 0) {
@@ -2868,6 +2876,7 @@ public class DataManager {
             approalList.add(approal);
             Sys_Approal approal1 = approvalService.selectApprovalById(approal.getId());
             if (approal1 != null) {
+                approal.setFlag("1");
                 approvalService.updataApproal(approal);
             } else {
                 approal.setFlag("1");

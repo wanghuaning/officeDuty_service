@@ -240,7 +240,7 @@ public class DataController {
     @ApiOperation(value = "导出上行下行数据", notes = "导出上行下行数据", httpMethod = "POST", tags = "导出上行下行数据接口")
     @RequestMapping(value = "/upstreamData")
     public String upstreamData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
-                               @RequestParam(value = "dataType", required = false) String dataType) {
+                               @RequestParam(value = "dataType", required = false) String dataType,@RequestParam(value = "flag", required = false) String flag) {
         try {
             List<Object> objects = new ArrayList<>();
             //从请求的header中取出当前登录的登录
@@ -248,29 +248,35 @@ public class DataController {
             paramsMap.put("note", "成功");
             paramsMap.put("dataId", unitId + DateUtil.getDateNum(new Date()));
             paramsMap.put("dataType", dataType);
+            paramsMap.put("flag",flag);
             Map<String, Object> resultMap = new HashMap<>();
             List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
             objects.addAll(unitList);
-            List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
-            List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
-            List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
-            List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType);
-            if (peopleList.size() > 0) {
-                objects.addAll(peopleList);
-                List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
-                objects.addAll(dutyList);
-                List<SYS_Rank> rankList = DataManager.getRankJson(resultMap, peopleList, rankService);
-                objects.addAll(rankList);
-                List<SYS_Education> educationList = DataManager.getEducationJson(resultMap, peopleList, educationService);
-                objects.addAll(educationList);
-                List<SYS_Reward> rewardList = DataManager.getRewardJson(resultMap, peopleList, rewardService);
-                objects.addAll(rankList);
-                List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
-                objects.addAll(assessmentList);
+            if (!"职数".equals(flag)){
+                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType,"0");
+                objects.addAll(processeList);
+                List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
+                List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
+                if (peopleList.size() > 0) {
+                    objects.addAll(peopleList);
+                    List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
+                    objects.addAll(dutyList);
+                    List<SYS_Rank> rankList = DataManager.getRankJson(resultMap, peopleList, rankService);
+                    objects.addAll(rankList);
+                    List<SYS_Education> educationList = DataManager.getEducationJson(resultMap, peopleList, educationService);
+                    objects.addAll(educationList);
+                    List<SYS_Reward> rewardList = DataManager.getRewardJson(resultMap, peopleList, rewardService);
+                    objects.addAll(rankList);
+                    List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
+                    objects.addAll(assessmentList);
+                }
+                objects.addAll(userList);
+            }else {
+                List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
+                objects.addAll(approvalList);
+                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType,"1");
+                objects.addAll(processeList);
             }
-            objects.addAll(userList);
-            objects.addAll(approvalList);
-            objects.addAll(processeList);
             JSONObject resultList = JSONObject.fromObject(resultMap);
             paramsMap.put("result", resultList);
             JSONObject resultJson = JSONObject.fromObject(paramsMap);
@@ -328,6 +334,7 @@ public class DataController {
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
             String dataType = String.valueOf(object.get("dataType"));
+            String flag=String.valueOf(object.get("flag"));
             if (!StrUtils.isBlank(note)) {
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
@@ -339,17 +346,23 @@ public class DataController {
                             return new Result(ResultCode.ERROR.toString(), "登录超时！", null, null).getJson();
                         }
                         SYS_UNIT punit = unitService.selectUnitById(user.getUnitId());
+                        JSONArray approvalList= new JSONArray();
                         String unitName = String.valueOf(key.get("unitName"));
                         JSONArray unitList = key.getJSONArray("unitList");
-                        JSONArray userList = key.getJSONArray("userList");
-                        JSONArray peopleList = key.getJSONArray("peopleList");
-                        JSONArray rankList = key.getJSONArray("rankList");
-                        JSONArray dutyList = key.getJSONArray("dutyList");
-                        JSONArray educationList = key.getJSONArray("educationList");
-                        JSONArray rewardList = key.getJSONArray("rewardList");
-                        JSONArray assessmentList = key.getJSONArray("assessmentList");
-                        JSONArray approvalList = key.getJSONArray("approvalList");
                         JSONArray processList = key.getJSONArray("processList");
+                        JSONArray userList = new JSONArray(), peopleList = new JSONArray(), rankList = new JSONArray();
+                        JSONArray dutyList = new JSONArray(),educationList = new JSONArray(),rewardList = new JSONArray(), assessmentList = new JSONArray();
+                        if (!"职数".equals(flag)){
+                             userList = key.getJSONArray("userList");
+                             peopleList = key.getJSONArray("peopleList");
+                             rankList = key.getJSONArray("rankList");
+                             dutyList = key.getJSONArray("dutyList");
+                             educationList = key.getJSONArray("educationList");
+                             rewardList = key.getJSONArray("rewardList");
+                             assessmentList = key.getJSONArray("assessmentList");
+                        }else {
+                             approvalList = key.getJSONArray("approvalList");
+                        }
                         SYS_UNIT unit = unitService.selectUnitById(iunitId);
                         if (unit == null) {
                             unit = unitService.selectUnitByName(unitName);
@@ -358,7 +371,7 @@ public class DataController {
                             SYS_Data data = DataManager.saveData(dataId, dataType, iunitId, dataService);
                             Map<String, Object> resultMap = new HashMap<>();
                             resultMap.put("dataId", data.getId());
-                            if (unitList != null) {
+                            if (unitList.size()>0) {
                                 units = DataManager.saveUnitJsonModel(unitList);
                                 if (units.size() > 0) {
                                     DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "unit", gson.toJson(units));
@@ -379,7 +392,7 @@ public class DataController {
                                         DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "processe", gson.toJson(processes));
                                     }
                                 }
-                                if (peopleList != null) {
+                                if (peopleList.size()>0) {
                                     peoples = DataManager.savePeopleJsonModel(peopleList);
                                     if (peoples.size() > 0) {
                                         DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "people", gson.toJson(peoples));
@@ -409,15 +422,17 @@ public class DataController {
                                 List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, iunitId, unitService);//单位
                                 List<SYS_UNIT> deleteUnitList = new ArrayList<>();
                                 List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(iunitId, "1", "在职");
-                                DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
-                                DataManager.dutyDataCheck(resultMap, duties, dutyService, iunitId);
-                                DataManager.rankDataCheck(resultMap, ranks, rankService, iunitId);
-                                DataManager.educationDataCheck(resultMap, educations, educationService, iunitId);
-                                DataManager.rewardDataCheck(resultMap, rewards, rewardService, iunitId);
-                                DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, iunitId);
-                                DataManager.userDataCheck(resultMap, users, userService, iunitId);
+                                if (!"职数".equals(flag)) {
+                                    DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
+                                    DataManager.dutyDataCheck(resultMap, duties, dutyService, iunitId);
+                                    DataManager.rankDataCheck(resultMap, ranks, rankService, iunitId);
+                                    DataManager.educationDataCheck(resultMap, educations, educationService, iunitId);
+                                    DataManager.rewardDataCheck(resultMap, rewards, rewardService, iunitId);
+                                    DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, iunitId);
+                                    DataManager.userDataCheck(resultMap, users, userService, iunitId);
+                                }
                                 if (approals.size() > 0) {
-                                    DataManager.approvalDataCheck(resultMap, approals, approvalService, unit,
+                                    DataManager.approvalDataCheck(resultMap, approals, approvalService, unitService,
                                             dataType, peopleService, rankService);
                                 }
                                 if (processes.size() > 0) {

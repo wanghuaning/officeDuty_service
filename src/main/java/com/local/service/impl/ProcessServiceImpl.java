@@ -60,6 +60,18 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
+    public List<Sys_Process> selectNotApprProcessByFlag(String unitId,String flag){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId).andNotEquals("states","已审核").andEquals("parent_Id",null).andEquals("flag",flag);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
     public List<Sys_Process> selectProcesssByParentId(String parentId){
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();
