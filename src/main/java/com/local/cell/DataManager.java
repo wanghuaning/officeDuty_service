@@ -2494,6 +2494,10 @@ public class DataManager {
             SYS_UNIT unit=unitService.selectUnitById(approal.getUnitId());
             if (unit!=null){
                 if ("上行".equals(dataType)) {
+                    Sys_Approal sys_approal=new Sys_Approal();
+                    sys_approal.setUnitName(approal.getUnitName());
+                    sys_approal.setCreateTime(approal.getCreateTime());
+                    sys_approal.setDataFlag("变动数据");
                     Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "1");
                     if (localApproval != null) {
                         localApproval.setDataFlag("上行前");
@@ -2507,6 +2511,8 @@ public class DataManager {
                         String luid=UUID.randomUUID().toString();
                         localApproval.setId(luid);
                     }
+                    capproalList.add(localApproval);
+                    getApproalDataTow(sys_approal,approal,localApproval);
                     approal.setDataFlag("上行后");
                     String uid=UUID.randomUUID().toString();
                     approal.setId(uid);
@@ -2525,8 +2531,10 @@ public class DataManager {
                     String zuid=UUID.randomUUID().toString();
                     approalDetail.setId(zuid);
                     capproalList.add(approalDetail);
-                    localApproval.setChildren(capproalList);
-                    approalList.add(localApproval);
+                    sys_approal.setChildren(capproalList);
+                    String sysuid=UUID.randomUUID().toString();
+                    sys_approal.setId(sysuid);
+                    approalList.add(sys_approal);
                 } else {
                     Sys_Approal localApproval = approvalService.selectApproval(unit.getId(), "0");
                     if (localApproval != null) {
@@ -2543,6 +2551,123 @@ public class DataManager {
         }
     }
 
+    public static void getApproalDataTow(Sys_Approal sys_approal,Sys_Approal approal,Sys_Approal localApproval){
+        if ((Integer.valueOf(approal.getOneResearcherDraftingNum())-Integer.valueOf(localApproval.getOneResearcherDraftingNum()))!=0){
+            sys_approal.setOneResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getOneResearcherDraftingNum())-Integer.valueOf(localApproval.getOneResearcherDraftingNum())));
+        }else {
+            sys_approal.setOneResearcherDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getTowResearcherDraftingNum())-Integer.valueOf(localApproval.getTowResearcherDraftingNum()))!=0){
+            sys_approal.setTowResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getTowResearcherDraftingNum())-Integer.valueOf(localApproval.getTowResearcherDraftingNum())));
+        }else {
+            sys_approal.setTowResearcherDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getThreeResearcherDraftingNum())-Integer.valueOf(localApproval.getThreeResearcherDraftingNum()))!=0){
+            sys_approal.setThreeResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getThreeResearcherDraftingNum())-Integer.valueOf(localApproval.getThreeResearcherDraftingNum())));
+        }else {
+            sys_approal.setThreeResearcherDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getFourResearcherDraftingNum())-Integer.valueOf(localApproval.getFourResearcherDraftingNum()))!=0){
+            sys_approal.setFourResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getFourResearcherDraftingNum())-Integer.valueOf(localApproval.getFourResearcherDraftingNum())));
+        }else {
+            sys_approal.setFourResearcherDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getOneClerkDraftingNum())-Integer.valueOf(localApproval.getOneClerkDraftingNum()))!=0){
+            sys_approal.setOneClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getOneClerkDraftingNum())-Integer.valueOf(localApproval.getOneClerkDraftingNum())));
+        }else {
+            sys_approal.setOneClerkDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getTowClerkDraftingNum())-Integer.valueOf(localApproval.getTowClerkDraftingNum()))!=0){
+            sys_approal.setTowClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getTowClerkDraftingNum())-Integer.valueOf(localApproval.getTowClerkDraftingNum())));
+        }else {
+            sys_approal.setTowClerkDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getThreeClerkDraftingNum())-Integer.valueOf(localApproval.getThreeClerkDraftingNum()))!=0){
+            sys_approal.setThreeClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getThreeClerkDraftingNum())-Integer.valueOf(localApproval.getThreeClerkDraftingNum())));
+        }else {
+            sys_approal.setThreeClerkDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getFourClerkDraftingNum())-Integer.valueOf(localApproval.getFourClerkDraftingNum()))!=0){
+            sys_approal.setFourClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getFourClerkDraftingNum())-Integer.valueOf(localApproval.getFourClerkDraftingNum())));
+        }else {
+            sys_approal.setFourClerkDraftingNum("");
+        }
+        if ((Integer.valueOf(approal.getDrafting())-Integer.valueOf(localApproval.getDrafting()))!=0){
+            sys_approal.setDrafting(String.valueOf(Integer.valueOf(approal.getDrafting())-Integer.valueOf(localApproval.getDrafting())));
+        }else {
+            sys_approal.setDrafting("");
+        }
+        if ((Integer.valueOf(approal.getOneTowResearcherNum())-Integer.valueOf(localApproval.getOneTowResearcherNum()))!=0){
+            sys_approal.setOneTowResearcherNum(String.valueOf(Integer.valueOf(approal.getOneTowResearcherNum())-Integer.valueOf(localApproval.getOneTowResearcherNum())));
+        }else {
+            sys_approal.setOneTowResearcherNum("");
+        }
+        if ((Integer.valueOf(approal.getOneResearcherNum())-Integer.valueOf(localApproval.getOneResearcherNum()))!=0){
+            sys_approal.setOneResearcherNum(String.valueOf(Integer.valueOf(approal.getOneResearcherNum())-Integer.valueOf(localApproval.getOneResearcherNum())));
+        }else {
+            sys_approal.setOneResearcherNum("");
+        }
+        if ((Integer.valueOf(approal.getTowResearcherNum())-Integer.valueOf(localApproval.getTowResearcherNum()))!=0){
+            sys_approal.setTowResearcherNum(String.valueOf(Integer.valueOf(approal.getTowResearcherNum())-Integer.valueOf(localApproval.getTowResearcherNum())));
+        }else {
+            sys_approal.setTowResearcherNum("");
+        }
+        if ((Integer.valueOf(approal.getThreeFourResearcherNum())-Integer.valueOf(localApproval.getThreeFourResearcherNum()))!=0){
+            sys_approal.setThreeFourResearcherNum(String.valueOf(Integer.valueOf(approal.getThreeFourResearcherNum())-Integer.valueOf(localApproval.getThreeFourResearcherNum())));
+        }else {
+            sys_approal.setThreeFourResearcherNum("");
+        }
+        if ((Integer.valueOf(approal.getThreeResearcherNum())-Integer.valueOf(localApproval.getThreeResearcherNum()))!=0){
+            sys_approal.setThreeResearcherNum(String.valueOf(Integer.valueOf(approal.getThreeResearcherNum())-Integer.valueOf(localApproval.getThreeResearcherNum())));
+        }else {
+            sys_approal.setThreeResearcherNum("");
+        }
+        if ((Integer.valueOf(approal.getFourResearcherNum())-Integer.valueOf(localApproval.getFourResearcherNum()))!=0){
+            sys_approal.setFourResearcherNum(String.valueOf(Integer.valueOf(approal.getFourResearcherNum())-Integer.valueOf(localApproval.getFourResearcherNum())));
+        }else {
+            sys_approal.setFourResearcherNum("");
+        }
+        if ((Integer.valueOf(approal.getResearcherTotal())-Integer.valueOf(localApproval.getResearcherTotal()))!=0){
+            sys_approal.setResearcherTotal(String.valueOf(Integer.valueOf(approal.getResearcherTotal())-Integer.valueOf(localApproval.getResearcherTotal())));
+        }else {
+            sys_approal.setResearcherTotal("");
+        }
+        if ((Integer.valueOf(approal.getOneTowClerkNum())-Integer.valueOf(localApproval.getOneTowClerkNum()))!=0){
+            sys_approal.setOneTowClerkNum(String.valueOf(Integer.valueOf(approal.getOneTowClerkNum())-Integer.valueOf(localApproval.getOneTowClerkNum())));
+        }else {
+            sys_approal.setOneTowClerkNum("");
+        }
+        if ((Integer.valueOf(approal.getOneClerkNum())-Integer.valueOf(localApproval.getOneClerkNum()))!=0){
+            sys_approal.setOneClerkNum(String.valueOf(Integer.valueOf(approal.getOneClerkNum())-Integer.valueOf(localApproval.getOneClerkNum())));
+        }else {
+            sys_approal.setOneClerkNum("");
+        }
+        if ((Integer.valueOf(approal.getTowClerkNum())-Integer.valueOf(localApproval.getTowClerkNum()))!=0){
+            sys_approal.setTowClerkNum(String.valueOf(Integer.valueOf(approal.getTowClerkNum())-Integer.valueOf(localApproval.getTowClerkNum())));
+        }else {
+            sys_approal.setTowClerkNum("");
+        }
+        if ((Integer.valueOf(approal.getThreeFourClerkNum())-Integer.valueOf(localApproval.getThreeFourClerkNum()))!=0){
+            sys_approal.setThreeFourClerkNum(String.valueOf(Integer.valueOf(approal.getThreeFourClerkNum())-Integer.valueOf(localApproval.getThreeFourClerkNum())));
+        }else {
+            sys_approal.setThreeFourClerkNum("");
+        }
+        if ((Integer.valueOf(approal.getThreeClerkNum())-Integer.valueOf(localApproval.getThreeClerkNum()))!=0){
+            sys_approal.setThreeClerkNum(String.valueOf(Integer.valueOf(approal.getThreeClerkNum())-Integer.valueOf(localApproval.getThreeClerkNum())));
+        }else {
+            sys_approal.setThreeClerkNum("");
+        }
+        if ((Integer.valueOf(approal.getFourClerkNum())-Integer.valueOf(localApproval.getFourClerkNum()))!=0){
+            sys_approal.setFourClerkNum(String.valueOf(Integer.valueOf(approal.getFourClerkNum())-Integer.valueOf(localApproval.getFourClerkNum())));
+        }else {
+            sys_approal.setFourClerkNum("");
+        }
+        if ((Integer.valueOf(approal.getClerkTotal())-Integer.valueOf(localApproval.getClerkTotal()))!=0){
+            sys_approal.setClerkTotal(String.valueOf(Integer.valueOf(approal.getClerkTotal())-Integer.valueOf(localApproval.getClerkTotal())));
+        }else {
+            sys_approal.setClerkTotal("");
+        }
+    }
     /**
      * 插入单位下行数据
      *

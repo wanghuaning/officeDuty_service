@@ -20,6 +20,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
+import org.nutz.dao.pager.Pager;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -578,6 +579,7 @@ public class DataController {
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
             String dataType = String.valueOf(object.get("dataType"));
+            String flag = String.valueOf(object.get("flag"));
             if (!StrUtils.isBlank(note)) {
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
@@ -586,16 +588,29 @@ public class DataController {
                     return new Result(ResultCode.ERROR.toString(), "非本单位下行数据包！", null, null).getJson();
                 } else {
                     String unitName = String.valueOf(key.get("unitName"));
-                    JSONArray unitList = key.getJSONArray("unitList");
-                    JSONArray userList = key.getJSONArray("userList");
-                    JSONArray aprovalList = key.getJSONArray("approvalList");
-                    JSONArray processList = key.getJSONArray("processList");
-                    JSONArray peopleList = key.getJSONArray("peopleList");
-                    JSONArray rankList = key.getJSONArray("rankList");
-                    JSONArray dutyList = key.getJSONArray("dutyList");
-                    JSONArray educationList = key.getJSONArray("educationList");
-                    JSONArray rewardList = key.getJSONArray("rewardList");
-                    JSONArray assessmentList = key.getJSONArray("assessmentList");
+                    JSONArray unitList = new JSONArray();
+                    JSONArray userList = new JSONArray();
+                    JSONArray aprovalList = new JSONArray();
+                    JSONArray processList = new JSONArray();
+                    JSONArray peopleList = new JSONArray();
+                    JSONArray rankList = new JSONArray();
+                    JSONArray dutyList = new JSONArray();
+                    JSONArray educationList = new JSONArray();
+                    JSONArray rewardList = new JSONArray();
+                    JSONArray assessmentList =  new JSONArray();
+                    if (!"职数".equals(flag)){
+                         userList = key.getJSONArray("userList");
+                         peopleList = key.getJSONArray("peopleList");
+                         rankList = key.getJSONArray("rankList");
+                         dutyList = key.getJSONArray("dutyList");
+                         educationList = key.getJSONArray("educationList");
+                         rewardList = key.getJSONArray("rewardList");
+                         assessmentList = key.getJSONArray("assessmentList");
+                    }else {
+                        unitList = key.getJSONArray("unitList");
+                        aprovalList = key.getJSONArray("approvalList");
+                        processList = key.getJSONArray("processList");
+                    }
                     SYS_UNIT unit = unitService.selectUnitById(unitID);
                     if (unit == null) {
                         unit = unitService.selectUnitByName(unitName);
@@ -1071,6 +1086,82 @@ public class DataController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "自定义查询表字段", notes = "自定义查询表字段", httpMethod = "GET", tags = "自定义查询表字段接口")
+    @GetMapping("/outTableData")
+    @ResponseBody
+    public String outTableDataProp(@RequestParam(value = "transferArr") String transferArr) {
+        try {
+            if (!StrUtils.isBlank(transferArr)) {
+                List<TableModel> models=new ArrayList<>();
+                String[] strArr = transferArr.split(",");
+                for (int i = 0; i < strArr.length; i++) {
+                    String modelName="model" + (i+1);
+                    TableModel model=new TableModel();
+                    model.setProp(modelName);
+                    model.setLabel(strArr[i]);
+                    models.add(model);
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, models, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "自定义查询表", notes = "自定义查询表", httpMethod = "GET", tags = "自定义查询表接口")
+    @GetMapping("/customizeInfo")
+    @ResponseBody
+    public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+             @RequestParam(value = "transferArr") String transferArr, @RequestParam(value = "unitIds") String unitIds) {
+        try {
+            if (!StrUtils.isBlank(unitIds) && !StrUtils.isBlank(transferArr)) {
+                List<TransferModel> models = new ArrayList<>();
+                String[] strArr = transferArr.split(",");
+                String[] unitArr = unitIds.split(",");
+                String[] arr = new String[strArr.length];
+                List<SYS_People> peopleList = peopleService.selectPeoplesByUnitIdsAndPager(Integer.parseInt(pageSize),Integer.parseInt(pageNumber),unitArr);
+                List<SYS_People> cpeopleList = peopleService.selectPeoplesByUnitIds(unitArr);
+                if (peopleList==null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+                }
+                if (cpeopleList == null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+                }
+                for (SYS_People people : peopleList) {
+                    TransferModel model = new TransferModel();
+                    SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+                    if (unit != null) {
+                        model.setUnitName(unit.getName());
+                    }
+                    model.setName(people.getName());
+                    model.setStates(people.getStates());
+                    for (int i = 0; i < strArr.length; i++) {
+                        String modelName = "model" + (i+1);
+                        arr[i] = modelName;
+                        String value = DataManager.getCustomizeData(people, strArr[i], assessmentService);
+                        EntityUtil.setFieldValueByFieldName(modelName, model, value);
+                    }
+                    models.add(model);
+                }
+                Pager pager = new Pager();
+                pager.setPageNumber(Integer.parseInt(pageNumber));
+                pager.setPageSize(Integer.parseInt(pageSize));
+                pager.setRecordCount(cpeopleList.size());
+                QueryResult queryResult = new QueryResult(models, pager);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
 }

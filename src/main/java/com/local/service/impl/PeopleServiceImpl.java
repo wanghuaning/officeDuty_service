@@ -11,6 +11,7 @@ import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.util.cri.SimpleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -304,6 +305,22 @@ public class PeopleServiceImpl implements PeopleService {
         cri.where().andInStrArray("unitId", units);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIdsAndPager(int pageSize, int pageNumber,String[] units){
+        Pager pager = new Pager();
+        pager.setPageNumber(pageNumber + 1);
+        pager.setPageSize(pageSize);
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrArray("unitId", units);
+        List<SYS_People> peoples = new ArrayList<>();
+        cri.getOrderBy().asc("unitId");
+        List<SYS_People> list = dao.query(SYS_People.class, cri,pager);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
             return list;
         } else {
