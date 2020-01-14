@@ -2761,15 +2761,21 @@ public class DataManager {
             if (rank.getApprovalTime() == null) {
                 rank.setApprovalTime(new Date());
             }
+            SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
             rankList.add(rank);
             SYS_Rank rank1 = rankService.selectRankById(rank.getId());
             if (rank1 != null) {
                 rankService.updateRank(rank);
             } else {
-                SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
                 if (people != null) {
                     rankService.insertRank(rank);
                 }
+            }
+            SYS_Rank proRank = rankService.selectAprodRanksByPid(rank.getPeopleId());
+            if (proRank!=null){
+                people.setPositionLevel(proRank.getName());
+                people.setPositionLevelTime(proRank.getCreateTime());
+                peopleService.updatePeople(people);
             }
         }
         List<SYS_Rank> rankss = rankService.selectRanksByUnitId(unitId, "1");
@@ -2783,6 +2789,13 @@ public class DataManager {
                 }
                 if (isd) {
                     rankService.deleteRank(rank.getId());
+                }
+                SYS_Rank proRank = rankService.selectAprodRanksByPid(rank.getPeopleId());
+                SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
+                if (proRank!=null){
+                    people.setPositionLevel(proRank.getName());
+                    people.setPositionLevelTime(proRank.getCreateTime());
+                    peopleService.updatePeople(people);
                 }
             }
         }
@@ -2805,16 +2818,22 @@ public class DataManager {
             }
             dutyList.add(duty);
             SYS_Duty duty1 = dutyService.selectDutyById(duty.getId());
+            SYS_People people = peopleService.selectPeopleById(duty.getPeopleId());
             if (duty1 != null) {
                 if (duty.getApprovalTime() == null) {
                     duty.setApprovalTime(new Date());
                 }
                 dutyService.updateDuty(duty);
             } else {
-                SYS_People people = peopleService.selectPeopleById(duty.getPeopleId());
                 if (people != null) {
                     dutyService.insertDuty(duty);
                 }
+            }
+            SYS_Duty produty = dutyService.selectProDutyByPidOrderByTime(duty.getPeopleId());
+            if (produty!=null){
+                people.setPosition(duty.getName());
+                people.setPositionTime(duty.getCreateTime());
+                peopleService.updatePeople(people);
             }
         }
         List<SYS_Duty> dutyss = dutyService.selectDutysByUnitId(unitId, "1");
@@ -2828,6 +2847,13 @@ public class DataManager {
                 }
                 if (isd) {
                     dutyService.deleteDuty(duty.getId());
+                }
+                SYS_People people = peopleService.selectPeopleById(duty.getPeopleId());
+                SYS_Duty produty = dutyService.selectProDutyByPidOrderByTime(duty.getPeopleId());
+                if (produty!=null){
+                    people.setPosition(duty.getName());
+                    people.setPositionTime(duty.getCreateTime());
+                    peopleService.updatePeople(people);
                 }
             }
         }
@@ -3002,14 +3028,16 @@ public class DataManager {
             Sys_Approal approal1 = approvalService.selectApprovalById(approal.getId());
             if (approal1 != null) {
                 approal.setFlag("1");
+                approal.setId(approal1.getId());
                 approvalService.updataApproal(approal);
             } else {
                 approal.setFlag("1");
                 approvalService.insertApproal(approal);
-                SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
-                if (unit != null) {
-                    saveUnitData(unitService, unit, approal);
-                }
+            }
+            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
+            if (unit != null) {
+                saveUnitData(unitService, unit, approal);
+                unitService.updateUnit(unit);
             }
         }
         return approalList;
