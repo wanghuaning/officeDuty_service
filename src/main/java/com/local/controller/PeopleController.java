@@ -25,10 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/people")
@@ -220,6 +218,119 @@ public class PeopleController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "到期退休", notes = "到期退休", httpMethod = "GET", tags = "到期退休接口")
+    @GetMapping("/retireInfo")
+    @ResponseBody
+    public String getRetireInfo(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+                             @RequestParam(value = "isChild", required = false) String isChild,
+                             @RequestParam(value = "childUnit", required = false) String childUnit,
+                             @RequestParam(value = "states", required = false) String states,HttpServletRequest request) {
+        try {
+            String[] arr;
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+                if (user != null) {
+                    arr = new String[]{user.getUnitId()};
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
+            List<SYS_People> peopleList =new ArrayList<>();
+            List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr, "在职");
+            if (peoples != null) {
+                for (SYS_People people : peoples) {
+                    if (people.getBirthday() != null && people.getPosition() != null) {
+                        int bmonth = DateUtil.getMonth(people.getBirthday());
+                        int nmonth = DateUtil.getMonth(new Date());
+                        int age =0;
+                        if ("1".equals(states)){
+                            Calendar ca = Calendar.getInstance();
+                            ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+                            DateUtil.getAgeByMonth(people.getBirthday(), ca);
+                        }else  if ("2".equals(states)){
+                            Calendar ca1 = Calendar.getInstance();
+                            int month = ca1.get(Calendar.MONTH);
+                            ca1.set(Calendar.MONTH, month + 1);
+                            ca1.set(Calendar.DAY_OF_MONTH, ca1.getActualMaximum(Calendar.DAY_OF_MONTH));
+                            SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd");
+                            age = DateUtil.getAgeByMonth(people.getBirthday(), ca1);
+                        }else  if ("3".equals(states)){
+                            Calendar ca2 = Calendar.getInstance();
+                            int month2 = ca2.get(Calendar.MONTH);
+                            ca2.set(Calendar.MONTH, month2 + 2);
+                            ca2.set(Calendar.DAY_OF_MONTH, ca2.getActualMaximum(Calendar.DAY_OF_MONTH));
+                            age = DateUtil.getAgeByMonth(people.getBirthday(), ca2);
+                        }else  if ("3".equals(states)){
+                            Calendar ca3 = Calendar.getInstance();
+                            int month3 = ca3.get(Calendar.MONTH);
+                            ca3.set(Calendar.MONTH, month3 + 3);
+                            ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
+                            age = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
+                        }
+                        if (people.getPosition().contains("县处级正职")) {
+                            if (age == 60) {
+                                peopleList.add(people);
+                            }
+                        } else if (people.getPosition().contains("县处级副职")) {
+                            if (age == 60 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                        } else if (people.getPosition().contains("乡科级正职")) {
+                            if (people.getSex().contains("男")) {
+                                if (age == 60 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+
+                            } else {
+                                if (age == 55 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                            }
+                        } else if (people.getPosition().contains("乡科级副职")) {
+                            if (people.getSex().contains("男")) {
+                                if (age == 60 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                            } else {
+                                if (age == 55 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                            }
+                        } else if (people.getPosition().contains("科员")) {
+                            if (people.getSex().contains("男")) {
+                                if (age == 60 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                            } else {
+                                if (age == 55 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                            }
+                        } else {
+                            if (age == 60 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                        }
+                    }
+                }
+            }
+//            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
 }

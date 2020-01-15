@@ -173,7 +173,7 @@ public class FormController {
                         int age2 = DateUtil.getAgeByMonth(people.getBirthday(), ca2);
 
                         Calendar ca3 = Calendar.getInstance();
-                        int month3 = ca1.get(Calendar.MONTH);
+                        int month3 = ca3.get(Calendar.MONTH);
                         ca3.set(Calendar.MONTH, month3 + 3);
                         ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
                         int age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
