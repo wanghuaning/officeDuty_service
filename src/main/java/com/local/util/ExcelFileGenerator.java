@@ -693,7 +693,7 @@ public class ExcelFileGenerator<T> {
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         Font font = sheet.getWorkbook().createFont();
         font.setBold(false);
-        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontHeightInPoints((short) 9);//设置行高像素
         font.setFontName("仿宋");
         cellStyle.setFont(font);
         cellStyle.setWrapText(true);
@@ -703,6 +703,7 @@ public class ExcelFileGenerator<T> {
             Class classType = data.get(0).getClass();
             for (Object d : data) {
                 Row row = sheet.createRow(rowIndex);
+                row.setHeightInPoints(24);//目的是想把行高设置成20px
                 boolean isChanged = false;
                 for (int i:colarr) {
                     //合并单元格
