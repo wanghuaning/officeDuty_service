@@ -12,6 +12,7 @@ import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
+import org.nutz.dao.pager.Pager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -227,18 +228,13 @@ public class PeopleController {
                              @RequestParam(value = "page", required = false) String pageNumber,
                              @RequestParam(value = "isChild", required = false) String isChild,
                              @RequestParam(value = "childUnit", required = false) String childUnit,
+                                @RequestParam(value = "unitId", required = false) String unitId,
                              @RequestParam(value = "states", required = false) String states,HttpServletRequest request) {
         try {
             String[] arr;
             if (!"true".equals(isChild)) {
                 //从请求的header中取出当前登录的登录
-                SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-                if (user != null) {
-                    arr = new String[]{user.getUnitId()};
-                } else {
-                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
-                }
-
+                    arr = new String[]{unitId};
             } else {
                 if (!StrUtils.isBlank(childUnit)) {
                     childUnit = childUnit.substring(1, childUnit.length() - 1);
@@ -248,89 +244,235 @@ public class PeopleController {
                 }
             }
             List<SYS_People> peopleList =new ArrayList<>();
-            List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr, "在职");
-            if (peoples != null) {
-                for (SYS_People people : peoples) {
-                    if (people.getBirthday() != null && people.getPosition() != null) {
-                        int bmonth = DateUtil.getMonth(people.getBirthday());
-                        int nmonth = DateUtil.getMonth(new Date());
-                        int age =0;
-                        if ("1".equals(states)){
-                            Calendar ca = Calendar.getInstance();
-                            ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
-                            DateUtil.getAgeByMonth(people.getBirthday(), ca);
-                        }else  if ("2".equals(states)){
-                            Calendar ca1 = Calendar.getInstance();
-                            int month = ca1.get(Calendar.MONTH);
-                            ca1.set(Calendar.MONTH, month + 1);
-                            ca1.set(Calendar.DAY_OF_MONTH, ca1.getActualMaximum(Calendar.DAY_OF_MONTH));
-                            SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd");
-                            age = DateUtil.getAgeByMonth(people.getBirthday(), ca1);
-                        }else  if ("3".equals(states)){
-                            Calendar ca2 = Calendar.getInstance();
-                            int month2 = ca2.get(Calendar.MONTH);
-                            ca2.set(Calendar.MONTH, month2 + 2);
-                            ca2.set(Calendar.DAY_OF_MONTH, ca2.getActualMaximum(Calendar.DAY_OF_MONTH));
-                            age = DateUtil.getAgeByMonth(people.getBirthday(), ca2);
-                        }else  if ("3".equals(states)){
-                            Calendar ca3 = Calendar.getInstance();
-                            int month3 = ca3.get(Calendar.MONTH);
-                            ca3.set(Calendar.MONTH, month3 + 3);
-                            ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
-                            age = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
-                        }
-                        if (people.getPosition().contains("县处级正职")) {
-                            if (age == 60) {
-                                peopleList.add(people);
-                            }
-                        } else if (people.getPosition().contains("县处级副职")) {
-                            if (age == 60 && bmonth == nmonth) {
-                                peopleList.add(people);
-                            }
-                        } else if (people.getPosition().contains("乡科级正职")) {
-                            if (people.getSex().contains("男")) {
-                                if (age == 60 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-
-                            } else {
-                                if (age == 55 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                            }
-                        } else if (people.getPosition().contains("乡科级副职")) {
-                            if (people.getSex().contains("男")) {
-                                if (age == 60 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                            } else {
-                                if (age == 55 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                            }
-                        } else if (people.getPosition().contains("科员")) {
-                            if (people.getSex().contains("男")) {
-                                if (age == 60 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                            } else {
-                                if (age == 55 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                            }
-                        } else {
-                            if (age == 60 && bmonth == nmonth) {
-                                peopleList.add(people);
-                            }
-                        }
-                    }
-                }
-            }
-//            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();
+            getRetireInfoData(peopleList, arr, states);
+            Pager pager = new Pager();
+            pager.setPageNumber(Integer.parseInt(pageNumber));
+            pager.setPageSize(Integer.parseInt(pageSize));
+            pager.setRecordCount(peopleList.size());
+            QueryResult queryResult = new QueryResult(peopleList, pager);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
+    }
+    @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
+    @RequestMapping(value = "/outRetirExcel")
+    public String outRetirePeopleExcel(HttpServletRequest request, HttpServletResponse response,
+                                       @RequestParam(value = "isChild", required = false) String isChild,
+                                       @RequestParam(value = "childUnit", required = false) String childUnit,
+                                       @RequestParam(value = "unitId", required = false) String unitId,
+                                       @RequestParam(value = "states", required = false) String states) {
+        try {
+            String[] arr;
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                arr = new String[]{unitId};
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
+            List<SYS_People> peopleList =new ArrayList<>();
+            getRetireInfoData(peopleList, arr, states);
+            ClassPathResource resource = new ClassPathResource("exportExcel/exportRetirePeopleInfo.xls");
+            String path = resource.getFile().getPath();
+            String[] dataArr = {"name", "unitName", "idcard", "birthday", "retireDate","sex", "nationality", "workday", "party",
+                    "position", "positionLevel", "politicalStatus"};
+            Workbook temp = ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.setExcleNAME(response, "到期退休人员信息表导出.xls");
+            excelFileGenerator.createExcelFile(temp.getSheet("到期退休"), 2, peopleList, dataArr);
+            temp.write(response.getOutputStream());
+            temp.close();
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, peopleList, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    public List<SYS_People> getRetireInfoData(List<SYS_People> peopleList,String[] arr,String states)throws Exception{
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr, "在职");
+        if (peoples != null) {
+            for (SYS_People people : peoples) {
+                if (people.getBirthday() != null && people.getPosition() != null) {
+                    if (StrUtils.isBlank(people.getUnitName())){
+                        SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
+                        if (unit!=null){
+                            people.setUnitName(unit.getName());
+                        }
+                    }
+                    int bmonth = DateUtil.getMonth(people.getBirthday());
+                    int nmonth = DateUtil.getMonth(new Date());
+                    int age =0,age1=0,age2=0,age3=0;
+                    //获取前月的最后一天
+                    if ("1".equals(states) || "全部".equals(states)){
+                        Calendar ca = Calendar.getInstance();
+                        ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+                        age = DateUtil.getAgeByMonth(people.getBirthday(), ca);
+                    }
+                    if ("2".equals(states) || "全部".equals(states)) {
+                        Calendar ca1 = Calendar.getInstance();
+                        int month = ca1.get(Calendar.MONTH);
+                        ca1.set(Calendar.MONTH, month + 1);
+                        ca1.set(Calendar.DAY_OF_MONTH, ca1.getActualMaximum(Calendar.DAY_OF_MONTH));
+                        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+                        age1 = DateUtil.getAgeByMonth(people.getBirthday(), ca1);
+                    }
+                    if ("3".equals(states) || "全部".equals(states)) {
+                        Calendar ca2 = Calendar.getInstance();
+                        int month2 = ca2.get(Calendar.MONTH);
+                        ca2.set(Calendar.MONTH, month2 + 2);
+                        ca2.set(Calendar.DAY_OF_MONTH, ca2.getActualMaximum(Calendar.DAY_OF_MONTH));
+                        age2 = DateUtil.getAgeByMonth(people.getBirthday(), ca2);
+                    }
+                    if ("4".equals(states) || "全部".equals(states)) {
+                        Calendar ca3 = Calendar.getInstance();
+                        int month3 = ca3.get(Calendar.MONTH);
+                        ca3.set(Calendar.MONTH, month3 + 3);
+                        ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
+                        age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
+                    }
+                    if (people.getPosition().contains("县处级正职")) {
+                        people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                        if (age == 60) {
+                            peopleList.add(people);
+                        }
+                        if (age1 == 60 && bmonth == (nmonth+1)) {
+                            peopleList.add(people);
+                        }
+                        if (age2 == 60 && bmonth == (nmonth+2)) {
+                            peopleList.add(people);
+                        }
+                        if (age3 == 60 && bmonth == (nmonth+3)) {
+                            peopleList.add(people);
+                        }
+                    } else if (people.getPosition().contains("县处级副职")) {
+                        people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                        if (age == 60 && bmonth == nmonth) {
+                            peopleList.add(people);
+                        }
+                        if (age1 == 60 && bmonth == (nmonth+1)) {
+                            peopleList.add(people);
+                        }
+                        if (age2 == 60 && bmonth == (nmonth+2)) {
+                            peopleList.add(people);
+                        }
+                        if (age3 == 60 && bmonth == (nmonth+3)) {
+                            peopleList.add(people);
+                        }
+                    } else if (people.getPosition().contains("乡科级正职")) {
+                        if (people.getSex().contains("男")) {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            if (age == 60 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        } else {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
+                            if (age == 55 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 55 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 55 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 55 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        }
+                    } else if (people.getPosition().contains("乡科级副职")) {
+                        if (people.getSex().contains("男")) {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            if (age == 60 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        } else {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            if (age == 55 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 55 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 55 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 55 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        }
+                    } else if (people.getPosition().contains("科员")) {
+                        if (people.getSex().contains("男")) {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            if (age == 60 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        } else {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
+                            if (age == 55 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 55 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 55 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 55 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        }
+                    } else {
+                        people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                        if (age == 60 && bmonth == nmonth) {
+                            peopleList.add(people);
+                        }
+                        if (age1 == 60 && bmonth == (nmonth+1)) {
+                            peopleList.add(people);
+                        }
+                        if (age2 == 60 && bmonth == (nmonth+2)) {
+                            peopleList.add(people);
+                        }
+                        if (age3 == 60 && bmonth == (nmonth+3)) {
+                            peopleList.add(people);
+                        }
+                    }
+                }
+            }
+        }
+        return peopleList;
     }
 }

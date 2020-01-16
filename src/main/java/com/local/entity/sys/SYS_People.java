@@ -223,6 +223,16 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 16)
   private String states;
 
+  private Date retireDate;
+
+  public Date getRetireDate() {
+    return retireDate;
+  }
+
+  public void setRetireDate(Date retireDate) {
+    this.retireDate = retireDate;
+  }
+
   public String getStates() {
     return states;
   }

@@ -56,6 +56,12 @@ public class DateUtil {
         }
         return new SimpleDateFormat(fm).format(date);
     }
+    public static Date addYears(Date date, int num) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.YEAR, num);
+        return calendar.getTime();
+    }
 
     public static Date addMonths(Date date, int num) {
         Calendar calendar = Calendar.getInstance();
