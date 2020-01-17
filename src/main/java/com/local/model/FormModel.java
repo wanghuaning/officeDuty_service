@@ -25,6 +25,7 @@ public class FormModel {
     private Integer zhengKe=0;
     private Integer fuChu=0;
     private Integer zhengChu=0;
+    private Integer qita=0;
 
     private Integer oneYearYouXiu=0;
     private Integer towYearYouXiu=0;

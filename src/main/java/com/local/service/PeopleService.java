@@ -37,4 +37,8 @@ public interface PeopleService {
 
     List<SYS_People> selectPartyPeoplesByUnitId(String unitId,String party,String states);// 党员查询
     List<SYS_People> selectPartyPeoplesByUnitIds(String[] units ,String party,String states);// 党员查询
+
+    QueryResult selectPeopleDetailInfo(int pageSize, int pageNumber,String[] arr,String sex,String party,String age,String duty);
+
+    List<SYS_People> selectPeopleDetailInfos(String[] arr,String sex,String party,String age,String duty);
 }

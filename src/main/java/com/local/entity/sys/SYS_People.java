@@ -2,10 +2,12 @@ package com.local.entity.sys;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.local.util.DateUtil;
+import com.local.util.StrUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.nutz.dao.entity.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import sun.misc.BASE64Encoder;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -224,6 +226,20 @@ public class SYS_People implements Serializable {
   private String states;
 
   private Date retireDate;
+
+  private int age;
+
+  public int getAge()throws Exception {
+    if (!StrUtils.isBlank(birthday)){
+      return DateUtil.getAgeByBirth(birthday);
+    }else {
+      return 0;
+    }
+  }
+
+  public void setAge(int age) {
+    this.age = age;
+  }
 
   public Date getRetireDate() {
     return retireDate;

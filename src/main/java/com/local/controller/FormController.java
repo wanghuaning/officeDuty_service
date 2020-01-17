@@ -501,6 +501,10 @@ public class FormController {
             if (zhengChu != null) {
                 model.setZhengChu(zhengChu.size());
             }
+            List<SYS_People> all = peopleService.selectPeoplesByUnitIds(arr,"在职");
+            if (all != null) {
+                model.setQita(all.size()-(zhengChu.size()+fuChu.size()+zhengKe.size()+fuke.size()));
+            }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);

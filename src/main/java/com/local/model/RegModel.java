@@ -53,4 +53,5 @@ public class RegModel {
     private String day;
     private String peopleName;
     private String peopleNum;
+    private String unitName;
 }

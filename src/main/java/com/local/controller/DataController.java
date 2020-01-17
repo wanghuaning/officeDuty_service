@@ -174,6 +174,7 @@ public class DataController {
                 model.setDay(day);
                 model.setPeopleName(peopleName);
                 model.setPeopleNum(peopleNum);
+                model.setUnitName(unitName);
                 List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService, model, processService);
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }

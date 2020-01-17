@@ -5,6 +5,7 @@ import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.SYS_USER;
 import com.local.service.PeopleService;
+import com.local.util.DateUtil;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -60,8 +62,86 @@ public class PeopleServiceImpl implements PeopleService {
         QueryResult queryResult = new QueryResult(peopleList, pager);
         return queryResult;
     }
+    @Override
+    public QueryResult selectPeopleDetailInfo(int pageSize, int pageNumber,String[] arr,String sex,String party,String age,String duty){
+        Pager pager = new Pager();
+        pager.setPageNumber(pageNumber + 1);
+        pager.setPageSize(pageSize);
+        List<SYS_People> peopleList = new ArrayList<>();
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrArray("unit_Id",arr);
+        if (!StrUtils.isBlank(sex) && !"全部".equals(sex)) {//市
+            cri.where().andLike("sex", "%" + sex + "%");
+        }
+        if (!StrUtils.isBlank(party) && !"全部".equals(party)) {
+            if ("党员".equals(party)){
+                cri.where().andLike("party", "%" + party + "%");
+            }else {
+                cri.where().andNotLike("party", "%" + party + "%");
+            }
+        }//.and("create_Time",">",list.get(0).getCreateTime()))
+        if (!StrUtils.isBlank(age) && !"全部".equals(age)) {
+            Date startDate= DateUtil.addYears(new Date(),-Integer.parseInt(age));
+            Date endDate= DateUtil.addYears(new Date(),-(Integer.parseInt(age)+9));
+            if ("60".equals(age)){
+                endDate= DateUtil.addYears(new Date(),-(Integer.parseInt(age)+200));
+            }
+            cri.where().and("birthday",">=", endDate).and("birthday","<=",startDate);
+        }
+        if (!StrUtils.isBlank(duty) && !"全部".equals(duty)) {
+            if ("其他".equals(duty)){
+                cri.where().andNotEquals("position","县处级正职").andNotEquals("position","县处级副职").andNotEquals("position","乡科级正职").andNotEquals("position","乡科级副职");
+            }else {
+                cri.where().andEquals("position", duty);
+            }
+        }
+        cri.getOrderBy().asc("people_Order");
+        peopleList = dao.query(SYS_People.class, cri, pager);
+        if (StrUtils.isBlank(pager)) {
+            pager = new Pager();
+        }
+        pager.setRecordCount(dao.count(SYS_People.class, cri));
+        QueryResult queryResult = new QueryResult(peopleList, pager);
+        return queryResult;
+    }
 
-
+    public List<SYS_People> selectPeopleDetailInfos(String[] arr,String sex,String party,String age,String duty){
+        List<SYS_People> peopleList = new ArrayList<>();
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrArray("unit_Id",arr);
+        if (!StrUtils.isBlank(sex) && !"全部".equals(sex)) {//市
+            cri.where().andLike("sex", "%" + sex + "%");
+        }
+        if (!StrUtils.isBlank(party) && !"全部".equals(party)) {
+            if ("党员".equals(party)){
+                cri.where().andLike("party", "%" + party + "%");
+            }else {
+                cri.where().andNotLike("party", "%" + party + "%");
+            }
+        }//.and("create_Time",">",list.get(0).getCreateTime()))
+        if (!StrUtils.isBlank(age) && !"全部".equals(age)) {
+            Date startDate= DateUtil.addYears(new Date(),-Integer.parseInt(age));
+            Date endDate= DateUtil.addYears(new Date(),-(Integer.parseInt(age)+9));
+            if ("60".equals(age)){
+                endDate= DateUtil.addYears(new Date(),-(Integer.parseInt(age)+200));
+            }
+            cri.where().and("birthday",">=", endDate).and("birthday","<=",startDate);
+        }
+        if (!StrUtils.isBlank(duty) && !"全部".equals(duty)) {
+            if ("其他".equals(duty)){
+                cri.where().andNotEquals("position","县处级正职").andNotEquals("position","县处级副职").andNotEquals("position","乡科级正职").andNotEquals("position","乡科级副职");
+            }else {
+                cri.where().andEquals("position", duty);
+            }
+        }
+        cri.getOrderBy().asc("people_Order");
+        peopleList = dao.query(SYS_People.class, cri);
+        if (!StrUtils.isBlank(peopleList) && peopleList.size()>0) {
+            return peopleList;
+        }else{
+            return null;
+        }
+    }
     @Override
     public SYS_People selectPeopleById(String id) {
         List<SYS_People> list = new ArrayList<>();

@@ -475,4 +475,80 @@ public class PeopleController {
         }
         return peopleList;
     }
+
+    @ApiOperation(value = "人员详情", notes = "人员详情", httpMethod = "GET", tags = "人员详情接口")
+    @GetMapping(value = "/peopleDetailInfo")
+    @ResponseBody
+    public String peopleDetailInfo(@RequestParam(value = "size", required = false) String pageSize,
+                                   @RequestParam(value = "page", required = false) String pageNumber,
+                                   @RequestParam(value = "isChild", required = false) String isChild,
+                                   @RequestParam(value = "childUnit", required = false) String childUnit,
+                                   @RequestParam(value = "unitId", required = false) String unitId,
+                                   @RequestParam(value = "sex", required = false) String sex,
+                                   @RequestParam(value = "party", required = false) String party,
+                                   @RequestParam(value = "age", required = false) String age,
+                                   @RequestParam(value = "duty", required = false) String duty,HttpServletRequest request) {
+        try {
+            String[] arr;
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                arr = new String[]{unitId};
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+            }
+            QueryResult queryResult = peopleService.selectPeopleDetailInfo(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), arr, sex, party, age, duty);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出人员详情信息", notes = "导出人员详情信息", httpMethod = "POST", tags = "导出人员详情信息接口")
+    @RequestMapping(value = "/outPeopleDetailExcel")
+    public String outPeopleDetailExcel(HttpServletRequest request, HttpServletResponse response,
+                                       @RequestParam(value = "isChild", required = false) String isChild,
+                                       @RequestParam(value = "childUnit", required = false) String childUnit,
+                                       @RequestParam(value = "unitId", required = false) String unitId,
+                                       @RequestParam(value = "sex", required = false) String sex,
+                                       @RequestParam(value = "age", required = false) String age,
+                                       @RequestParam(value = "party", required = false) String party,
+                                       @RequestParam(value = "duty", required = false) String duty) {
+        try {
+            String[] arr;
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                arr = new String[]{unitId};
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+            }
+            List<SYS_People> peopleList = peopleService.selectPeopleDetailInfos(arr, sex, party, age, duty);
+            if (peopleList==null){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            ClassPathResource resource = new ClassPathResource("exportExcel/exportPeopleDetailInfo.xls");
+            String path = resource.getFile().getPath();
+            String[] dataArr = {"name", "unitName", "idcard", "birthday", "age","sex", "nationality", "workday", "party",
+                    "position", "positionLevel", "politicalStatus"};
+            Workbook temp = ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.createExcelFile(temp.getSheet("人员详情"), 2, peopleList, dataArr);
+            temp.write(response.getOutputStream());
+            temp.close();
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, peopleList, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
 }
