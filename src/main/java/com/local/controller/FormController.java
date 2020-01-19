@@ -485,25 +485,30 @@ public class FormController {
                 }
             }
             FormModel model = new FormModel();
+            int fukeN=0,zhengKeN=0,zhengChuN=0,fuChuN=0;
             List<SYS_People> fuke = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级副职", "在职");
             if (fuke != null) {
                 model.setFuKe(fuke.size());
+                fukeN+=fuke.size();
             }
             List<SYS_People> zhengKe = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级正职", "在职");
             if (zhengKe != null) {
                 model.setZhengChu(zhengKe.size());
+                zhengKeN+=zhengKe.size();
             }
             List<SYS_People> fuChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级副职", "在职");
             if (fuChu != null) {
                 model.setFuChu(fuChu.size());
+                fuChuN+=fuChu.size();
             }
             List<SYS_People> zhengChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级正职", "在职");
             if (zhengChu != null) {
                 model.setZhengChu(zhengChu.size());
+                zhengChuN+=zhengChu.size();
             }
             List<SYS_People> all = peopleService.selectPeoplesByUnitIds(arr,"在职");
             if (all != null) {
-                model.setQita(all.size()-(zhengChu.size()+fuChu.size()+zhengKe.size()+fuke.size()));
+                model.setQita(all.size()-(zhengChuN+fuChuN+zhengKeN+fukeN));
             }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
         } catch (Exception e) {
