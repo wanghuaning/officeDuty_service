@@ -337,7 +337,7 @@ public class PeopleController {
                         ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
                         age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
                     }
-                    if (people.getPosition().contains("县处级正职")) {
+                    if (people.getSex().contains("男")) {
                         people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
                         if (age == 60) {
                             peopleList.add(people);
@@ -351,22 +351,22 @@ public class PeopleController {
                         if (age3 == 60 && bmonth == (nmonth+3)) {
                             peopleList.add(people);
                         }
-                    } else if (people.getPosition().contains("县处级副职")) {
-                        people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
-                        if (age == 60 && bmonth == nmonth) {
-                            peopleList.add(people);
-                        }
-                        if (age1 == 60 && bmonth == (nmonth+1)) {
-                            peopleList.add(people);
-                        }
-                        if (age2 == 60 && bmonth == (nmonth+2)) {
-                            peopleList.add(people);
-                        }
-                        if (age3 == 60 && bmonth == (nmonth+3)) {
-                            peopleList.add(people);
-                        }
-                    } else if (people.getPosition().contains("乡科级正职")) {
-                        if (people.getSex().contains("男")) {
+                    }else{
+                        if (people.getPosition().contains("县处级正职")) {
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            if (age == 60) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                                peopleList.add(people);
+                            }
+                        } else if (people.getPosition().contains("县处级副职")) {
                             people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
                             if (age == 60 && bmonth == nmonth) {
                                 peopleList.add(people);
@@ -380,23 +380,49 @@ public class PeopleController {
                             if (age3 == 60 && bmonth == (nmonth+3)) {
                                 peopleList.add(people);
                             }
+                        } else if (people.getPosition().contains("乡科级正职")) {
+                                people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
+                                if (age == 55 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                                if (age1 == 55 && bmonth == (nmonth+1)) {
+                                    peopleList.add(people);
+                                }
+                                if (age2 == 55 && bmonth == (nmonth+2)) {
+                                    peopleList.add(people);
+                                }
+                                if (age3 == 55 && bmonth == (nmonth+3)) {
+                                    peopleList.add(people);
+                                }
+                        } else if (people.getPosition().contains("乡科级副职")) {
+                                people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                                if (age == 55 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                                if (age1 == 55 && bmonth == (nmonth+1)) {
+                                    peopleList.add(people);
+                                }
+                                if (age2 == 55 && bmonth == (nmonth+2)) {
+                                    peopleList.add(people);
+                                }
+                                if (age3 == 55 && bmonth == (nmonth+3)) {
+                                    peopleList.add(people);
+                                }
+                        } else if (people.getPosition().contains("科员")) {
+                                people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
+                                if (age == 55 && bmonth == nmonth) {
+                                    peopleList.add(people);
+                                }
+                                if (age1 == 55 && bmonth == (nmonth+1)) {
+                                    peopleList.add(people);
+                                }
+                                if (age2 == 55 && bmonth == (nmonth+2)) {
+                                    peopleList.add(people);
+                                }
+                                if (age3 == 55 && bmonth == (nmonth+3)) {
+                                    peopleList.add(people);
+                                }
                         } else {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
-                            if (age == 55 && bmonth == nmonth) {
-                                peopleList.add(people);
-                            }
-                            if (age1 == 55 && bmonth == (nmonth+1)) {
-                                peopleList.add(people);
-                            }
-                            if (age2 == 55 && bmonth == (nmonth+2)) {
-                                peopleList.add(people);
-                            }
-                            if (age3 == 55 && bmonth == (nmonth+3)) {
-                                peopleList.add(people);
-                            }
-                        }
-                    } else if (people.getPosition().contains("乡科级副职")) {
-                        if (people.getSex().contains("男")) {
                             people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
                             if (age == 60 && bmonth == nmonth) {
                                 peopleList.add(people);
@@ -410,64 +436,6 @@ public class PeopleController {
                             if (age3 == 60 && bmonth == (nmonth+3)) {
                                 peopleList.add(people);
                             }
-                        } else {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
-                            if (age == 55 && bmonth == nmonth) {
-                                peopleList.add(people);
-                            }
-                            if (age1 == 55 && bmonth == (nmonth+1)) {
-                                peopleList.add(people);
-                            }
-                            if (age2 == 55 && bmonth == (nmonth+2)) {
-                                peopleList.add(people);
-                            }
-                            if (age3 == 55 && bmonth == (nmonth+3)) {
-                                peopleList.add(people);
-                            }
-                        }
-                    } else if (people.getPosition().contains("科员")) {
-                        if (people.getSex().contains("男")) {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
-                            if (age == 60 && bmonth == nmonth) {
-                                peopleList.add(people);
-                            }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
-                                peopleList.add(people);
-                            }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
-                                peopleList.add(people);
-                            }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
-                                peopleList.add(people);
-                            }
-                        } else {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
-                            if (age == 55 && bmonth == nmonth) {
-                                peopleList.add(people);
-                            }
-                            if (age1 == 55 && bmonth == (nmonth+1)) {
-                                peopleList.add(people);
-                            }
-                            if (age2 == 55 && bmonth == (nmonth+2)) {
-                                peopleList.add(people);
-                            }
-                            if (age3 == 55 && bmonth == (nmonth+3)) {
-                                peopleList.add(people);
-                            }
-                        }
-                    } else {
-                        people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
-                        if (age == 60 && bmonth == nmonth) {
-                            peopleList.add(people);
-                        }
-                        if (age1 == 60 && bmonth == (nmonth+1)) {
-                            peopleList.add(people);
-                        }
-                        if (age2 == 60 && bmonth == (nmonth+2)) {
-                            peopleList.add(people);
-                        }
-                        if (age3 == 60 && bmonth == (nmonth+3)) {
-                            peopleList.add(people);
                         }
                     }
                 }

@@ -710,11 +710,12 @@ public class DataController {
     public String getProcess(@RequestParam(value = "size", required = false) String pageSize,
                              @RequestParam(value = "page", required = false) String pageNumber,
                              @RequestParam(value = "unitName", required = false) String unitName,
-                             @RequestParam(value = "approveFlag", required = false) String approveFlag, HttpServletRequest request) {
+                             @RequestParam(value = "approveFlag", required = false) String approveFlag,
+                             @RequestParam(value = "states", required = false) String states, HttpServletRequest request) {
         try {
             SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user != null) {
-                QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag);
+                QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag,states);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
