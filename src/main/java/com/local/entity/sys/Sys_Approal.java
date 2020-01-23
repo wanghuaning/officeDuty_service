@@ -255,7 +255,6 @@ public class Sys_Approal {
   @ColDefine(type = ColType.VARCHAR,width = 8)
   private String threeClerkVacancyNum="0";
 
-  @Default(value = "0")
   @ApiModelProperty("四级主任科员职数空缺")
   @Comment("四级主任科员职数空缺")
   @Column("four_Clerk_Vacancy_Num")
