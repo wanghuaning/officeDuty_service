@@ -664,7 +664,7 @@ public class DataManager {
         }
     }
 
-    public static ReimbursementModel exportPeopleData(HttpServletResponse response, PeopleService peopleService, String peopleId,
+    public static ReimbursementModel exportFreePeople(HttpServletResponse response, PeopleService peopleService, String peopleId,
                                                       RankService rankService, EducationService educationService,
                                                       AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
@@ -707,17 +707,35 @@ public class DataManager {
                 reimbursementModel.setWorkEducation(education1.getName());
                 reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
             }
-            List<SYS_Assessment> assessment = assessmentService.selectKaoHeByPidAndResult(peopleId, "优秀");
-            if (assessment != null) {
-                reimbursementModel.setSuperYears(String.valueOf(assessment.size()));
-            } else {
-                reimbursementModel.setSuperYears("0");
+            List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
+            int youxiu=0,hege=0,buhege=0;
+            if (assessments != null) {
+                for (SYS_Assessment assessment: assessments){
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear()>2018){
+                        youxiu++;
+                    }
+                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())){
+                        buhege++;
+                    }
+                    if (!"优秀".equals(assessment.getName())&& !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())){
+                        hege++;
+                    }
+                }
             }
-            List<SYS_Assessment> assessment1 = assessmentService.selectKaoHeByPidAndResult(peopleId, "优秀");
-            if (assessment != null) {
-                reimbursementModel.setSuperYears(String.valueOf(assessment.size()));
-            } else {
-                reimbursementModel.setSuperYears("0");
+            if (youxiu>0){
+                reimbursementModel.setSuperYears(String.valueOf(youxiu));
+            }else {
+                reimbursementModel.setSuperYears("");
+            }
+            if (hege>0){
+                reimbursementModel.setCompetentYears(String.valueOf(hege));
+            }else {
+                reimbursementModel.setCompetentYears("");
+            }
+            if (buhege>0){
+                reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
+            }else {
+                reimbursementModel.setNotCompetentYears("");
             }
             SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
             if (rank1 != null) {

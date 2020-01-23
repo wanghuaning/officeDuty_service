@@ -743,27 +743,27 @@ public class ExcelFileGenerator<T> {
         font.setFontName("仿宋");
         cellStyle.setFont(font);
         cellStyle.setWrapText(true);
-        setValue(sheet,2,2,data.getName());
-        setValue(sheet,2,8,data.getSex());
-        setValue(sheet,2,12,data.getYears());
-        setValue(sheet,4,2,data.getBirthplace());
-        setValue(sheet,4,8,data.getNationality());
-        setValue(sheet,4,12,data.getParty());
-        setValue(sheet,5,5,data.getUnitAndDuty());
-        setValue(sheet,5,12,data.getWorkday());
-        setValue(sheet,7,5,data.getFullTimeEducation());
-        setValue(sheet,7,11,data.getFullTimeSchool());
-        setValue(sheet,9,5,data.getWorkEducation());
-        setValue(sheet,9,11,data.getWorkSchool());
-        setValue(sheet,11,3,data.getDutyAndRank());
-        setValue(sheet,11,11,data.getDutyAndRankTime());
-        setValue(sheet,11,14,data.getLevel());
-        setValue(sheet,14,0,data.getSuperYears());
-        setValue(sheet,14,4,data.getCompetentYears());
-        setValue(sheet,14,6,data.getNotCompetentYears());
-        setValue(sheet,12,11,data.getIntendedRank());
-        setValue(sheet,15,4,data.getConvertYears());
-        setValue(sheet,14,11,data.getDeposeRank());
+        setValue(sheet,1,2,data.getName());
+        setValue(sheet,1,8,data.getSex());
+        setValue(sheet,1,12,data.getYears());
+        setValue(sheet,3,2,data.getBirthplace());
+        setValue(sheet,3,8,data.getNationality());
+        setValue(sheet,3,12,data.getParty());
+        setValue(sheet,4,4,data.getUnitAndDuty());
+        setValue(sheet,4,12,data.getWorkday());
+        setValue(sheet,6,5,data.getFullTimeEducation());
+        setValue(sheet,6,11,data.getFullTimeSchool());
+        setValue(sheet,8,5,data.getWorkEducation());
+        setValue(sheet,8,11,data.getWorkSchool());
+        setValue(sheet,10,3,data.getDutyAndRank());
+        setValue(sheet,10,11,data.getDutyAndRankTime());
+        setValue(sheet,10,14,data.getLevel());
+        setValue(sheet,13,0,data.getSuperYears());
+        setValue(sheet,13,4,data.getCompetentYears());
+        setValue(sheet,13,6,data.getNotCompetentYears());
+        setValue(sheet,11,11,data.getIntendedRank());
+        setValue(sheet,14,4,data.getConvertYears());
+        setValue(sheet,13,11,data.getDeposeRank());
     }
 
     /**

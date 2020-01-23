@@ -278,6 +278,26 @@ public class StrUtils {
             return String.valueOf(val);
         }
     }
+
+    /**
+     * 正数
+     * @return
+     */
+    public static int plusIntNum(int num){
+    if (num>0){
+        return num;
+    }else {
+        return 0;
+    }
+    }
+
+    public static Long plusLongNum(long num){
+        if (num>0){
+            return num;
+        }else {
+            return 0l;
+        }
+    }
     public static void main(String[] args) {
         List<String> attr=new ArrayList<String>();
         for(int i=0;i<10000;i++){

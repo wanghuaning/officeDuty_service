@@ -15,6 +15,8 @@ import java.util.List;
 
 public class FormManager {
     public static FormRankModel getApprovalDataCell(FormRankModel approalModel, String[] arr, List<SYS_People> peoples, RankService rankService, ApprovalService approvalService, UnitService unitService) {
+        long oneResearcherNum=0,towResearcherNum=0,threeResearcherNum=0,fourResearcherNum=0,oneClerkNum=0,towClerkNum=0,threeClerkNum=0,fourClerkNum=0;//核准
+        long oneResearcherNumLave=0l,towResearcherNumLave=0l,threeResearcherNumLave=0l,fourResearcherNumLave=0l,oneClerkNumLave=0l,towClerkNumLave=0l,threeClerkNumLave=0l,fourClerkNumLave=0l;//剩余四级主任科员职数
         long oneResearcherUserNum = 0,towResearcherUserNum = 0,threeResearcherUserNum = 0,fourResearcherUserNum = 0,oneClerkUserNum = 0,towClerkUserNum = 0;
         long threeClerkUserNum = 0,fourClerkUserNum = 0,oneClerk=0l,towClerk=0l,probation=0l;
         int oneResearcherNumTurn=0,towResearcherNumTurn=0,threeResearcherNumTurn=0,fourResearcherNumTurn=0,oneClerkNumTurn=0,towClerkNumTurn=0;
@@ -23,55 +25,15 @@ public class FormManager {
         long towClerkDraftingNum=0l,threeClerkDraftingNum=0l,fourClerkDraftingNum=0l;
         for (int i=0;i<arr.length;i++){
             SYS_UNIT unit=unitService.selectUnitById(arr[i]);
-            if (unit.getOneResearcherNum() > 0) {
-                approalModel.setOneResearcherNum(unit.getOneResearcherNum());
-            }
-            if (unit.getTowResearcherNum() > 0) {
-                approalModel.setTowResearcherNum(unit.getTowResearcherNum());
-            }
-            if (unit.getThreeResearcherNum() > 0) {
-                approalModel.setThreeResearcherNum(unit.getThreeResearcherNum());
-            }
-            if (unit.getFourResearcherNum() > 0) {
-                approalModel.setFourResearcherNum(unit.getFourResearcherNum());
-            }
-            if (unit.getOneClerkNum() > 0) {
-                approalModel.setOneClerkNum(unit.getOneClerkNum());
-            }
-            if (unit.getTowClerkNum() > 0) {
-                approalModel.setTowClerkNum(unit.getTowClerkNum());
-            }
-            if (unit.getThreeClerkNum() > 0) {
-                approalModel.setThreeClerkNum(unit.getThreeClerkNum());
-            }
-            if (unit.getFourClerkNum() > 0) {
-                approalModel.setFourClerkNum(unit.getFourClerkNum());
-            }
-            //剩余
-            if (unit.getOneClerkNum() > oneClerkUserNum) {
-                approalModel.setOneClerkNumLave(unit.getOneClerkNum() - oneClerkUserNum);
-            }
-            if (unit.getTowClerkNum() > towClerkUserNum) {
-                approalModel.setTowClerkNumLave(unit.getTowClerkNum() - towClerkUserNum);
-            }
-            if (unit.getThreeClerkNum() > threeClerkUserNum) {
-                approalModel.setThreeClerkNumLave(unit.getThreeClerkNum() - threeClerkUserNum);
-            }
-            if (unit.getFourClerkNum() > fourClerkUserNum) {
-                approalModel.setFourClerkNumLave(unit.getFourClerkNum() - fourClerkUserNum);
-            }
-            if (unit.getOneResearcherNum() > oneResearcherUserNum) {
-                approalModel.setOneResearcherNumLave(unit.getOneResearcherNum() - oneResearcherUserNum);
-            }
-            if (unit.getTowResearcherNum() > towResearcherUserNum) {
-                approalModel.setTowResearcherNumLave(unit.getTowResearcherNum() - towResearcherUserNum);
-            }
-            if (unit.getThreeResearcherNum() > threeResearcherUserNum) {
-                approalModel.setThreeResearcherNumLave(unit.getThreeResearcherNum() - threeResearcherUserNum);
-            }
-            if (unit.getFourResearcherNum() > fourResearcherUserNum) {
-                approalModel.setFourResearcherNumLave(unit.getFourResearcherNum() - fourResearcherUserNum);
-            }
+            //核准
+            oneResearcherNum+=unit.getOneResearcherNum();
+            towResearcherNum+=unit.getTowResearcherNum();
+            threeResearcherNum+=unit.getThreeResearcherNum();
+            fourResearcherNum+=unit.getFourResearcherNum();
+            oneClerkNum+=unit.getOneClerkNum();
+            towClerkNum+=unit.getTowClerkNum();
+            threeClerkNum+=unit.getThreeClerkNum();
+            fourClerkNum+=unit.getFourClerkNum();
             //套转信息
             String unitId=arr[i];
             List<SYS_Rank> oneranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级调研员");
@@ -159,6 +121,14 @@ public class FormManager {
                 }
             }
         }
+        approalModel.setOneResearcherNum(oneResearcherNum);
+        approalModel.setTowResearcherNum(towResearcherNum);
+        approalModel.setThreeResearcherNum(threeResearcherNum);
+        approalModel.setFourResearcherNum(fourResearcherNum);
+        approalModel.setOneClerkNum(oneClerkNum);
+        approalModel.setTowClerkNum(towClerkNum);
+        approalModel.setThreeClerkNum(threeClerkNum);
+        approalModel.setFourClerkNum(fourClerkNum);
         approalModel.setOneResearcherNumNow(oneResearcherUserNum);
         approalModel.setTowResearcherNumNow(towResearcherUserNum);
         approalModel.setThreeResearcherNumNow(threeResearcherUserNum);
@@ -189,6 +159,15 @@ public class FormManager {
         approalModel.setTowClerkDraftingNum(towClerkDraftingNum);
         approalModel.setThreeClerkDraftingNum(threeClerkDraftingNum);
         approalModel.setFourClerkDraftingNum(fourClerkDraftingNum);
+        //剩余
+        approalModel.setOneClerkNumLave(StrUtils.plusLongNum(oneClerkNum - oneClerkUserNum));
+        approalModel.setTowClerkNumLave(StrUtils.plusLongNum(towClerkNum - towClerkUserNum));
+        approalModel.setThreeClerkNumLave(StrUtils.plusLongNum(threeClerkNum - threeClerkUserNum));
+        approalModel.setFourClerkNumLave(StrUtils.plusLongNum(fourClerkNum - fourClerkUserNum));
+        approalModel.setOneResearcherNumLave(StrUtils.plusLongNum(oneResearcherNum - oneResearcherUserNum));
+        approalModel.setTowResearcherNumLave(StrUtils.plusLongNum(towResearcherNum - towResearcherUserNum));
+        approalModel.setThreeResearcherNumLave(StrUtils.plusLongNum(threeResearcherNum - threeResearcherUserNum));
+        approalModel.setFourResearcherNumLave(StrUtils.plusLongNum(fourResearcherNum - fourResearcherUserNum));
         return approalModel;
     }
 

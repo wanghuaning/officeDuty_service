@@ -190,25 +190,6 @@ public class DataController {
         }
     }
 
-
-    @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "GET", tags = "导出人员信息接口")
-    @RequestMapping(value = "/exportPeopleData")
-    public String exportPeopleData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
-            , @RequestParam(value = "peopleId", required = false) String peopleId) {
-        try {
-            if ("reimbursement".equals(flag)) {
-                ReimbursementModel reimbursementModel = DataManager.exportPeopleData(response, peopleService, peopleId,
-                        rankService, educationService, assessmentService, unitService);
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, reimbursementModel, null).getJson();
-            } else {
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "OK!", null).getJson();
-            }
-        } catch (Exception e) {
-            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
-            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
-        }
-    }
-
     @ApiOperation(value = "导入人员信息", notes = "导入人员信息", httpMethod = "POST", tags = "导入人员信息接口")
     @RequestMapping(value = "/importPeople")
     public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile, @RequestParam(value = "fullImport", required = false) String fullImport) {
@@ -1164,6 +1145,18 @@ public class DataController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出公务员职级任免审批表", notes = "导出公务员职级任免审批表", httpMethod = "GET", tags = "导出公务员职级任免审批表接口")
+    @RequestMapping(value = "/exportFreePeople")
+    public String exportFreePeople(HttpServletRequest request, HttpServletResponse response , @RequestParam(value = "peopleId", required = false) String peopleId) {
+        try {
+            ReimbursementModel model=DataManager.exportFreePeople(response, peopleService,  peopleId,rankService,  educationService,assessmentService,  unitService);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
 }

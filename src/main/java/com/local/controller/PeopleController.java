@@ -221,20 +221,21 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "到期退休", notes = "到期退休", httpMethod = "GET", tags = "到期退休接口")
     @GetMapping("/retireInfo")
     @ResponseBody
     public String getRetireInfo(@RequestParam(value = "size", required = false) String pageSize,
-                             @RequestParam(value = "page", required = false) String pageNumber,
-                             @RequestParam(value = "isChild", required = false) String isChild,
-                             @RequestParam(value = "childUnit", required = false) String childUnit,
+                                @RequestParam(value = "page", required = false) String pageNumber,
+                                @RequestParam(value = "isChild", required = false) String isChild,
+                                @RequestParam(value = "childUnit", required = false) String childUnit,
                                 @RequestParam(value = "unitId", required = false) String unitId,
-                             @RequestParam(value = "states", required = false) String states,HttpServletRequest request) {
+                                @RequestParam(value = "states", required = false) String states, HttpServletRequest request) {
         try {
             String[] arr;
             if (!"true".equals(isChild)) {
                 //从请求的header中取出当前登录的登录
-                    arr = new String[]{unitId};
+                arr = new String[]{unitId};
             } else {
                 if (!StrUtils.isBlank(childUnit)) {
                     childUnit = childUnit.substring(1, childUnit.length() - 1);
@@ -243,7 +244,7 @@ public class PeopleController {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                 }
             }
-            List<SYS_People> peopleList =new ArrayList<>();
+            List<SYS_People> peopleList = new ArrayList<>();
             getRetireInfoData(peopleList, arr, states);
             Pager pager = new Pager();
             pager.setPageNumber(Integer.parseInt(pageNumber));
@@ -256,6 +257,7 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
     @RequestMapping(value = "/outRetirExcel")
     public String outRetirePeopleExcel(HttpServletRequest request, HttpServletResponse response,
@@ -276,11 +278,11 @@ public class PeopleController {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                 }
             }
-            List<SYS_People> peopleList =new ArrayList<>();
+            List<SYS_People> peopleList = new ArrayList<>();
             getRetireInfoData(peopleList, arr, states);
             ClassPathResource resource = new ClassPathResource("exportExcel/exportRetirePeopleInfo.xls");
             String path = resource.getFile().getPath();
-            String[] dataArr = {"name", "unitName", "idcard", "birthday", "retireDate","sex", "nationality", "workday", "party",
+            String[] dataArr = {"name", "unitName", "idcard", "birthday", "retireDate", "sex", "nationality", "workday", "party",
                     "position", "positionLevel", "politicalStatus"};
             Workbook temp = ExcelFileGenerator.getTeplet(path);
             ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
@@ -295,22 +297,22 @@ public class PeopleController {
         }
     }
 
-    public List<SYS_People> getRetireInfoData(List<SYS_People> peopleList,String[] arr,String states)throws Exception{
+    public List<SYS_People> getRetireInfoData(List<SYS_People> peopleList, String[] arr, String states) throws Exception {
         List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr, "在职");
         if (peoples != null) {
             for (SYS_People people : peoples) {
                 if (people.getBirthday() != null && people.getPosition() != null) {
-                    if (StrUtils.isBlank(people.getUnitName())){
-                        SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
-                        if (unit!=null){
+                    if (StrUtils.isBlank(people.getUnitName())) {
+                        SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+                        if (unit != null) {
                             people.setUnitName(unit.getName());
                         }
                     }
                     int bmonth = DateUtil.getMonth(people.getBirthday());
                     int nmonth = DateUtil.getMonth(new Date());
-                    int age =0,age1=0,age2=0,age3=0;
+                    int age = 0, age1 = 0, age2 = 0, age3 = 0;
                     //获取前月的最后一天
-                    if ("1".equals(states) || "全部".equals(states)){
+                    if ("1".equals(states) || "全部".equals(states)) {
                         Calendar ca = Calendar.getInstance();
                         ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
                         age = DateUtil.getAgeByMonth(people.getBirthday(), ca);
@@ -338,102 +340,102 @@ public class PeopleController {
                         age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
                     }
                     if (people.getSex().contains("男")) {
-                        people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                        people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                         if (age == 60) {
                             peopleList.add(people);
                         }
-                        if (age1 == 60 && bmonth == (nmonth+1)) {
+                        if (age1 == 60 && bmonth == (nmonth + 1)) {
                             peopleList.add(people);
                         }
-                        if (age2 == 60 && bmonth == (nmonth+2)) {
+                        if (age2 == 60 && bmonth == (nmonth + 2)) {
                             peopleList.add(people);
                         }
-                        if (age3 == 60 && bmonth == (nmonth+3)) {
+                        if (age3 == 60 && bmonth == (nmonth + 3)) {
                             peopleList.add(people);
                         }
-                    }else{
+                    } else {
                         if (people.getPosition().contains("县处级正职")) {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                             if (age == 60) {
                                 peopleList.add(people);
                             }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                            if (age1 == 60 && bmonth == (nmonth + 1)) {
                                 peopleList.add(people);
                             }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                            if (age2 == 60 && bmonth == (nmonth + 2)) {
                                 peopleList.add(people);
                             }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                            if (age3 == 60 && bmonth == (nmonth + 3)) {
                                 peopleList.add(people);
                             }
                         } else if (people.getPosition().contains("县处级副职")) {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                             if (age == 60 && bmonth == nmonth) {
                                 peopleList.add(people);
                             }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                            if (age1 == 60 && bmonth == (nmonth + 1)) {
                                 peopleList.add(people);
                             }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                            if (age2 == 60 && bmonth == (nmonth + 2)) {
                                 peopleList.add(people);
                             }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                            if (age3 == 60 && bmonth == (nmonth + 3)) {
                                 peopleList.add(people);
                             }
                         } else if (people.getPosition().contains("乡科级正职")) {
-                                people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
-                                if (age == 55 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                                if (age1 == 55 && bmonth == (nmonth+1)) {
-                                    peopleList.add(people);
-                                }
-                                if (age2 == 55 && bmonth == (nmonth+2)) {
-                                    peopleList.add(people);
-                                }
-                                if (age3 == 55 && bmonth == (nmonth+3)) {
-                                    peopleList.add(people);
-                                }
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(), 55));
+                            if (age == 55 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 55 && bmonth == (nmonth + 1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 55 && bmonth == (nmonth + 2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 55 && bmonth == (nmonth + 3)) {
+                                peopleList.add(people);
+                            }
                         } else if (people.getPosition().contains("乡科级副职")) {
-                                people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
-                                if (age == 55 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                                if (age1 == 55 && bmonth == (nmonth+1)) {
-                                    peopleList.add(people);
-                                }
-                                if (age2 == 55 && bmonth == (nmonth+2)) {
-                                    peopleList.add(people);
-                                }
-                                if (age3 == 55 && bmonth == (nmonth+3)) {
-                                    peopleList.add(people);
-                                }
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
+                            if (age == 55 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 55 && bmonth == (nmonth + 1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 55 && bmonth == (nmonth + 2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 55 && bmonth == (nmonth + 3)) {
+                                peopleList.add(people);
+                            }
                         } else if (people.getPosition().contains("科员")) {
-                                people.setRetireDate(DateUtil.addYears(people.getBirthday(),55));
-                                if (age == 55 && bmonth == nmonth) {
-                                    peopleList.add(people);
-                                }
-                                if (age1 == 55 && bmonth == (nmonth+1)) {
-                                    peopleList.add(people);
-                                }
-                                if (age2 == 55 && bmonth == (nmonth+2)) {
-                                    peopleList.add(people);
-                                }
-                                if (age3 == 55 && bmonth == (nmonth+3)) {
-                                    peopleList.add(people);
-                                }
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(), 55));
+                            if (age == 55 && bmonth == nmonth) {
+                                peopleList.add(people);
+                            }
+                            if (age1 == 55 && bmonth == (nmonth + 1)) {
+                                peopleList.add(people);
+                            }
+                            if (age2 == 55 && bmonth == (nmonth + 2)) {
+                                peopleList.add(people);
+                            }
+                            if (age3 == 55 && bmonth == (nmonth + 3)) {
+                                peopleList.add(people);
+                            }
                         } else {
-                            people.setRetireDate(DateUtil.addYears(people.getBirthday(),60));
+                            people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                             if (age == 60 && bmonth == nmonth) {
                                 peopleList.add(people);
                             }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
+                            if (age1 == 60 && bmonth == (nmonth + 1)) {
                                 peopleList.add(people);
                             }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
+                            if (age2 == 60 && bmonth == (nmonth + 2)) {
                                 peopleList.add(people);
                             }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
+                            if (age3 == 60 && bmonth == (nmonth + 3)) {
                                 peopleList.add(people);
                             }
                         }
@@ -455,7 +457,7 @@ public class PeopleController {
                                    @RequestParam(value = "sex", required = false) String sex,
                                    @RequestParam(value = "party", required = false) String party,
                                    @RequestParam(value = "age", required = false) String age,
-                                   @RequestParam(value = "duty", required = false) String duty,HttpServletRequest request) {
+                                   @RequestParam(value = "duty", required = false) String duty, HttpServletRequest request) {
         try {
             String[] arr;
             if (!"true".equals(isChild)) {
@@ -501,12 +503,12 @@ public class PeopleController {
                 }
             }
             List<SYS_People> peopleList = peopleService.selectPeopleDetailInfos(arr, sex, party, age, duty);
-            if (peopleList==null){
+            if (peopleList == null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
             ClassPathResource resource = new ClassPathResource("exportExcel/exportPeopleDetailInfo.xls");
             String path = resource.getFile().getPath();
-            String[] dataArr = {"name", "unitName", "idcard", "birthday", "age","sex", "nationality", "workday", "party",
+            String[] dataArr = {"name", "unitName", "idcard", "birthday", "age", "sex", "nationality", "workday", "party",
                     "position", "positionLevel", "politicalStatus"};
             Workbook temp = ExcelFileGenerator.getTeplet(path);
             ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
@@ -517,6 +519,26 @@ public class PeopleController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
+    @GetMapping(value = "/peopleInfo")
+    @ResponseBody
+    public String getPeopleInfo(@RequestParam(value = "peopleId", required = false) String peopleId) {
+        try {
+            if (StrUtils.isBlank(peopleId)) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            SYS_People people = peopleService.selectPeopleById(peopleId);
+            if (people != null) {
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, people, null).getJson();
+            } else {
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, new ArrayList<SYS_People>(), null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
 }
