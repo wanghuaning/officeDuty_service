@@ -225,6 +225,16 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 16)
   private String states;
 
+  @ApiModelProperty("离职时间")
+  @Comment("离职时间")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @Column("out_Time")
+  @ColDefine(type = ColType.DATETIME)
+  private Date outTime;
+
+  private String outTimeStr;
+
   private Date retireDate;
 
   private int age;
@@ -235,6 +245,22 @@ public class SYS_People implements Serializable {
     }else {
       return 0;
     }
+  }
+
+  public Date getOutTime() {
+    return outTime;
+  }
+
+  public void setOutTime(Date outTime) {
+    this.outTime = outTime;
+  }
+
+  public String getOutTimeStr() {
+    return DateUtil.dateToString(outTime);
+  }
+
+  public void setOutTimeStr(String outTimeStr) {
+    this.outTimeStr = outTimeStr;
   }
 
   public void setAge(int age) {

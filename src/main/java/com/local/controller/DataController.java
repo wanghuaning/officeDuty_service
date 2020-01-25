@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.unit.DataUnit;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -819,6 +820,7 @@ public class DataController {
             } else {
                 unitArr = new String[]{""};
             }
+
 //                units = unitService.selectAllChildUnits(user.getUnitId());
             CompleteModel totalModel = new CompleteModel();
             int firstBatch = 0, secondBatch = 0, thirdBatch = 0, fourBatch = 0, fiveBatch = 0, sexBatch = 0, total = 0;
@@ -1154,6 +1156,202 @@ public class DataController {
         try {
             ReimbursementModel model=DataManager.exportFreePeople(response, peopleService,  peopleId,rankService,  educationService,assessmentService,  unitService);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "超职级职数消化情况表初始化", notes = "超职级职数消化情况表初始化", httpMethod = "GET", tags = "超职级职数消化情况表初始化接口")
+    @RequestMapping(value = "/saveDigestData")
+    public String saveDigestData(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (user != null) {
+                SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+                if (unit==null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+                Map<String,String> map=new HashMap<>();
+                map.put("2020","1");
+                map.put("2020","2");
+                map.put("2020","3");
+                map.put("2020","4");
+                map.put("2021","1");
+                map.put("2021","2");
+                map.put("2021","3");
+                map.put("2021","4");
+                map.put("2022","1");
+                map.put("2022","2");
+                map.put("2022","3");
+                map.put("2022","4");
+                List<SYS_Digest> digestList=new ArrayList<>();
+                for (Map.Entry<String, String> m : map.entrySet()) {
+                    String quarter=m.getValue();
+                    String year=m.getKey();
+                    int startMonth=0;
+                    int endMonth=0;
+                    if (quarter.equals("1")){
+                        startMonth=1;
+                        endMonth=3;
+                    }else if (quarter.equals("2")){
+                        startMonth=4;
+                        endMonth=6;
+                    }else if (quarter.equals("3")){
+                        startMonth=7;
+                        endMonth=9;
+                    }else if (quarter.equals("4")){
+                        startMonth=10;
+                        endMonth=12;
+                    }
+                    Date startDate=DateUtil.toDate(Integer.parseInt(year),startMonth,1);
+                    Date endDate=DateUtil.toDate(Integer.parseInt(year),endMonth+1,1);
+                    SYS_Digest digest=new SYS_Digest();
+                    digest.setCreateTime(new Date());
+                    digest.setUnitId(unit.getId());
+                    digest.setUnitName(unit.getName());
+                    digest.setFlag("0");
+                    digest.setYears(year);
+                    digest.setQuarter(quarter);
+                    digest.setYearAndQuarter(digest.getYears()+"/"+quarter);
+                    digest.setOneTowClerkApprove(String.valueOf(unit.getOneTowClerkNum()));
+                    digest.setThreeFourClerkApprove(String.valueOf(unit.getThreeFourClerkNum()));
+                    List<SYS_Rank> towranks=rankService.selectRanksFlagByUnitId(unit.getId(),"是","二级主任科员");
+                    if (towranks!=null){
+                        digest.setTowClerkArbitrage(String.valueOf(towranks.size()));
+                    }
+                    List<SYS_Rank> fourranks=rankService.selectRanksFlagByUnitId(unit.getId(),"是","四级主任科员");
+                    if (fourranks!=null){
+                        digest.setFourClerkArbitrage(String.valueOf(fourranks.size()));
+                    }
+                    int trueOneTowRanks=0;
+                    int trueThreeFourRanks=0;
+                    int oneTowClerkExceed=0;
+                    int threeFourClerkExceed=0;
+                    List<SYS_Rank> trueOneRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","一级主任科员");
+                    List<SYS_Rank> trueTowRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","二级主任科员");
+                    List<SYS_Rank> trueThreeRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","三级主任科员");
+                    List<SYS_Rank> trueFourRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","四级主任科员");
+                    if (trueOneRanks!=null){
+                        trueOneTowRanks+=trueOneRanks.size();
+                    }
+                    if (trueTowRanks!=null){
+                        trueOneTowRanks+=trueTowRanks.size();
+                    }
+                    if (trueThreeRanks!=null){
+                        trueThreeFourRanks+=trueThreeRanks.size();
+                    }
+                    if (trueFourRanks!=null){
+                        trueThreeFourRanks+=trueFourRanks.size();
+                    }
+                    if ((trueOneTowRanks-unit.getOneTowClerkNum())>0){
+                        oneTowClerkExceed= (int) (trueOneTowRanks-unit.getOneTowClerkNum());
+                        digest.setOneTowClerkExceed(String.valueOf(trueOneTowRanks-unit.getOneTowClerkNum()));
+                        digest.setOneTowClerkRemove(String.valueOf(trueOneTowRanks-unit.getOneTowClerkNum()));
+                    }
+                    if ((trueThreeFourRanks-unit.getThreeFourClerkNum())>0){
+                        threeFourClerkExceed= (int) (trueThreeFourRanks-unit.getThreeFourClerkNum());
+                        digest.setThreeFourClerkExceed(String.valueOf(trueThreeFourRanks-unit.getThreeFourClerkNum()));
+                        digest.setThreeFourClerkRemove(String.valueOf(trueThreeFourRanks-unit.getThreeFourClerkNum()));
+                    }
+                    List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unit.getId(),"0","全部" );
+                    int retirePeople=0;
+                    int onealreadyRetire=0;
+                    int towalreadyRetire=0;
+                    int onejinsheng=0;
+                    int onelingdao=0;
+                    int onetuixiu=0;
+                    int onetiqiantuixiu=0;
+                    int onediaochu=0;
+                    int oneqita=0;
+                    int towjinsheng=0;
+                    int towlingdao=0;
+                    int towtuixiu=0;
+                    int towtiqiantuixiu=0;
+                    int towdiaochu=0;
+                    int towqita=0;
+                    if (peopleList!=null){
+                        for (SYS_People people:peopleList){
+                            SYS_Rank rank=rankService.selectTurnRankById(people.getId());
+                            if (rank!=null){
+                                if (rank.getName().contains("一级主任科员") || rank.getName().contains("二级主任科员") || rank.getName().contains("三级主任科员") || rank.getName().contains("四级主任科员")){
+                                    if (people.getStates().contains("在职")){
+                                        if (people.getPosition()!=null && people.getSex()!=null && people.getBirthday()!=null){//到期退休
+                                            Date retireTime=DataManager.getRetirTime(people.getPosition(),people.getBirthday(),people.getSex());
+                                            if (startDate.compareTo(retireTime)>=0 && endDate.compareTo(retireTime)<0){
+                                                retirePeople++;
+                                            }
+                                        }
+                                        SYS_Rank sys_rank=rankService.selectRankByPidAndTimeOrderByTime(people.getId(),rank.getRankTime(),rank.getName());
+                                        if (sys_rank!=null){
+                                            if (sys_rank.getName().contains("一级主任科员") || sys_rank.getName().contains("二级主任科员")) {
+                                                onejinsheng++;
+                                            }else if (sys_rank.getName().contains("三级主任科员") || sys_rank.getName().contains("四级主任科员")){
+                                                towjinsheng++;
+                                            }
+                                        }
+                                        SYS_Rank sys_rank1=rankService.selectAprodRanksByPid(people.getId());
+                                        SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
+                                        if (sys_rank1!=null && sys_duty!=null){
+                                            if (sys_rank1.getStatus().contains("已免")){
+                                                if (sys_rank1.getName().contains("一级主任科员") || sys_rank1.getName().contains("二级主任科员")) {
+                                                    onelingdao++;
+                                                }else if (sys_rank1.getName().contains("三级主任科员") || sys_rank1.getName().contains("四级主任科员")){
+                                                    towlingdao++;
+                                                }
+                                            }
+                                        }
+
+                                    }else {//已离职
+                                        if (people.getOutTime()!=null){
+                                            if (startDate.compareTo(people.getOutTime())>=0 && endDate.compareTo(people.getOutTime())<0){
+                                                    if (rank.getName().contains("一级主任科员") || rank.getName().contains("二级主任科员")){
+                                                        //离职消化途径
+                                                        if (people.getStates()=="退休"){
+                                                            onetuixiu++;
+                                                        }else if (people.getStates()=="提前退休"){
+                                                            onetiqiantuixiu++;
+                                                        }else if (people.getStates()=="调出"){
+                                                            onediaochu++;
+                                                        }else if (people.getStates()=="其他"){
+                                                            oneqita++;
+                                                        }
+                                                    }else if (rank.getName().contains("三级主任科员") || rank.getName().contains("四级主任科员")){
+                                                        //离职消化途径
+                                                        if (people.getStates()=="退休"){
+                                                            towtuixiu++;
+                                                        }else if (people.getStates()=="提前退休"){
+                                                            towtiqiantuixiu++;
+                                                        }else if (people.getStates()=="调出"){
+                                                            towdiaochu++;
+                                                        }else if (people.getStates()=="其他"){
+                                                            towqita++;
+                                                        }
+                                                    }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    digest.setRetirePlanWay(String.valueOf(retirePeople));
+                    digest.setOneTowClerkSituation(String.valueOf(onealreadyRetire));
+                    digest.setThreeFourClerkSituation(String.valueOf(towalreadyRetire));
+                    digest.setRankUpWay(String.valueOf(onejinsheng+towjinsheng));
+                    digest.setLeaderDutyWay(String.valueOf(onelingdao+towlingdao));
+                    digest.setRetireWay(String.valueOf(onetuixiu+towtuixiu));
+                    digest.setEarlyRetireWay(String.valueOf(onetiqiantuixiu+towtiqiantuixiu));
+                    digest.setOutWay(String.valueOf(onediaochu+towdiaochu));
+                    digest.setOtherWay(String.valueOf(oneqita+towqita));
+                    digest.setOneTowClerkResult(String.valueOf(oneTowClerkExceed-onejinsheng-onelingdao-onetuixiu-onetiqiantuixiu-onediaochu-oneqita));
+                    digest.setThreeFourClerkResult(String.valueOf(threeFourClerkExceed-towjinsheng-towlingdao-towtuixiu-towtiqiantuixiu-towdiaochu-towqita));
+                    digestList.add(digest);
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, digestList, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();

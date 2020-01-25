@@ -16,6 +16,7 @@ public interface RankService {
     SYS_Rank selectEnableRankByPidOrderByTime(String pid);
     SYS_Rank selectNotEnableRankByPidOrderByTime(String pid);
     SYS_Rank selectNowRankByPidOrderByTime(String pid);
+    SYS_Rank selectRankByPidAndTimeOrderByTime(String pid,Date date,String duty);
     SYS_Rank selectRankByNameAndTime(String name, String peopleId, Date createTime);
     SYS_Rank selectNotAproRanksByPid(String pid);
     SYS_Rank selectAprodRanksByPid(String pid);
@@ -28,6 +29,7 @@ public interface RankService {
     void updateRank(SYS_Rank rank);
 
     List<SYS_Rank> selectRanksByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
-    List<SYS_Rank> selectRanksFlagByUnitId(String unitId, String flag,String name);//1:套转 0：晋升
+    List<SYS_Rank> selectRanksFlagByUnitId(String unitId, String flag,String name);//是:套转 否：晋升
+    List<SYS_Rank> selectRanksFlagNotTurnByUnitId(String unitId, String flag,String name);//是:套转 否：晋升 不包含军转
 
 }

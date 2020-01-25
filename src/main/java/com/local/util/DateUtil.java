@@ -70,6 +70,11 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    public static Date toDate(int year, int month,int day) throws Exception{
+        String dateStr=year+ "-"+ month + "-" + day;
+        return new SimpleDateFormat(fm).parse(dateStr);
+    }
+
     public static Date addDates(Date date, int num) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

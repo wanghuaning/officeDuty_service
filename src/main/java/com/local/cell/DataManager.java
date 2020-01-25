@@ -1824,6 +1824,7 @@ public class DataManager {
                 people.setBirthday(DateUtil.stringToDate(String.valueOf(key.get("birthdayStr"))));
                 people.setWorkday(DateUtil.stringToDate(String.valueOf(key.get("workdayStr"))));
                 people.setPositionLevelTime(DateUtil.stringToDate(String.valueOf(key.get("positionLevelTimeStr"))));
+                people.setOutTime(DateUtil.stringToDate(String.valueOf(key.get("outTimeStr"))));
 //                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
                 peoples.add(people);
             } catch (SecurityException e) {
@@ -3337,5 +3338,23 @@ public class DataManager {
              }
          }
         return value;
+    }
+
+    /**
+     * 到期退休
+     * @return
+     */
+    public static Date getRetirTime(String position,Date birthday,String sex) {
+        Date retirTime = new Date();
+        if ("男".equals(sex)) {
+            retirTime = DateUtil.addYears(birthday, 60);
+        } else {
+            if (position.contains("县处级正职") || position.contains("县处级副职") || position.contains("厅局级正职") || position.contains("厅局级副职")) {
+                retirTime = DateUtil.addYears(birthday, 60);
+            }else {
+                retirTime = DateUtil.addYears(birthday, 55);
+            }
+        }
+        return retirTime;
     }
 }

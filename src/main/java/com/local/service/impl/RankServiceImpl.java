@@ -82,10 +82,10 @@ public class RankServiceImpl implements RankService {
         cir.getOrderBy().desc("create_Time");
         list = dao.query(SYS_Rank.class, cir);
         if (list.size() > 0) {//dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).and(new Static("create_Time > to_date('"+DateUtil.dateToString(list.get(0).getCreateTime())+"')")));
-            List<SYS_Rank> nowRank=dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).and("create_Time",">",list.get(0).getCreateTime()));
-            if (nowRank!=null){
+            List<SYS_Rank> nowRank = dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).and("create_Time", ">", list.get(0).getCreateTime()));
+            if (nowRank != null) {
                 return null;
-            }else {
+            } else {
                 return list.get(0);
             }
         } else {
@@ -93,6 +93,16 @@ public class RankServiceImpl implements RankService {
         }
     }
 
+    @Override
+    public SYS_Rank selectRankByPidAndTimeOrderByTime(String pid,Date date,String duty){
+            List<SYS_Rank> nowRank = dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).
+                    and("create_Time", ">", date).and("name","!=",duty).and("status", "=","在任").desc("create_Time"));
+            if (nowRank != null) {
+                return nowRank.get(0);
+            } else {
+                return null;
+            }
+    }
     @Override
     public SYS_Rank selectRankByNameAndTime(String name, String peopleId, Date createTime) {
         List<SYS_Rank> list = new ArrayList<>();
@@ -188,10 +198,10 @@ public class RankServiceImpl implements RankService {
     }
 
     @Override
-    public SYS_Rank selectAprodRanksByPidAndBatch(String pid,String batch){
+    public SYS_Rank selectAprodRanksByPidAndBatch(String pid, String batch) {
         List<SYS_Rank> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
-        cir.where().andEquals("people_Id", pid).andNotEquals("approval_Time", null).andEquals("batch",batch);
+        cir.where().andEquals("people_Id", pid).andNotEquals("approval_Time", null).andEquals("batch", batch);
         cir.getOrderBy().desc("create_Time");
         list = dao.query(SYS_Rank.class, cir);
         if (list.size() > 0) {
@@ -200,6 +210,7 @@ public class RankServiceImpl implements RankService {
             return null;
         }
     }
+
     @Override
     public SYS_Rank selectRankById(String id) {
         List<SYS_Rank> list = new ArrayList<>();
@@ -224,6 +235,19 @@ public class RankServiceImpl implements RankService {
     public List<SYS_Rank> selectRanksFlagByUnitId(String unitId, String flag, String name) {
         Criteria cri = Cnd.cri();
         cri.where().andEquals("unit_Id", unitId).andEquals("flag", flag).andEquals("name", name);
+        List<SYS_Rank> peoples = new ArrayList<>();
+        List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_Rank> selectRanksFlagNotTurnByUnitId(String unitId, String flag, String name) {
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unit_Id", unitId).andEquals("flag", flag).andEquals("name", name).andNotEquals("detail","军转安置");
         List<SYS_Rank> peoples = new ArrayList<>();
         List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
