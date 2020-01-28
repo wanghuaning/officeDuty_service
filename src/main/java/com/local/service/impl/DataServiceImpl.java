@@ -48,4 +48,49 @@ public class DataServiceImpl implements DataService {
             return null;
         }
     }
+
+    @Override
+    public SYS_Digest selectDigestById(String id){
+        List<SYS_Digest> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("id",id);
+        list=dao.query(SYS_Digest.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "新增消化情况", type = "C")
+   public void insertDigest(SYS_Digest digest){
+        dao.insert(digest);
+   }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "修改消化情况", type = "U")
+   public void updateDigest(SYS_Digest digest){
+        dao.update(digest);
+   }
+
+   @Override
+    public QueryResult selectDigests(int pageSize, int pageNumber,String unitId){
+       Pager pager = new Pager();
+       pager.setPageNumber(pageNumber + 1);
+       pager.setPageSize(pageSize);
+       List<SYS_Digest> peopleList = new ArrayList<>();
+       Criteria cri = Cnd.cri();
+       cri.where().andEquals("unit_Id", unitId);
+       cri.getOrderBy().asc("years").asc("quarter");
+       peopleList = dao.query(SYS_Digest.class, cri, pager);
+       if (StrUtils.isBlank(pager)) {
+           pager = new Pager();
+       }
+       pager.setRecordCount(dao.count(SYS_Digest.class, cri));
+       QueryResult queryResult = new QueryResult(peopleList, pager);
+       return queryResult;
+   }
 }

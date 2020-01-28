@@ -97,7 +97,7 @@ public class RankServiceImpl implements RankService {
     public SYS_Rank selectRankByPidAndTimeOrderByTime(String pid,Date date,String duty){
             List<SYS_Rank> nowRank = dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).
                     and("create_Time", ">", date).and("name","!=",duty).and("status", "=","在任").desc("create_Time"));
-            if (nowRank != null) {
+            if (nowRank.size()>0) {
                 return nowRank.get(0);
             } else {
                 return null;

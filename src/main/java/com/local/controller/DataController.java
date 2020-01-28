@@ -1164,31 +1164,20 @@ public class DataController {
 
     @ApiOperation(value = "超职级职数消化情况表初始化", notes = "超职级职数消化情况表初始化", httpMethod = "GET", tags = "超职级职数消化情况表初始化接口")
     @RequestMapping(value = "/saveDigestData")
-    public String saveDigestData(HttpServletRequest request, HttpServletResponse response) {
+    public String saveDigestData(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitName") String unitName,
+            @RequestParam(value = "flag") String flag) {
         try {
-            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-            if (user != null) {
-                SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+            if (!StrUtils.isBlank(unitName)) {
+                SYS_UNIT unit=unitService.selectUnitByName(unitName);
                 if (unit==null){
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
-                Map<String,String> map=new HashMap<>();
-                map.put("2020","1");
-                map.put("2020","2");
-                map.put("2020","3");
-                map.put("2020","4");
-                map.put("2021","1");
-                map.put("2021","2");
-                map.put("2021","3");
-                map.put("2021","4");
-                map.put("2022","1");
-                map.put("2022","2");
-                map.put("2022","3");
-                map.put("2022","4");
+                String[] arr={"2020.1","2020.2","2020.3","2020.4","2021.1","2021.2","2021.3","2021.4","2022.1","2022.2","2022.3","2022.4"};
                 List<SYS_Digest> digestList=new ArrayList<>();
-                for (Map.Entry<String, String> m : map.entrySet()) {
-                    String quarter=m.getValue();
-                    String year=m.getKey();
+                for (int i=0;i<arr.length;i++) {
+                    String [] vua=arr[i].split("\\.");
+                    String quarter=vua[1];
+                    String year=vua[0];
                     int startMonth=0;
                     int endMonth=0;
                     if (quarter.equals("1")){
@@ -1207,6 +1196,11 @@ public class DataController {
                     Date startDate=DateUtil.toDate(Integer.parseInt(year),startMonth,1);
                     Date endDate=DateUtil.toDate(Integer.parseInt(year),endMonth+1,1);
                     SYS_Digest digest=new SYS_Digest();
+                    String uuid=unit.getId()+year+quarter;
+                    SYS_Digest sys_digest=dataService.selectDigestById(uuid);
+                    if ("1".equals(flag) && sys_digest!=null){
+                        digest=sys_digest;
+                    }else {
                     digest.setCreateTime(new Date());
                     digest.setUnitId(unit.getId());
                     digest.setUnitName(unit.getName());
@@ -1282,7 +1276,7 @@ public class DataController {
                                                 retirePeople++;
                                             }
                                         }
-                                        SYS_Rank sys_rank=rankService.selectRankByPidAndTimeOrderByTime(people.getId(),rank.getRankTime(),rank.getName());
+                                        SYS_Rank sys_rank=rankService.selectRankByPidAndTimeOrderByTime(people.getId(),rank.getCreateTime(),rank.getName());
                                         if (sys_rank!=null){
                                             if (sys_rank.getName().contains("一级主任科员") || sys_rank.getName().contains("二级主任科员")) {
                                                 onejinsheng++;
@@ -1346,6 +1340,14 @@ public class DataController {
                     digest.setOtherWay(String.valueOf(oneqita+towqita));
                     digest.setOneTowClerkResult(String.valueOf(oneTowClerkExceed-onejinsheng-onelingdao-onetuixiu-onetiqiantuixiu-onediaochu-oneqita));
                     digest.setThreeFourClerkResult(String.valueOf(threeFourClerkExceed-towjinsheng-towlingdao-towtuixiu-towtiqiantuixiu-towdiaochu-towqita));
+                    digest.setId(uuid);
+                    System.out.println(digest.getId());
+                    if (sys_digest!=null){
+                        dataService.updateDigest(digest);
+                    }else {
+                        dataService.insertDigest(digest);
+                    }
+                    }
                     digestList.add(digest);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, digestList, null).getJson();
@@ -1355,6 +1357,49 @@ public class DataController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "超职级职数消化情况表", notes = "超职级职数消化情况表", httpMethod = "GET", tags = "超职级职数消化情况表接口")
+    @GetMapping("/digestData")
+    @ResponseBody
+    public String getDigestData(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+                             @RequestParam(value = "unitName", required = false) String unitName) {
+        try {
+            if (StrUtils.isBlank(unitName)){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            SYS_UNIT unit=unitService.selectUnitByName(unitName);
+            if (unit==null){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            QueryResult queryResult = dataService.selectDigests(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unit.getId());
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "修改超职级职数消化情况表", notes = "修改超职级职数消化情况表", httpMethod = "POST", tags = "修改超职级职数消化情况表接口")
+    @PostMapping(value = "/editDigest")
+    @ResponseBody
+    public String editDigest(@Validated @RequestBody SYS_Digest digest) {
+        try {
+            SYS_Digest sys_digest = dataService.selectDigestById(digest.getId());
+            if (sys_digest != null) {
+                digest.setId(sys_digest.getId());
+                digest.setUnitId(sys_digest.getUnitId());
+                digest.setYears(sys_digest.getYears());
+                digest.setQuarter(sys_digest.getQuarter());
+                dataService.updateDigest(digest);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, digest, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
 }
