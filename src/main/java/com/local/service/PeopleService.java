@@ -26,7 +26,8 @@ public interface PeopleService {
 
     List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty,String states);
     List<SYS_People> selectPeoplesByUnitIdsAndDuty(String[] units,String duty,String states);
-    List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId,String states);
+    List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId,String states);//单列实名制
+    List<SYS_People> selectPeoplesByUnitIdAndJunZhuan(String unitId,String states,String detail);//军转
 
     List<SYS_People> selectPeoplesByUnitIds(String[] units,String states);
     List<SYS_People> selectPeoplesByUnitIds(String[] units);

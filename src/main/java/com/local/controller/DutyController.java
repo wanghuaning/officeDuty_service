@@ -48,6 +48,7 @@ public class DutyController {
     public static SYS_People setPeopleInfo(SYS_People people,DutyService dutyService,PeopleService peopleService){
             SYS_Duty sys_duty = dutyService.selectNowDutyByPidOrderByTime(people.getId());
             if (sys_duty != null) {
+                people.setRealName(sys_duty.getRealName());
                 people.setPosition(sys_duty.getName());
                 people.setPositionTime(sys_duty.getCreateTime());
                 people.setIsEnable(sys_duty.getDjunct());
@@ -56,6 +57,7 @@ public class DutyController {
                 people.setPosition("");
                 people.setPositionTime(null);
                 people.setIsEnable("否");
+                people.setRealName("否");
                 peopleService.updatePeople(people);
         }
         return people;

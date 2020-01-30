@@ -206,6 +206,30 @@ public class UnitManager {
      * @param um
      */
     public static void saveNowRank(PeopleService peopleService, String unitId, UnitModel um) {
+        List<SYS_People> zhengchu=peopleService.selectPeoplesByUnitIdAndDuty(unitId,"县处级正职","在职");
+        if (zhengchu!=null){
+            um.setRightPlaceNumNow(zhengchu.size());
+        }
+        List<SYS_People> fuchu=peopleService.selectPeoplesByUnitIdAndDuty(unitId,"县处级副职","在职");
+        if (fuchu!=null){
+            um.setDeputyPlaceNumNow(fuchu.size());
+        }
+        List<SYS_People> zhengke=peopleService.selectPeoplesByUnitIdAndDuty(unitId,"乡科级正职","在职");
+        if (zhengke!=null){
+            um.setMainHallNumNow(zhengke.size());
+        }
+        List<SYS_People> fuke=peopleService.selectPeoplesByUnitIdAndDuty(unitId,"乡科级副职","在职");
+        if (fuke!=null){
+            um.setDeputyHallNumNow(fuke.size());
+        }
+        List<SYS_People> realName=peopleService.selectPeoplesByUnitIdAndRealName(unitId,"在职");
+        if (realName!=null){
+            um.setRealNameNumNow(realName.size());
+        }
+        List<SYS_People> junzhuan=peopleService.selectPeoplesByUnitIdAndJunZhuan(unitId,"在职","军转干部");
+        if(junzhuan!=null){
+            um.setMilitaryNumNow(junzhuan.size());
+        }
         List<SYS_People> oneranks = peopleService.selectPeoplesByUnitIdAndRank(unitId, "一级调研员","在职");
         if (oneranks != null) {
             um.setOneResearcherNumNow(oneranks.size());

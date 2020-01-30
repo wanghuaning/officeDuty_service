@@ -1225,6 +1225,7 @@ public class DataManager {
             duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
             people.setPosition(duty.getName());
             people.setPositionTime(duty.getCreateTime());
+            people.setRealName("是");
             peopleService.updatePeople(people);
             SYS_Duty duty1 = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
             if ("1".equals(fullImport)) {//覆盖导入
@@ -3433,7 +3434,7 @@ public class DataManager {
              if (people.getBirthday()!=null) {
                  value = DateUtil.dateToString(people.getCreateTime());
              }
-        }else if ("特殊人员".equals(name)){
+        }else if ("特殊人员（军转不占职数等）".equals(name)){
             value=people.getDetail();
         }else if ("单列管理事由".equals(name)){
             value=people.getRealName();
