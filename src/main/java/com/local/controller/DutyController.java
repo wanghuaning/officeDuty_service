@@ -55,7 +55,7 @@ public class DutyController {
             } else {
                 people.setPosition("");
                 people.setPositionTime(null);
-                people.setIsEnable(sys_duty.getDjunct());
+                people.setIsEnable("否");
                 peopleService.updatePeople(people);
         }
         return people;

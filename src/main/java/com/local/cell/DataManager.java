@@ -894,6 +894,7 @@ public class DataManager {
                     SYS_People people = service.selectPeopleById(people1.getId());
                     if (people != null) {
                         saveDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService, service);
+                        saveRealDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService, service);//实名制（单列）管理信息
                         getPeopleTaoRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService, service);
                         getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService, service);
                         saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people, service);
@@ -1157,7 +1158,7 @@ public class DataManager {
             duty.setStatus("在任");
             duty.setDjunct(StrUtils.toNullStr(map.get("是否兼任")));
             duty.setDocumentduty(StrUtils.toNullStr(map.get("任职文号")));
-            duty.setRealName(StrUtils.toNullStr(map.get("是否纳入实名制管理")));
+            duty.setRealName("否");
             String serveTime = String.valueOf(map.get("免职时间"));
             if (!StrUtils.isBlank(serveTime)) {
                 duty.setServeTime(DateUtil.stringToDate(serveTime));
@@ -1193,10 +1194,63 @@ public class DataManager {
         }
         return duty;
     }
-
+    public static SYS_Duty saveRealDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+                                               UnitService unitService, String fullImport, DutyService dutyService, PeopleService peopleService) throws Exception {
+        SYS_Duty duty = new SYS_Duty();
+        String name = StrUtils.toNullStr(map.get("实名制职务名称"));
+        if (!StrUtils.isBlank(name)) {
+            duty.setPeopleId(people.getId());
+            duty.setPeopleName(people.getName());
+            duty.setUnitId(people.getUnitId());
+            String creatTime = String.valueOf(map.get("实名制现任职务时间"));
+            if (!StrUtils.isBlank(creatTime)) {
+                duty.setCreateTime(DateUtil.stringToDate(creatTime));
+            }
+            duty.setDutyType(StrUtils.toNullStr(map.get("现任职务")));
+            duty.setName(StrUtils.toNullStr(map.get("职务名称")));
+            duty.setSelectionMethod(StrUtils.toNullStr(map.get("单列管理事由")));
+//            duty.setStatus(StrUtils.toNullStr(map.get("任职状态")));
+            duty.setStatus("在任");
+            duty.setDjunct(StrUtils.toNullStr(map.get("是否兼任")));
+            duty.setDocumentduty(StrUtils.toNullStr(map.get("任职文号")));
+            duty.setRealName("是");
+            String serveTime = String.valueOf(map.get("免职时间"));
+            if (!StrUtils.isBlank(serveTime)) {
+                duty.setServeTime(DateUtil.stringToDate(serveTime));
+            }
+            String dutyTime = String.valueOf(map.get("实名制同职务层次时间"));
+            if (!StrUtils.isBlank(dutyTime)) {
+                duty.setDutyTime(DateUtil.stringToDate(dutyTime));
+            }
+            duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
+            people.setPosition(duty.getName());
+            people.setPositionTime(duty.getCreateTime());
+            peopleService.updatePeople(people);
+            SYS_Duty duty1 = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
+            if ("1".equals(fullImport)) {//覆盖导入
+                if (duty1 != null) {
+                    duty.setId(duty1.getId());
+                    dutyService.updateDuty(duty);
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    duty.setId(uuid);
+                    dutyService.insertDuty(duty);
+                }
+            } else {
+                if (duty1 != null) {
+                    stringBuffer.append("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+                    logger.error("职务表：第" + list.indexOf(map) + "行;该职务已存在，请勿重复导入！");
+                } else {
+                    String uuid = UUID.randomUUID().toString();
+                    duty.setId(uuid);
+                    dutyService.insertDuty(duty);
+                }
+            }
+        }
+        return duty;
+    }
     /**
      * 套转职级表导入
-     *
      * @param list
      * @param stringBuffer
      * @param unitService
@@ -1230,6 +1284,8 @@ public class DataManager {
             rank.setFlag("是");
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
+            }else {
+                rank.setApprovalTime(DateUtil.stringToDate("2019-06-01"));
             }
             SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
             people.setPositionLevel(rank.getName());
@@ -1459,6 +1515,19 @@ public class DataManager {
         }
         JSONArray array = JSONArray.fromObject(userList);
         resultMap.put("userList", array);
+        return userList;
+    }
+
+    public static List<SYS_Digest> getDigestJson(Map<String, Object> resultMap, List<SYS_UNIT> units, DataService dataService) {
+        List<SYS_Digest> userList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            List<SYS_Digest> users = dataService.selectDigestsByUnitId(unit.getId());
+            if (users != null) {
+                userList.addAll(users);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(userList);
+        resultMap.put("digestList", array);
         return userList;
     }
 
@@ -1707,6 +1776,33 @@ public class DataManager {
         return users;
     }
 
+    public static List<SYS_Digest> saveDigestJsonModel(JSONArray digestList) {
+        List<SYS_Digest> users = new ArrayList<>();
+        for (int i = 0; i < digestList.size(); i++) {
+            SYS_Digest user = new SYS_Digest();
+            JSONObject key = (JSONObject) digestList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(user, key);
+                user.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+                users.add(user);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return users;
+    }
     public static List<Sys_Approal> saveApproalJsonModel(JSONArray approalList) {
         List<Sys_Approal> approals = new ArrayList<>();
         for (int i = 0; i < approalList.size(); i++) {
@@ -2503,7 +2599,6 @@ public class DataManager {
             resultMap.put("userEdit", peopleModels);
         }
     }
-
     public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, UnitService unitService,
                                          String dataType, PeopleService peopleService, RankService rankService) {
         //人员信息
@@ -3031,7 +3126,25 @@ public class DataManager {
         }
         return userList;
     }
-
+    /**
+     * 上行消化表数据
+     *
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Digest> saveDigestData(List<SYS_Digest> digests, DataService dataService, String unitId) {
+        List<SYS_Digest> userList = new ArrayList<>();
+        for (SYS_Digest user : digests) {
+            userList.add(user);
+            SYS_Digest user1 = dataService.selectDigestById(user.getId());
+            if (user1 != null) {
+                dataService.updateDigest(user);
+            } else {
+                dataService.insertDigest(user);
+            }
+        }
+        return userList;
+    }
     /**
      * 上行或下行
      *

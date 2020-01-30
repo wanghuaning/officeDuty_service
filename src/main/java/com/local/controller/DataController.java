@@ -241,6 +241,7 @@ public class DataController {
                 objects.addAll(processeList);
                 List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
                 List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
+                List<SYS_Digest> digestList=DataManager.getDigestJson(resultMap, unitList, dataService);
                 if (peopleList.size() > 0) {
                     objects.addAll(peopleList);
                     List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
@@ -255,6 +256,7 @@ public class DataController {
                     objects.addAll(assessmentList);
                 }
                 objects.addAll(userList);
+                objects.addAll(digestList);
             }else {
                 List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
                 objects.addAll(approvalList);
@@ -307,6 +309,7 @@ public class DataController {
             List<SYS_Reward> rewards = new ArrayList<>();
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
+            List<SYS_Digest> digests=new ArrayList<>();
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
             // 解密
             byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
@@ -334,10 +337,11 @@ public class DataController {
                         String unitName = String.valueOf(key.get("unitName"));
                         JSONArray unitList = key.getJSONArray("unitList");
                         JSONArray processList = key.getJSONArray("processList");
-                        JSONArray userList = new JSONArray(), peopleList = new JSONArray(), rankList = new JSONArray();
+                        JSONArray userList = new JSONArray(), digestList=new JSONArray(), peopleList = new JSONArray(), rankList = new JSONArray();
                         JSONArray dutyList = new JSONArray(),educationList = new JSONArray(),rewardList = new JSONArray(), assessmentList = new JSONArray();
                         if (!"职数".equals(flag)){
                              userList = key.getJSONArray("userList");
+                             digestList = key.getJSONArray("digestList");
                              peopleList = key.getJSONArray("peopleList");
                              rankList = key.getJSONArray("rankList");
                              dutyList = key.getJSONArray("dutyList");
@@ -363,6 +367,10 @@ public class DataController {
                                 users = DataManager.saveUserJsonModel(userList);
                                 if (users.size() > 0) {
                                     DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "user", gson.toJson(users));
+                                }
+                                digests=DataManager.saveDigestJsonModel(digestList);
+                                if (digests.size()>0){
+                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "digest", gson.toJson(digests));
                                 }
                                 if (approvalList.size() > 0) {
                                     approals = DataManager.saveApproalJsonModel(approvalList);
@@ -414,6 +422,7 @@ public class DataController {
                                     DataManager.rewardDataCheck(resultMap, rewards, rewardService, iunitId);
                                     DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, iunitId);
                                     DataManager.userDataCheck(resultMap, users, userService, iunitId);
+                                    resultMap.put("digests", digests);
                                 }
                                 if (approals.size() > 0) {
                                     DataManager.approvalDataCheck(resultMap, approals, approvalService, unitService,
@@ -498,6 +507,13 @@ public class DataController {
                         if (sys_users.size() > 0) {
                             DataManager.saveUserData(sys_users, userService, dataInfo.getUnitId());
                             objects.add(sys_users);
+                        }
+                    }else if (dataInfo.getId().contains("digest")) {
+                        List<SYS_Digest> digestList = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Digest>>() {
+                        }.getType());
+                        if (digestList.size() > 0) {
+                            DataManager.saveDigestData(digestList, dataService, dataInfo.getUnitId());
+                            objects.add(digestList);
                         }
                     } else if (dataInfo.getId().contains("approval")) {
                         List<Sys_Approal> sys_approals = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Approal>>() {

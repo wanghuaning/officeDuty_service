@@ -63,6 +63,18 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
+    public List<SYS_Digest> selectDigestsByUnitId(String unitId){
+        List<SYS_Digest> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId);
+        list=dao.query(SYS_Digest.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
     @Transactional//声明式事务管理
     @SLog(tag = "新增消化情况", type = "C")
    public void insertDigest(SYS_Digest digest){
