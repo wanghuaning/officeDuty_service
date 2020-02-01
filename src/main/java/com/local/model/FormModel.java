@@ -5,6 +5,13 @@ import lombok.Data;
 
 @Data
 public class FormModel {
+
+    private Integer oneYear=0;
+    private Integer towYear=0;
+    private Integer threeYear=0;
+    private Integer fourYear=0;
+    private Integer fiveYear=0;
+
     private Integer incumbent=0;//在职人数
     private Integer leavePeople=0;
     private Integer turnPeople=0;

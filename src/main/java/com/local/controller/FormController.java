@@ -151,7 +151,7 @@ public class FormController {
                 int threeMonthOverChuRetire = 0, threeMonthChuJiRetire = 0, threeMonthFuChuRetire = 0, threeMonthZhengKeRetire = 0, threeMonthFuKeRetire = 0, threeMonthKeYuanRetire = 0;
                 int fourMonthOverChuRetire = 0, fourMonthChuJiRetire = 0, fourMonthFuChuRetire = 0, fourMonthZhengKeRetire = 0, fourMonthFuKeRetire = 0, fourMonthKeYuanRetire = 0;
                 for (SYS_People people : peoples) {
-                    if (people.getBirthday() != null && people.getPosition() != null) {
+                    if (people.getBirthday() != null) {
                         int bmonth=DateUtil.getMonth(people.getBirthday());
                         int nmonth=DateUtil.getMonth(new Date());
                         //获取前月的最后一天
@@ -177,128 +177,255 @@ public class FormController {
                         ca3.set(Calendar.MONTH, month3 + 3);
                         ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
                         int age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
-                        if (people.getPosition().contains("县处级正职")) {
-                            if (age == 60) {
-                                nowMonthChuJiRetire++;
-                            }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
-                                towMonthChuJiRetire++;
-                            }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
-                                threeMonthChuJiRetire++;
-                            }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
-                                fourMonthChuJiRetire++;
-                            }
-                        } else if (people.getPosition().contains("县处级副职")) {
-                            if (age == 60 && bmonth == nmonth) {
-                                nowMonthFuChuRetire++;
-                            }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
-                                towMonthFuChuRetire++;
-                            }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
-                                threeMonthFuChuRetire++;
-                            }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
-                                fourMonthFuChuRetire++;
-                            }
-                        } else if (people.getPosition().contains("乡科级正职")) {
-                            if (people.getSex().contains("男")) {
-                                if (age == 60 && bmonth == nmonth) {
-                                    nowMonthZhengKeRetire++;
+                        if (people.getPosition() != null){
+                            if (people.getPosition().contains("县处级正职")) {
+                                if (age == 60) {
+                                    nowMonthChuJiRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {
-                                    towMonthZhengKeRetire++;
+                                    towMonthChuJiRetire++;
                                 }
                                 if (age2 == 60 && bmonth == (nmonth+2)) {
-                                    threeMonthZhengKeRetire++;
+                                    threeMonthChuJiRetire++;
                                 }
                                 if (age3 == 60 && bmonth == (nmonth+3)) {
-                                    fourMonthZhengKeRetire++;
+                                    fourMonthChuJiRetire++;
                                 }
-                            } else {
-                                if (age == 55 && bmonth == nmonth) {
-                                    nowMonthZhengKeRetire++;
-                                }
-                                if (age1 == 55 && bmonth == (nmonth+1)) {
-                                    towMonthZhengKeRetire++;
-                                }
-                                if (age2 == 55 && bmonth == (nmonth+2)) {
-                                    threeMonthZhengKeRetire++;
-                                }
-                                if (age3 == 55 && bmonth == (nmonth+3)) {
-                                    fourMonthZhengKeRetire++;
-                                }
-                            }
-                        } else if (people.getPosition().contains("乡科级副职")) {
-                            if (people.getSex().contains("男")) {
+                            } else if (people.getPosition().contains("县处级副职")) {
                                 if (age == 60 && bmonth == nmonth) {
-                                    nowMonthFuKeRetire++;
+                                    nowMonthFuChuRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {
-                                    towMonthFuKeRetire++;
+                                    towMonthFuChuRetire++;
                                 }
                                 if (age2 == 60 && bmonth == (nmonth+2)) {
-                                    threeMonthFuKeRetire++;
+                                    threeMonthFuChuRetire++;
                                 }
                                 if (age3 == 60 && bmonth == (nmonth+3)) {
-                                    fourMonthFuKeRetire++;
+                                    fourMonthFuChuRetire++;
+                                }
+                            } else if (people.getPosition().contains("乡科级正职")) {
+                                if (people.getSex().contains("男")) {
+                                    if (age == 60 && bmonth == nmonth) {
+                                        nowMonthZhengKeRetire++;
+                                    }
+                                    if (age1 == 60 && bmonth == (nmonth+1)) {
+                                        towMonthZhengKeRetire++;
+                                    }
+                                    if (age2 == 60 && bmonth == (nmonth+2)) {
+                                        threeMonthZhengKeRetire++;
+                                    }
+                                    if (age3 == 60 && bmonth == (nmonth+3)) {
+                                        fourMonthZhengKeRetire++;
+                                    }
+                                } else {
+                                    if (age == 55 && bmonth == nmonth) {
+                                        nowMonthZhengKeRetire++;
+                                    }
+                                    if (age1 == 55 && bmonth == (nmonth+1)) {
+                                        towMonthZhengKeRetire++;
+                                    }
+                                    if (age2 == 55 && bmonth == (nmonth+2)) {
+                                        threeMonthZhengKeRetire++;
+                                    }
+                                    if (age3 == 55 && bmonth == (nmonth+3)) {
+                                        fourMonthZhengKeRetire++;
+                                    }
+                                }
+                            } else if (people.getPosition().contains("乡科级副职")) {
+                                if (people.getSex().contains("男")) {
+                                    if (age == 60 && bmonth == nmonth) {
+                                        nowMonthFuKeRetire++;
+                                    }
+                                    if (age1 == 60 && bmonth == (nmonth+1)) {
+                                        towMonthFuKeRetire++;
+                                    }
+                                    if (age2 == 60 && bmonth == (nmonth+2)) {
+                                        threeMonthFuKeRetire++;
+                                    }
+                                    if (age3 == 60 && bmonth == (nmonth+3)) {
+                                        fourMonthFuKeRetire++;
+                                    }
+                                } else {
+                                    if (age == 55 && bmonth == nmonth) {
+                                        nowMonthFuKeRetire++;
+                                    }
+                                    if (age1 == 55 && bmonth == (nmonth+1)) {
+                                        towMonthFuKeRetire++;
+                                    }
+                                    if (age2 == 55 && bmonth == (nmonth+2)) {
+                                        threeMonthFuKeRetire++;
+                                    }
+                                    if (age3 == 55 && bmonth == (nmonth+3)) {
+                                        fourMonthFuKeRetire++;
+                                    }
+                                }
+                            } else if (people.getPosition().contains("科员")) {
+                                if (people.getSex().contains("男")) {
+                                    if (age == 60 && bmonth == nmonth) {
+                                        nowMonthKeYuanRetire++;
+                                    }
+                                    if (age1 == 60 && bmonth == (nmonth+1)) {
+                                        towMonthKeYuanRetire++;
+                                    }
+                                    if (age2 == 60 && bmonth == (nmonth+2)) {
+                                        threeMonthKeYuanRetire++;
+                                    }
+                                    if (age3 == 60 && bmonth == (nmonth+3)) {
+                                        fourMonthKeYuanRetire++;
+                                    }
+                                } else {
+                                    if (age == 55 && bmonth == nmonth) {
+                                        nowMonthKeYuanRetire++;
+                                    }
+                                    if (age1 == 55 && bmonth == (nmonth+1)) {
+                                        towMonthKeYuanRetire++;
+                                    }
+                                    if (age2 == 55 && bmonth == (nmonth+2)) {
+                                        threeMonthKeYuanRetire++;
+                                    }
+                                    if (age3 == 55 && bmonth == (nmonth+3)) {
+                                        fourMonthKeYuanRetire++;
+                                    }
                                 }
                             } else {
-                                if (age == 55 && bmonth == nmonth) {
-                                    nowMonthFuKeRetire++;
-                                }
-                                if (age1 == 55 && bmonth == (nmonth+1)) {
-                                    towMonthFuKeRetire++;
-                                }
-                                if (age2 == 55 && bmonth == (nmonth+2)) {
-                                    threeMonthFuKeRetire++;
-                                }
-                                if (age3 == 55 && bmonth == (nmonth+3)) {
-                                    fourMonthFuKeRetire++;
-                                }
-                            }
-                        } else if (people.getPosition().contains("科员")) {
-                            if (people.getSex().contains("男")) {
                                 if (age == 60 && bmonth == nmonth) {
-                                    nowMonthKeYuanRetire++;
+                                    nowMonthOverChuRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {
-                                    towMonthKeYuanRetire++;
+                                    towMonthOverChuRetire++;
                                 }
                                 if (age2 == 60 && bmonth == (nmonth+2)) {
-                                    threeMonthKeYuanRetire++;
+                                    threeMonthOverChuRetire++;
                                 }
                                 if (age3 == 60 && bmonth == (nmonth+3)) {
-                                    fourMonthKeYuanRetire++;
+                                    fourMonthOverChuRetire++;
+                                }
+                            }
+                        }else if (people.getPositionLevel()!=null){
+                            if (people.getPositionLevel().contains("二级调研员") || people.getPositionLevel().contains("一级调研员")) {
+                                if (age == 60) {
+                                    nowMonthChuJiRetire++;
+                                }
+                                if (age1 == 60 && bmonth == (nmonth+1)) {
+                                    towMonthChuJiRetire++;
+                                }
+                                if (age2 == 60 && bmonth == (nmonth+2)) {
+                                    threeMonthChuJiRetire++;
+                                }
+                                if (age3 == 60 && bmonth == (nmonth+3)) {
+                                    fourMonthChuJiRetire++;
+                                }
+                            } else if (people.getPositionLevel().contains("四级调研员") || people.getPositionLevel().contains("三级调研员")) {
+                                if (age == 60 && bmonth == nmonth) {
+                                    nowMonthFuChuRetire++;
+                                }
+                                if (age1 == 60 && bmonth == (nmonth+1)) {
+                                    towMonthFuChuRetire++;
+                                }
+                                if (age2 == 60 && bmonth == (nmonth+2)) {
+                                    threeMonthFuChuRetire++;
+                                }
+                                if (age3 == 60 && bmonth == (nmonth+3)) {
+                                    fourMonthFuChuRetire++;
+                                }
+                            } else if (people.getPositionLevel().contains("二级主任科员") || people.getPositionLevel().contains("一级主任科员")) {
+                                if (people.getSex().contains("男")) {
+                                    if (age == 60 && bmonth == nmonth) {
+                                        nowMonthZhengKeRetire++;
+                                    }
+                                    if (age1 == 60 && bmonth == (nmonth+1)) {
+                                        towMonthZhengKeRetire++;
+                                    }
+                                    if (age2 == 60 && bmonth == (nmonth+2)) {
+                                        threeMonthZhengKeRetire++;
+                                    }
+                                    if (age3 == 60 && bmonth == (nmonth+3)) {
+                                        fourMonthZhengKeRetire++;
+                                    }
+                                } else {
+                                    if (age == 55 && bmonth == nmonth) {
+                                        nowMonthZhengKeRetire++;
+                                    }
+                                    if (age1 == 55 && bmonth == (nmonth+1)) {
+                                        towMonthZhengKeRetire++;
+                                    }
+                                    if (age2 == 55 && bmonth == (nmonth+2)) {
+                                        threeMonthZhengKeRetire++;
+                                    }
+                                    if (age3 == 55 && bmonth == (nmonth+3)) {
+                                        fourMonthZhengKeRetire++;
+                                    }
+                                }
+                            } else if (people.getPositionLevel().contains("四级主任科员") || people.getPositionLevel().contains("三级主任科员")) {
+                                if (people.getSex().contains("男")) {
+                                    if (age == 60 && bmonth == nmonth) {
+                                        nowMonthFuKeRetire++;
+                                    }
+                                    if (age1 == 60 && bmonth == (nmonth+1)) {
+                                        towMonthFuKeRetire++;
+                                    }
+                                    if (age2 == 60 && bmonth == (nmonth+2)) {
+                                        threeMonthFuKeRetire++;
+                                    }
+                                    if (age3 == 60 && bmonth == (nmonth+3)) {
+                                        fourMonthFuKeRetire++;
+                                    }
+                                } else {
+                                    if (age == 55 && bmonth == nmonth) {
+                                        nowMonthFuKeRetire++;
+                                    }
+                                    if (age1 == 55 && bmonth == (nmonth+1)) {
+                                        towMonthFuKeRetire++;
+                                    }
+                                    if (age2 == 55 && bmonth == (nmonth+2)) {
+                                        threeMonthFuKeRetire++;
+                                    }
+                                    if (age3 == 55 && bmonth == (nmonth+3)) {
+                                        fourMonthFuKeRetire++;
+                                    }
+                                }
+                            } else if (people.getPositionLevel().contains("一级科员") || people.getPositionLevel().contains("二级科员")) {
+                                if (people.getSex().contains("男")) {
+                                    if (age == 60 && bmonth == nmonth) {
+                                        nowMonthKeYuanRetire++;
+                                    }
+                                    if (age1 == 60 && bmonth == (nmonth+1)) {
+                                        towMonthKeYuanRetire++;
+                                    }
+                                    if (age2 == 60 && bmonth == (nmonth+2)) {
+                                        threeMonthKeYuanRetire++;
+                                    }
+                                    if (age3 == 60 && bmonth == (nmonth+3)) {
+                                        fourMonthKeYuanRetire++;
+                                    }
+                                } else {
+                                    if (age == 55 && bmonth == nmonth) {
+                                        nowMonthKeYuanRetire++;
+                                    }
+                                    if (age1 == 55 && bmonth == (nmonth+1)) {
+                                        towMonthKeYuanRetire++;
+                                    }
+                                    if (age2 == 55 && bmonth == (nmonth+2)) {
+                                        threeMonthKeYuanRetire++;
+                                    }
+                                    if (age3 == 55 && bmonth == (nmonth+3)) {
+                                        fourMonthKeYuanRetire++;
+                                    }
                                 }
                             } else {
-                                if (age == 55 && bmonth == nmonth) {
-                                    nowMonthKeYuanRetire++;
+                                if (age == 60 && bmonth == nmonth) {
+                                    nowMonthOverChuRetire++;
                                 }
-                                if (age1 == 55 && bmonth == (nmonth+1)) {
-                                    towMonthKeYuanRetire++;
+                                if (age1 == 60 && bmonth == (nmonth+1)) {
+                                    towMonthOverChuRetire++;
                                 }
-                                if (age2 == 55 && bmonth == (nmonth+2)) {
-                                    threeMonthKeYuanRetire++;
+                                if (age2 == 60 && bmonth == (nmonth+2)) {
+                                    threeMonthOverChuRetire++;
                                 }
-                                if (age3 == 55 && bmonth == (nmonth+3)) {
-                                    fourMonthKeYuanRetire++;
+                                if (age3 == 60 && bmonth == (nmonth+3)) {
+                                    fourMonthOverChuRetire++;
                                 }
-                            }
-                        } else {
-                            if (age == 60 && bmonth == nmonth) {
-                                nowMonthOverChuRetire++;
-                            }
-                            if (age1 == 60 && bmonth == (nmonth+1)) {
-                                towMonthOverChuRetire++;
-                            }
-                            if (age2 == 60 && bmonth == (nmonth+2)) {
-                                threeMonthOverChuRetire++;
-                            }
-                            if (age3 == 60 && bmonth == (nmonth+3)) {
-                                fourMonthOverChuRetire++;
                             }
                         }
                     }
@@ -542,6 +669,11 @@ public class FormController {
             }
             FormModel model = new FormModel();
             int year = DateUtil.getYear(new Date());
+            model.setFiveYear(year);
+            model.setFourYear((year - 1));
+            model.setThreeYear((year - 2));
+            model.setTowYear((year - 3));
+            model.setOneYear((year - 4));
             List<SYS_People> peoples = peopleService.selectPeoplesByUnitIds(arr, "在职");
             if (peoples != null) {
                 int oneYearYouXiu = 0, towYearYouXiu = 0, threeYearYouXiu = 0, fourYearYouXiu = 0, fiveYearYouXiu = 0, oneYearHeGe = 0, towYearHeGe = 0, threeYearHeGe = 0;
