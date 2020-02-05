@@ -20,20 +20,46 @@ public class DateUtil {
 
     public static Date stringToDate(String dateStr) throws Exception {
         String[] arr = null;
-        if (dateStr != null && !"".equals(dateStr) && !"null".equals(dateStr)) {
-            arr = dateStr.split("-");
-        } else {
+        if (dateStr == null && "".equals(dateStr) && "null".equals(dateStr)) {
             return null;
         }
         String format = fm;
-        if (dateStr.contains(":") && dateStr.contains(" ")) {
+        if (dateStr.contains("-")){
+            arr = dateStr.split("\\-");
+            if (arr != null && arr.length == 2) {
+                return new SimpleDateFormat(format).parse(dateStr.trim() + "-01");
+            } else {
+                return new SimpleDateFormat(format).parse(dateStr);
+            }
+        } else if (dateStr.contains(":") && dateStr.contains(" ")) {
+            arr = dateStr.split(":");
             format = fm3;
         } else if (dateStr.contains(":")) {
+            arr = dateStr.split("\\:");
             format = fm5;
+            if (arr != null && arr.length == 2) {
+                return new SimpleDateFormat(format).parse(dateStr.trim() + ":01");
+            } else {
+                return new SimpleDateFormat(format).parse(dateStr);
+            }
         } else if (dateStr.contains("/")) {
+            arr = dateStr.split("\\/");
             format = fm8;
+            if (arr != null && arr.length == 2) {
+                return new SimpleDateFormat(format).parse(dateStr.trim() + "/01");
+            } else {
+                return new SimpleDateFormat(format).parse(dateStr);
+            }
         } else if (dateStr.contains(".")) {
+            arr = dateStr.split("\\.");
             format = fm9;
+            if (arr != null && arr.length == 2) {
+                return new SimpleDateFormat(format).parse(dateStr.trim() + ".01");
+            } else {
+                return new SimpleDateFormat(format).parse(dateStr);
+            }
+        }else {
+            return null;
         }
         if (arr != null && arr.length == 2) {
             return new SimpleDateFormat(format).parse(dateStr.trim() + "-01");

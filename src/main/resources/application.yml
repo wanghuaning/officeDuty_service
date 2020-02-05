@@ -8,5 +8,9 @@ server:
 spring:
   profiles:
     active: prol
+logging:
+  file: "C:/log/service_log.log"
+  level:
+    root: INFO
 swagger:
   enable : true

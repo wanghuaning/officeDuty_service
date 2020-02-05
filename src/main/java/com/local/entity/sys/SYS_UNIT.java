@@ -97,137 +97,138 @@ public class SYS_UNIT implements Serializable {
     @Comment("行政编制数")
     @Column("official_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long officialNum;
+    private Long officialNum=0l;
 
     @ApiModelProperty("事业编制数（参公）")
     @Comment("事业编制数（参公）")
     @Column("refer_Official_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long referOfficialNum;
+    private Long referOfficialNum=0l;
 
     @ApiModelProperty("行政实有数")
     @Comment("行政实有数")
     @Column("official_Real_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long officialRealNum;
+    private Long officialRealNum=0l;
 
     @ApiModelProperty("事业实有数（参公）")
     @Comment("事业实有数（参公）")
     @Column("refer_Official_Real_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long referOfficialRealNum;
+    private Long referOfficialRealNum=0l;
 
     @ApiModelProperty("县处级正职领导职数")
     @Comment("县处级正职领导职数")
     @Column("right_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long rightPlaceNum;
+    private Long rightPlaceNum=0l;
 
     @ApiModelProperty("县处级副职领导职数")
     @Comment("县处级副职领导职数")
     @Column("deputy_Place_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long deputyPlaceNum;
+    private Long deputyPlaceNum=0l;
 
     @ApiModelProperty("乡科级正职领导职数")
     @Comment("乡科级正职领导职数")
     @Column("main_Hall_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long mainHallNum;
+    private Long mainHallNum=0l;
 
     @ApiModelProperty("乡科级副职领导职数")
     @Comment("乡科级副职领导职数")
     @Column("deputy_Hall_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long deputyHallNum;
+    private Long deputyHallNum=0l;
 
     @ApiModelProperty("一级巡视员职数")
     @Comment("一级巡视员职数")
     @Column("one_Inspector_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long oneInspectorNum;
+    private Long oneInspectorNum=0l;
 
     @ApiModelProperty("二级巡视员职数")
     @Comment("二级巡视员职数")
     @Column("tow_Inspector_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long towInspectorNum;
+    private Long towInspectorNum=0l;
 
     @ApiModelProperty("一级和二级调研员职数")
     @Comment("一级和二级调研员职数")
     @Column("one_Tow_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long oneTowResearcherNum;
+    private Long oneTowResearcherNum=0l;
 
 
     @ApiModelProperty("三级和四级调研员职数")
     @Comment("三级和四级调研员职数")
     @Column("three_Four_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long threeFourResearcherNum;
+    private Long threeFourResearcherNum=0l;
 
     @ApiModelProperty("一级和二级主任科员职数")
     @Comment("一级和二级主任科员职数")
     @Column("one_Tow_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long oneTowClerkNum;
+    private Long oneTowClerkNum=0l;
 
 
     @ApiModelProperty("三级和四级主任科员职数")
     @Comment("三级和四级主任科员职数")
     @Column("three_Four_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long threeFourClerkNum;
+    private Long threeFourClerkNum=0l;
 
 
     @ApiModelProperty("一级调研员职数")
     @Comment("一级调研员职数")
     @Column("one_Researcher_Num")
+    @Default(value = "0")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long oneResearcherNum;
+    private Long oneResearcherNum=0l;
 
     @ApiModelProperty("二级调研员职数")
     @Comment("二级调研员职数")
     @Column("tow_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long towResearcherNum;
+    private Long towResearcherNum=0l;
 
 
     @ApiModelProperty("三级调研员职数")
     @Comment("三级调研员职数")
     @Column("three_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long threeResearcherNum;
+    private Long threeResearcherNum=0l;
 
     @ApiModelProperty("四级调研员职数")
     @Comment("四级调研员职数")
     @Column("four_Researcher_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long fourResearcherNum;
+    private Long fourResearcherNum=0l;
 
     @ApiModelProperty("一级主任科员职数")
     @Comment("一级主任科员职数")
     @Column("one_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long oneClerkNum;
+    private Long oneClerkNum=0l;
 
     @ApiModelProperty("二级主任科员职数")
     @Comment("二级主任科员职数")
     @Column("tow_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long towClerkNum;
+    private Long towClerkNum=0l;
 
     @ApiModelProperty("三级主任科员职数")
     @Comment("三级主任科员职数")
     @Column("three_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long threeClerkNum;
+    private Long threeClerkNum=0l;
 
     @ApiModelProperty("四级主任科员职数")
     @Comment("四级主任科员职数")
     @Column("four_Clerk_Num")
     @ColDefine(type = ColType.INT,width = 6)
-    private Long fourClerkNum;
+    private Long fourClerkNum=0l;
 
     @ApiModelProperty("机构状态0:可用 1：停用 2：导入单位没有找到上级")
     @Comment("机构状态")

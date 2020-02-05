@@ -50,13 +50,13 @@ public class UnitManager {
             SYS_UNIT unit = new SYS_UNIT();
             if (!StrUtils.isBlank(map.get("单位名称"))) {
                 unit.setName(map.get("单位名称").toString());
-                if (!StrUtils.isBlank(map.get("组织机构编码"))) {
-                    unit.setCode(map.get("组织机构编码").toString());
-                    SYS_UNIT punit = unitService.selectUnitByName(String.valueOf(map.get("上级单位")));
+                if (!StrUtils.isBlank(map.get("统一社会信用代码"))) {
+                    unit.setCode(map.get("统一社会信用代码").toString());
+                    SYS_UNIT punit = unitService.selectUnitByName(String.valueOf(map.get("主管单位")));
                     if (punit != null) {
                         unit.setParentName(punit.getName());
                     } else {
-                        unit.setParentName(String.valueOf(map.get("上级单位")));
+                        unit.setParentName(String.valueOf(map.get("主管单位")));
                         unit.setEnabled("2");
                     }
                     unit.setBuildProvince(StrUtils.toNullStr(map.get("所在省")));
@@ -76,14 +76,14 @@ public class UnitManager {
                     unit.setDeputyHallNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("乡科级副职领导职数"))));
                     unit.setRightPlaceNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("县处级正职领导职数"))));
                     unit.setDeputyPlaceNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("县处级副职领导职数"))));
-//                    unit.setOneInspectorNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("一级巡视员职数"))));
-//                    unit.setTowInspectorNum(StrUtils.strToInt(StrUtils.toNullStr(map.get("二级巡视员职数"))));
+                    unit.setOneInspectorNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("一级巡视员职数"))));
+                    unit.setTowInspectorNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("二级巡视员职数"))));
                     unit.setOneTowResearcherNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("一级调研员和二级调研员职数"))));
                     unit.setThreeFourResearcherNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("三级级调研员和四级调研员职数"))));
                     unit.setOneTowClerkNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("一级主任科员和二级主任科员职数"))));
                     unit.setThreeFourClerkNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("三级主任科员和四级主任科员职数"))));
-                    unit.setContact("联系人");
-                    unit.setContactNumber("联系电话");
+                    unit.setContact(StrUtils.toNullStr(map.get("联系人")));
+                    unit.setContactNumber(StrUtils.toNullStr(map.get("联系电话")));
                     unit.setDetail(StrUtils.toNullStr(map.get("备注")));
                     unit.setEnabled("0");
                     SYS_UNIT unit1 = unitService.selectUnitByNameAndParent(unit.getName(), unit.getParentName());
@@ -93,8 +93,8 @@ public class UnitManager {
                     } else {
                         SYS_UNIT codeUnit = unitService.selectUnitByCode(unit.getCode());
                         if (codeUnit != null) {
-                            stringBuffer.append("单位表：第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
-                            logger.error("单位表：第" + list.indexOf(map) + "行;组织机构编码已存在，请检查！");
+                            stringBuffer.append("单位表：第" + list.indexOf(map) + "行;统一社会信用代码已存在，请检查！");
+                            logger.error("单位表：第" + list.indexOf(map) + "行;统一社会信用代码已存在，请检查！");
                         } else {
                             SYS_UNIT unitbyname = unitService.selectUnitByName(unit.getName());
                             if (unitbyname != null) {
@@ -109,8 +109,8 @@ public class UnitManager {
                         }
                     }
                 } else {
-                    stringBuffer.append("单位表：第" + list.indexOf(map) + "行;组织机构编码为空！");
-                    logger.error("单位表：第" + list.indexOf(map) + "行;组织机构编码为空！");
+                    stringBuffer.append("单位表：第" + list.indexOf(map) + "行;统一社会信用代码为空！");
+                    logger.error("单位表：第" + list.indexOf(map) + "行;统一社会信用代码为空！");
                 }
             } else {
                 stringBuffer.append("单位表：第" + list.indexOf(map) + "行;单位名称为空！");

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletResponse;
 import javax.sound.midi.Soundbank;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -450,7 +451,8 @@ public class ExcelFileGenerator<T> {
                             if (DateUtil.isCellDateFormatted(data)) {
                                 dataMap.put(headers.get(j), data.getDateCellValue());
                             } else {
-                                dataMap.put(headers.get(j), data.getNumericCellValue());
+                                DecimalFormat df = new DecimalFormat("0");
+                                dataMap.put(headers.get(j), df.format(data.getNumericCellValue()));
                             }
                             break;
                         case Cell.CELL_TYPE_FORMULA:

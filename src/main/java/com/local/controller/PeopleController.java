@@ -155,7 +155,7 @@ public class PeopleController {
             Workbook temp = ExcelFileGenerator.getTeplet(path);
             ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
             excelFileGenerator.setExcleNAME(response, "人员信息表导出.xls");
-            excelFileGenerator.createExcelFile(temp.getSheet("人员信息"), 2, peoples, arr);
+            excelFileGenerator.createExcelFile(temp.getSheet("人员信息"), 3, peoples, arr);
             temp.write(response.getOutputStream());
             temp.close();
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, peoples, null).getJson();

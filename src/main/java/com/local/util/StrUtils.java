@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -218,15 +219,37 @@ public class StrUtils {
         }
         long ret;
         try {
-            ret = Long.parseLong(string);
+            if (isDouble(string)){
+                Double anew=Double.parseDouble(string);
+                ret = new Double(anew).longValue();
+            }else if (isInteger(string)){
+                ret = Long.parseLong(string);
+            }else {
+                return defaultValue;
+            }
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return defaultValue;
         }
-
         return ret;
     }
+//判断整数（int）
+    private static boolean isInteger(String str) {
+        if (null == str || "".equals(str)) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
+    }
 
+    //判断浮点数（double和float）
+    private static boolean isDouble(String str) {
+        if (null == str || "".equals(str)) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile("^[-\\+]?\\d*[.]\\d+$"); // 之前这里正则表达式错误，现更正
+        return pattern.matcher(str).matches();
+    }
     /**
      * String转成double的值， 若无法转换，默认返回0.00
      */

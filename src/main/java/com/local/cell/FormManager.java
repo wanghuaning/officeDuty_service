@@ -26,14 +26,16 @@ public class FormManager {
         for (int i=0;i<arr.length;i++){
             SYS_UNIT unit=unitService.selectUnitById(arr[i]);
             //核准
-            oneResearcherNum+=unit.getOneResearcherNum();
-            towResearcherNum+=unit.getTowResearcherNum();
-            threeResearcherNum+=unit.getThreeResearcherNum();
-            fourResearcherNum+=unit.getFourResearcherNum();
-            oneClerkNum+=unit.getOneClerkNum();
-            towClerkNum+=unit.getTowClerkNum();
-            threeClerkNum+=unit.getThreeClerkNum();
-            fourClerkNum+=unit.getFourClerkNum();
+            if (unit!=null){
+                oneResearcherNum+=unit.getOneResearcherNum();
+                towResearcherNum+=unit.getTowResearcherNum();
+                threeResearcherNum+=unit.getThreeResearcherNum();
+                fourResearcherNum+=unit.getFourResearcherNum();
+                oneClerkNum+=unit.getOneClerkNum();
+                towClerkNum+=unit.getTowClerkNum();
+                threeClerkNum+=unit.getThreeClerkNum();
+                fourClerkNum+=unit.getFourClerkNum();
+            }
             //套转信息
             String unitId=arr[i];
             List<SYS_Rank> oneranks = rankService.selectRanksFlagByUnitId(unitId, "是", "一级调研员");

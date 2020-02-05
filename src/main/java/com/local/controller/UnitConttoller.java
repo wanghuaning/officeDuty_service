@@ -311,7 +311,7 @@ public class UnitConttoller {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
             List<String> headList = ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(), 0, 1);
             if (headList.size() > 0) {
-                if (!headList.get(0).contains("单位名称") && !headList.get(1).contains("组织机构编码")) {
+                if (!headList.get(0).contains("单位名称") && !headList.get(1).contains("统一社会信用代码")) {
                     stringBuffer.append(ResultMsg.IMPORT_EXCEL_FILE_ERROR);
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.IMPORT_EXCEL_FILE_ERROR, null, null).getJson();
                 } else {

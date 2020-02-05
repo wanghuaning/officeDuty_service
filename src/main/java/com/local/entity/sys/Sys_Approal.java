@@ -397,4 +397,444 @@ public class Sys_Approal {
   public void setCreateTimeStr(String createTimeStr) {
     this.createTimeStr = createTimeStr;
   }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getUnitId() {
+    return unitId;
+  }
+
+  public void setUnitId(String unitId) {
+    this.unitId = unitId;
+  }
+
+  public Date getCreateTime() {
+    return createTime;
+  }
+
+  public void setCreateTime(Date createTime) {
+    this.createTime = createTime;
+  }
+
+  public String getFlag() {
+    return flag;
+  }
+
+  public void setFlag(String flag) {
+    this.flag = flag;
+  }
+
+  public String getUnitName() {
+    return unitName;
+  }
+
+  public void setUnitName(String unitName) {
+    this.unitName = unitName;
+  }
+
+  public String getUnitType() {
+    return unitType;
+  }
+
+  public void setUnitType(String unitType) {
+    this.unitType = unitType;
+  }
+
+  public String getLevel() {
+    return level;
+  }
+
+  public void setLevel(String level) {
+    this.level = level;
+  }
+
+  public String getOfficialNum() {
+    return officialNum;
+  }
+
+  public void setOfficialNum(String officialNum) {
+    this.officialNum = officialNum;
+  }
+
+  public String getOneTowResearcherNum() {
+    return oneTowResearcherNum;
+  }
+
+  public void setOneTowResearcherNum(String oneTowResearcherNum) {
+    this.oneTowResearcherNum = oneTowResearcherNum;
+  }
+
+  public String getOneResearcherNum() {
+    return oneResearcherNum;
+  }
+
+  public void setOneResearcherNum(String oneResearcherNum) {
+    this.oneResearcherNum = oneResearcherNum;
+  }
+
+  public String getTowResearcherNum() {
+    return towResearcherNum;
+  }
+
+  public void setTowResearcherNum(String towResearcherNum) {
+    this.towResearcherNum = towResearcherNum;
+  }
+
+  public String getThreeFourResearcherNum() {
+    return threeFourResearcherNum;
+  }
+
+  public void setThreeFourResearcherNum(String threeFourResearcherNum) {
+    this.threeFourResearcherNum = threeFourResearcherNum;
+  }
+
+  public String getThreeResearcherNum() {
+    return threeResearcherNum;
+  }
+
+  public void setThreeResearcherNum(String threeResearcherNum) {
+    this.threeResearcherNum = threeResearcherNum;
+  }
+
+  public String getFourResearcherNum() {
+    return fourResearcherNum;
+  }
+
+  public void setFourResearcherNum(String fourResearcherNum) {
+    this.fourResearcherNum = fourResearcherNum;
+  }
+
+  public String getResearcherTotal() {
+    return researcherTotal;
+  }
+
+  public void setResearcherTotal(String researcherTotal) {
+    this.researcherTotal = researcherTotal;
+  }
+
+  public String getOneTowClerkNum() {
+    return oneTowClerkNum;
+  }
+
+  public void setOneTowClerkNum(String oneTowClerkNum) {
+    this.oneTowClerkNum = oneTowClerkNum;
+  }
+
+  public String getOneClerkNum() {
+    return oneClerkNum;
+  }
+
+  public void setOneClerkNum(String oneClerkNum) {
+    this.oneClerkNum = oneClerkNum;
+  }
+
+  public String getTowClerkNum() {
+    return towClerkNum;
+  }
+
+  public void setTowClerkNum(String towClerkNum) {
+    this.towClerkNum = towClerkNum;
+  }
+
+  public String getThreeFourClerkNum() {
+    return threeFourClerkNum;
+  }
+
+  public void setThreeFourClerkNum(String threeFourClerkNum) {
+    this.threeFourClerkNum = threeFourClerkNum;
+  }
+
+  public String getThreeClerkNum() {
+    return threeClerkNum;
+  }
+
+  public void setThreeClerkNum(String threeClerkNum) {
+    this.threeClerkNum = threeClerkNum;
+  }
+
+  public String getFourClerkNum() {
+    return fourClerkNum;
+  }
+
+  public void setFourClerkNum(String fourClerkNum) {
+    this.fourClerkNum = fourClerkNum;
+  }
+
+  public String getClerkTotal() {
+    return clerkTotal;
+  }
+
+  public void setClerkTotal(String clerkTotal) {
+    this.clerkTotal = clerkTotal;
+  }
+
+  public String getOneResearcherUserNum() {
+    return oneResearcherUserNum;
+  }
+
+  public void setOneResearcherUserNum(String oneResearcherUserNum) {
+    this.oneResearcherUserNum = oneResearcherUserNum;
+  }
+
+  public String getTowResearcherUserNum() {
+    return towResearcherUserNum;
+  }
+
+  public void setTowResearcherUserNum(String towResearcherUserNum) {
+    this.towResearcherUserNum = towResearcherUserNum;
+  }
+
+  public String getThreeResearcherUserNum() {
+    return threeResearcherUserNum;
+  }
+
+  public void setThreeResearcherUserNum(String threeResearcherUserNum) {
+    this.threeResearcherUserNum = threeResearcherUserNum;
+  }
+
+  public String getFourResearcherUserNum() {
+    return fourResearcherUserNum;
+  }
+
+  public void setFourResearcherUserNum(String fourResearcherUserNum) {
+    this.fourResearcherUserNum = fourResearcherUserNum;
+  }
+
+  public String getOneClerkUserNum() {
+    return oneClerkUserNum;
+  }
+
+  public void setOneClerkUserNum(String oneClerkUserNum) {
+    this.oneClerkUserNum = oneClerkUserNum;
+  }
+
+  public String getTowClerkUserNum() {
+    return towClerkUserNum;
+  }
+
+  public void setTowClerkUserNum(String towClerkUserNum) {
+    this.towClerkUserNum = towClerkUserNum;
+  }
+
+  public String getThreeClerkUserNum() {
+    return threeClerkUserNum;
+  }
+
+  public void setThreeClerkUserNum(String threeClerkUserNum) {
+    this.threeClerkUserNum = threeClerkUserNum;
+  }
+
+  public String getFourClerkUserNum() {
+    return fourClerkUserNum;
+  }
+
+  public void setFourClerkUserNum(String fourClerkUserNum) {
+    this.fourClerkUserNum = fourClerkUserNum;
+  }
+
+  public String getUserTotal() {
+    return userTotal;
+  }
+
+  public void setUserTotal(String userTotal) {
+    this.userTotal = userTotal;
+  }
+
+  public String getOneClerkVacancyNum() {
+    return oneClerkVacancyNum;
+  }
+
+  public void setOneClerkVacancyNum(String oneClerkVacancyNum) {
+    this.oneClerkVacancyNum = oneClerkVacancyNum;
+  }
+
+  public String getTowClerkVacancyNum() {
+    return towClerkVacancyNum;
+  }
+
+  public void setTowClerkVacancyNum(String towClerkVacancyNum) {
+    this.towClerkVacancyNum = towClerkVacancyNum;
+  }
+
+  public String getThreeClerkVacancyNum() {
+    return threeClerkVacancyNum;
+  }
+
+  public void setThreeClerkVacancyNum(String threeClerkVacancyNum) {
+    this.threeClerkVacancyNum = threeClerkVacancyNum;
+  }
+
+  public String getFourClerkVacancyNum() {
+    return fourClerkVacancyNum;
+  }
+
+  public void setFourClerkVacancyNum(String fourClerkVacancyNum) {
+    this.fourClerkVacancyNum = fourClerkVacancyNum;
+  }
+
+  public String getVacancyTotal() {
+    return vacancyTotal;
+  }
+
+  public void setVacancyTotal(String vacancyTotal) {
+    this.vacancyTotal = vacancyTotal;
+  }
+
+  public String getOneResearcherDraftingNum() {
+    return oneResearcherDraftingNum;
+  }
+
+  public void setOneResearcherDraftingNum(String oneResearcherDraftingNum) {
+    this.oneResearcherDraftingNum = oneResearcherDraftingNum;
+  }
+
+  public String getTowResearcherDraftingNum() {
+    return towResearcherDraftingNum;
+  }
+
+  public void setTowResearcherDraftingNum(String towResearcherDraftingNum) {
+    this.towResearcherDraftingNum = towResearcherDraftingNum;
+  }
+
+  public String getThreeResearcherDraftingNum() {
+    return threeResearcherDraftingNum;
+  }
+
+  public void setThreeResearcherDraftingNum(String threeResearcherDraftingNum) {
+    this.threeResearcherDraftingNum = threeResearcherDraftingNum;
+  }
+
+  public String getFourResearcherDraftingNum() {
+    return fourResearcherDraftingNum;
+  }
+
+  public void setFourResearcherDraftingNum(String fourResearcherDraftingNum) {
+    this.fourResearcherDraftingNum = fourResearcherDraftingNum;
+  }
+
+  public String getOneClerkDraftingNum() {
+    return oneClerkDraftingNum;
+  }
+
+  public void setOneClerkDraftingNum(String oneClerkDraftingNum) {
+    this.oneClerkDraftingNum = oneClerkDraftingNum;
+  }
+
+  public String getTowClerkDraftingNum() {
+    return towClerkDraftingNum;
+  }
+
+  public void setTowClerkDraftingNum(String towClerkDraftingNum) {
+    this.towClerkDraftingNum = towClerkDraftingNum;
+  }
+
+  public String getThreeClerkDraftingNum() {
+    return threeClerkDraftingNum;
+  }
+
+  public void setThreeClerkDraftingNum(String threeClerkDraftingNum) {
+    this.threeClerkDraftingNum = threeClerkDraftingNum;
+  }
+
+  public String getFourClerkDraftingNum() {
+    return fourClerkDraftingNum;
+  }
+
+  public void setFourClerkDraftingNum(String fourClerkDraftingNum) {
+    this.fourClerkDraftingNum = fourClerkDraftingNum;
+  }
+
+  public String getDrafting() {
+    return drafting;
+  }
+
+  public void setDrafting(String drafting) {
+    this.drafting = drafting;
+  }
+
+  public String getOneResearcherDraftingNumDetail() {
+    return oneResearcherDraftingNumDetail;
+  }
+
+  public void setOneResearcherDraftingNumDetail(String oneResearcherDraftingNumDetail) {
+    this.oneResearcherDraftingNumDetail = oneResearcherDraftingNumDetail;
+  }
+
+  public String getTowResearcherDraftingNumDetail() {
+    return towResearcherDraftingNumDetail;
+  }
+
+  public void setTowResearcherDraftingNumDetail(String towResearcherDraftingNumDetail) {
+    this.towResearcherDraftingNumDetail = towResearcherDraftingNumDetail;
+  }
+
+  public String getThreeResearcherDraftingNumDetail() {
+    return threeResearcherDraftingNumDetail;
+  }
+
+  public void setThreeResearcherDraftingNumDetail(String threeResearcherDraftingNumDetail) {
+    this.threeResearcherDraftingNumDetail = threeResearcherDraftingNumDetail;
+  }
+
+  public String getFourResearcherDraftingNumDetail() {
+    return fourResearcherDraftingNumDetail;
+  }
+
+  public void setFourResearcherDraftingNumDetail(String fourResearcherDraftingNumDetail) {
+    this.fourResearcherDraftingNumDetail = fourResearcherDraftingNumDetail;
+  }
+
+  public String getOneClerkDraftingNumDetail() {
+    return oneClerkDraftingNumDetail;
+  }
+
+  public void setOneClerkDraftingNumDetail(String oneClerkDraftingNumDetail) {
+    this.oneClerkDraftingNumDetail = oneClerkDraftingNumDetail;
+  }
+
+  public String getTowClerkDraftingNumDetail() {
+    return towClerkDraftingNumDetail;
+  }
+
+  public void setTowClerkDraftingNumDetail(String towClerkDraftingNumDetail) {
+    this.towClerkDraftingNumDetail = towClerkDraftingNumDetail;
+  }
+
+  public String getThreeClerkDraftingNumDetail() {
+    return threeClerkDraftingNumDetail;
+  }
+
+  public void setThreeClerkDraftingNumDetail(String threeClerkDraftingNumDetail) {
+    this.threeClerkDraftingNumDetail = threeClerkDraftingNumDetail;
+  }
+
+  public String getFourClerkDraftingNumDetail() {
+    return fourClerkDraftingNumDetail;
+  }
+
+  public void setFourClerkDraftingNumDetail(String fourClerkDraftingNumDetail) {
+    this.fourClerkDraftingNumDetail = fourClerkDraftingNumDetail;
+  }
+
+  public String getDataFlag() {
+    return dataFlag;
+  }
+
+  public void setDataFlag(String dataFlag) {
+    this.dataFlag = dataFlag;
+  }
+
+  public List<Sys_Approal> getChildren() {
+    return children;
+  }
+
+  public void setChildren(List<Sys_Approal> children) {
+    this.children = children;
+  }
 }

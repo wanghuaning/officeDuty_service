@@ -58,4 +58,396 @@ public class FormRankModel {
     private Long towClerkDraftingNum=0l;//二级主任科员职数拟定
     private Long threeClerkDraftingNum=0l;//三级主任科员职数拟定
     private Long fourClerkDraftingNum=0l;//四级主任科员职数拟定
+
+    public Long getOneResearcherNum() {
+        return oneResearcherNum;
+    }
+
+    public void setOneResearcherNum(Long oneResearcherNum) {
+        this.oneResearcherNum = oneResearcherNum;
+    }
+
+    public Long getTowResearcherNum() {
+        return towResearcherNum;
+    }
+
+    public void setTowResearcherNum(Long towResearcherNum) {
+        this.towResearcherNum = towResearcherNum;
+    }
+
+    public Long getThreeResearcherNum() {
+        return threeResearcherNum;
+    }
+
+    public void setThreeResearcherNum(Long threeResearcherNum) {
+        this.threeResearcherNum = threeResearcherNum;
+    }
+
+    public Long getFourResearcherNum() {
+        return fourResearcherNum;
+    }
+
+    public void setFourResearcherNum(Long fourResearcherNum) {
+        this.fourResearcherNum = fourResearcherNum;
+    }
+
+    public Long getOneClerkNum() {
+        return oneClerkNum;
+    }
+
+    public void setOneClerkNum(Long oneClerkNum) {
+        this.oneClerkNum = oneClerkNum;
+    }
+
+    public Long getTowClerkNum() {
+        return towClerkNum;
+    }
+
+    public void setTowClerkNum(Long towClerkNum) {
+        this.towClerkNum = towClerkNum;
+    }
+
+    public Long getThreeClerkNum() {
+        return threeClerkNum;
+    }
+
+    public void setThreeClerkNum(Long threeClerkNum) {
+        this.threeClerkNum = threeClerkNum;
+    }
+
+    public Long getFourClerkNum() {
+        return fourClerkNum;
+    }
+
+    public void setFourClerkNum(Long fourClerkNum) {
+        this.fourClerkNum = fourClerkNum;
+    }
+
+    public Long getOneClerk() {
+        return oneClerk;
+    }
+
+    public void setOneClerk(Long oneClerk) {
+        this.oneClerk = oneClerk;
+    }
+
+    public Long getTowClerk() {
+        return towClerk;
+    }
+
+    public void setTowClerk(Long towClerk) {
+        this.towClerk = towClerk;
+    }
+
+    public Long getProbation() {
+        return probation;
+    }
+
+    public void setProbation(Long probation) {
+        this.probation = probation;
+    }
+
+    public Integer getOneResearcherNumTurn() {
+        return oneResearcherNumTurn;
+    }
+
+    public void setOneResearcherNumTurn(Integer oneResearcherNumTurn) {
+        this.oneResearcherNumTurn = oneResearcherNumTurn;
+    }
+
+    public Integer getTowResearcherNumTurn() {
+        return towResearcherNumTurn;
+    }
+
+    public void setTowResearcherNumTurn(Integer towResearcherNumTurn) {
+        this.towResearcherNumTurn = towResearcherNumTurn;
+    }
+
+    public Integer getThreeResearcherNumTurn() {
+        return threeResearcherNumTurn;
+    }
+
+    public void setThreeResearcherNumTurn(Integer threeResearcherNumTurn) {
+        this.threeResearcherNumTurn = threeResearcherNumTurn;
+    }
+
+    public Integer getFourResearcherNumTurn() {
+        return fourResearcherNumTurn;
+    }
+
+    public void setFourResearcherNumTurn(Integer fourResearcherNumTurn) {
+        this.fourResearcherNumTurn = fourResearcherNumTurn;
+    }
+
+    public Integer getOneClerkNumTurn() {
+        return oneClerkNumTurn;
+    }
+
+    public void setOneClerkNumTurn(Integer oneClerkNumTurn) {
+        this.oneClerkNumTurn = oneClerkNumTurn;
+    }
+
+    public Integer getTowClerkNumTurn() {
+        return towClerkNumTurn;
+    }
+
+    public void setTowClerkNumTurn(Integer towClerkNumTurn) {
+        this.towClerkNumTurn = towClerkNumTurn;
+    }
+
+    public Integer getThreeClerkNumTurn() {
+        return threeClerkNumTurn;
+    }
+
+    public void setThreeClerkNumTurn(Integer threeClerkNumTurn) {
+        this.threeClerkNumTurn = threeClerkNumTurn;
+    }
+
+    public Integer getFourClerkNumTurn() {
+        return fourClerkNumTurn;
+    }
+
+    public void setFourClerkNumTurn(Integer fourClerkNumTurn) {
+        this.fourClerkNumTurn = fourClerkNumTurn;
+    }
+
+    public Integer getOneClerkTurn() {
+        return oneClerkTurn;
+    }
+
+    public void setOneClerkTurn(Integer oneClerkTurn) {
+        this.oneClerkTurn = oneClerkTurn;
+    }
+
+    public Integer getTowClerkTurn() {
+        return towClerkTurn;
+    }
+
+    public void setTowClerkTurn(Integer towClerkTurn) {
+        this.towClerkTurn = towClerkTurn;
+    }
+
+    public Integer getProbationTurn() {
+        return probationTurn;
+    }
+
+    public void setProbationTurn(Integer probationTurn) {
+        this.probationTurn = probationTurn;
+    }
+
+    public Long getOneResearcherNumNow() {
+        return oneResearcherNumNow;
+    }
+
+    public void setOneResearcherNumNow(Long oneResearcherNumNow) {
+        this.oneResearcherNumNow = oneResearcherNumNow;
+    }
+
+    public Long getTowResearcherNumNow() {
+        return towResearcherNumNow;
+    }
+
+    public void setTowResearcherNumNow(Long towResearcherNumNow) {
+        this.towResearcherNumNow = towResearcherNumNow;
+    }
+
+    public Long getThreeResearcherNumNow() {
+        return threeResearcherNumNow;
+    }
+
+    public void setThreeResearcherNumNow(Long threeResearcherNumNow) {
+        this.threeResearcherNumNow = threeResearcherNumNow;
+    }
+
+    public Long getFourResearcherNumNow() {
+        return fourResearcherNumNow;
+    }
+
+    public void setFourResearcherNumNow(Long fourResearcherNumNow) {
+        this.fourResearcherNumNow = fourResearcherNumNow;
+    }
+
+    public Long getOneClerkNumNow() {
+        return oneClerkNumNow;
+    }
+
+    public void setOneClerkNumNow(Long oneClerkNumNow) {
+        this.oneClerkNumNow = oneClerkNumNow;
+    }
+
+    public Long getTowClerkNumNow() {
+        return towClerkNumNow;
+    }
+
+    public void setTowClerkNumNow(Long towClerkNumNow) {
+        this.towClerkNumNow = towClerkNumNow;
+    }
+
+    public Long getThreeClerkNumNow() {
+        return threeClerkNumNow;
+    }
+
+    public void setThreeClerkNumNow(Long threeClerkNumNow) {
+        this.threeClerkNumNow = threeClerkNumNow;
+    }
+
+    public Long getFourClerkNumNow() {
+        return fourClerkNumNow;
+    }
+
+    public void setFourClerkNumNow(Long fourClerkNumNow) {
+        this.fourClerkNumNow = fourClerkNumNow;
+    }
+
+    public Long getOneClerkNow() {
+        return oneClerkNow;
+    }
+
+    public void setOneClerkNow(Long oneClerkNow) {
+        this.oneClerkNow = oneClerkNow;
+    }
+
+    public Long getTowClerkNow() {
+        return towClerkNow;
+    }
+
+    public void setTowClerkNow(Long towClerkNow) {
+        this.towClerkNow = towClerkNow;
+    }
+
+    public Long getProbationNow() {
+        return probationNow;
+    }
+
+    public void setProbationNow(Long probationNow) {
+        this.probationNow = probationNow;
+    }
+
+    public Long getOneResearcherNumLave() {
+        return oneResearcherNumLave;
+    }
+
+    public void setOneResearcherNumLave(Long oneResearcherNumLave) {
+        this.oneResearcherNumLave = oneResearcherNumLave;
+    }
+
+    public Long getTowResearcherNumLave() {
+        return towResearcherNumLave;
+    }
+
+    public void setTowResearcherNumLave(Long towResearcherNumLave) {
+        this.towResearcherNumLave = towResearcherNumLave;
+    }
+
+    public Long getThreeResearcherNumLave() {
+        return threeResearcherNumLave;
+    }
+
+    public void setThreeResearcherNumLave(Long threeResearcherNumLave) {
+        this.threeResearcherNumLave = threeResearcherNumLave;
+    }
+
+    public Long getFourResearcherNumLave() {
+        return fourResearcherNumLave;
+    }
+
+    public void setFourResearcherNumLave(Long fourResearcherNumLave) {
+        this.fourResearcherNumLave = fourResearcherNumLave;
+    }
+
+    public Long getOneClerkNumLave() {
+        return oneClerkNumLave;
+    }
+
+    public void setOneClerkNumLave(Long oneClerkNumLave) {
+        this.oneClerkNumLave = oneClerkNumLave;
+    }
+
+    public Long getTowClerkNumLave() {
+        return towClerkNumLave;
+    }
+
+    public void setTowClerkNumLave(Long towClerkNumLave) {
+        this.towClerkNumLave = towClerkNumLave;
+    }
+
+    public Long getThreeClerkNumLave() {
+        return threeClerkNumLave;
+    }
+
+    public void setThreeClerkNumLave(Long threeClerkNumLave) {
+        this.threeClerkNumLave = threeClerkNumLave;
+    }
+
+    public Long getFourClerkNumLave() {
+        return fourClerkNumLave;
+    }
+
+    public void setFourClerkNumLave(Long fourClerkNumLave) {
+        this.fourClerkNumLave = fourClerkNumLave;
+    }
+
+    public Long getOneResearcherDraftingNum() {
+        return oneResearcherDraftingNum;
+    }
+
+    public void setOneResearcherDraftingNum(Long oneResearcherDraftingNum) {
+        this.oneResearcherDraftingNum = oneResearcherDraftingNum;
+    }
+
+    public Long getTowResearcherDraftingNum() {
+        return towResearcherDraftingNum;
+    }
+
+    public void setTowResearcherDraftingNum(Long towResearcherDraftingNum) {
+        this.towResearcherDraftingNum = towResearcherDraftingNum;
+    }
+
+    public Long getThreeResearcherDraftingNum() {
+        return threeResearcherDraftingNum;
+    }
+
+    public void setThreeResearcherDraftingNum(Long threeResearcherDraftingNum) {
+        this.threeResearcherDraftingNum = threeResearcherDraftingNum;
+    }
+
+    public Long getFourResearcherDraftingNum() {
+        return fourResearcherDraftingNum;
+    }
+
+    public void setFourResearcherDraftingNum(Long fourResearcherDraftingNum) {
+        this.fourResearcherDraftingNum = fourResearcherDraftingNum;
+    }
+
+    public Long getOneClerkDraftingNum() {
+        return oneClerkDraftingNum;
+    }
+
+    public void setOneClerkDraftingNum(Long oneClerkDraftingNum) {
+        this.oneClerkDraftingNum = oneClerkDraftingNum;
+    }
+
+    public Long getTowClerkDraftingNum() {
+        return towClerkDraftingNum;
+    }
+
+    public void setTowClerkDraftingNum(Long towClerkDraftingNum) {
+        this.towClerkDraftingNum = towClerkDraftingNum;
+    }
+
+    public Long getThreeClerkDraftingNum() {
+        return threeClerkDraftingNum;
+    }
+
+    public void setThreeClerkDraftingNum(Long threeClerkDraftingNum) {
+        this.threeClerkDraftingNum = threeClerkDraftingNum;
+    }
+
+    public Long getFourClerkDraftingNum() {
+        return fourClerkDraftingNum;
+    }
+
+    public void setFourClerkDraftingNum(Long fourClerkDraftingNum) {
+        this.fourClerkDraftingNum = fourClerkDraftingNum;
+    }
 }
