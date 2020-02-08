@@ -57,7 +57,7 @@ public class SYS_People implements Serializable {
   @Column("sex")
   @Default(value = "男")
   @ColDefine(type = ColType.VARCHAR, width = 8)
-  private String sex;
+  private String sex="男";
 
   @ApiModelProperty("籍贯")
   @Comment("籍贯")
@@ -237,14 +237,18 @@ public class SYS_People implements Serializable {
 
   private Date retireDate;
 
-  private int age;
+  private Integer age=0;
 
-  public int getAge()throws Exception {
+  public Integer getAge()throws Exception {
     if (!StrUtils.isBlank(birthday)){
       return DateUtil.getAgeByBirth(birthday);
     }else {
       return 0;
     }
+  }
+
+  public void setAge(Integer age) {
+    this.age = age;
   }
 
   public Date getOutTime() {

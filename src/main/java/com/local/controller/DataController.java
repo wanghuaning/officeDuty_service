@@ -608,8 +608,8 @@ public class DataController {
                     }else {
                         unitList = key.getJSONArray("unitList");
                         aprovalList = key.getJSONArray("approvalList");
-                        processList = key.getJSONArray("processList");
                     }
+                    processList = key.getJSONArray("processList");
                     SYS_UNIT unit = unitService.selectUnitById(unitID);
                     if (unit == null) {
                         unit = unitService.selectUnitByName(unitName);
@@ -640,7 +640,7 @@ public class DataController {
                             SYS_UNIT punit = unitService.selectUnitById(unitId);
                             SYS_USER user = new SYS_USER();
                             processes = DataManager.saveProcessJsonModel(processList, user, "下行", unit, processService);
-                            if (approals.size() > 0) {
+                            if (processes.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "process", gson.toJson(processes));
                                 DataManager.saveprocessData(processes, processService, "", user);
                                 objects.add(processes);

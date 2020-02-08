@@ -250,7 +250,7 @@ public class PeopleServiceImpl implements PeopleService {
     @Override
     public List<SYS_People> selectTrunPeoplesByUnitId(String[] units,String states) {
         Criteria cri = Cnd.cri();
-        cri.where().andInStrArray("unitId", units).andNotEquals("turn_Rank", null).andEquals("states",states);
+        cri.where().andInStrArray("unitId", units).andNotEquals("turn_Rank", null).andNotEquals("turn_Rank", "").andEquals("states",states);
         List<SYS_People> peoples = new ArrayList<>();
         List<SYS_People> list = dao.query(SYS_People.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {

@@ -428,7 +428,7 @@ public class ExcelFileGenerator<T> {
         //获取标题信息
         for (int i = 0; i < header.getLastCellNum(); ++i) {
             Cell cell = header.getCell(i);
-            headers.add(dataFormatter.formatCellValue(cell));
+            headers.add(dataFormatter.formatCellValue(cell).replaceAll("\uFEFF",""));
         }
         //获取内容信息
         for (int i = rowStart; i <= rowEnd; ++i) {
@@ -436,6 +436,7 @@ public class ExcelFileGenerator<T> {
             if (Objects.isNull(currentRow)) {
                 continue;
             }
+            boolean sd=false;
             Map<String, Object> dataMap = new HashMap<>();
             for (int j = 0; j < currentRow.getLastCellNum(); ++j) {
                 //将null转化为Blank
@@ -446,8 +447,10 @@ public class ExcelFileGenerator<T> {
                     switch (data.getCellType()) {   //不同的类型分别进行存储
                         case Cell.CELL_TYPE_STRING:
                             dataMap.put(headers.get(j), data.getRichStringCellValue().getString());
+                            sd=true;
                             break;
                         case Cell.CELL_TYPE_NUMERIC:
+                            sd=true;
                             if (DateUtil.isCellDateFormatted(data)) {
                                 dataMap.put(headers.get(j), data.getDateCellValue());
                             } else {
@@ -456,9 +459,11 @@ public class ExcelFileGenerator<T> {
                             }
                             break;
                         case Cell.CELL_TYPE_FORMULA:
+                            sd=true;
                             dataMap.put(headers.get(j), data.getCellFormula());
                             break;
                         case Cell.CELL_TYPE_BOOLEAN:
+                            sd=true;
                             dataMap.put(headers.get(j), data.getBooleanCellValue());
                             break;
                         default:
@@ -466,7 +471,9 @@ public class ExcelFileGenerator<T> {
                     }
                 }
             }
-            result.add(dataMap);
+            if (sd){
+                result.add(dataMap);
+            }
         }
         return result;
     }

@@ -38,7 +38,7 @@ public class ProcessServiceImpl implements ProcessService {
     public List<Sys_Process> selectApprProcess(String unitId){
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();
-        cir.where().andEquals("unit_Id",unitId).andEquals("states","已审批");
+        cir.where().andEquals("unit_Id",unitId).andEquals("states","已审核");
         list=dao.query(Sys_Process.class,cir);
         if (list.size()>0){
             return list;

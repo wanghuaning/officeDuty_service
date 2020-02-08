@@ -137,8 +137,8 @@ public class FormManager {
         approalModel.setFourResearcherNumNow(fourResearcherUserNum);
         approalModel.setOneClerkNumNow(oneClerkUserNum);
         approalModel.setTowClerkNumNow(towClerkUserNum);
-        approalModel.setThreeClerkNumNow(fourClerkUserNum);
-        approalModel.setFourClerkNumNow(oneResearcherUserNum);
+        approalModel.setThreeClerkNumNow(threeClerkUserNum);
+        approalModel.setFourClerkNumNow(fourClerkUserNum);
         approalModel.setOneClerkNow(oneClerk);
         approalModel.setTowClerkNow(towClerk);
         approalModel.setProbationNow(probation);

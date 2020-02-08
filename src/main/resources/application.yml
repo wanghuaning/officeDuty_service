@@ -1,13 +1,14 @@
 server:
   port: 8085
+  max-http-header-size: 10000000
+  max-post-size: -1
   tomcat:
     uri-encoding: UTF-8
     max-threads: 1000
     max-connections: 20000
-    max-http-post-size: 0
 spring:
   profiles:
-    active: prol
+    active: dev
 logging:
   file: "C:/log/service_log.log"
   level:

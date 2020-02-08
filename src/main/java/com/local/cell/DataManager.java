@@ -978,7 +978,13 @@ public class DataManager {
                     String enableStr = StrUtils.toNullStr(map.get("是否兼任"));
                     people.setIsEnable(enableStr);
                     people.setRealName(StrUtils.toNullStr(map.get("单列管理事由")));
-                    people.setDetail(StrUtils.toNullStr(map.get("特殊人员")));
+                    String jun=StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数"));
+                    String danlei=StrUtils.toNullStr(map.get("实名制职务名称"));
+                    if (jun!=null){
+                        people.setDetail("军转干部");
+                    }else if (danlei!=null){
+                        people.setDetail("实名制管理领导干部");
+                    }
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
                     if (people1 != null) {
                         if ("1".equals(fullImport)) {

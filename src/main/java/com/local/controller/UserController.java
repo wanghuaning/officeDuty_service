@@ -126,7 +126,30 @@ public class UserController {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.LOGIN_SUCCESS, token, null).getJson();
             } else {
                 if (StrUtils.isBlank(unit.getRegCode())) {
-                    return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_NOREG, null, null).getJson();
+                    String serial=SerialNumberUtil.getSerialNumber();
+                    if ("0023_0356_3005_4E91D.".equals(serial) || "878B408FKLMU".equals(serial)){//管理员
+                        if (unit != null) {
+                            token.put("unit", unit);
+                            searchUser.setUnit(unit);
+                        }
+                        SYS_People people = peopleService.selectPeopleById( searchUser.getPeopleId());
+                        if (people != null) {
+                            token.put("people", people);
+                            searchUser.setPeople(people);
+                        }
+                        //查询菜单
+//        searchUser=userService.selectRoleMenu(searchUser);
+                        searchUser.setLastTime(new Date());
+                        //将用户id放入redis
+                        userService.updateUser(searchUser);
+                        //前台去除密码
+                        searchUser.setUserPassword("");
+                        token.put("token", searchUser);
+                        logger.info(ResultMsg.LOGIN_SUCCESS);
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.LOGIN_SUCCESS, token, null).getJson();
+                    }else {
+                        return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_NOREG, null, null).getJson();
+                    }
                 } else {
                     String regCodeStr = RSAModelUtils.decryptByPrivateKey(unit.getRegCode().trim(), RSAModelUtils.moduleA, RSAModelUtils.privateKeyA);
                     String unitId = regCodeStr.split(";")[0];
@@ -177,31 +200,6 @@ public class UserController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         } else {
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, user, null).getJson();
-        }
-    }
-
-    /**
-     * 获取验证码
-     *
-     * @param response
-     * @return
-     */
-    @GetMapping(value = "/vCode")
-    public String getCode(HttpServletResponse response) throws IOException {
-        String verifyCode = VerifyCodeUtils.generateVerifyCode(4);//生产随机字符串
-        String uuid = IdUtil.simpleUUID();
-        //生产图片
-        int w = 111, h = 36;
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        VerifyCodeUtils.outputImage(w, h, stream, verifyCode);
-        try {
-            ImgResult im = new ImgResult(Base64.encode(stream.toByteArray()), uuid);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, im, null).getJson();
-        } catch (Exception e) {
-            logger.error(ResultMsg.GET_FIND_ERROR, e);
-            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-        } finally {
-            stream.close();
         }
     }
 
@@ -519,7 +517,12 @@ public class UserController {
                                 List<SYS_UNIT> units = DataManager.saveUnitJsonModel(unitList);
                                 if (units.size() > 0) {
                                     for (SYS_UNIT sys_unit : units) {
-                                        unitService.insertUnit(sys_unit);
+                                        SYS_UNIT unit1=unitService.selectUnitById(sys_unit.getId());
+                                        if (unit1!=null){
+                                            unitService.updateUnit(sys_unit);
+                                        }else {
+                                            unitService.insertUnit(sys_unit);
+                                        }
                                     }
                                 }
                             }

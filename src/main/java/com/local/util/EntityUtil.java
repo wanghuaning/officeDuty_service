@@ -59,7 +59,7 @@ public class EntityUtil {
                     name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
                     Method m = model.getClass().getMethod("get" + name);
                     Integer value = (Integer) m.invoke(model);
-                    if (value == null) {
+                    if (value == null || value == 0) {
                         m = model.getClass().getMethod("set" + name, Integer.class);
                         m.invoke(model, sd);
                     }
@@ -71,7 +71,7 @@ public class EntityUtil {
                     name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
                     Method m = model.getClass().getMethod("get" + name);
                     Long value = (Long) m.invoke(model);
-                    if (value == null) {
+                    if (value == null || value == 0) {
                         m = model.getClass().getMethod("set" + name, Long.class);
                         m.invoke(model, sd);
                     }
@@ -95,7 +95,7 @@ public class EntityUtil {
                     name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
                     Method m = model.getClass().getMethod("get" + name);
                     Integer value = (Integer) m.invoke(model);
-                    if (value == null) {
+                    if (value == null || value == 0) {
                         m = model.getClass().getMethod("set" + name, Integer.class);
                         m.invoke(model, sd);
                     }
