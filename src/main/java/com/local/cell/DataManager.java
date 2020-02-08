@@ -3439,10 +3439,18 @@ public class DataManager {
              if (people.getBirthday()!=null) {
                  value = DateUtil.dateToString(people.getCreateTime());
              }
-        }else if ("特殊人员（军转不占职数等）".equals(name)){
-            value=people.getDetail();
-        }else if ("单列管理事由".equals(name)){
-            value=people.getRealName();
+        }else if ("军转干部首次套转不占职数".equals(name)){
+             if ("军转干部".equals(people.getDetail())){
+                 value="是";
+             }else {
+                 value="否";
+             }
+        }else if ("实名制（单列）管理干部".equals(name)){
+             if ("实名制管理领导干部".equals(people.getDetail())){
+                 value="是";
+             }else {
+                 value="否";
+             }
         }else if ("籍贯".equals(name)){
             value=people.getBirthplace();
         }else if ("是否基层工作两年以上".equals(name)){
