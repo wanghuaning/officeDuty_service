@@ -28,7 +28,7 @@ public class PeopleServiceImpl implements PeopleService {
     private Dao dao;
 
     @Override
-    public QueryResult selectPeoples(int pageSize, int pageNumber, String unitId, String name, String idcard, String politicalStatus, String states) {
+    public QueryResult selectPeoples(int pageSize, int pageNumber, String unitId, String name, String idcard, String politicalStatus, String states,String detail) {
         Pager pager = new Pager();
         pager.setPageNumber(pageNumber + 1);
         pager.setPageSize(pageSize);
@@ -47,6 +47,15 @@ public class PeopleServiceImpl implements PeopleService {
                 cri.where().andEquals("political_Status", "事业编制（参公）");
             } else if ("other".equals(politicalStatus)) {
                 cri.where().andEquals("political_Status", "其他");
+            }
+        }
+        if (!StrUtils.isBlank(detail)) {
+            if ("jun".equals(detail)) {
+                cri.where().andEquals("detail", "军转干部");
+            } else if ("ganbu".equals(detail)) {
+                cri.where().andEquals("detail", "实名制管理领导干部");
+            } else if ("other".equals(detail)) {
+                cri.where().andNotEquals("detail", "军转干部").andNotEquals("detail", "实名制管理领导干部");
             }
         }
         if (!StrUtils.isBlank(states) && !"全部".equals(states)) {

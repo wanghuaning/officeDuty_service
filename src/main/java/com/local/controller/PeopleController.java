@@ -51,7 +51,8 @@ public class PeopleController {
                              @RequestParam(value = "name", required = false) String name,
                              @RequestParam(value = "idcard", required = false) String idcard,
                              @RequestParam(value = "politicalStatus", required = false) String politicalStatus,
-                             @RequestParam(value = "states", required = false) String states, HttpServletRequest request) {
+                             @RequestParam(value = "states", required = false) String states,
+                             @RequestParam(value = "detail", required = false) String detail, HttpServletRequest request) {
         try {
             if (StrUtils.isBlank(unitId)) {
                 SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
@@ -59,7 +60,7 @@ public class PeopleController {
                     unitId = user.getUnitId();
                 }
             }
-            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states);
+            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states,detail);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);

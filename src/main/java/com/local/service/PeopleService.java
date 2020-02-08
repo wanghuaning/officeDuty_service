@@ -11,7 +11,7 @@ public interface PeopleService {
     void updatePeople(SYS_People people);
     void deletePeople(String id);
 
-    QueryResult selectPeoples(int pageSize, int pageNumber,String unitId,String name,String idcard,String politicalStatus,String states);
+    QueryResult selectPeoples(int pageSize, int pageNumber,String unitId,String name,String idcard,String politicalStatus,String states,String detail);
 
     SYS_People selectPeopleById(String id);//根据Id查询
 
