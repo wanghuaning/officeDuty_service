@@ -834,8 +834,8 @@ public class DataManager {
             ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
             excelFileGenerator.setExcleNAME(response, "公务员职级任免审批表.xls");
             excelFileGenerator.createReimbursementExcel(temp.getSheet("任免审批表"), reimbursementModel);
-//            temp.write(response.getOutputStream());
-//            temp.close();
+            temp.write(response.getOutputStream());
+            temp.close();
 //            return temp;
         }
     }

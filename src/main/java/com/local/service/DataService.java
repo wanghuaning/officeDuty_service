@@ -15,7 +15,5 @@ public interface DataService {
     SYS_Digest selectDigestById(String id);
     void insertDigest(SYS_Digest digest);
     void updateDigest(SYS_Digest digest);
-    QueryResult selectDigests(int pageSize, int pageNumber,String unitName);
-
 
 }

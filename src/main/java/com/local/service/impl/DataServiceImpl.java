@@ -87,22 +87,4 @@ public class DataServiceImpl implements DataService {
    public void updateDigest(SYS_Digest digest){
         dao.update(digest);
    }
-
-   @Override
-    public QueryResult selectDigests(int pageSize, int pageNumber,String unitId){
-       Pager pager = new Pager();
-       pager.setPageNumber(pageNumber + 1);
-       pager.setPageSize(pageSize);
-       List<SYS_Digest> peopleList = new ArrayList<>();
-       Criteria cri = Cnd.cri();
-       cri.where().andEquals("unit_Id", unitId);
-       cri.getOrderBy().asc("years").asc("quarter");
-       peopleList = dao.query(SYS_Digest.class, cri, pager);
-       if (StrUtils.isBlank(pager)) {
-           pager = new Pager();
-       }
-       pager.setRecordCount(dao.count(SYS_Digest.class, cri));
-       QueryResult queryResult = new QueryResult(peopleList, pager);
-       return queryResult;
-   }
 }

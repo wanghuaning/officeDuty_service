@@ -1,45 +1,38 @@
 package com.local.controller;
 
 
-import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.local.cell.DataManager;
-import com.local.cell.PeopleManager;
-import com.local.cell.UnitManager;
 import com.local.cell.UserManager;
-import com.local.common.config.CompareFileds;
 import com.local.common.filter.FileUtil;
 import com.local.entity.sys.*;
 import com.local.model.*;
 import com.local.service.*;
 import com.local.util.*;
-import com.sun.org.apache.regexp.internal.RE;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
 import org.nutz.dao.pager.Pager;
-import org.omg.CORBA.OBJ_ADAPTER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.unit.DataUnit;
+import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/data")
 public class DataController {
     private final File jsonFile = File.createTempFile("downloadJson", ".json");//创建临时文件
@@ -1177,36 +1170,66 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
-    @RequestMapping(value = "/exportFreePeoples")
-    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
-        try {
-            String userAgent = request.getHeader("User-Agent");
-            if (StrUtils.isBlank(peopleIds)){
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
-            }else {
-                List<Workbook> workBookList = new ArrayList<>();
-                for (int i = 0; i < peopleIds.length; i++) {
-                    String peopleId = peopleIds[0];
-                    SYS_People people = peopleService.selectPeopleById(peopleId);
-                    if (people != null) {
-                        ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
-                        String path = resource.getFile().getPath();
-                        Workbook temp = ExcelFileGenerator.getTeplet(path);
-                                 DataManager.exportFreePeoples(temp,response, peopleService, peopleId, rankService, educationService, assessmentService, unitService);
-                        workBookList.add(temp);
-                    }
-                }
-                    ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
-                    excelFileGenerator.creatExcelZip(workBookList, "批量导出公务员职级任免审批表", response, userAgent, 0, 2, 0);
-                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
-
-            }
-        } catch (Exception e) {
-            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+//    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
+//    @RequestMapping(value = "/exportFreePeoples")
+//    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
+//        try {
+//            String userAgent = request.getHeader("User-Agent");
+//            if (StrUtils.isBlank(peopleIds)){
+//                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+//            }else {
+//                List<Workbook> workBookList = new ArrayList<>();
+//                for (int i = 0; i < peopleIds.length; i++) {
+//                    String peopleId = peopleIds[0];
+//                    SYS_People people = peopleService.selectPeopleById(peopleId);
+//                    if (people != null) {
+//                        ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
+//                        String path = resource.getFile().getPath();
+//                        Workbook temp = ExcelFileGenerator.getTeplet(path);
+//                                 DataManager.exportFreePeoples(temp,response, peopleService, peopleId, rankService, educationService, assessmentService, unitService);
+//                        workBookList.add(temp);
+//                    }
+//                }
+//                    ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+//                    excelFileGenerator.creatExcelZip(workBookList, "批量导出公务员职级任免审批表", response, userAgent, 0, 2, 0);
+//                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
+//
+//            }
+//        } catch (Exception e) {
+//            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+//            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+//        }
+//    }
+@ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
+@RequestMapping(value = "/exportFreePeoples")// ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds
+public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidClassException,Exception{
+        String[] peopleIds={"101bb91f-6cb9-4020-ac62-b378842675c4"};//,"44c0fa5a-3165-48b6-9cdc-cb83f0c768fc"
+        String userAgent = request.getHeader("User-Agent");
+        if (StrUtils.isBlank(peopleIds)){
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }else {
+            Resource resource = new ClassPathResource("exportExcel/exportCompleteInfo.xls");
+//            ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
+            String path = resource.getFile().getPath();
+            List<Workbook> workBookList = new ArrayList<>();
+            String[] arr = {"name", "firstBatch", "secondBatch", "thirdBatch", "ganBuNum", "fourBatch", "fiveBatch", "sexBatch", "total"};
+            List<CompleteModel> models = new ArrayList<>();
+            CompleteModel model = new CompleteModel();
+            model.setName("实施1");
+            models.add(model);
+            CompleteModel model1 = new CompleteModel();
+            model1.setName("实施2");
+            models.add(model1);
+            for (int i = 0; i < peopleIds.length; i++) {
+                 Workbook temp = ExcelFileGenerator.getTeplet(path);
+                 ExcelFileGenerator.createExcelFileOld(temp.getSheet("职级晋升情况"), 2, models, arr);
+                 workBookList.add(temp);
+            }
+            ExcelFileGenerator.creatExcelZip(workBookList,"案系统压缩包","职级晋升情况",response,userAgent,0,2,0);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
+
         }
-    }
+}
     @ApiOperation(value = "超职级职数消化情况表初始化", notes = "超职级职数消化情况表初始化", httpMethod = "GET", tags = "超职级职数消化情况表初始化接口")
     @RequestMapping(value = "/saveDigestData")
     public String saveDigestData(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitName") String unitName,
@@ -1386,7 +1409,6 @@ public class DataController {
                     digest.setOneTowClerkResult(String.valueOf(oneTowClerkExceed-onejinsheng-onelingdao-onetuixiu-onetiqiantuixiu-onediaochu-oneqita));
                     digest.setThreeFourClerkResult(String.valueOf(threeFourClerkExceed-towjinsheng-towlingdao-towtuixiu-towtiqiantuixiu-towdiaochu-towqita));
                     digest.setId(uuid);
-                    System.out.println(digest.getId());
                     if (sys_digest!=null){
                         dataService.updateDigest(digest);
                     }else {
@@ -1408,9 +1430,7 @@ public class DataController {
     @ApiOperation(value = "超职级职数消化情况表", notes = "超职级职数消化情况表", httpMethod = "GET", tags = "超职级职数消化情况表接口")
     @GetMapping("/digestData")
     @ResponseBody
-    public String getDigestData(@RequestParam(value = "size", required = false) String pageSize,
-                             @RequestParam(value = "page", required = false) String pageNumber,
-                             @RequestParam(value = "unitName", required = false) String unitName) {
+    public String getDigestData(@RequestParam(value = "unitName", required = false) String unitName) {
         try {
             if (StrUtils.isBlank(unitName)){
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
@@ -1419,8 +1439,82 @@ public class DataController {
             if (unit==null){
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-            QueryResult queryResult = dataService.selectDigests(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unit.getId());
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            List<SYS_Digest>  queryResult = dataService.selectDigestsByUnitId(unit.getId());
+            if (queryResult!=null){
+                DigestModel model=new DigestModel();
+                model.setUnitId(unit.getId());
+                for (SYS_Digest digest:queryResult){
+                    if (digest.getYears().contains("2020") && digest.getQuarter().equals("1")){
+                        model.setOneTowClerkRemove1(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove1(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay1(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay1(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("2")){
+                        model.setOneTowClerkRemove2(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove2(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay2(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay2(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("3")){
+                        model.setOneTowClerkRemove3(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove3(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay3(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay3(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("4")){
+                        model.setOneTowClerkRemove4(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove4(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay4(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay4(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("1")){
+                        model.setOneTowClerkRemove5(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove5(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay5(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay5(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("2")){
+                        model.setOneTowClerkRemove6(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove6(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay6(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay6(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("3")){
+                        model.setOneTowClerkRemove7(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove7(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay7(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay7(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("4")){
+                        model.setOneTowClerkRemove8(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove8(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay8(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay8(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("1")){
+                        model.setOneTowClerkRemove9(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove9(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay9(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay9(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("2")){
+                        model.setOneTowClerkRemove10(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove10(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay10(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay10(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("3")){
+                        model.setOneTowClerkRemove11(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove11(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay11(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay11(Integer.valueOf(digest.getUpPlanWay()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("4")){
+                        model.setOneTowClerkRemove12(Integer.valueOf(digest.getOneTowClerkRemove()));
+                        model.setThreeFourClerkRemove12(Integer.valueOf(digest.getThreeFourClerkRemove()));
+                        model.setRetirePlanWay12(Integer.valueOf(digest.getRetirePlanWay()));
+                        model.setUpPlanWay12(Integer.valueOf(digest.getUpPlanWay()));
+                    }
+                }
+                List<SYS_Digest> digestList=new ArrayList<>();
+                for (SYS_Digest digest:queryResult){
+                    digest.setModel(model);
+                    digestList.add(digest);
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, digestList, null).getJson();
+            }else {
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, new ArrayList<SYS_Digest>(), null).getJson();
+            }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
@@ -1429,16 +1523,75 @@ public class DataController {
     @ApiOperation(value = "修改超职级职数消化情况表", notes = "修改超职级职数消化情况表", httpMethod = "POST", tags = "修改超职级职数消化情况表接口")
     @PostMapping(value = "/editDigest")
     @ResponseBody
-    public String editDigest(@Validated @RequestBody SYS_Digest digest) {
+    public String editDigest(@Validated @RequestBody DigestModel model) {
         try {
-            SYS_Digest sys_digest = dataService.selectDigestById(digest.getId());
-            if (sys_digest != null) {
-                digest.setId(sys_digest.getId());
-                digest.setUnitId(sys_digest.getUnitId());
-                digest.setYears(sys_digest.getYears());
-                digest.setQuarter(sys_digest.getQuarter());
-                dataService.updateDigest(digest);
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, digest, null).getJson();
+            List<SYS_Digest> digestList = dataService.selectDigestsByUnitId(model.getUnitId());
+            if (digestList != null) {
+                for (SYS_Digest digest:digestList){
+                    if (digest.getYears().contains("2020") && digest.getQuarter().equals("1")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove1()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove1()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay1()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay1()));
+                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("2")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove2()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove2()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay2()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay2()));
+                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("3")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove3()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove3()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay3()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay3()));
+                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("4")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove4()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove4()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay4()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay4()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("1")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove5()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove5()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay5()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay5()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("2")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove6()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove6()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay6()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay6()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("3")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove7()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove7()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay7()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay7()));
+                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("4")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove8()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove8()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay8()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay8()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("8")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove9()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove9()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay9()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay9()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("2")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove10()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove10()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay10()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay10()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("3")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove11()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove11()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay11()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay11()));
+                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("4")){
+                        digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove12()));
+                        digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove12()));
+                        digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay12()));
+                        digest.setUpPlanWay(String.valueOf(model.getUpPlanWay12()));
+                    }
+                    dataService.updateDigest(digest);
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, digestList, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
             }

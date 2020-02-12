@@ -1,15 +1,11 @@
 package com.local.util;
 
-import com.local.controller.UnitConttoller;
 import com.local.entity.sys.Sys_Approal;
-import com.local.model.ApproalModel;
+import com.local.model.CompleteModel;
 import com.local.model.RegModel;
 import com.local.model.ReimbursementModel;
-import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -18,9 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.servlet.http.HttpServletResponse;
-import javax.sound.midi.Soundbank;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -215,7 +209,71 @@ public class ExcelFileGenerator<T> {
         }
         return rowIndex;
     }
-
+    public static int  createExcelFileOld(Sheet sheet, int dataStartIndex, List<CompleteModel> data, String[] columns)throws Exception{
+        CellStyle cellStyle=sheet.getWorkbook().createCellStyle();
+        cellStyle.setBorderBottom(BorderStyle.DOUBLE ); //下边框
+        cellStyle.setBorderLeft(BorderStyle.THICK); //左边框
+        cellStyle.setBorderTop(BorderStyle.MEDIUM); //上边框
+        cellStyle.setBorderRight(BorderStyle.DASH_DOT); //右边框
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font=sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        int rowIndex=dataStartIndex;
+        if(data.size()>0){
+            Class classType=data.get(0).getClass();
+            for(Object d:data){
+                Row row=sheet.createRow(rowIndex);
+                boolean isChanged = false;
+                for (int i=0;i <columns.length;i++) {
+                    Cell c = row.createCell(i);
+                    c.setCellStyle(cellStyle);
+                    if (columns[i] != null && columns[i].length() > 0) {
+                        String normalName = columns[i].substring(0,1).toUpperCase() + columns[i].substring(1);
+                        Object rs = classType.getMethod("get" + normalName).invoke(d);
+                        if (rs != null) {
+                            isChanged = true;
+                            setCellFormattedValueOld(c, rs);
+                        }
+                    }
+                }
+                if (isChanged) rowIndex += 1;
+            }
+        }
+        return rowIndex;
+    }
+    private static void  setCellFormattedValueOld(Cell c, Object rs) {
+        if (rs == null) {
+            c.setCellType(CellType.BLANK);
+        } else {
+            String v = (String) rs;
+//            Boolean strResult =StrUtils.isNumeric(v);
+//            if (strResult) {
+//                c.setCellType(CellType.NUMERIC);
+//                Double d=Double.valueOf(v);
+//                c.setCellValue(d);
+//            } else {
+            if (v.contains("color")) {
+                int index1 = v.indexOf(">");
+                int index2 = v.indexOf("<", 1); //跳过第一个，从索引1开始搜索
+                String value = v.substring(index1 + 1, index2);
+                c.setCellType(CellType.NUMERIC);
+                c.setCellValue( Double.valueOf(value));
+            }
+//                else if (v.length() < 9 && (v.matches("^\\d+$") || v.matches("^\\d+\\.+\\d+$") || v.matches("^((\\d+\\.?+\\d+)[Ee]{1}(\\d+))$"))) {
+//                    c.setCellType(CellType.NUMERIC);
+//                    c.setCellValue(Double.valueOf(v));
+//                }
+            else {
+                c.setCellType(CellType.STRING);
+                c.setCellValue(v);
+            }
+        }
+//        }
+    }
     /**
      * 设置单元格的值，并判断是否数字
      */
@@ -274,7 +332,7 @@ public class ExcelFileGenerator<T> {
         String fileName = tableName + ".zip";
         String zipFileName = "";
         if (userAgent.toLowerCase().indexOf("firefox") > 0) {
-            zipFileName = new String(fileName.getBytes("UTF-8"), "ISO8859-1");
+            zipFileName = new java.lang.String(fileName.getBytes("UTF-8"), "ISO8859-1");
         } else {
             zipFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
         }
@@ -288,13 +346,15 @@ public class ExcelFileGenerator<T> {
             if (rowIndex == 0 && colIndex == 0) {
                 zipOut.putNextEntry(new ZipEntry(excleName + ".xls"));
             } else {
-                Sheet sheet = workBook.getSheetAt(0);
+                Sheet sheet = workBook.getSheetAt(sheetIndex);
                 name = sheet.getRow(rowIndex).getCell(colIndex).getStringCellValue().trim();
+//                zipOut.putNextEntry(new ZipEntry(excleName + i + ".xls"));
                 zipOut.putNextEntry(new ZipEntry(excleName + i + ".xls"));
             }
             i += 1;
             workBook.write(zipOut);
             workBook.close();
+            System.out.println(name+"=>"+workBook.getSheetName(0));
             System.out.println("压缩好第" + i + "个");
         }
         zipOut.close();
@@ -846,6 +906,7 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,18,8,data.getThreeClerkDraftingNum());
         setValue(sheet,18,9,data.getFourClerkDraftingNum());
     }
+
     /**
      * row:行
      * @param sheet
