@@ -896,4 +896,44 @@ public class ExcelFileGenerator<T> {
             setValueStyle(sheet,0,i,data[i-3],cellStyle);
         }
     }
+
+    /**
+     * author h
+     * 创建excel的压缩文件包
+     *
+     * @param tableName  压缩包名字
+     * @param userAgent  处理firefox乱码
+     * @param sheetIndex 名字所在表坐标
+     * @param rowIndex   获取名字row的坐标
+     * @param colIndex   获取名字col坐标
+     */
+    public void creatExcelZip(List<Workbook> workBookList,String tableName, HttpServletResponse response,String userAgent,int sheetIndex,int rowIndex,int colIndex) throws Exception{
+        String fileName = tableName + ".zip";
+        String zipFileName = "";
+        if (userAgent.toLowerCase().indexOf("firefox") > 0) {
+            zipFileName = new java.lang.String(fileName.getBytes("UTF-8"), "ISO8859-1");
+        } else {
+            zipFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
+        }
+        String zipName = zipFileName;
+        response.setContentType("APPLICATION/OCTET-STREAM");
+        response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
+        ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream());
+        int i = 0;
+        for (Workbook workBook: workBookList) {
+            String name = workBook.getSheetName(0);
+            if (rowIndex == 0 && colIndex == 0) {
+                zipOut.putNextEntry(new ZipEntry(i + ".xls"));
+            } else {
+                Sheet sheet = workBook.getSheetAt(0);
+                name = sheet.getRow(rowIndex).getCell(colIndex).getStringCellValue().trim();
+                zipOut.putNextEntry(new ZipEntry(name + ".xls"));
+            }
+            i += 1;
+            workBook.write(zipOut);
+            workBook.close();
+            //       println("压缩好第"+i+"个")
+        }
+        zipOut.close();
+    }
 }

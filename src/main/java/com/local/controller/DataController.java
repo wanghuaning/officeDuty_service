@@ -1177,7 +1177,36 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
+    @RequestMapping(value = "/exportFreePeoples")
+    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
+        try {
+            String userAgent = request.getHeader("User-Agent");
+            if (StrUtils.isBlank(peopleIds)){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+            }else {
+                List<Workbook> workBookList = new ArrayList<>();
+                for (int i = 0; i < peopleIds.length; i++) {
+                    String peopleId = peopleIds[0];
+                    SYS_People people = peopleService.selectPeopleById(peopleId);
+                    if (people != null) {
+                        ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
+                        String path = resource.getFile().getPath();
+                        Workbook temp = ExcelFileGenerator.getTeplet(path);
+                                 DataManager.exportFreePeoples(temp,response, peopleService, peopleId, rankService, educationService, assessmentService, unitService);
+                        workBookList.add(temp);
+                    }
+                }
+                    ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+                    excelFileGenerator.creatExcelZip(workBookList, "批量导出公务员职级任免审批表", response, userAgent, 0, 2, 0);
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
 
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "超职级职数消化情况表初始化", notes = "超职级职数消化情况表初始化", httpMethod = "GET", tags = "超职级职数消化情况表初始化接口")
     @RequestMapping(value = "/saveDigestData")
     public String saveDigestData(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitName") String unitName,

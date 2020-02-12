@@ -1,15 +1,16 @@
 package com.local.controller;
 
+import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UserManager;
-import com.local.entity.sys.SYS_People;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.entity.sys.SYS_USER;
+import com.local.entity.sys.*;
 import com.local.service.PeopleService;
 import com.local.service.UnitService;
 import com.local.service.UserService;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.dao.QueryResult;
 import org.nutz.dao.pager.Pager;
@@ -26,6 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -52,12 +57,19 @@ public class PeopleController {
                              @RequestParam(value = "idcard", required = false) String idcard,
                              @RequestParam(value = "politicalStatus", required = false) String politicalStatus,
                              @RequestParam(value = "states", required = false) String states,
-                             @RequestParam(value = "detail", required = false) String detail, HttpServletRequest request) {
+                             @RequestParam(value = "detail", required = false) String detail,
+                             @RequestParam(value = "unitName", required = false) String unitName, HttpServletRequest request) {
         try {
             if (StrUtils.isBlank(unitId)) {
                 SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
                 if (user != null) {
                     unitId = user.getUnitId();
+                }
+            }
+            if (!StrUtils.isBlank(unitName)){
+                SYS_UNIT unit=unitService.selectUnitByName(unitName);
+                if (unit!=null){
+                    unitId=unit.getId();
                 }
             }
             QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states,detail);
@@ -165,14 +177,74 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-
-    /**
-     * 已取消使用
-     *
-     * @param excelFile
-     * @param fullImport
-     * @return
+    /*
+  @ApiOperation(value = "导出调出人员信息", notes = "导出调出人员信息", httpMethod = "POST", tags = "导出调出人员信息接口")
+  @RequestMapping(value = "/outOutPeopleExcel")
+  public String outOutPeopleExcel(HttpServletRequest request, HttpServletResponse response,
+                               @RequestParam(value = "unitName", required = false) String unitName,
+                               @RequestParam(value = "peopleIds", required = false) String peopleIds) {
+      try {
+          if (StrUtils.isBlank(peopleIds)){
+              return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
+          }
+          String[] arr=peopleIds.split("\\,");
+          List<Object> objects = new ArrayList<>();
+          //从请求的header中取出当前登录的登录
+          Map<String, Object> paramsMap = new HashMap<>();
+          paramsMap.put("note", "调出");
+          paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
+          paramsMap.put("peopleId", peopleId);
+          Map<String, Object> resultMap = new HashMap<>();
+          List<SYS_People> peopleList = new ArrayList<>();
+          SYS_People people = peopleService.selectPeopleById(peopleId);
+          if (people != null) {
+              if (people.getStates().contains("调出")) {
+                  peopleList.add(people);
+                  JSONArray peoples = JSONArray.fromObject(peopleList);
+                  resultMap.put("peopleList", peoples);
+                  objects.add(peoples);
+                  List<SYS_Duty> dutyList = DataManager.getOutPeopleDutyJson(resultMap, people, dutyService);
+                  objects.addAll(dutyList);
+                  List<SYS_Rank> rankList = DataManager.getOutPeopleRankJson(resultMap, people, rankService);
+                  objects.addAll(rankList);
+                  List<SYS_Education> educationList = DataManager.getOutPeopleEducationJson(resultMap, people, educationService);
+                  objects.addAll(educationList);
+                  List<SYS_Reward> rewardList = DataManager.getOutPeopleRewardJson(resultMap, people, rewardService);
+                  objects.addAll(rankList);
+                  List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
+                  objects.addAll(assessmentList);
+              } else {
+                  return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
+              }
+          } else {
+              return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+          }
+          JSONObject resultList = JSONObject.fromObject(resultMap);
+          paramsMap.put("result", resultList);
+          JSONObject resultJson = JSONObject.fromObject(paramsMap);
+          byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
+          String paramsCipher = AESUtil.parseByte2HexStr(encode);
+          File file = jsonFile;
+          Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+          writer.write(paramsCipher);
+          writer.flush();
+          writer.close();
+          return paramsCipher;
+      } catch (Exception e) {
+          logger.error(ResultMsg.GET_ERROR, e);
+          return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+      } finally {
+          jsonFile.deleteOnExit();//程序结束 删除临时文件
+      }
+  }
      */
+  /**
+   * 已取消使用
+   *
+   * @param excelFile
+   * @param fullImport
+   * @return
+   */
     @ApiOperation(value = "导入人员", notes = "导入人员", httpMethod = "POST", tags = "导入人员接口")
     @RequestMapping(value = "/import")
     public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile, @RequestParam(value = "fullImport", required = false) String fullImport) {

@@ -36,6 +36,14 @@ public class MenuServiceImpl implements MenuService {
                     if (fmenu.getChildren()==null){
                         fmenu.setChildren(new ArrayList<SYS_Menu>());
                     }
+                    for (SYS_Menu menu1:cmenus ) {
+                        if (menu1.getMenuParentId().equals(menu.getMenuId())) {
+                            if (menu.getChildren() == null) {
+                                menu.setChildren(new ArrayList<SYS_Menu>());
+                            }
+                            menu.getChildren().add(menu1);
+                        }
+                    }
                     fmenu.getChildren().add(menu);
                 }
             }

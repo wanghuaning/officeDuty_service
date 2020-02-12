@@ -106,8 +106,8 @@ public class DutyServiceImpl implements DutyService {
         cir.getOrderBy().desc("create_Time");
         list = dao.query(SYS_Duty.class, cir);
         if (list.size() > 0) {
-            List<SYS_Duty> nowDuty=dao.query(SYS_Duty.class, Cnd.where("parent_Id", "=", pid).and("create_Time",">",list.get(0).getCreateTime()));
-            if (nowDuty!=null){
+            List<SYS_Duty> nowDuty=dao.query(SYS_Duty.class, Cnd.where("people_Id", "=", pid).and("create_Time",">",list.get(0).getCreateTime()).andNot("approval_Time","=",null));
+            if (nowDuty.size()>0){
                 return null;
             }else {
                 return list.get(0);
