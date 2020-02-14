@@ -2,6 +2,7 @@ package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
 import com.local.entity.sys.SYS_Data;
+import com.local.entity.sys.SYS_Duty;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.entity.sys.Sys_Process;
 import com.local.service.ProcessService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -100,6 +102,29 @@ public class ProcessServiceImpl implements ProcessService {
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();
         cir.where().andEquals("unit_Id",unitId).andEquals("flag",flag).andEquals("states","未审批");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public Sys_Process selectProcessByFlagAndDate(String unitId, String flag, Date startDate){
+        Criteria cir= Cnd.cri();
+        List<Sys_Process> nowDuty=dao.query(Sys_Process.class, Cnd.where("unit_Id", "=", unitId).and("create_Time",">",startDate).andNot("flag","=",flag));
+        if (nowDuty.size()>0){
+            return nowDuty.get(0);
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public Sys_Process selectProcessByFlagAnd(String unitId,String flag,String states){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId).andEquals("flag",flag).andEquals("states",states);
+        cir.getOrderBy().desc("create_Time");
         list=dao.query(Sys_Process.class,cir);
         if (list.size()>0){
             return list.get(0);

@@ -1586,8 +1586,8 @@ public class DataManager {
         SYS_UNIT unit = unitService.selectUnitById(unitId);
         List<SYS_UNIT> unitList = new ArrayList<>();
         unitList.add(unit);
-        List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unitId);
-        unitList.addAll(cunitList);
+//        List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unitId);
+//        unitList.addAll(cunitList);
         resultMap.put("unitId", unit.getId());
         resultMap.put("date", DateUtil.dateToString(new Date()));
         resultMap.put("unitName", unit.getName());
@@ -1988,6 +1988,9 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
+        if (processs.size()>0){
+            DataManager.saveprocessData(processs, processService, "", null,"未审批");
+        }
         return processs;
     }
 
@@ -2214,13 +2217,14 @@ public class DataManager {
      * @param unitId
      * @param dataService
      */
-    public static SYS_Data saveData(String dataId, String dataType, String unitId, DataService dataService) {
+    public static SYS_Data saveData(String dataId, String processId,String dataType, String unitId, DataService dataService) {
         SYS_Data data = new SYS_Data();
         data.setId(dataId);
         data.setType(dataType);
         data.setOpTime(new Date());
         data.setUnitId(unitId);
         data.setDelFlag("0");
+        data.setProcessId(processId);
         SYS_Data data1 = dataService.selectDataById(dataId);
         if (data1 != null) {
             dataService.updateData(data);
@@ -2239,7 +2243,7 @@ public class DataManager {
      * @param dataInfoService
      * @return
      */
-    public static SYS_DataInfo saveDataInfo(String dataId, String dataType, String unitId, DataInfoService dataInfoService, String table, String param) {
+    public static SYS_DataInfo saveDataInfo(String dataId ,String dataType, String unitId, DataInfoService dataInfoService, String table, String param, String beforeparam) {
         SYS_DataInfo data = new SYS_DataInfo();
         String id = dataId + table;
         data.setId(id);
@@ -2249,6 +2253,8 @@ public class DataManager {
         data.setDataId(dataId);
         data.setDelFlag("0");
         data.setParam(param);
+        data.setBeforeParam(beforeparam);
+        data.setTableName(table);
         SYS_DataInfo data1 = dataInfoService.selectDataInfById(id);
         if (data1 != null) {
             dataInfoService.updateDataInfo(data);
@@ -3236,6 +3242,24 @@ public class DataManager {
         }
         return userList;
     }
+
+    /**
+     * 上行消化表数据
+     * @return
+     */
+    public static List<SYS_UNIT> saveRejectUnitData(List<SYS_UNIT> units, UnitService unitService) {
+        List<SYS_UNIT> unitList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            unitList.add(unit);
+            SYS_UNIT user1 = unitService.selectUnitById(unit.getId());
+            if (user1 != null) {
+                unitService.updateUnit(unit);
+            } else {
+                unitService.insertUnit(unit);
+            }
+        }
+        return unitList;
+    }
     /**
      * 上行或下行
      *
@@ -3244,23 +3268,33 @@ public class DataManager {
      * @param unitId
      * @return
      */
-    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId, UnitService unitService) {
+    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId, UnitService unitService,String flag) {
         List<Sys_Approal> approalList = new ArrayList<>();
         for (Sys_Approal approal : approals) {
             approalList.add(approal);
             Sys_Approal approal1 = approvalService.selectApprovalById(approal.getId());
             if (approal1 != null) {
-                approal.setFlag("1");
+                if ("1".equals(flag)){
+                    approal.setFlag("1");
+                }else {
+                    approal.setFlag("0");
+                }
                 approal.setId(approal1.getId());
                 approvalService.updataApproal(approal);
             } else {
-                approal.setFlag("1");
+                if ("1".equals(flag)){
+                    approal.setFlag("1");
+                }else {
+                    approal.setFlag("0");
+                }
                 approvalService.insertApproal(approal);
             }
-            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
-            if (unit != null) {
-                saveUnitData(unitService, unit, approal);
-                unitService.updateUnit(unit);
+            if ("1".equals(flag)){
+                SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
+                if (unit != null) {
+                    saveUnitData(unitService, unit, approal);
+                    unitService.updateUnit(unit);
+                }
             }
         }
         return approalList;
@@ -3282,7 +3316,7 @@ public class DataManager {
         return unit;
     }
 
-    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user) {
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user,String states) {
         List<Sys_Process> approalList = new ArrayList<>();
         for (Sys_Process process : processes) {
             approalList.add(process);
@@ -3290,7 +3324,7 @@ public class DataManager {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
                 if (user != null) {
                     if ("1".equals(user.getRoles())) {
-                        process.setStates("已审核");
+                        process.setStates(states);
                     }
                 }
                 if (approal1 != null) {

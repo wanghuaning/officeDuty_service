@@ -10,6 +10,7 @@ public interface DataService {
     void inserData(SYS_Data data);
     void updateData(SYS_Data data);
     SYS_Data selectDataById(String id);
+    SYS_Data selectDataByProcessId(String processId);
 
     List<SYS_Digest> selectDigestsByUnitId(String unitId);
     SYS_Digest selectDigestById(String id);

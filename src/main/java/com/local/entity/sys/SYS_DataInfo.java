@@ -45,6 +45,12 @@ public class SYS_DataInfo implements Serializable {
   @ColDefine(type = ColType.TEXT)
   private String param;
 
+  @ApiModelProperty("审批前数据参数")
+  @Comment("审批前数据参数")
+  @Column("before_Param")
+  @ColDefine(type = ColType.TEXT)
+  private String beforeParam;
+
   @ApiModelProperty("操作时间")
   @Comment("操作时间")
   @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -59,7 +65,29 @@ public class SYS_DataInfo implements Serializable {
   @ColDefine(type = ColType.CHAR, width = 1)
   private String delFlag;
 
+  @ApiModelProperty("数据表名称")
+  @Comment("数据表名称")
+  @Column("table_Name")
+  @ColDefine(type = ColType.VARCHAR, width = 32)
+  private String tableName;
+
   public SYS_DataInfo() {
+  }
+
+  public String getBeforeParam() {
+    return beforeParam;
+  }
+
+  public void setBeforeParam(String beforeParam) {
+    this.beforeParam = beforeParam;
+  }
+
+  public String getTableName() {
+    return tableName;
+  }
+
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
   }
 
   public static long getSerialVersionUID() {

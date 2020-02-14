@@ -31,6 +31,12 @@ public class SYS_Data implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String unitId;
 
+  @ApiModelProperty("审批表ID")
+  @Comment("审批表ID")
+  @Column("process_Id")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String processId;
+
   @ApiModelProperty("操作时间")
   @Comment("操作时间")
   @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -46,6 +52,14 @@ public class SYS_Data implements Serializable {
   private String delFlag;
 
   public SYS_Data() {
+  }
+
+  public String getProcessId() {
+    return processId;
+  }
+
+  public void setProcessId(String processId) {
+    this.processId = processId;
   }
 
   public static long getSerialVersionUID() {

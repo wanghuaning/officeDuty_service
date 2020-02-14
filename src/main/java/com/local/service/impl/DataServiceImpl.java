@@ -48,7 +48,18 @@ public class DataServiceImpl implements DataService {
             return null;
         }
     }
-
+    @Override
+    public SYS_Data selectDataByProcessId(String processId){
+        List<SYS_Data> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("process_Id",processId);
+        list=dao.query(SYS_Data.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
     @Override
     public SYS_Digest selectDigestById(String id){
         List<SYS_Digest> list=new ArrayList<>();

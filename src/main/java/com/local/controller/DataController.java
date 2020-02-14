@@ -217,24 +217,35 @@ public class DataController {
     @ApiOperation(value = "导出上行下行数据", notes = "导出上行下行数据", httpMethod = "POST", tags = "导出上行下行数据接口")
     @RequestMapping(value = "/upstreamData")
     public String upstreamData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
-                               @RequestParam(value = "dataType", required = false) String dataType,@RequestParam(value = "flag", required = false) String flag) {
+                               @RequestParam(value = "dataType", required = false) String dataType,
+                               @RequestParam(value = "flag", required = false) String flag,
+                               @RequestParam(value = "processId", required = false) String processId) {
         try {
             List<Object> objects = new ArrayList<>();
+            if (StrUtils.isBlank(processId)) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.IMPORT_EXCEL_ERROR, null, null).getJson();
+            }
+            Sys_Process process = processService.selectProcessById(processId);
+            if (process == null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.IMPORT_EXCEL_ERROR, null, null).getJson();
+            }
+            unitId = process.getUnitId();
             //从请求的header中取出当前登录的登录
             Map<String, Object> paramsMap = new HashMap<>();
             paramsMap.put("note", "成功");
             paramsMap.put("dataId", unitId + DateUtil.getDateNum(new Date()));
             paramsMap.put("dataType", dataType);
-            paramsMap.put("flag",flag);
+            paramsMap.put("flag", flag);
+            paramsMap.put("processId", process.getId());
             Map<String, Object> resultMap = new HashMap<>();
             List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
             objects.addAll(unitList);
-            if (!"职数".equals(flag)){
-                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType,"0");
+            if (!"职数".equals(flag)) {
+                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "0");
                 objects.addAll(processeList);
                 List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
                 List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
-                List<SYS_Digest> digestList=DataManager.getDigestJson(resultMap, unitList, dataService);
+                List<SYS_Digest> digestList = DataManager.getDigestJson(resultMap, unitList, dataService);
                 if (peopleList.size() > 0) {
                     objects.addAll(peopleList);
                     List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
@@ -250,10 +261,10 @@ public class DataController {
                 }
                 objects.addAll(userList);
                 objects.addAll(digestList);
-            }else {
+            } else {
                 List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
                 objects.addAll(approvalList);
-                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType,"1");
+                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "1");
                 objects.addAll(processeList);
             }
             JSONObject resultList = JSONObject.fromObject(resultMap);
@@ -302,7 +313,7 @@ public class DataController {
             List<SYS_Reward> rewards = new ArrayList<>();
             List<SYS_Education> educations = new ArrayList<>();
             List<SYS_Assessment> assessments = new ArrayList<>();
-            List<SYS_Digest> digests=new ArrayList<>();
+            List<SYS_Digest> digests = new ArrayList<>();
             String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
             // 解密
             byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
@@ -314,7 +325,7 @@ public class DataController {
             String note = String.valueOf(object.get("note"));
             String dataId = String.valueOf(object.get("dataId"));
             String dataType = String.valueOf(object.get("dataType"));
-            String flag=String.valueOf(object.get("flag"));
+            String flag = String.valueOf(object.get("flag"));
             if (!StrUtils.isBlank(note)) {
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
@@ -326,106 +337,164 @@ public class DataController {
                             return new Result(ResultCode.ERROR.toString(), "登录超时！", null, null).getJson();
                         }
                         SYS_UNIT punit = unitService.selectUnitById(user.getUnitId());
-                        JSONArray approvalList= new JSONArray();
+                        JSONArray approvalList = new JSONArray();
                         String unitName = String.valueOf(key.get("unitName"));
                         JSONArray unitList = key.getJSONArray("unitList");
                         JSONArray processList = key.getJSONArray("processList");
-                        JSONArray userList = new JSONArray(), digestList=new JSONArray(), peopleList = new JSONArray(), rankList = new JSONArray();
-                        JSONArray dutyList = new JSONArray(),educationList = new JSONArray(),rewardList = new JSONArray(), assessmentList = new JSONArray();
-                        if (!"职数".equals(flag)){
-                             userList = key.getJSONArray("userList");
-                             digestList = key.getJSONArray("digestList");
-                             peopleList = key.getJSONArray("peopleList");
-                             rankList = key.getJSONArray("rankList");
-                             dutyList = key.getJSONArray("dutyList");
-                             educationList = key.getJSONArray("educationList");
-                             rewardList = key.getJSONArray("rewardList");
-                             assessmentList = key.getJSONArray("assessmentList");
-                        }else {
-                             approvalList = key.getJSONArray("approvalList");
+                        JSONArray userList = new JSONArray(), digestList = new JSONArray(), peopleList = new JSONArray(), rankList = new JSONArray();
+                        JSONArray dutyList = new JSONArray(), educationList = new JSONArray(), rewardList = new JSONArray(), assessmentList = new JSONArray();
+                        if (!"职数".equals(flag)) {
+                            userList = key.getJSONArray("userList");
+                            digestList = key.getJSONArray("digestList");
+                            peopleList = key.getJSONArray("peopleList");
+                            rankList = key.getJSONArray("rankList");
+                            dutyList = key.getJSONArray("dutyList");
+                            educationList = key.getJSONArray("educationList");
+                            rewardList = key.getJSONArray("rewardList");
+                            assessmentList = key.getJSONArray("assessmentList");
+                        } else {
+                            approvalList = key.getJSONArray("approvalList");
                         }
                         SYS_UNIT unit = unitService.selectUnitById(iunitId);
                         if (unit == null) {
                             unit = unitService.selectUnitByName(unitName);
                         }
                         if (unit != null) {
-                            SYS_Data data = DataManager.saveData(dataId, dataType, iunitId, dataService);
-                            Map<String, Object> resultMap = new HashMap<>();
-                            resultMap.put("dataId", data.getId());
-                            if (unitList.size()>0) {
-                                units = DataManager.saveUnitJsonModel(unitList);
-                                if (units.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "unit", gson.toJson(units));
-                                }
-                                users = DataManager.saveUserJsonModel(userList);
-                                if (users.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "user", gson.toJson(users));
-                                }
-                                digests=DataManager.saveDigestJsonModel(digestList);
-                                if (digests.size()>0){
-                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "digest", gson.toJson(digests));
-                                }
-                                if (approvalList.size() > 0) {
-                                    approals = DataManager.saveApproalJsonModel(approvalList);
-                                    if (approals.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "approval", gson.toJson(approals));
-                                    }
-                                }
-                                if (processList.size() > 0) {
-                                    processes = DataManager.saveProcessJsonModel(processList, user, "上行", unit, processService);
-                                    if (processes.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "processe", gson.toJson(processes));
-                                    }
-                                }
-                                if (peopleList.size()>0) {
-                                    peoples = DataManager.savePeopleJsonModel(peopleList);
-                                    if (peoples.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "people", gson.toJson(peoples));
-                                    }
-                                    duties = DataManager.saveDutyJsonModel(dutyList);
-                                    if (duties.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "duty", gson.toJson(duties));
-                                    }
-                                    ranks = DataManager.saveRankJsonModel(rankList);
-                                    if (ranks.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "rank", gson.toJson(ranks));
-                                    }
-                                    rewards = DataManager.saveRewardJsonModel(rewardList);
-                                    if (rewards.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "reward", gson.toJson(rewards));
-                                    }
-                                    educations = DataManager.saveEducationJsonModel(educationList);
-                                    if (educations.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "education", gson.toJson(educations));
-                                    }
-                                    assessments = DataManager.saveAssessmentJsonModel(assessmentList);
-                                    if (assessments.size() > 0) {
-                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "assessment", gson.toJson(assessments));
-                                    }
-                                }
-                                Map<String, Object> map = new HashMap<>();
-                                List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, iunitId, unitService);//单位
-                                List<SYS_UNIT> deleteUnitList = new ArrayList<>();
-                                List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(iunitId, "1", "在职");
-                                if (!"职数".equals(flag)) {
-                                    DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
-                                    DataManager.dutyDataCheck(resultMap, duties, dutyService, iunitId);
-                                    DataManager.rankDataCheck(resultMap, ranks, rankService, iunitId);
-                                    DataManager.educationDataCheck(resultMap, educations, educationService, iunitId);
-                                    DataManager.rewardDataCheck(resultMap, rewards, rewardService, iunitId);
-                                    DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, iunitId);
-                                    DataManager.userDataCheck(resultMap, users, userService, iunitId);
-                                    resultMap.put("digests", digests);
-                                }
-                                if (approals.size() > 0) {
-                                    DataManager.approvalDataCheck(resultMap, approals, approvalService, unitService,
-                                            dataType, peopleService, rankService);
-                                }
+                            if (processList.size() > 0) {
+                                Map<String, Object> resultMap = new HashMap<>();
+                                processes = DataManager.saveProcessJsonModel(processList, user, "上行", unit, processService);
+                                List<Sys_Process> sys_processes=new ArrayList<>();
                                 if (processes.size() > 0) {
-                                    resultMap.put("processList", processes);
+                                    for (Sys_Process process : processes) {
+                                        process.setCreateTime(new Date());
+                                        sys_processes.add(process);
+                                        SYS_Data data = DataManager.saveData(dataId, process.getId(), dataType, iunitId, dataService);
+                                        resultMap.put("dataId", data.getId());
+                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "processe", gson.toJson(sys_processes), null);
+                                        if (unitList.size() > 0) {
+                                            units = DataManager.saveUnitJsonModel(unitList);
+                                            if (units.size() > 0) {
+                                                List<SYS_UNIT> us = new ArrayList<>();
+                                                SYS_UNIT sys_unit = unitService.selectUnitById(iunitId);
+                                                if (sys_unit != null) {
+                                                    us.add(sys_unit);
+                                                }
+                                                DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "unit", gson.toJson(units), gson.toJson(us));
+                                            }
+                                            users = DataManager.saveUserJsonModel(userList);
+                                            if (users.size() > 0) {
+                                                String beforeparam = null;
+                                                List<SYS_USER> us = userService.selectUsersByUnitId(iunitId);
+                                                if (us != null) {
+                                                    beforeparam = gson.toJson(us);
+                                                }
+                                                DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "user", gson.toJson(users), beforeparam);
+                                            }
+                                            digests = DataManager.saveDigestJsonModel(digestList);
+                                            if (digests.size() > 0) {
+                                                String beforeparam = null;
+                                                List<SYS_Digest> us = dataService.selectDigestsByUnitId(iunitId);
+                                                if (us != null) {
+                                                    beforeparam = gson.toJson(us);
+                                                }
+                                                DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "digest", gson.toJson(digests), beforeparam);
+                                            }
+                                            if (approvalList.size() > 0) {
+                                                approals = DataManager.saveApproalJsonModel(approvalList);
+                                                if (approals.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<Sys_Approal> us = approvalService.selectApprovals(iunitId);
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "approval", gson.toJson(approals), beforeparam);
+                                                }
+                                            }
+                                            if (peopleList.size() > 0) {
+                                                peoples = DataManager.savePeopleJsonModel(peopleList);
+                                                if (peoples.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<SYS_People> us = peopleService.selectPeoplesByUnitId(iunitId, "0", "全部");
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "people", gson.toJson(peoples), beforeparam);
+                                                }
+                                                duties = DataManager.saveDutyJsonModel(dutyList);
+                                                if (duties.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<SYS_Duty> us = dutyService.selectDutysByUnitId(iunitId, "0");
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "duty", gson.toJson(duties), beforeparam);
+                                                }
+                                                ranks = DataManager.saveRankJsonModel(rankList);
+                                                if (ranks.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<SYS_Rank> us = rankService.selectRanksByUnitId(iunitId, "0");
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "rank", gson.toJson(ranks), beforeparam);
+                                                }
+                                                rewards = DataManager.saveRewardJsonModel(rewardList);
+                                                if (rewards.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<SYS_Reward> us = rewardService.selectRewardsByUnitId(iunitId, "0");
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "reward", gson.toJson(rewards), beforeparam);
+                                                }
+                                                educations = DataManager.saveEducationJsonModel(educationList);
+                                                if (educations.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<SYS_Education> us = educationService.selectEducationsByUnitId(iunitId, "0");
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "education", gson.toJson(educations), beforeparam);
+                                                }
+                                                assessments = DataManager.saveAssessmentJsonModel(assessmentList);
+                                                if (assessments.size() > 0) {
+                                                    String beforeparam = null;
+                                                    List<SYS_Assessment> us = assessmentService.selectAssessmentsByUnitId(
+                                                            iunitId, "0");
+                                                    if (us != null) {
+                                                        beforeparam = gson.toJson(us);
+                                                    }
+                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "assessment", gson.toJson(assessments), beforeparam);
+                                                }
+                                            }
+                                            Map<String, Object> map = new HashMap<>();
+                                            List<SYS_UNIT> localUnits = DataManager.getUnitJson(map, iunitId, unitService);//单位
+                                            List<SYS_UNIT> deleteUnitList = new ArrayList<>();
+                                            List<SYS_People> localPeoples = peopleService.selectPeoplesByUnitId(iunitId, "1", "在职");
+                                            if (!"职数".equals(flag)) {
+                                                DataManager.peopleDataCheck(resultMap, peoples, peopleService, localPeoples);
+                                                DataManager.dutyDataCheck(resultMap, duties, dutyService, iunitId);
+                                                DataManager.rankDataCheck(resultMap, ranks, rankService, iunitId);
+                                                DataManager.educationDataCheck(resultMap, educations, educationService, iunitId);
+                                                DataManager.rewardDataCheck(resultMap, rewards, rewardService, iunitId);
+                                                DataManager.assessmentDataCheck(resultMap, assessments, assessmentService, iunitId);
+                                                DataManager.userDataCheck(resultMap, users, userService, iunitId);
+                                                resultMap.put("digests", digests);
+                                            }
+                                            if (approals.size() > 0) {
+                                                DataManager.approvalDataCheck(resultMap, approals, approvalService, unitService,
+                                                        dataType, peopleService, rankService);
+                                            }
+                                            if (processes.size() > 0) {
+                                                resultMap.put("processList", processes);
+                                            }
+                                        }
+                                    }
                                 }
+                                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
+                            } else {
+                                return new Result(ResultCode.ERROR.toString(), "无审批数据！", null, null).getJson();
                             }
-                            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
                         } else {
                             return new Result(ResultCode.ERROR.toString(), "单位不存在！", null, null).getJson();
                         }
@@ -501,7 +570,7 @@ public class DataController {
                             DataManager.saveUserData(sys_users, userService, dataInfo.getUnitId());
                             objects.add(sys_users);
                         }
-                    }else if (dataInfo.getId().contains("digest")) {
+                    } else if (dataInfo.getId().contains("digest")) {
                         List<SYS_Digest> digestList = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Digest>>() {
                         }.getType());
                         if (digestList.size() > 0) {
@@ -512,7 +581,7 @@ public class DataController {
                         List<Sys_Approal> sys_approals = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Approal>>() {
                         }.getType());
                         if (sys_approals.size() > 0) {
-                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService);
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService,"1");
                             objects.add(sys_approals);
                         }
                     } else if (dataInfo.getId().contains("process")) {
@@ -531,7 +600,7 @@ public class DataController {
                                     name = name + "/" + people.getName();
                                 }
                             }
-                            DataManager.saveprocessData(sys_processes, processService, name, user);
+                            DataManager.saveprocessData(sys_processes, processService, name, user, "已审核");
                             objects.add(sys_processes);
                         }
                     }
@@ -589,16 +658,16 @@ public class DataController {
                     JSONArray dutyList = new JSONArray();
                     JSONArray educationList = new JSONArray();
                     JSONArray rewardList = new JSONArray();
-                    JSONArray assessmentList =  new JSONArray();
-                    if (!"职数".equals(flag)){
-                         userList = key.getJSONArray("userList");
-                         peopleList = key.getJSONArray("peopleList");
-                         rankList = key.getJSONArray("rankList");
-                         dutyList = key.getJSONArray("dutyList");
-                         educationList = key.getJSONArray("educationList");
-                         rewardList = key.getJSONArray("rewardList");
-                         assessmentList = key.getJSONArray("assessmentList");
-                    }else {
+                    JSONArray assessmentList = new JSONArray();
+                    if (!"职数".equals(flag)) {
+                        userList = key.getJSONArray("userList");
+                        peopleList = key.getJSONArray("peopleList");
+                        rankList = key.getJSONArray("rankList");
+                        dutyList = key.getJSONArray("dutyList");
+                        educationList = key.getJSONArray("educationList");
+                        rewardList = key.getJSONArray("rewardList");
+                        assessmentList = key.getJSONArray("assessmentList");
+                    } else {
                         unitList = key.getJSONArray("unitList");
                         aprovalList = key.getJSONArray("approvalList");
                     }
@@ -608,70 +677,109 @@ public class DataController {
                         unit = unitService.selectUnitByName(unitName);
                     }
                     if (unit != null) {
-                        SYS_Data data = DataManager.saveData(dataId, dataType, unitID, dataService);
+                        SYS_Data data = DataManager.saveData(dataId, "", dataType, unitID, dataService);
                         Map<String, Object> resultMap = new HashMap<>();
                         resultMap.put("dataId", data.getId());
                         if (unitList != null) {
                             units = DataManager.saveUnitJsonModel(unitList);
                             if (units.size() > 0) {
-                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "unit", gson.toJson(units));
+                                String beforeparam = null;
+                                List<SYS_UNIT> sys_units = new ArrayList<>();
+                                sys_units.add(unit);
+                                beforeparam = gson.toJson(sys_units);
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "unit", gson.toJson(units), beforeparam);
                                 DataManager.saveUnitData(units, unitService, unitID);
                                 objects.add(units);
                             }
                             users = DataManager.saveUserJsonModel(userList);
                             if (users.size() > 0) {
-                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "user", gson.toJson(users));
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "user", gson.toJson(users), null);
                                 DataManager.saveUserData(users, userService, unitID);
                                 objects.add(users);
                             }
                             approals = DataManager.saveApproalJsonModel(aprovalList);
                             if (approals.size() > 0) {
-                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals));
-                                DataManager.saveApprovalData(approals, approvalService, unitID, unitService);
+                                String beforeparam = null;
+                                List<Sys_Approal> us = approvalService.selectApprovals(unitID);
+                                if (us != null) {
+                                    beforeparam = gson.toJson(us);
+                                }
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals), beforeparam);
+                                DataManager.saveApprovalData(approals, approvalService, unitID, unitService,"1");
                                 objects.add(approals);
                             }
                             SYS_UNIT punit = unitService.selectUnitById(unitId);
                             SYS_USER user = new SYS_USER();
                             processes = DataManager.saveProcessJsonModel(processList, user, "下行", unit, processService);
                             if (processes.size() > 0) {
-                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "process", gson.toJson(processes));
-                                DataManager.saveprocessData(processes, processService, "", user);
+                                DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "process", gson.toJson(processes), null);
+                                DataManager.saveprocessData(processes, processService, "", user, "已审核");
                                 objects.add(processes);
                             }
                             if (peopleList != null) {
                                 peoples = DataManager.savePeopleJsonModel(peopleList);
                                 if (peoples.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "people", gson.toJson(peoples));
+                                    String beforeparam = null;
+                                    List<SYS_People> us = peopleService.selectPeoplesByUnitId(unitID, "0", "全部");
+                                    if (us != null) {
+                                        beforeparam = gson.toJson(us);
+                                    }
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "people", gson.toJson(peoples), beforeparam);
                                     DataManager.savePeopleData(peoples, peopleService, unitID, unitService);
                                     objects.add(peoples);
                                 }
                                 duties = DataManager.saveDutyJsonModel(dutyList);
                                 if (duties.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "duty", gson.toJson(duties));
+                                    String beforeparam = null;
+                                    List<SYS_Duty> us = dutyService.selectDutysByUnitId(unitID, "0");
+                                    if (us != null) {
+                                        beforeparam = gson.toJson(us);
+                                    }
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "duty", gson.toJson(duties), beforeparam);
                                     DataManager.saveDutyData(duties, dutyService, unitID, peopleService);
                                     objects.add(duties);
                                 }
                                 ranks = DataManager.saveRankJsonModel(rankList);
                                 if (ranks.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "rank", gson.toJson(ranks));
+                                    String beforeparam = null;
+                                    List<SYS_Rank> us = rankService.selectRanksByUnitId(unitID, "0");
+                                    if (us != null) {
+                                        beforeparam = gson.toJson(us);
+                                    }
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "rank", gson.toJson(ranks), beforeparam);
                                     objects.add(ranks);
                                     DataManager.saveRankData(ranks, rankService, unitID, peopleService);
                                 }
                                 rewards = DataManager.saveRewardJsonModel(rewardList);
                                 if (rewards.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "reward", gson.toJson(rewards));
+                                    String beforeparam = null;
+                                    List<SYS_Reward> us = rewardService.selectRewardsByUnitId(unitID, "0");
+                                    if (us != null) {
+                                        beforeparam = gson.toJson(us);
+                                    }
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "reward", gson.toJson(rewards), beforeparam);
                                     DataManager.saveRewardData(rewards, rewardService, unitID, peopleService);
                                     objects.add(rewards);
                                 }
                                 educations = DataManager.saveEducationJsonModel(educationList);
                                 if (educations.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "education", gson.toJson(educations));
+                                    String beforeparam = null;
+                                    List<SYS_Education> us = educationService.selectEducationsByUnitId(unitID, "0");
+                                    if (us != null) {
+                                        beforeparam = gson.toJson(us);
+                                    }
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "education", gson.toJson(educations), beforeparam);
                                     DataManager.saveEducationData(educations, educationService, unitID, peopleService);
                                     objects.add(educations);
                                 }
                                 assessments = DataManager.saveAssessmentJsonModel(assessmentList);
                                 if (assessments.size() > 0) {
-                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "assessment", gson.toJson(assessments));
+                                    String beforeparam = null;
+                                    List<SYS_Assessment> us = assessmentService.selectAssessmentsByUnitId(unitID, "0");
+                                    if (us != null) {
+                                        beforeparam = gson.toJson(us);
+                                    }
+                                    DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "assessment", gson.toJson(assessments), beforeparam);
                                     DataManager.saveAssessmentData(assessments, assessmentService, unitID, peopleService);
                                     objects.add(assessments);
                                 }
@@ -695,6 +803,146 @@ public class DataController {
         }
     }
 
+    @ApiOperation(value = "审批操作", notes = "审批操作", httpMethod = "POST", tags = "审批操作接口")
+    @PostMapping(value = "/rejectImportData")
+    public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid,@RequestParam(value = "flag", required = false) String flag, HttpServletRequest request) {
+        List<Object> objects = new ArrayList<>();
+        if (!StrUtils.isBlank(rowid)) {
+            Sys_Process process = processService.selectProcessById(rowid);
+            if (process == null) {
+                return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
+            }
+            SYS_Data data = dataService.selectDataByProcessId(process.getId());
+            if (data == null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
+            if (dataInfos == null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            if ("驳回".equals(flag)){
+                Sys_Process processl = processService.selectProcessByFlagAnd(process.getUnitId(),process.getFlag(),"已审核");
+                if (processl==null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+                if (!processl.getId().equals(rowid)){
+                    return new Result(ResultCode.ERROR.toString(), "此流程并非最新已审核流程，不可驳回！", null, null).getJson();
+                }
+
+            }
+            if ("审核".equals(flag)){
+                Sys_Process processl = processService.selectProcessByFlagAnd(process.getUnitId(),process.getFlag(),"已驳回");
+                if (processl==null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+                Sys_Process process2 = processService.selectProcessByFlagAndDate(process.getUnitId(),process.getFlag(),process.getCreateTime());
+                if (process2!=null){
+                    return new Result(ResultCode.ERROR.toString(), "此后有已审核流程，不可复审！", null, null).getJson();
+                }
+                if (!processl.getId().equals(rowid)){
+                    return new Result(ResultCode.ERROR.toString(), "此流程并非最新已驳回流程，不可驳回！", null, null).getJson();
+                }
+            }
+            if ("撤销".equals(flag)){
+                process.setStates("已驳回");
+            }else {
+                for (SYS_DataInfo dataInfo : dataInfos) {
+                    String param=dataInfo.getParam();
+                    if ("驳回".equals(flag)){
+                        param=dataInfo.getBeforeParam();
+                    }
+                    if (dataInfo.getId().contains("people")) {
+                        List<SYS_People> sys_peoples = gson.fromJson(param, new TypeToken<List<SYS_People>>() {
+                        }.getType());
+                        if (sys_peoples.size() > 0) {
+                            DataManager.savePeopleData(sys_peoples, peopleService, dataInfo.getUnitId(), unitService);
+                            objects.add(sys_peoples);
+                        }
+                    } else if (dataInfo.getId().contains("rank")) {
+                        List<SYS_Rank> sys_ranks = gson.fromJson(param, new TypeToken<List<SYS_Rank>>() {
+                        }.getType());
+                        if (sys_ranks.size() > 0) {
+                            objects.add(sys_ranks);
+                            DataManager.saveRankData(sys_ranks, rankService, dataInfo.getUnitId(), peopleService);
+                        }
+                    } else if (dataInfo.getId().contains("duty")) {
+                        List<SYS_Duty> sys_duties = gson.fromJson(param, new TypeToken<List<SYS_Duty>>() {
+                        }.getType());
+                        if (sys_duties.size() > 0) {
+                            DataManager.saveDutyData(sys_duties, dutyService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_duties);
+                        }
+                    } else if (dataInfo.getId().contains("education")) {
+                        List<SYS_Education> sys_educations = gson.fromJson(param, new TypeToken<List<SYS_Education>>() {
+                        }.getType());
+                        if (sys_educations.size() > 0) {
+                            DataManager.saveEducationData(sys_educations, educationService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_educations);
+                        }
+                    } else if (dataInfo.getId().contains("reward")) {
+                        List<SYS_Reward> sys_rewards = gson.fromJson(param, new TypeToken<List<SYS_Reward>>() {
+                        }.getType());
+                        if (sys_rewards.size() > 0) {
+                            DataManager.saveRewardData(sys_rewards, rewardService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_rewards);
+                        }
+                    } else if (dataInfo.getId().contains("assessment")) {
+                        List<SYS_Assessment> sys_assessments = gson.fromJson(param, new TypeToken<List<SYS_Assessment>>() {
+                        }.getType());
+                        if (sys_assessments.size() > 0) {
+                            DataManager.saveAssessmentData(sys_assessments, assessmentService, dataInfo.getUnitId(), peopleService);
+                            objects.add(sys_assessments);
+                        }
+                    } else if (dataInfo.getId().contains("user")) {
+                        List<SYS_USER> sys_users = gson.fromJson(param, new TypeToken<List<SYS_USER>>() {
+                        }.getType());
+                        if (sys_users.size() > 0) {
+                            DataManager.saveUserData(sys_users, userService, dataInfo.getUnitId());
+                            objects.add(sys_users);
+                        }
+                    } else if (dataInfo.getId().contains("digest")) {
+                        List<SYS_Digest> digestList = gson.fromJson(param, new TypeToken<List<SYS_Digest>>() {
+                        }.getType());
+                        if (digestList.size() > 0) {
+                            DataManager.saveDigestData(digestList, dataService, dataInfo.getUnitId());
+                            objects.add(digestList);
+                        }
+                    } else if (dataInfo.getId().contains("approval")) {
+                        List<Sys_Approal> sys_approals = gson.fromJson(param, new TypeToken<List<Sys_Approal>>() {
+                        }.getType());
+                        if (sys_approals.size() > 0) {
+                            String f="1";
+                            if ("驳回".equals(flag)){
+                                f="0";
+                            }
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService,f);
+                            objects.add(sys_approals);
+                        }
+                    }else if (dataInfo.getId().contains("unit") && "驳回".equals(flag)) {
+                        List<SYS_UNIT> sys_units = gson.fromJson(param, new TypeToken<List<SYS_UNIT>>() {
+                        }.getType());
+                        if (sys_units.size() > 0) {
+                            DataManager.saveRejectUnitData(sys_units, unitService);
+                            objects.add(sys_units);
+                        }
+                    }
+                }
+            }
+            if("驳回".equals(flag)){
+                process.setStates("已驳回");
+            }else if ("审核".equals(flag)){
+                process.setStates("已审核");
+            }else if ("复审".equals(flag)){
+                process.setStates("已审核");
+            }
+            process.setProcessTime(new Date());
+            processService.updateProcess(process);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
+        } else {
+            return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
+        }
+    }
+
     @ApiOperation(value = "审批信息", notes = "审批信息", httpMethod = "GET", tags = "审批信息接口")
     @GetMapping("/process")
     @ResponseBody
@@ -706,7 +954,7 @@ public class DataController {
         try {
             SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user != null) {
-                QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag,states);
+                QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag, states);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
@@ -1055,13 +1303,13 @@ public class DataController {
                     model.setName(people.getName());
                     model.setStates(people.getStates());
                     arr[0] = "unitName";
-                    arr[1]="name";
-                    arr[2]="states";
+                    arr[1] = "name";
+                    arr[2] = "states";
                     for (int i = 3; i < strArr.length + 3; i++) {
-                        String modelName="model" + i;
+                        String modelName = "model" + i;
                         arr[i] = modelName;
-                        String value=DataManager.getCustomizeData(people,strArr[i-3],assessmentService);
-                        EntityUtil.setFieldValueByFieldName(modelName,model,value);
+                        String value = DataManager.getCustomizeData(people, strArr[i - 3], assessmentService);
+                        EntityUtil.setFieldValueByFieldName(modelName, model, value);
                     }
                     models.add(model);
                 }
@@ -1070,7 +1318,7 @@ public class DataController {
                 Workbook temp = ExcelFileGenerator.getTeplet(path);
                 ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
                 excelFileGenerator.createExcelHeader(temp.getSheet("单位自定义信息表"), strArr);//表头
-                    excelFileGenerator.createExcelFile(temp.getSheet("单位自定义信息表"), 1, models, arr);
+                excelFileGenerator.createExcelFile(temp.getSheet("单位自定义信息表"), 1, models, arr);
                 temp.write(response.getOutputStream());
                 temp.close();
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, transferArr, null).getJson();
@@ -1089,17 +1337,17 @@ public class DataController {
     public String outTableDataProp(@RequestParam(value = "transferArr") String transferArr) {
         try {
             if (!StrUtils.isBlank(transferArr)) {
-                List<TableModel> models=new ArrayList<>();
+                List<TableModel> models = new ArrayList<>();
                 String[] strArr = transferArr.split(",");
                 for (int i = 0; i < strArr.length; i++) {
-                    String modelName="model" + (i+1);
-                    TableModel model=new TableModel();
+                    String modelName = "model" + (i + 1);
+                    TableModel model = new TableModel();
                     model.setProp(modelName);
                     model.setLabel(strArr[i]);
                     models.add(model);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, models, null).getJson();
-            }else {
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
             }
         } catch (Exception e) {
@@ -1113,19 +1361,19 @@ public class DataController {
     @ResponseBody
     public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
                              @RequestParam(value = "page", required = false) String pageNumber,
-             @RequestParam(value = "transferArr") String transferArr, @RequestParam(value = "unitIds") String unitIds) {
+                             @RequestParam(value = "transferArr") String transferArr, @RequestParam(value = "unitIds") String unitIds) {
         try {
             if (!StrUtils.isBlank(unitIds) && !StrUtils.isBlank(transferArr)) {
                 List<TransferModel> models = new ArrayList<>();
                 String[] strArr = transferArr.split(",");
                 String[] unitArr = unitIds.split(",");
                 String[] arr = new String[strArr.length];
-                List<SYS_People> peopleList = peopleService.selectPeoplesByUnitIdsAndPager(Integer.parseInt(pageSize),Integer.parseInt(pageNumber),unitArr);
+                List<SYS_People> peopleList = peopleService.selectPeoplesByUnitIdsAndPager(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitArr);
                 List<SYS_People> cpeopleList = peopleService.selectPeoplesByUnitIds(unitArr);
-                if (peopleList==null){
+                if (peopleList == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
                 }
-                if (cpeopleList == null){
+                if (cpeopleList == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
                 }
                 for (SYS_People people : peopleList) {
@@ -1137,7 +1385,7 @@ public class DataController {
                     model.setName(people.getName());
                     model.setStates(people.getStates());
                     for (int i = 0; i < strArr.length; i++) {
-                        String modelName = "model" + (i+1);
+                        String modelName = "model" + (i + 1);
                         arr[i] = modelName;
                         String value = DataManager.getCustomizeData(people, strArr[i], assessmentService);
                         EntityUtil.setFieldValueByFieldName(modelName, model, value);
@@ -1150,7 +1398,7 @@ public class DataController {
                 pager.setRecordCount(cpeopleList.size());
                 QueryResult queryResult = new QueryResult(models, pager);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
-            }else {
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
             }
         } catch (Exception e) {
@@ -1161,16 +1409,17 @@ public class DataController {
 
     @ApiOperation(value = "导出公务员职级任免审批表", notes = "导出公务员职级任免审批表", httpMethod = "GET", tags = "导出公务员职级任免审批表接口")
     @RequestMapping(value = "/exportFreePeople")
-    public String exportFreePeople(HttpServletRequest request, HttpServletResponse response , @RequestParam(value = "peopleId", required = false) String peopleId) {
+    public String exportFreePeople(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "peopleId", required = false) String peopleId) {
         try {
-            ReimbursementModel model=DataManager.exportFreePeople(response, peopleService,  peopleId,rankService,  educationService,assessmentService,  unitService);
+            ReimbursementModel model = DataManager.exportFreePeople(response, peopleService, peopleId, rankService, educationService, assessmentService, unitService);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, model, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-//    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
+
+    //    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
 //    @RequestMapping(value = "/exportFreePeoples")
 //    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
 //        try {
@@ -1200,14 +1449,15 @@ public class DataController {
 //            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
 //        }
 //    }
-@ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
-@RequestMapping(value = "/exportFreePeoples")// ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds
-public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidClassException,Exception{
-        String[] peopleIds={"101bb91f-6cb9-4020-ac62-b378842675c4"};//,"44c0fa5a-3165-48b6-9cdc-cb83f0c768fc"
+    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
+    @RequestMapping(value = "/exportFreePeoples")
+// ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds
+    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidClassException, Exception {
+        String[] peopleIds = {"101bb91f-6cb9-4020-ac62-b378842675c4"};//,"44c0fa5a-3165-48b6-9cdc-cb83f0c768fc"
         String userAgent = request.getHeader("User-Agent");
-        if (StrUtils.isBlank(peopleIds)){
+        if (StrUtils.isBlank(peopleIds)) {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
-        }else {
+        } else {
             Resource resource = new ClassPathResource("exportExcel/exportCompleteInfo.xls");
 //            ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
             String path = resource.getFile().getPath();
@@ -1221,204 +1471,205 @@ public String exportFreePeoples(HttpServletRequest request, HttpServletResponse 
             model1.setName("实施2");
             models.add(model1);
             for (int i = 0; i < peopleIds.length; i++) {
-                 Workbook temp = ExcelFileGenerator.getTeplet(path);
-                 ExcelFileGenerator.createExcelFileOld(temp.getSheet("职级晋升情况"), 2, models, arr);
-                 workBookList.add(temp);
+                Workbook temp = ExcelFileGenerator.getTeplet(path);
+                ExcelFileGenerator.createExcelFileOld(temp.getSheet("职级晋升情况"), 2, models, arr);
+                workBookList.add(temp);
             }
-            ExcelFileGenerator.creatExcelZip(workBookList,"案系统压缩包","职级晋升情况",response,userAgent,0,2,0);
+            ExcelFileGenerator.creatExcelZip(workBookList, "案系统压缩包", "职级晋升情况", response, userAgent, 0, 2, 0);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
 
         }
-}
+    }
+
     @ApiOperation(value = "超职级职数消化情况表初始化", notes = "超职级职数消化情况表初始化", httpMethod = "GET", tags = "超职级职数消化情况表初始化接口")
     @RequestMapping(value = "/saveDigestData")
-    public String saveDigestData(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "unitName") String unitName,
-            @RequestParam(value = "flag") String flag) {
+    public String saveDigestData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitName") String unitName,
+                                 @RequestParam(value = "flag") String flag) {
         try {
             if (!StrUtils.isBlank(unitName)) {
-                SYS_UNIT unit=unitService.selectUnitByName(unitName);
-                if (unit==null){
+                SYS_UNIT unit = unitService.selectUnitByName(unitName);
+                if (unit == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
-                String[] arr={"2020.1","2020.2","2020.3","2020.4","2021.1","2021.2","2021.3","2021.4","2022.1","2022.2","2022.3","2022.4"};
-                List<SYS_Digest> digestList=new ArrayList<>();
-                for (int i=0;i<arr.length;i++) {
-                    String [] vua=arr[i].split("\\.");
-                    String quarter=vua[1];
-                    String year=vua[0];
-                    int startMonth=0;
-                    int endMonth=0;
-                    if (quarter.equals("1")){
-                        startMonth=1;
-                        endMonth=3;
-                    }else if (quarter.equals("2")){
-                        startMonth=4;
-                        endMonth=6;
-                    }else if (quarter.equals("3")){
-                        startMonth=7;
-                        endMonth=9;
-                    }else if (quarter.equals("4")){
-                        startMonth=10;
-                        endMonth=12;
+                String[] arr = {"2020.1", "2020.2", "2020.3", "2020.4", "2021.1", "2021.2", "2021.3", "2021.4", "2022.1", "2022.2", "2022.3", "2022.4"};
+                List<SYS_Digest> digestList = new ArrayList<>();
+                for (int i = 0; i < arr.length; i++) {
+                    String[] vua = arr[i].split("\\.");
+                    String quarter = vua[1];
+                    String year = vua[0];
+                    int startMonth = 0;
+                    int endMonth = 0;
+                    if (quarter.equals("1")) {
+                        startMonth = 1;
+                        endMonth = 3;
+                    } else if (quarter.equals("2")) {
+                        startMonth = 4;
+                        endMonth = 6;
+                    } else if (quarter.equals("3")) {
+                        startMonth = 7;
+                        endMonth = 9;
+                    } else if (quarter.equals("4")) {
+                        startMonth = 10;
+                        endMonth = 12;
                     }
-                    Date startDate=DateUtil.toDate(Integer.parseInt(year),startMonth,1);
-                    Date endDate=DateUtil.toDate(Integer.parseInt(year),endMonth+1,1);
-                    SYS_Digest digest=new SYS_Digest();
-                    String uuid=unit.getId()+year+quarter;
-                    SYS_Digest sys_digest=dataService.selectDigestById(uuid);
-                    if ("1".equals(flag) && sys_digest!=null){
-                        digest=sys_digest;
-                    }else {
-                    digest.setCreateTime(new Date());
-                    digest.setUnitId(unit.getId());
-                    digest.setUnitName(unit.getName());
-                    digest.setFlag("0");
-                    digest.setYears(year);
-                    digest.setQuarter(quarter);
-                    digest.setYearAndQuarter(digest.getYears()+"/"+quarter);
-                    digest.setOneTowClerkApprove(String.valueOf(unit.getOneTowClerkNum()));
-                    digest.setThreeFourClerkApprove(String.valueOf(unit.getThreeFourClerkNum()));
-                    List<SYS_Rank> towranks=rankService.selectRanksFlagByUnitId(unit.getId(),"是","二级主任科员");
-                    if (towranks!=null){
-                        digest.setTowClerkArbitrage(String.valueOf(towranks.size()));
-                    }
-                    List<SYS_Rank> fourranks=rankService.selectRanksFlagByUnitId(unit.getId(),"是","四级主任科员");
-                    if (fourranks!=null){
-                        digest.setFourClerkArbitrage(String.valueOf(fourranks.size()));
-                    }
-                    int trueOneTowRanks=0;
-                    int trueThreeFourRanks=0;
-                    int oneTowClerkExceed=0;
-                    int threeFourClerkExceed=0;
-                    List<SYS_Rank> trueOneRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","一级主任科员");
-                    List<SYS_Rank> trueTowRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","二级主任科员");
-                    List<SYS_Rank> trueThreeRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","三级主任科员");
-                    List<SYS_Rank> trueFourRanks=rankService.selectRanksFlagNotTurnByUnitId(unit.getId(),"是","四级主任科员");
-                    if (trueOneRanks!=null){
-                        trueOneTowRanks+=trueOneRanks.size();
-                    }
-                    if (trueTowRanks!=null){
-                        trueOneTowRanks+=trueTowRanks.size();
-                    }
-                    if (trueThreeRanks!=null){
-                        trueThreeFourRanks+=trueThreeRanks.size();
-                    }
-                    if (trueFourRanks!=null){
-                        trueThreeFourRanks+=trueFourRanks.size();
-                    }
-                    if ((trueOneTowRanks-unit.getOneTowClerkNum())>0){
-                        oneTowClerkExceed= (int) (trueOneTowRanks-unit.getOneTowClerkNum());
-                        digest.setOneTowClerkExceed(String.valueOf(trueOneTowRanks-unit.getOneTowClerkNum()));
-                        digest.setOneTowClerkRemove(String.valueOf(trueOneTowRanks-unit.getOneTowClerkNum()));
-                    }
-                    if ((trueThreeFourRanks-unit.getThreeFourClerkNum())>0){
-                        threeFourClerkExceed= (int) (trueThreeFourRanks-unit.getThreeFourClerkNum());
-                        digest.setThreeFourClerkExceed(String.valueOf(trueThreeFourRanks-unit.getThreeFourClerkNum()));
-                        digest.setThreeFourClerkRemove(String.valueOf(trueThreeFourRanks-unit.getThreeFourClerkNum()));
-                    }
-                    List<SYS_People> peopleList=peopleService.selectPeoplesByUnitId(unit.getId(),"0","全部" );
-                    int retirePeople=0;
-                    int onealreadyRetire=0;
-                    int towalreadyRetire=0;
-                    int onejinsheng=0;
-                    int onelingdao=0;
-                    int onetuixiu=0;
-                    int onetiqiantuixiu=0;
-                    int onediaochu=0;
-                    int oneqita=0;
-                    int towjinsheng=0;
-                    int towlingdao=0;
-                    int towtuixiu=0;
-                    int towtiqiantuixiu=0;
-                    int towdiaochu=0;
-                    int towqita=0;
-                    if (peopleList!=null){
-                        for (SYS_People people:peopleList){
-                            SYS_Rank rank=rankService.selectTurnRankById(people.getId());
-                            if (rank!=null){
-                                if (rank.getName().contains("一级主任科员") || rank.getName().contains("二级主任科员") || rank.getName().contains("三级主任科员") || rank.getName().contains("四级主任科员")){
-                                    if (people.getStates().contains("在职")){
-                                        if (people.getPosition()!=null && people.getSex()!=null && people.getBirthday()!=null){//到期退休
-                                            Date retireTime=DataManager.getRetirTime(people.getPosition(),people.getBirthday(),people.getSex());
-                                            if (startDate.compareTo(retireTime)>=0 && endDate.compareTo(retireTime)<0){
-                                                retirePeople++;
-                                            }
-                                        }
-                                        SYS_Rank sys_rank=rankService.selectRankByPidAndTimeOrderByTime(people.getId(),rank.getCreateTime(),rank.getName());
-                                        if (sys_rank!=null){
-                                            if (sys_rank.getName().contains("一级主任科员") || sys_rank.getName().contains("二级主任科员")) {
-                                                onejinsheng++;
-                                            }else if (sys_rank.getName().contains("三级主任科员") || sys_rank.getName().contains("四级主任科员")){
-                                                towjinsheng++;
-                                            }
-                                        }
-                                        SYS_Rank sys_rank1=rankService.selectAprodRanksByPid(people.getId());
-                                        SYS_Duty sys_duty=dutyService.selectDutyByPidOrderByTime(people.getId());
-                                        if (sys_rank1!=null && sys_duty!=null){
-                                            if (sys_rank1.getStatus().contains("已免")){
-                                                if (sys_rank1.getName().contains("一级主任科员") || sys_rank1.getName().contains("二级主任科员")) {
-                                                    onelingdao++;
-                                                }else if (sys_rank1.getName().contains("三级主任科员") || sys_rank1.getName().contains("四级主任科员")){
-                                                    towlingdao++;
+                    Date startDate = DateUtil.toDate(Integer.parseInt(year), startMonth, 1);
+                    Date endDate = DateUtil.toDate(Integer.parseInt(year), endMonth + 1, 1);
+                    SYS_Digest digest = new SYS_Digest();
+                    String uuid = unit.getId() + year + quarter;
+                    SYS_Digest sys_digest = dataService.selectDigestById(uuid);
+                    if ("1".equals(flag) && sys_digest != null) {
+                        digest = sys_digest;
+                    } else {
+                        digest.setCreateTime(new Date());
+                        digest.setUnitId(unit.getId());
+                        digest.setUnitName(unit.getName());
+                        digest.setFlag("0");
+                        digest.setYears(year);
+                        digest.setQuarter(quarter);
+                        digest.setYearAndQuarter(digest.getYears() + "/" + quarter);
+                        digest.setOneTowClerkApprove(String.valueOf(unit.getOneTowClerkNum()));
+                        digest.setThreeFourClerkApprove(String.valueOf(unit.getThreeFourClerkNum()));
+                        List<SYS_Rank> towranks = rankService.selectRanksFlagByUnitId(unit.getId(), "是", "二级主任科员");
+                        if (towranks != null) {
+                            digest.setTowClerkArbitrage(String.valueOf(towranks.size()));
+                        }
+                        List<SYS_Rank> fourranks = rankService.selectRanksFlagByUnitId(unit.getId(), "是", "四级主任科员");
+                        if (fourranks != null) {
+                            digest.setFourClerkArbitrage(String.valueOf(fourranks.size()));
+                        }
+                        int trueOneTowRanks = 0;
+                        int trueThreeFourRanks = 0;
+                        int oneTowClerkExceed = 0;
+                        int threeFourClerkExceed = 0;
+                        List<SYS_Rank> trueOneRanks = rankService.selectRanksFlagNotTurnByUnitId(unit.getId(), "是", "一级主任科员");
+                        List<SYS_Rank> trueTowRanks = rankService.selectRanksFlagNotTurnByUnitId(unit.getId(), "是", "二级主任科员");
+                        List<SYS_Rank> trueThreeRanks = rankService.selectRanksFlagNotTurnByUnitId(unit.getId(), "是", "三级主任科员");
+                        List<SYS_Rank> trueFourRanks = rankService.selectRanksFlagNotTurnByUnitId(unit.getId(), "是", "四级主任科员");
+                        if (trueOneRanks != null) {
+                            trueOneTowRanks += trueOneRanks.size();
+                        }
+                        if (trueTowRanks != null) {
+                            trueOneTowRanks += trueTowRanks.size();
+                        }
+                        if (trueThreeRanks != null) {
+                            trueThreeFourRanks += trueThreeRanks.size();
+                        }
+                        if (trueFourRanks != null) {
+                            trueThreeFourRanks += trueFourRanks.size();
+                        }
+                        if ((trueOneTowRanks - unit.getOneTowClerkNum()) > 0) {
+                            oneTowClerkExceed = (int) (trueOneTowRanks - unit.getOneTowClerkNum());
+                            digest.setOneTowClerkExceed(String.valueOf(trueOneTowRanks - unit.getOneTowClerkNum()));
+                            digest.setOneTowClerkRemove(String.valueOf(trueOneTowRanks - unit.getOneTowClerkNum()));
+                        }
+                        if ((trueThreeFourRanks - unit.getThreeFourClerkNum()) > 0) {
+                            threeFourClerkExceed = (int) (trueThreeFourRanks - unit.getThreeFourClerkNum());
+                            digest.setThreeFourClerkExceed(String.valueOf(trueThreeFourRanks - unit.getThreeFourClerkNum()));
+                            digest.setThreeFourClerkRemove(String.valueOf(trueThreeFourRanks - unit.getThreeFourClerkNum()));
+                        }
+                        List<SYS_People> peopleList = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "全部");
+                        int retirePeople = 0;
+                        int onealreadyRetire = 0;
+                        int towalreadyRetire = 0;
+                        int onejinsheng = 0;
+                        int onelingdao = 0;
+                        int onetuixiu = 0;
+                        int onetiqiantuixiu = 0;
+                        int onediaochu = 0;
+                        int oneqita = 0;
+                        int towjinsheng = 0;
+                        int towlingdao = 0;
+                        int towtuixiu = 0;
+                        int towtiqiantuixiu = 0;
+                        int towdiaochu = 0;
+                        int towqita = 0;
+                        if (peopleList != null) {
+                            for (SYS_People people : peopleList) {
+                                SYS_Rank rank = rankService.selectTurnRankById(people.getId());
+                                if (rank != null) {
+                                    if (rank.getName().contains("一级主任科员") || rank.getName().contains("二级主任科员") || rank.getName().contains("三级主任科员") || rank.getName().contains("四级主任科员")) {
+                                        if (people.getStates().contains("在职")) {
+                                            if (people.getPosition() != null && people.getSex() != null && people.getBirthday() != null) {//到期退休
+                                                Date retireTime = DataManager.getRetirTime(people.getPosition(), people.getBirthday(), people.getSex());
+                                                if (startDate.compareTo(retireTime) >= 0 && endDate.compareTo(retireTime) < 0) {
+                                                    retirePeople++;
                                                 }
                                             }
-                                        }
+                                            SYS_Rank sys_rank = rankService.selectRankByPidAndTimeOrderByTime(people.getId(), rank.getCreateTime(), rank.getName());
+                                            if (sys_rank != null) {
+                                                if (sys_rank.getName().contains("一级主任科员") || sys_rank.getName().contains("二级主任科员")) {
+                                                    onejinsheng++;
+                                                } else if (sys_rank.getName().contains("三级主任科员") || sys_rank.getName().contains("四级主任科员")) {
+                                                    towjinsheng++;
+                                                }
+                                            }
+                                            SYS_Rank sys_rank1 = rankService.selectAprodRanksByPid(people.getId());
+                                            SYS_Duty sys_duty = dutyService.selectDutyByPidOrderByTime(people.getId());
+                                            if (sys_rank1 != null && sys_duty != null) {
+                                                if (sys_rank1.getStatus().contains("已免")) {
+                                                    if (sys_rank1.getName().contains("一级主任科员") || sys_rank1.getName().contains("二级主任科员")) {
+                                                        onelingdao++;
+                                                    } else if (sys_rank1.getName().contains("三级主任科员") || sys_rank1.getName().contains("四级主任科员")) {
+                                                        towlingdao++;
+                                                    }
+                                                }
+                                            }
 
-                                    }else {//已离职
-                                        if (people.getOutTime()!=null){
-                                            if (startDate.compareTo(people.getOutTime())>=0 && endDate.compareTo(people.getOutTime())<0){
-                                                    if (rank.getName().contains("一级主任科员") || rank.getName().contains("二级主任科员")){
+                                        } else {//已离职
+                                            if (people.getOutTime() != null) {
+                                                if (startDate.compareTo(people.getOutTime()) >= 0 && endDate.compareTo(people.getOutTime()) < 0) {
+                                                    if (rank.getName().contains("一级主任科员") || rank.getName().contains("二级主任科员")) {
                                                         //离职消化途径
-                                                        if (people.getStates()=="退休"){
+                                                        if (people.getStates() == "退休") {
                                                             onetuixiu++;
-                                                        }else if (people.getStates()=="提前退休"){
+                                                        } else if (people.getStates() == "提前退休") {
                                                             onetiqiantuixiu++;
-                                                        }else if (people.getStates()=="调出"){
+                                                        } else if (people.getStates() == "调出") {
                                                             onediaochu++;
-                                                        }else if (people.getStates()=="其他"){
+                                                        } else if (people.getStates() == "其他") {
                                                             oneqita++;
                                                         }
-                                                    }else if (rank.getName().contains("三级主任科员") || rank.getName().contains("四级主任科员")){
+                                                    } else if (rank.getName().contains("三级主任科员") || rank.getName().contains("四级主任科员")) {
                                                         //离职消化途径
-                                                        if (people.getStates()=="退休"){
+                                                        if (people.getStates() == "退休") {
                                                             towtuixiu++;
-                                                        }else if (people.getStates()=="提前退休"){
+                                                        } else if (people.getStates() == "提前退休") {
                                                             towtiqiantuixiu++;
-                                                        }else if (people.getStates()=="调出"){
+                                                        } else if (people.getStates() == "调出") {
                                                             towdiaochu++;
-                                                        }else if (people.getStates()=="其他"){
+                                                        } else if (people.getStates() == "其他") {
                                                             towqita++;
                                                         }
                                                     }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    digest.setRetirePlanWay(String.valueOf(retirePeople));
-                    digest.setOneTowClerkSituation(String.valueOf(onealreadyRetire));
-                    digest.setThreeFourClerkSituation(String.valueOf(towalreadyRetire));
-                    digest.setRankUpWay(String.valueOf(onejinsheng+towjinsheng));
-                    digest.setLeaderDutyWay(String.valueOf(onelingdao+towlingdao));
-                    digest.setRetireWay(String.valueOf(onetuixiu+towtuixiu));
-                    digest.setEarlyRetireWay(String.valueOf(onetiqiantuixiu+towtiqiantuixiu));
-                    digest.setOutWay(String.valueOf(onediaochu+towdiaochu));
-                    digest.setOtherWay(String.valueOf(oneqita+towqita));
-                    digest.setOneTowClerkResult(String.valueOf(oneTowClerkExceed-onejinsheng-onelingdao-onetuixiu-onetiqiantuixiu-onediaochu-oneqita));
-                    digest.setThreeFourClerkResult(String.valueOf(threeFourClerkExceed-towjinsheng-towlingdao-towtuixiu-towtiqiantuixiu-towdiaochu-towqita));
-                    digest.setId(uuid);
-                    if (sys_digest!=null){
-                        dataService.updateDigest(digest);
-                    }else {
-                        dataService.insertDigest(digest);
-                    }
+                        digest.setRetirePlanWay(String.valueOf(retirePeople));
+                        digest.setOneTowClerkSituation(String.valueOf(onealreadyRetire));
+                        digest.setThreeFourClerkSituation(String.valueOf(towalreadyRetire));
+                        digest.setRankUpWay(String.valueOf(onejinsheng + towjinsheng));
+                        digest.setLeaderDutyWay(String.valueOf(onelingdao + towlingdao));
+                        digest.setRetireWay(String.valueOf(onetuixiu + towtuixiu));
+                        digest.setEarlyRetireWay(String.valueOf(onetiqiantuixiu + towtiqiantuixiu));
+                        digest.setOutWay(String.valueOf(onediaochu + towdiaochu));
+                        digest.setOtherWay(String.valueOf(oneqita + towqita));
+                        digest.setOneTowClerkResult(String.valueOf(oneTowClerkExceed - onejinsheng - onelingdao - onetuixiu - onetiqiantuixiu - onediaochu - oneqita));
+                        digest.setThreeFourClerkResult(String.valueOf(threeFourClerkExceed - towjinsheng - towlingdao - towtuixiu - towtiqiantuixiu - towdiaochu - towqita));
+                        digest.setId(uuid);
+                        if (sys_digest != null) {
+                            dataService.updateDigest(digest);
+                        } else {
+                            dataService.insertDigest(digest);
+                        }
                     }
                     digestList.add(digest);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, digestList, null).getJson();
-            }else {
+            } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
         } catch (Exception e) {
@@ -1432,87 +1683,87 @@ public String exportFreePeoples(HttpServletRequest request, HttpServletResponse 
     @ResponseBody
     public String getDigestData(@RequestParam(value = "unitName", required = false) String unitName) {
         try {
-            if (StrUtils.isBlank(unitName)){
+            if (StrUtils.isBlank(unitName)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-            SYS_UNIT unit=unitService.selectUnitByName(unitName);
-            if (unit==null){
+            SYS_UNIT unit = unitService.selectUnitByName(unitName);
+            if (unit == null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
-            List<SYS_Digest>  queryResult = dataService.selectDigestsByUnitId(unit.getId());
-            if (queryResult!=null){
-                DigestModel model=new DigestModel();
+            List<SYS_Digest> queryResult = dataService.selectDigestsByUnitId(unit.getId());
+            if (queryResult != null) {
+                DigestModel model = new DigestModel();
                 model.setUnitId(unit.getId());
-                for (SYS_Digest digest:queryResult){
-                    if (digest.getYears().contains("2020") && digest.getQuarter().equals("1")){
+                for (SYS_Digest digest : queryResult) {
+                    if (digest.getYears().contains("2020") && digest.getQuarter().equals("1")) {
                         model.setOneTowClerkRemove1(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove1(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay1(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay1(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("2")){
+                    } else if (digest.getYears().contains("2020") && digest.getQuarter().equals("2")) {
                         model.setOneTowClerkRemove2(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove2(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay2(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay2(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("3")){
+                    } else if (digest.getYears().contains("2020") && digest.getQuarter().equals("3")) {
                         model.setOneTowClerkRemove3(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove3(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay3(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay3(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("4")){
+                    } else if (digest.getYears().contains("2020") && digest.getQuarter().equals("4")) {
                         model.setOneTowClerkRemove4(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove4(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay4(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay4(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("1")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("1")) {
                         model.setOneTowClerkRemove5(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove5(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay5(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay5(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("2")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("2")) {
                         model.setOneTowClerkRemove6(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove6(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay6(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay6(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("3")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("3")) {
                         model.setOneTowClerkRemove7(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove7(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay7(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay7(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("4")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("4")) {
                         model.setOneTowClerkRemove8(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove8(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay8(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay8(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("1")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("1")) {
                         model.setOneTowClerkRemove9(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove9(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay9(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay9(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("2")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("2")) {
                         model.setOneTowClerkRemove10(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove10(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay10(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay10(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("3")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("3")) {
                         model.setOneTowClerkRemove11(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove11(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay11(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay11(Integer.valueOf(digest.getUpPlanWay()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("4")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("4")) {
                         model.setOneTowClerkRemove12(Integer.valueOf(digest.getOneTowClerkRemove()));
                         model.setThreeFourClerkRemove12(Integer.valueOf(digest.getThreeFourClerkRemove()));
                         model.setRetirePlanWay12(Integer.valueOf(digest.getRetirePlanWay()));
                         model.setUpPlanWay12(Integer.valueOf(digest.getUpPlanWay()));
                     }
                 }
-                List<SYS_Digest> digestList=new ArrayList<>();
-                for (SYS_Digest digest:queryResult){
+                List<SYS_Digest> digestList = new ArrayList<>();
+                for (SYS_Digest digest : queryResult) {
                     digest.setModel(model);
                     digestList.add(digest);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, digestList, null).getJson();
-            }else {
+            } else {
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, new ArrayList<SYS_Digest>(), null).getJson();
             }
         } catch (Exception e) {
@@ -1520,6 +1771,7 @@ public String exportFreePeoples(HttpServletRequest request, HttpServletResponse 
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "修改超职级职数消化情况表", notes = "修改超职级职数消化情况表", httpMethod = "POST", tags = "修改超职级职数消化情况表接口")
     @PostMapping(value = "/editDigest")
     @ResponseBody
@@ -1527,63 +1779,63 @@ public String exportFreePeoples(HttpServletRequest request, HttpServletResponse 
         try {
             List<SYS_Digest> digestList = dataService.selectDigestsByUnitId(model.getUnitId());
             if (digestList != null) {
-                for (SYS_Digest digest:digestList){
-                    if (digest.getYears().contains("2020") && digest.getQuarter().equals("1")){
+                for (SYS_Digest digest : digestList) {
+                    if (digest.getYears().contains("2020") && digest.getQuarter().equals("1")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove1()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove1()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay1()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay1()));
-                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("2")){
+                    } else if (digest.getYears().contains("2020") && digest.getQuarter().equals("2")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove2()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove2()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay2()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay2()));
-                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("3")){
+                    } else if (digest.getYears().contains("2020") && digest.getQuarter().equals("3")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove3()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove3()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay3()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay3()));
-                    }else if (digest.getYears().contains("2020") && digest.getQuarter().equals("4")){
+                    } else if (digest.getYears().contains("2020") && digest.getQuarter().equals("4")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove4()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove4()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay4()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay4()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("1")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("1")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove5()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove5()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay5()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay5()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("2")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("2")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove6()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove6()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay6()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay6()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("3")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("3")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove7()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove7()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay7()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay7()));
-                    }else if (digest.getYears().contains("2021") && digest.getQuarter().equals("4")){
+                    } else if (digest.getYears().contains("2021") && digest.getQuarter().equals("4")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove8()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove8()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay8()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay8()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("8")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("8")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove9()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove9()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay9()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay9()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("2")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("2")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove10()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove10()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay10()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay10()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("3")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("3")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove11()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove11()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay11()));
                         digest.setUpPlanWay(String.valueOf(model.getUpPlanWay11()));
-                    }else if (digest.getYears().contains("2022") && digest.getQuarter().equals("4")){
+                    } else if (digest.getYears().contains("2022") && digest.getQuarter().equals("4")) {
                         digest.setOneTowClerkRemove(String.valueOf(model.getOneTowClerkRemove12()));
                         digest.setThreeFourClerkRemove(String.valueOf(model.getThreeFourClerkRemove12()));
                         digest.setRetirePlanWay(String.valueOf(model.getRetirePlanWay12()));
