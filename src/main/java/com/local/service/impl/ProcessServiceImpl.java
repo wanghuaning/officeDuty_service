@@ -165,11 +165,7 @@ public class ProcessServiceImpl implements ProcessService {
                 cri.where().andEquals("flag",approveFlag);
             }
             if (!StrUtils.isBlank(states) && !"all".equals(states)){//市
-                if ("已审核".equals(states)){
-                    cri.where().orEquals("states",states);
-                }else {
-                    cri.where().andNotEquals("states","已审核");
-                }
+                cri.where().andEquals("states",states);
             }
             cri.getOrderBy().desc("processTime");
             List<Sys_Process> processes=new ArrayList<>();

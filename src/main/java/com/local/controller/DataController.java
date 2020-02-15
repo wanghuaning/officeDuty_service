@@ -103,7 +103,6 @@ public class DataController {
                 BeanUtils.copyProperties(approal, approalNow);
                 approalNow.setCreateTime(new Date());
                 approvalService.updataApproal(approalNow);
-                DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approalNow));
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, approal, null).getJson();
             } else {
                 String uuid = UUID.randomUUID().toString();
@@ -111,6 +110,32 @@ public class DataController {
                 approal.setCreateTime(new Date());
                 approvalService.insertApproal(approal);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, approal, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "提交市级机关公务员职级职数使用审批表", notes = "提交市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "提交市级机关公务员职级职数使用审批表接口")
+    @PostMapping(value = "/submitApproval")
+    @ResponseBody
+    public String submitApproval(@Validated @RequestBody Sys_Approal approal) {
+        try {
+            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
+            Sys_Approal approalNow = approvalService.selectApproval(approal.getUnitId(), "0");
+            if (approalNow != null) {
+                approal.setId(approalNow.getId());
+                BeanUtils.copyProperties(approal, approalNow);
+                approalNow.setCreateTime(new Date());
+                approvalService.updataApproal(approalNow);
+                DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approalNow));
+                return new Result(ResultCode.SUCCESS.toString(), "提交成功", approal, null).getJson();
+            } else {
+                String uuid = UUID.randomUUID().toString();
+                approal.setId(uuid);
+                approal.setCreateTime(new Date());
+                approvalService.insertApproal(approal);
+                return new Result(ResultCode.SUCCESS.toString(), "提交成功", approal, null).getJson();
             }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
@@ -326,7 +351,15 @@ public class DataController {
             String dataId = String.valueOf(object.get("dataId"));
             String dataType = String.valueOf(object.get("dataType"));
             String flag = String.valueOf(object.get("flag"));
+            String processId = String.valueOf(object.get("processId"));
             if (!StrUtils.isBlank(note)) {
+                if (StrUtils.isBlank(processId)){
+                    return new Result(ResultCode.ERROR.toString(), "数据表错误！", null, null).getJson();
+                }
+                Sys_Process sys_process1=processService.selectProcessById(processId);
+                if (sys_process1!=null){
+                    return new Result(ResultCode.ERROR.toString(), "此流程已经存在！", null, null).getJson();
+                }
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
                 String iunitId = String.valueOf(key.get("unitId"));
@@ -807,11 +840,26 @@ public class DataController {
     @PostMapping(value = "/rejectImportData")
     public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid,@RequestParam(value = "flag", required = false) String flag, HttpServletRequest request) {
         List<Object> objects = new ArrayList<>();
+        String people="";
+        SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+        if (user != null) {
+            SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+            if (unit!=null){
+                if (user.getPeopleName()!=null){
+                    people=unit.getName()+"/"+user.getPeopleName();
+                }else {
+                    people=unit.getName();
+                }
+            }
+        }
         if (!StrUtils.isBlank(rowid)) {
             Sys_Process process = processService.selectProcessById(rowid);
             if (process == null) {
                 return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
             }
+            if ("撤销".equals(flag)){
+                process.setStates("已驳回");
+            } else {
             SYS_Data data = dataService.selectDataByProcessId(process.getId());
             if (data == null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
@@ -828,7 +876,6 @@ public class DataController {
                 if (!processl.getId().equals(rowid)){
                     return new Result(ResultCode.ERROR.toString(), "此流程并非最新已审核流程，不可驳回！", null, null).getJson();
                 }
-
             }
             if ("审核".equals(flag)){
                 Sys_Process processl = processService.selectProcessByFlagAnd(process.getUnitId(),process.getFlag(),"已驳回");
@@ -843,9 +890,7 @@ public class DataController {
                     return new Result(ResultCode.ERROR.toString(), "此流程并非最新已驳回流程，不可驳回！", null, null).getJson();
                 }
             }
-            if ("撤销".equals(flag)){
-                process.setStates("已驳回");
-            }else {
+                process.setPeople(people);
                 for (SYS_DataInfo dataInfo : dataInfos) {
                     String param=dataInfo.getParam();
                     if ("驳回".equals(flag)){
@@ -942,7 +987,40 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
         }
     }
-
+    @ApiOperation(value = "驳回数据", notes = "驳回数据", httpMethod = "POST", tags = "驳回数据接口")
+    @PostMapping(value = "/rejectData")
+    public String rejectData(@RequestParam(value = "dataId", required = false) String dataId, HttpServletRequest request) {
+        List<Object> objects = new ArrayList<>();
+        String people="";
+        SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+        if (user != null) {
+            SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+            if (unit!=null){
+                if (user.getPeopleName()!=null){
+                    people=unit.getName()+"/"+user.getPeopleName();
+                }else {
+                    people=unit.getName();
+                }
+            }
+        }
+        if (!StrUtils.isBlank(dataId)) {
+            SYS_Data data = dataService.selectDataById(dataId);
+            if (data != null) {
+                Sys_Process process=processService.selectProcessById(data.getProcessId());
+                if (process==null){
+                    return new Result(ResultCode.ERROR.toString(), "驳回失败，数据包出错！", null, null).getJson();
+                }
+                process.setStates("已驳回");
+                process.setPeople(people);
+                processService.updateProcess(process);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, objects, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), "此数据包为下行数据包", null, null).getJson();
+            }
+        } else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "审批信息", notes = "审批信息", httpMethod = "GET", tags = "审批信息接口")
     @GetMapping("/process")
     @ResponseBody
