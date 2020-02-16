@@ -3,10 +3,9 @@ package com.local.controller;
 import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UserManager;
+import com.local.config.ZipUtil;
 import com.local.entity.sys.*;
-import com.local.service.PeopleService;
-import com.local.service.UnitService;
-import com.local.service.UserService;
+import com.local.service.*;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
@@ -27,10 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -38,6 +34,7 @@ import java.util.*;
 @RequestMapping("/api/people")
 @Component
 public class PeopleController {
+    private final File jsonFile = File.createTempFile("downloadJson", ".json");//创建临时文件
     private final static Logger logger = LoggerFactory.getLogger(PeopleController.class);
 
     @Autowired
@@ -46,6 +43,21 @@ public class PeopleController {
     private UnitService unitService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RankService rankService;
+
+    @Autowired
+    private EducationService educationService;
+    @Autowired
+    private AssessmentService assessmentService;
+
+    @Autowired
+    private DutyService dutyService;
+    @Autowired
+    private RewardService rewardService;
+
+    public PeopleController() throws IOException {
+    }
 
     @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
     @GetMapping("/info")
@@ -177,67 +189,73 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-    /*
+    private final String filePathStr="C:\\RM\\file\\json";
   @ApiOperation(value = "导出调出人员信息", notes = "导出调出人员信息", httpMethod = "POST", tags = "导出调出人员信息接口")
   @RequestMapping(value = "/outOutPeopleExcel")
   public String outOutPeopleExcel(HttpServletRequest request, HttpServletResponse response,
-                               @RequestParam(value = "unitName", required = false) String unitName,
-                               @RequestParam(value = "peopleIds", required = false) String peopleIds) {
+                               @RequestParam(value = "unitId", required = false) String unitId,
+                               @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
       try {
           if (StrUtils.isBlank(peopleIds)){
               return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
           }
-          String[] arr=peopleIds.split("\\,");
+          SYS_UNIT unit=unitService.selectUnitById(unitId);
           List<Object> objects = new ArrayList<>();
           //从请求的header中取出当前登录的登录
-          Map<String, Object> paramsMap = new HashMap<>();
-          paramsMap.put("note", "调出");
-          paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
-          paramsMap.put("peopleId", peopleId);
-          Map<String, Object> resultMap = new HashMap<>();
-          List<SYS_People> peopleList = new ArrayList<>();
-          SYS_People people = peopleService.selectPeopleById(peopleId);
-          if (people != null) {
-              if (people.getStates().contains("调出")) {
-                  peopleList.add(people);
-                  JSONArray peoples = JSONArray.fromObject(peopleList);
-                  resultMap.put("peopleList", peoples);
-                  objects.add(peoples);
-                  List<SYS_Duty> dutyList = DataManager.getOutPeopleDutyJson(resultMap, people, dutyService);
-                  objects.addAll(dutyList);
-                  List<SYS_Rank> rankList = DataManager.getOutPeopleRankJson(resultMap, people, rankService);
-                  objects.addAll(rankList);
-                  List<SYS_Education> educationList = DataManager.getOutPeopleEducationJson(resultMap, people, educationService);
-                  objects.addAll(educationList);
-                  List<SYS_Reward> rewardList = DataManager.getOutPeopleRewardJson(resultMap, people, rewardService);
-                  objects.addAll(rankList);
-                  List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
-                  objects.addAll(assessmentList);
+          List<File> srcfile = new ArrayList<File>();
+          for (String peopleId: peopleIds){
+              Map<String, Object> paramsMap = new HashMap<>();
+              paramsMap.put("note", "调出");
+              paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
+              paramsMap.put("peopleId", peopleId);
+              Map<String, Object> resultMap = new HashMap<>();
+              List<SYS_People> peopleList = new ArrayList<>();
+              SYS_People people = peopleService.selectPeopleById(peopleId);
+              if (people != null) {
+                  if (people.getStates().contains("调出")) {
+                      peopleList.add(people);
+                      JSONArray peoples = JSONArray.fromObject(peopleList);
+                      resultMap.put("peopleList", peoples);
+                      objects.add(peoples);
+                      List<SYS_Duty> dutyList = DataManager.getOutPeopleDutyJson(resultMap, people, dutyService);
+                      objects.addAll(dutyList);
+                      List<SYS_Rank> rankList = DataManager.getOutPeopleRankJson(resultMap, people, rankService);
+                      objects.addAll(rankList);
+                      List<SYS_Education> educationList = DataManager.getOutPeopleEducationJson(resultMap, people, educationService);
+                      objects.addAll(educationList);
+                      List<SYS_Reward> rewardList = DataManager.getOutPeopleRewardJson(resultMap, people, rewardService);
+                      objects.addAll(rankList);
+                      List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
+                      objects.addAll(assessmentList);
+                  }
               } else {
-                  return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
+                  return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
               }
-          } else {
-              return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-          }
           JSONObject resultList = JSONObject.fromObject(resultMap);
           paramsMap.put("result", resultList);
           JSONObject resultJson = JSONObject.fromObject(paramsMap);
           byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
           String paramsCipher = AESUtil.parseByte2HexStr(encode);
-          File file = jsonFile;
+          ZipUtil.getFile(filePathStr);
+          String filePath=filePathStr+"\\"+people.getName()+"_调出信息.json";
+          File file = new File(filePath);
           Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
           writer.write(paramsCipher);
+//          Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+//          writer.write(paramsCipher);
+          srcfile.add(file);
           writer.flush();
           writer.close();
-          return paramsCipher;
+          }
+          ZipUtil.zipFiles(srcfile,response,"批量导出调出人员信息",request);
+          return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
       } catch (Exception e) {
           logger.error(ResultMsg.GET_ERROR, e);
           return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
       } finally {
-          jsonFile.deleteOnExit();//程序结束 删除临时文件
+          ZipUtil.delFile(new File(filePathStr));
       }
   }
-     */
   /**
    * 已取消使用
    *

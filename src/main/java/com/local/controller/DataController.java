@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.local.cell.DataManager;
 import com.local.cell.UserManager;
 import com.local.common.filter.FileUtil;
+import com.local.config.ZipUtil;
 import com.local.entity.sys.*;
 import com.local.model.*;
 import com.local.service.*;
@@ -116,6 +117,7 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "提交市级机关公务员职级职数使用审批表", notes = "提交市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "提交市级机关公务员职级职数使用审批表接口")
     @PostMapping(value = "/submitApproval")
     @ResponseBody
@@ -239,7 +241,7 @@ public class DataController {
         }
     }
 
-    @ApiOperation(value = "导出上行下行数据", notes = "导出上行下行数据", httpMethod = "POST", tags = "导出上行下行数据接口")
+    @ApiOperation(value = "导出上行数据", notes = "导出上行数据", httpMethod = "POST", tags = "导出上行数据接口")
     @RequestMapping(value = "/upstreamData")
     public String upstreamData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
                                @RequestParam(value = "dataType", required = false) String dataType,
@@ -266,7 +268,7 @@ public class DataController {
             List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
             objects.addAll(unitList);
             if (!"职数".equals(flag)) {
-                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "0");
+                List<Sys_Process> processeList = DataManager.getUpProcessJson(resultMap, process, processService, dataType, "0");
                 objects.addAll(processeList);
                 List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
                 List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
@@ -289,7 +291,7 @@ public class DataController {
             } else {
                 List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
                 objects.addAll(approvalList);
-                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "1");
+                List<Sys_Process> processeList = DataManager.getUpProcessJson(resultMap, process, processService, dataType, "1");
                 objects.addAll(processeList);
             }
             JSONObject resultList = JSONObject.fromObject(resultMap);
@@ -353,11 +355,11 @@ public class DataController {
             String flag = String.valueOf(object.get("flag"));
             String processId = String.valueOf(object.get("processId"));
             if (!StrUtils.isBlank(note)) {
-                if (StrUtils.isBlank(processId)){
+                if (StrUtils.isBlank(processId)) {
                     return new Result(ResultCode.ERROR.toString(), "数据表错误！", null, null).getJson();
                 }
-                Sys_Process sys_process1=processService.selectProcessById(processId);
-                if (sys_process1!=null){
+                Sys_Process sys_process1 = processService.selectProcessById(processId);
+                if (sys_process1 != null) {
                     return new Result(ResultCode.ERROR.toString(), "此流程已经存在！", null, null).getJson();
                 }
                 JSONObject key = object.getJSONObject("result");
@@ -396,11 +398,14 @@ public class DataController {
                             if (processList.size() > 0) {
                                 Map<String, Object> resultMap = new HashMap<>();
                                 processes = DataManager.saveProcessJsonModel(processList, user, "上行", unit, processService);
-                                List<Sys_Process> sys_processes=new ArrayList<>();
+                                List<Sys_Process> sys_processes = new ArrayList<>();
                                 if (processes.size() > 0) {
                                     for (Sys_Process process : processes) {
                                         process.setCreateTime(new Date());
                                         sys_processes.add(process);
+                                        if (process.getChildren() != null) {
+                                            sys_processes.addAll(process.getChildren());
+                                        }
                                         SYS_Data data = DataManager.saveData(dataId, process.getId(), dataType, iunitId, dataService);
                                         resultMap.put("dataId", data.getId());
                                         DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "processe", gson.toJson(sys_processes), null);
@@ -614,7 +619,7 @@ public class DataController {
                         List<Sys_Approal> sys_approals = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Approal>>() {
                         }.getType());
                         if (sys_approals.size() > 0) {
-                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService,"1");
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService, "1");
                             objects.add(sys_approals);
                         }
                     } else if (dataInfo.getId().contains("process")) {
@@ -644,6 +649,72 @@ public class DataController {
             }
         } else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出下行数据", notes = "导出下行数据", httpMethod = "POST", tags = "导出下行数据接口")
+    @RequestMapping(value = "/upstreamDownData")
+    public String upstreamDownData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
+                                   @RequestParam(value = "dataType", required = false) String dataType,
+                                   @RequestParam(value = "flag", required = false) String flag,
+                                   @RequestParam(value = "processId", required = false) String processId) {
+        try {
+            List<Object> objects = new ArrayList<>();
+            //从请求的header中取出当前登录的登录
+            Map<String, Object> paramsMap = new HashMap<>();
+            paramsMap.put("note", "成功");
+            paramsMap.put("dataId", unitId + DateUtil.getDateNum(new Date()));
+            paramsMap.put("dataType", dataType);
+            paramsMap.put("flag", flag);
+            Map<String, Object> resultMap = new HashMap<>();
+            List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
+            objects.addAll(unitList);
+            if (!"职数".equals(flag)) {
+                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "0");
+                objects.addAll(processeList);
+                List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
+                List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
+                List<SYS_Digest> digestList = DataManager.getDigestJson(resultMap, unitList, dataService);
+                if (peopleList.size() > 0) {
+                    objects.addAll(peopleList);
+                    List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
+                    objects.addAll(dutyList);
+                    List<SYS_Rank> rankList = DataManager.getRankJson(resultMap, peopleList, rankService);
+                    objects.addAll(rankList);
+                    List<SYS_Education> educationList = DataManager.getEducationJson(resultMap, peopleList, educationService);
+                    objects.addAll(educationList);
+                    List<SYS_Reward> rewardList = DataManager.getRewardJson(resultMap, peopleList, rewardService);
+                    objects.addAll(rankList);
+                    List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
+                    objects.addAll(assessmentList);
+                }
+                objects.addAll(userList);
+                objects.addAll(digestList);
+            } else {
+                List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
+                objects.addAll(approvalList);
+                List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "1");
+                objects.addAll(processeList);
+            }
+            JSONObject resultList = JSONObject.fromObject(resultMap);
+            paramsMap.put("result", resultList);
+            JSONObject resultJson = JSONObject.fromObject(paramsMap);
+            // 加密
+//            System.out.println("加密前：" + resultJson.toString());
+            byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
+            //传输过程,不转成16进制的字符串，就等着程序崩溃掉吧
+            String paramsCipher = AESUtil.parseByte2HexStr(encode);
+            File file = jsonFile;
+            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            writer.write(paramsCipher);
+            writer.flush();
+            writer.close();
+            return paramsCipher;
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+        } finally {
+            jsonFile.deleteOnExit();//程序结束 删除临时文件
         }
     }
 
@@ -678,8 +749,20 @@ public class DataController {
                 JSONObject key = object.getJSONObject("result");
                 String date = String.valueOf(key.get("date"));
                 String unitID = String.valueOf(key.get("unitId"));
-                if (!unitID.trim().contains(unitId.trim())) {
-                    return new Result(ResultCode.ERROR.toString(), "非本单位下行数据包！", null, null).getJson();
+                boolean bil=false;
+                if (unitID.trim().contains(unitId.trim())) {
+                    bil=true;
+                }
+                List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unitId);
+                if (cunitList.size() > 0) {
+                    for (SYS_UNIT unit:cunitList){
+                        if (unitID.trim().contains(unit.getId())) {
+                            bil=true;
+                        }
+                    }
+                }
+                if (!bil) {
+                    return new Result(ResultCode.ERROR.toString(), "非本单位及下级单位下行数据包！", null, null).getJson();
                 } else {
                     String unitName = String.valueOf(key.get("unitName"));
                     JSONArray unitList = new JSONArray();
@@ -738,7 +821,7 @@ public class DataController {
                                     beforeparam = gson.toJson(us);
                                 }
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "approval", gson.toJson(approals), beforeparam);
-                                DataManager.saveApprovalData(approals, approvalService, unitID, unitService,"1");
+                                DataManager.saveApprovalData(approals, approvalService, unitID, unitService, "1");
                                 objects.add(approals);
                             }
                             SYS_UNIT punit = unitService.selectUnitById(unitId);
@@ -838,17 +921,23 @@ public class DataController {
 
     @ApiOperation(value = "审批操作", notes = "审批操作", httpMethod = "POST", tags = "审批操作接口")
     @PostMapping(value = "/rejectImportData")
-    public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid,@RequestParam(value = "flag", required = false) String flag, HttpServletRequest request) {
+    public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid, @RequestParam(value = "flag", required = false) String flag, HttpServletRequest request) {
         List<Object> objects = new ArrayList<>();
-        String people="";
+        String people = "";
+        boolean admin = false;
+        String unitName = "";
         SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
         if (user != null) {
-            SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
-            if (unit!=null){
-                if (user.getPeopleName()!=null){
-                    people=unit.getName()+"/"+user.getPeopleName();
-                }else {
-                    people=unit.getName();
+            if ("1".equals(user.getRoles())) {
+                admin = true;
+            }
+            SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
+            if (unit != null) {
+                unitName = unit.getName();
+                if (user.getPeopleName() != null) {
+                    people = unit.getName() + "/" + user.getPeopleName();
+                } else {
+                    people = unit.getName();
                 }
             }
         }
@@ -857,44 +946,58 @@ public class DataController {
             if (process == null) {
                 return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
             }
-            if ("撤销".equals(flag)){
+            Sys_Process cprocess = processService.selectProcessByParentIdAndUnitName(process.getId(), unitName);
+            if ("撤销".equals(flag)) {
                 process.setStates("已驳回");
+                if (cprocess!=null){
+                    cprocess.setStates("已驳回");
+                }
             } else {
-            SYS_Data data = dataService.selectDataByProcessId(process.getId());
-            if (data == null) {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-            }
-            List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
-            if (dataInfos == null) {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-            }
-            if ("驳回".equals(flag)){
-                Sys_Process processl = processService.selectProcessByFlagAnd(process.getUnitId(),process.getFlag(),"已审核");
-                if (processl==null){
+                SYS_Data data = dataService.selectDataByProcessId(process.getId());
+                if (data == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
-                if (!processl.getId().equals(rowid)){
-                    return new Result(ResultCode.ERROR.toString(), "此流程并非最新已审核流程，不可驳回！", null, null).getJson();
-                }
-            }
-            if ("审核".equals(flag)){
-                Sys_Process processl = processService.selectProcessByFlagAnd(process.getUnitId(),process.getFlag(),"已驳回");
-                if (processl==null){
+                List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
+                if (dataInfos == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
-                Sys_Process process2 = processService.selectProcessByFlagAndDate(process.getUnitId(),process.getFlag(),process.getCreateTime());
-                if (process2!=null){
-                    return new Result(ResultCode.ERROR.toString(), "此后有已审核流程，不可复审！", null, null).getJson();
+                if ("驳回".equals(flag)) {
+                    if(process.getPeople()!=null){
+                        if (!process.getPeople().contains(unitName)){
+                            return new Result(ResultCode.ERROR.toString(), "权限不足！", null, null).getJson();
+                        }
+                    }
+                    Sys_Process processl = processService.selectProProcessByFlag(process.getUnitId(), process.getFlag());
+                    if (processl == null) {
+                        return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                    }
+                    if (!processl.getId().equals(rowid)) {
+                        return new Result(ResultCode.ERROR.toString(), "此流程并非最新已审核流程，不可驳回！", null, null).getJson();
+                    }
                 }
-                if (!processl.getId().equals(rowid)){
-                    return new Result(ResultCode.ERROR.toString(), "此流程并非最新已驳回流程，不可驳回！", null, null).getJson();
+                if ("审核".equals(flag)) {
+                    if(process.getPeople()!=null){
+                        if (!process.getPeople().contains(unitName)){
+                            return new Result(ResultCode.ERROR.toString(), "权限不足！", null, null).getJson();
+                        }
+                    }
+                    Sys_Process processl = processService.selectProcessByFlagAnd(process.getUnitId(), process.getFlag(), "已驳回");
+                    if (processl == null) {
+                        return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                    }
+                    Sys_Process process2 = processService.selectProcessByFlagAndDate(process.getUnitId(), process.getFlag(), process.getCreateTime());
+                    if (process2 != null) {
+                        return new Result(ResultCode.ERROR.toString(), "此后有已审核流程，不可复审！", null, null).getJson();
+                    }
+                    if (!processl.getId().equals(rowid)) {
+                        return new Result(ResultCode.ERROR.toString(), "此流程并非最新已驳回流程，不可驳回！", null, null).getJson();
+                    }
                 }
-            }
                 process.setPeople(people);
                 for (SYS_DataInfo dataInfo : dataInfos) {
-                    String param=dataInfo.getParam();
-                    if ("驳回".equals(flag)){
-                        param=dataInfo.getBeforeParam();
+                    String param = dataInfo.getParam();
+                    if ("驳回".equals(flag)) {
+                        param = dataInfo.getBeforeParam();
                     }
                     if (dataInfo.getId().contains("people")) {
                         List<SYS_People> sys_peoples = gson.fromJson(param, new TypeToken<List<SYS_People>>() {
@@ -956,14 +1059,14 @@ public class DataController {
                         List<Sys_Approal> sys_approals = gson.fromJson(param, new TypeToken<List<Sys_Approal>>() {
                         }.getType());
                         if (sys_approals.size() > 0) {
-                            String f="1";
-                            if ("驳回".equals(flag)){
-                                f="0";
+                            String f = "1";
+                            if ("驳回".equals(flag)) {
+                                f = "0";
                             }
-                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService,f);
+                            DataManager.saveApprovalData(sys_approals, approvalService, dataInfo.getUnitId(), unitService, f);
                             objects.add(sys_approals);
                         }
-                    }else if (dataInfo.getId().contains("unit") && "驳回".equals(flag)) {
+                    } else if (dataInfo.getId().contains("unit") && "驳回".equals(flag)) {
                         List<SYS_UNIT> sys_units = gson.fromJson(param, new TypeToken<List<SYS_UNIT>>() {
                         }.getType());
                         if (sys_units.size() > 0) {
@@ -973,41 +1076,62 @@ public class DataController {
                     }
                 }
             }
-            if("驳回".equals(flag)){
+            if ("驳回".equals(flag)) {
                 process.setStates("已驳回");
-            }else if ("审核".equals(flag)){
-                process.setStates("已审核");
-            }else if ("复审".equals(flag)){
-                process.setStates("已审核");
+                if (cprocess != null) {
+                    cprocess.setStates("已驳回");
+                }
+            } else if ("审核".equals(flag)) {
+                if (admin){
+                    process.setStates("已审核");
+                }else {
+                    process.setStates("初审");
+                    if (cprocess != null) {
+                        cprocess.setStates("初审");
+                    }
+                }
+            } else if ("复审".equals(flag)) {
+                if (admin){
+                    process.setStates("已审核");
+                }else {
+                    process.setStates("初审");
+                    if (cprocess != null) {
+                        cprocess.setStates("初审");
+                    }
+                }
             }
             process.setProcessTime(new Date());
             processService.updateProcess(process);
+            if (cprocess!=null){
+                processService.updateProcess(cprocess);
+            }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
         } else {
             return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
         }
     }
+
     @ApiOperation(value = "驳回数据", notes = "驳回数据", httpMethod = "POST", tags = "驳回数据接口")
     @PostMapping(value = "/rejectData")
     public String rejectData(@RequestParam(value = "dataId", required = false) String dataId, HttpServletRequest request) {
         List<Object> objects = new ArrayList<>();
-        String people="";
+        String people = "";
         SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
         if (user != null) {
-            SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
-            if (unit!=null){
-                if (user.getPeopleName()!=null){
-                    people=unit.getName()+"/"+user.getPeopleName();
-                }else {
-                    people=unit.getName();
+            SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
+            if (unit != null) {
+                if (user.getPeopleName() != null) {
+                    people = unit.getName() + "/" + user.getPeopleName();
+                } else {
+                    people = unit.getName();
                 }
             }
         }
         if (!StrUtils.isBlank(dataId)) {
             SYS_Data data = dataService.selectDataById(dataId);
             if (data != null) {
-                Sys_Process process=processService.selectProcessById(data.getProcessId());
-                if (process==null){
+                Sys_Process process = processService.selectProcessById(data.getProcessId());
+                if (process == null) {
                     return new Result(ResultCode.ERROR.toString(), "驳回失败，数据包出错！", null, null).getJson();
                 }
                 process.setStates("已驳回");
@@ -1021,6 +1145,7 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "审批信息", notes = "审批信息", httpMethod = "GET", tags = "审批信息接口")
     @GetMapping("/process")
     @ResponseBody
@@ -1033,6 +1158,27 @@ public class DataController {
             SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
             if (user != null) {
                 QueryResult queryResult = processService.selectProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag, states);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "未结束流程审批信息", notes = "未结束流程审批信息", httpMethod = "GET", tags = "未结束流程审批信息接口")
+    @GetMapping("/notEndProcess")
+    @ResponseBody
+    public String notEndProcess(@RequestParam(value = "size", required = false) String pageSize,
+                                @RequestParam(value = "page", required = false) String pageNumber,
+                                @RequestParam(value = "unitName", required = false) String unitName,
+                                @RequestParam(value = "approveFlag", required = false) String approveFlag, HttpServletRequest request) {
+        try {
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (user != null) {
+                QueryResult queryResult = processService.selectNotEndProcesss(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), user.getUnitId(), unitName, approveFlag);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
@@ -1497,9 +1643,9 @@ public class DataController {
         }
     }
 
-    //    @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
+    //        @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
 //    @RequestMapping(value = "/exportFreePeoples")
-//    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
+//    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,@RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
 //        try {
 //            String userAgent = request.getHeader("User-Agent");
 //            if (StrUtils.isBlank(peopleIds)){
@@ -1529,31 +1675,30 @@ public class DataController {
 //    }
     @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
     @RequestMapping(value = "/exportFreePeoples")
-// ,  @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds
-    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response) throws IOException, InvalidClassException, Exception {
-        String[] peopleIds = {"101bb91f-6cb9-4020-ac62-b378842675c4"};//,"44c0fa5a-3165-48b6-9cdc-cb83f0c768fc"
-        String userAgent = request.getHeader("User-Agent");
+    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) throws IOException, InvalidClassException, Exception {
+//       String[] peopleIdss={"02d9eaba-06bf-42c5-988f-724cd78fdd2f","23d97495-773b-41c9-acfc-0452a193be95"};
         if (StrUtils.isBlank(peopleIds)) {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         } else {
-            Resource resource = new ClassPathResource("exportExcel/exportCompleteInfo.xls");
-//            ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
+            Resource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
             String path = resource.getFile().getPath();
             List<Workbook> workBookList = new ArrayList<>();
-            String[] arr = {"name", "firstBatch", "secondBatch", "thirdBatch", "ganBuNum", "fourBatch", "fiveBatch", "sexBatch", "total"};
-            List<CompleteModel> models = new ArrayList<>();
-            CompleteModel model = new CompleteModel();
-            model.setName("实施1");
-            models.add(model);
-            CompleteModel model1 = new CompleteModel();
-            model1.setName("实施2");
-            models.add(model1);
+            List<File> srcfile = new ArrayList<File>();
+            String filePathStr = "C:\\RM\\file\\excel";
             for (int i = 0; i < peopleIds.length; i++) {
+                SYS_People people = peopleService.selectPeopleById(peopleIds[i]);
                 Workbook temp = ExcelFileGenerator.getTeplet(path);
-                ExcelFileGenerator.createExcelFileOld(temp.getSheet("职级晋升情况"), 2, models, arr);
-                workBookList.add(temp);
+                DataManager.exportFreePeoples(temp, peopleService, peopleIds[i], rankService, educationService, assessmentService, unitService);
+//                workBookList.add(temp);
+                ZipUtil.getFile(filePathStr);
+                String filePath = filePathStr + "\\" + people.getName() + "_公务员职级任免审批表.xls";
+                FileOutputStream output = new FileOutputStream(filePath);
+                temp.write(output);//写入磁盘
+                srcfile.add(new File(filePath));
+                output.close();
             }
-            ExcelFileGenerator.creatExcelZip(workBookList, "案系统压缩包", "职级晋升情况", response, userAgent, 0, 2, 0);
+            ZipUtil.zipFiles(srcfile, response, "批量导出公务员职级任免审批表", request);
+            ZipUtil.delFile(new File(filePathStr));
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
 
         }

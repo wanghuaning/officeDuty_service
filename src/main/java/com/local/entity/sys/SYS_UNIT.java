@@ -313,6 +313,13 @@ public class SYS_UNIT implements Serializable {
     private String value;
     private String label;
 
+    public List<SYS_UNIT> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SYS_UNIT> children) {
+        this.children = children;
+    }
 
     public String getIsEdit() {
         return isEdit;

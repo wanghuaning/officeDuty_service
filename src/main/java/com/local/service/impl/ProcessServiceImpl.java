@@ -40,7 +40,7 @@ public class ProcessServiceImpl implements ProcessService {
     public List<Sys_Process> selectApprProcess(String unitId){
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();
-        cir.where().andEquals("unit_Id",unitId).andEquals("states","已审核");
+        cir.where().andEquals("unit_Id",unitId).andNotEquals("states","未审批");
         list=dao.query(Sys_Process.class,cir);
         if (list.size()>0){
             return list;
@@ -132,6 +132,20 @@ public class ProcessServiceImpl implements ProcessService {
             return null;
         }
     }
+
+    @Override
+    public Sys_Process selectProProcessByFlag(String unitId,String flag){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId).andEquals("flag",flag).andEquals("parent_Id",null).andNotEquals("states","未审批").andNotEquals("states","已驳回");
+        cir.getOrderBy().desc("create_Time");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
     @Override
     public Sys_Process selectProcessByParentId(String parentId,String states){
         List<Sys_Process> list=new ArrayList<>();
@@ -144,8 +158,65 @@ public class ProcessServiceImpl implements ProcessService {
             return null;
         }
     }
+
+    @Override
+    public Sys_Process selectProcessByParentIdAndUnitName(String parentId,String unitName){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("parent_Id",parentId).andLike("people","%"+unitName+"%");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
     private static List<String> cunits=new ArrayList<>();
 
+    @Override
+    public QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag){
+        Pager pager=new Pager();
+        pager.setPageNumber(pageNumber+1);
+        pager.setPageSize(pageSize);
+        List<Sys_Process> peopleList=new ArrayList<>();
+        Criteria cri= Cnd.cri();
+        cunits=new ArrayList<>();
+        List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unitId));
+        getAllChildUnits(cunitList);
+        if (cunits.size()>0){
+            cri.where().andInStrList("unit_Id",cunits).andEquals("parent_Id",null);
+            if (!StrUtils.isBlank(unitName)){//市
+                cri.where().andLike("unit_Name","%"+unitName+"%");
+            }
+            if (!StrUtils.isBlank(approveFlag) && !"all".equals(approveFlag)){//市
+                cri.where().andEquals("flag",approveFlag);
+            }
+            cri.where().andNotEquals("states","已审核");
+            cri.where().andNotEquals("states","已驳回");
+            cri.getOrderBy().desc("processTime");
+            List<Sys_Process> processes=new ArrayList<>();
+            peopleList = dao.query(Sys_Process.class,cri,pager);
+            if (peopleList.size()>0){
+                for (Sys_Process process:peopleList){
+                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()));
+                    if (cprocessList.size()>0){
+                        process.setChildren(cprocessList);
+                    }else {
+                        process.setChildren(new ArrayList<>());
+                    }
+                    processes.add(process);
+                }
+            }
+            if (StrUtils.isBlank(pager)){
+                pager=new Pager();
+            }
+            pager.setRecordCount(dao.count(Sys_Process.class,cri));
+            QueryResult queryResult=new QueryResult(processes,pager);
+            return queryResult;
+        }else {
+            return null;
+        }
+    }
     @Override
     public QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag, String states){
         Pager pager=new Pager();
@@ -165,7 +236,11 @@ public class ProcessServiceImpl implements ProcessService {
                 cri.where().andEquals("flag",approveFlag);
             }
             if (!StrUtils.isBlank(states) && !"all".equals(states)){//市
-                cri.where().andEquals("states",states);
+                if ("已审核".equals(states)){
+                    cri.where().andNotEquals("states","未审批").andNotEquals("states","已驳回");
+                }else {
+                    cri.where().andEquals("states",states);
+                }
             }
             cri.getOrderBy().desc("processTime");
             List<Sys_Process> processes=new ArrayList<>();

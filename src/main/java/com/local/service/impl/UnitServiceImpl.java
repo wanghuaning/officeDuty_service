@@ -110,21 +110,20 @@ public class UnitServiceImpl implements UnitService {
     public List<SYS_UNIT> selectUnitsByParam(String name, String enabled,String parentId) {
         Criteria cri = Cnd.cri();
         allunits=new ArrayList<SYS_UNIT>();
-        if (!StrUtils.isBlank(name)) {//部门名称不为空
-            cri.where().andLike("name", "%" + name.trim() + "%");
-            if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
-                cri.where().andEquals("enabled", enabled);
-            }
-        } else {
-            cri.where().andEquals("id", parentId);
-            if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
-                cri.where().andEquals("enabled", enabled);
-            }
-        }
+//        if (!StrUtils.isBlank(name)) {//部门名称不为空
+//            cri.where().andLike("name", "%" + name.trim() + "%");
+//        }
+//        if (!StrUtils.isBlank(enabled)) {//状态不为空，以当前满足上面条件的所有节点继续往下查找
+//            cri.where().andEquals("enabled", enabled);
+//        }
+        cri.where().andEquals("id", parentId);
         List<SYS_UNIT> units = dao.query(SYS_UNIT.class, cri);
         allunits=units;
-        if (units.size()>0 && StrUtils.isBlank(name)){
+        if (units.size()>0){
             List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", parentId).and("enabled", "=", "0"));
+            if (!StrUtils.isBlank(name)){
+                unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", parentId).and("enabled", "=", "0").and("name","like", "%" + name.trim() + "%"));
+            }
             getAllUnit(unitList, enabled, name);
         }
 //        getUnits(units, enabled, name);
@@ -137,6 +136,9 @@ public class UnitServiceImpl implements UnitService {
 //            System.out.println(unit.getName());
             if (countUnit(unit.getId()) > 0) {
                 List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0"));
+                if (!StrUtils.isBlank(name)){
+                    unitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()).and("enabled", "=", "0").and("name","like", "%" + name.trim() + "%"));
+                }
                 if (!StrUtils.isBlank(unitList) && unitList.size() > 0) {
 //                    unit.setChildren(unitList);
                     unit.setHasChildren(true);

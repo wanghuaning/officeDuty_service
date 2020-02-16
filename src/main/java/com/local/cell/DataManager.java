@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.unit.DataUnit;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.StyledEditorKit;
 import javax.xml.crypto.Data;
@@ -707,33 +708,33 @@ public class DataManager {
                 reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
             }
             List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
-            int youxiu=0,hege=0,buhege=0;
+            int youxiu = 0, hege = 0, buhege = 0;
             if (assessments != null) {
-                for (SYS_Assessment assessment: assessments){
-                    if ("优秀".equals(assessment.getName()) && assessment.getYear()>2018){
+                for (SYS_Assessment assessment : assessments) {
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
                         youxiu++;
                     }
-                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())){
+                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
                         buhege++;
                     }
-                    if (!"优秀".equals(assessment.getName())&& !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())){
+                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
                         hege++;
                     }
                 }
             }
-            if (youxiu>0){
+            if (youxiu > 0) {
                 reimbursementModel.setSuperYears(String.valueOf(youxiu));
-            }else {
+            } else {
                 reimbursementModel.setSuperYears("");
             }
-            if (hege>0){
+            if (hege > 0) {
                 reimbursementModel.setCompetentYears(String.valueOf(hege));
-            }else {
+            } else {
                 reimbursementModel.setCompetentYears("");
             }
-            if (buhege>0){
+            if (buhege > 0) {
                 reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
-            }else {
+            } else {
                 reimbursementModel.setNotCompetentYears("");
             }
             SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
@@ -754,9 +755,9 @@ public class DataManager {
         }
     }
 
-    public static void exportFreePeoples(Workbook temp,HttpServletResponse response, PeopleService peopleService, String peopleId,
-                                                      RankService rankService, EducationService educationService,
-                                                      AssessmentService assessmentService, UnitService unitService) throws Exception {
+    public static void exportFreePeople(Workbook temp, HttpServletResponse response, PeopleService peopleService, String peopleId,
+                                        RankService rankService, EducationService educationService,
+                                        AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
         if (people != null) {
             ReimbursementModel reimbursementModel = new ReimbursementModel();
@@ -798,33 +799,33 @@ public class DataManager {
                 reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
             }
             List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
-            int youxiu=0,hege=0,buhege=0;
+            int youxiu = 0, hege = 0, buhege = 0;
             if (assessments != null) {
-                for (SYS_Assessment assessment: assessments){
-                    if ("优秀".equals(assessment.getName()) && assessment.getYear()>2018){
+                for (SYS_Assessment assessment : assessments) {
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
                         youxiu++;
                     }
-                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())){
+                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
                         buhege++;
                     }
-                    if (!"优秀".equals(assessment.getName())&& !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())){
+                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
                         hege++;
                     }
                 }
             }
-            if (youxiu>0){
+            if (youxiu > 0) {
                 reimbursementModel.setSuperYears(String.valueOf(youxiu));
-            }else {
+            } else {
                 reimbursementModel.setSuperYears("");
             }
-            if (hege>0){
+            if (hege > 0) {
                 reimbursementModel.setCompetentYears(String.valueOf(hege));
-            }else {
+            } else {
                 reimbursementModel.setCompetentYears("");
             }
-            if (buhege>0){
+            if (buhege > 0) {
                 reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
-            }else {
+            } else {
                 reimbursementModel.setNotCompetentYears("");
             }
             SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
@@ -836,9 +837,91 @@ public class DataManager {
             excelFileGenerator.createReimbursementExcel(temp.getSheet("任免审批表"), reimbursementModel);
             temp.write(response.getOutputStream());
             temp.close();
-//            return temp;
         }
     }
+
+    public static void exportFreePeoples(Workbook temp, PeopleService peopleService, String peopleId,
+                                         RankService rankService, EducationService educationService,
+                                         AssessmentService assessmentService, UnitService unitService) throws Exception {
+        SYS_People people = peopleService.selectPeopleById(peopleId);
+        if (people != null) {
+            ReimbursementModel reimbursementModel = new ReimbursementModel();
+            reimbursementModel.setName(people.getName());
+            reimbursementModel.setSex(people.getSex());
+            int startYear = DateUtil.getYear(people.getBirthday());
+            int endYear = DateUtil.getYear(new Date());
+            int startMonth = DateUtil.getMonth(people.getBirthday());
+            int endMonth = DateUtil.getMonth(new Date());
+            int year = 0;
+            if (endMonth > startMonth) {
+                year = endYear - startYear;
+            } else {
+                year = endYear - startYear - 1;
+            }
+            String years = DateUtil.dateToString(people.getBirthday()) + "\n(" + year + ")";
+            reimbursementModel.setYears(years);
+            reimbursementModel.setBirthplace(people.getBirthplace());
+            reimbursementModel.setNationality(people.getNationality());
+            reimbursementModel.setParty(people.getParty());
+            SYS_Rank rank = rankService.selectAprodRanksByPid(peopleId);
+            SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+            if (rank != null) {
+                String unitAndDuty = unit.getName() + rank.getName();
+                reimbursementModel.setUnitAndDuty(unitAndDuty);
+                reimbursementModel.setWorkday(DateUtil.dateToString(DateUtil.parseDateYMD(people.getWorkday())));
+                reimbursementModel.setDutyAndRank(rank.getName());
+                reimbursementModel.setDutyAndRankTime(DateUtil.dateToString(rank.getCreateTime()));
+                reimbursementModel.setDeposeRank(rank.getName());
+            }
+            SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
+            SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
+            if (education != null) {
+                reimbursementModel.setFullTimeEducation(education.getName());
+                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+            }
+            if (education1 != null) {
+                reimbursementModel.setWorkEducation(education1.getName());
+                reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
+            }
+            List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
+            int youxiu = 0, hege = 0, buhege = 0;
+            if (assessments != null) {
+                for (SYS_Assessment assessment : assessments) {
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
+                        youxiu++;
+                    }
+                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
+                        buhege++;
+                    }
+                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
+                        hege++;
+                    }
+                }
+            }
+            if (youxiu > 0) {
+                reimbursementModel.setSuperYears(String.valueOf(youxiu));
+            } else {
+                reimbursementModel.setSuperYears("");
+            }
+            if (hege > 0) {
+                reimbursementModel.setCompetentYears(String.valueOf(hege));
+            } else {
+                reimbursementModel.setCompetentYears("");
+            }
+            if (buhege > 0) {
+                reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
+            } else {
+                reimbursementModel.setNotCompetentYears("");
+            }
+            SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
+            if (rank1 != null) {
+                reimbursementModel.setIntendedRank(rank1.getName());
+            }
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.createReimbursementExcel(temp.getSheet("任免审批表"), reimbursementModel);
+        }
+    }
+
     public static Sys_Approal approvalExport(UnitService unitService, String unitName, HttpServletResponse response,
                                              PeopleService peopleService, RankService rankService, ApprovalService approvalService) throws Exception {
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
@@ -1063,11 +1146,11 @@ public class DataManager {
                     String enableStr = StrUtils.toNullStr(map.get("是否兼任"));
                     people.setIsEnable(enableStr);
                     people.setRealName(StrUtils.toNullStr(map.get("单列管理事由")));
-                    String jun=StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数"));
-                    String danlei=StrUtils.toNullStr(map.get("实名制职务名称"));
-                    if (jun!=null){
+                    String jun = StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数"));
+                    String danlei = StrUtils.toNullStr(map.get("实名制职务名称"));
+                    if (jun != null) {
                         people.setDetail("军转干部");
-                    }else if (danlei!=null){
+                    } else if (danlei != null) {
                         people.setDetail("实名制管理领导干部");
                     }
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
@@ -1284,8 +1367,9 @@ public class DataManager {
         }
         return duty;
     }
+
     public static SYS_Duty saveRealDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                               UnitService unitService, String fullImport, DutyService dutyService, PeopleService peopleService) throws Exception {
+                                                   UnitService unitService, String fullImport, DutyService dutyService, PeopleService peopleService) throws Exception {
         SYS_Duty duty = new SYS_Duty();
         String name = StrUtils.toNullStr(map.get("实名制职务名称"));
         if (!StrUtils.isBlank(name)) {
@@ -1340,8 +1424,10 @@ public class DataManager {
         }
         return duty;
     }
+
     /**
      * 套转职级表导入
+     *
      * @param list
      * @param stringBuffer
      * @param unitService
@@ -1375,7 +1461,7 @@ public class DataManager {
             rank.setFlag("是");
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
-            }else {
+            } else {
                 rank.setApprovalTime(DateUtil.stringToDate("2019-06-01"));
             }
             SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
@@ -1766,7 +1852,29 @@ public class DataManager {
     }
 
     /**
-     * 获取审批表jsan
+     * 获取上行审批表jsan
+     *
+     * @param resultMap
+     * @param processService
+     * @param dataType
+     * @return
+     */
+    public static List<Sys_Process> getUpProcessJson(Map<String, Object> resultMap, Sys_Process process, ProcessService processService, String dataType, String flag) {
+        List<Sys_Process> processList = new ArrayList<>();
+        List<Sys_Process> cprocesses = processService.selectProcesssByParentId(process.getId());
+        if (cprocesses != null) {
+            process.setChildren(cprocesses);
+        } else {
+            process.setChildren(new ArrayList<>());
+        }
+        processList.add(process);
+        JSONArray array = JSONArray.fromObject(processList);
+        resultMap.put("processList", array);
+        return processList;
+    }
+
+    /**
+     * 获取下行审批表jsan
      *
      * @param resultMap
      * @param units
@@ -1774,11 +1882,11 @@ public class DataManager {
      * @param dataType
      * @return
      */
-    public static List<Sys_Process> getProcessJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ProcessService processService, String dataType,String flag) {
+    public static List<Sys_Process> getProcessJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ProcessService processService, String dataType, String flag) {
         List<Sys_Process> processList = new ArrayList<>();
         for (SYS_UNIT unit : units) {
             if ("上行".equals(dataType)) {
-                List<Sys_Process> approals = processService.selectNotApprProcessByFlag(unit.getId(),flag);
+                List<Sys_Process> approals = processService.selectNotApprProcessByFlag(unit.getId(), flag);
                 if (approals != null) {
                     for (Sys_Process process : approals) {
                         List<Sys_Process> cprocesses = processService.selectProcesssByParentId(process.getId());
@@ -1791,9 +1899,20 @@ public class DataManager {
                     }
                 }
             } else {
-                List<Sys_Process> approal = processService.selectApprProcess(unit.getId());
-                if (approal != null) {
-                    processList.addAll(approal);
+                List<Sys_Process> processes = processService.selectApprProcess(unit.getId());
+                if (processes != null) {
+                    for (Sys_Process process:processes){
+                        if (process.getParentId()==null){
+                            List<Sys_Process> cprocesses=new ArrayList<>();
+                            for (Sys_Process cprocess:processes){
+                                if (process.getId().equals(cprocess.getParentId())){
+                                    cprocesses.add(cprocess);
+                                }
+                            }
+                            process.setChildren(cprocesses);
+                            processList.add(process);
+                        }
+                    }
                 }
             }
         }
@@ -1894,6 +2013,7 @@ public class DataManager {
         }
         return users;
     }
+
     public static List<Sys_Approal> saveApproalJsonModel(JSONArray approalList) {
         List<Sys_Approal> approals = new ArrayList<>();
         for (int i = 0; i < approalList.size(); i++) {
@@ -1950,6 +2070,7 @@ public class DataManager {
                 if ("上行".equals(flag)) {
                     if (!process.getStates().contains("已审核")) {
                         if (user.getRoles().contains("0")) {
+                            List<Sys_Process> cprocesss = new ArrayList<>();
                             Sys_Process cprocess = new Sys_Process();
                             BeanUtils.copyProperties(process, cprocess);
                             Sys_Process cprocess2 = processService.selectProcessByParentId(process.getId(), "初审");
@@ -1963,8 +2084,9 @@ public class DataManager {
                             cprocess.setCreateTime(new Date());
                             cprocess.setUnitName(unit.getName());
                             cprocess.setParentId(process.getId());
-                            processs.add(cprocess);
+                            cprocesss.add(cprocess);
                             process.setStates("初审");
+                            process.setChildren(cprocesss);
                         }
                     }
                 }
@@ -1988,8 +2110,8 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
-        if (processs.size()>0){
-            DataManager.saveprocessData(processs, processService, "", null,"未审批");
+        if (processs.size() > 0) {
+            DataManager.saveprocessData(processs, processService, "", null, "未审批");
         }
         return processs;
     }
@@ -2217,7 +2339,7 @@ public class DataManager {
      * @param unitId
      * @param dataService
      */
-    public static SYS_Data saveData(String dataId, String processId,String dataType, String unitId, DataService dataService) {
+    public static SYS_Data saveData(String dataId, String processId, String dataType, String unitId, DataService dataService) {
         SYS_Data data = new SYS_Data();
         data.setId(dataId);
         data.setType(dataType);
@@ -2243,7 +2365,7 @@ public class DataManager {
      * @param dataInfoService
      * @return
      */
-    public static SYS_DataInfo saveDataInfo(String dataId ,String dataType, String unitId, DataInfoService dataInfoService, String table, String param, String beforeparam) {
+    public static SYS_DataInfo saveDataInfo(String dataId, String dataType, String unitId, DataInfoService dataInfoService, String table, String param, String beforeparam) {
         SYS_DataInfo data = new SYS_DataInfo();
         String id = dataId + table;
         data.setId(id);
@@ -2613,19 +2735,19 @@ public class DataManager {
             }
         }
         //人员删除
-            if (localDutys != null) {
-                for (SYS_Assessment people : localDutys) {
-                    boolean isdelete = true;
-                    for (SYS_Assessment people1 : duties) {
-                        if (people.getId().equals(people1.getId())) {
-                            isdelete = false;
-                        }
-                    }
-                    if (isdelete) {
-                        deletePeoples.add(people);
+        if (localDutys != null) {
+            for (SYS_Assessment people : localDutys) {
+                boolean isdelete = true;
+                for (SYS_Assessment people1 : duties) {
+                    if (people.getId().equals(people1.getId())) {
+                        isdelete = false;
                     }
                 }
+                if (isdelete) {
+                    deletePeoples.add(people);
+                }
             }
+        }
         if (deletePeoples.size() > 0) {
             resultMap.put("assessmentDelete", deletePeoples);
         }
@@ -2696,16 +2818,17 @@ public class DataManager {
             resultMap.put("userEdit", peopleModels);
         }
     }
+
     public static void approvalDataCheck(Map<String, Object> resultMap, List<Sys_Approal> approals, ApprovalService approvalService, UnitService unitService,
                                          String dataType, PeopleService peopleService, RankService rankService) {
         //人员信息
         List<Sys_Approal> approalList = new ArrayList<>();
         List<Sys_Approal> capproalList = new ArrayList<>();
         for (Sys_Approal approal : approals) {
-            SYS_UNIT unit=unitService.selectUnitById(approal.getUnitId());
-            if (unit!=null){
+            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
+            if (unit != null) {
                 if ("上行".equals(dataType)) {
-                    Sys_Approal sys_approal=new Sys_Approal();
+                    Sys_Approal sys_approal = new Sys_Approal();
                     sys_approal.setUnitName(approal.getUnitName());
                     sys_approal.setCreateTime(approal.getCreateTime());
                     sys_approal.setDataFlag("变动数据");
@@ -2714,18 +2837,18 @@ public class DataManager {
                         localApproval.setDataFlag("上行前");
                     } else {
                         List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
-                         localApproval = new Sys_Approal();
+                        localApproval = new Sys_Approal();
                         if (peoples != null) {
                             DataManager.getApprovalDataCell(localApproval, unit, peoples, rankService);
                         }
                         localApproval.setDataFlag("上行前");
-                        String luid=UUID.randomUUID().toString();
+                        String luid = UUID.randomUUID().toString();
                         localApproval.setId(luid);
                     }
                     capproalList.add(localApproval);
-                    getApproalDataTow(sys_approal,approal,localApproval);
+                    getApproalDataTow(sys_approal, approal, localApproval);
                     approal.setDataFlag("上行后");
-                    String uid=UUID.randomUUID().toString();
+                    String uid = UUID.randomUUID().toString();
                     approal.setId(uid);
                     capproalList.add(approal);
                     Sys_Approal approalDetail = new Sys_Approal();
@@ -2739,11 +2862,11 @@ public class DataManager {
                     approalDetail.setThreeClerkDraftingNum(approal.getThreeClerkDraftingNumDetail());
                     approalDetail.setFourClerkDraftingNum(approal.getFourClerkDraftingNumDetail());
                     approalDetail.setDataFlag("不占职级数人员");
-                    String zuid=UUID.randomUUID().toString();
+                    String zuid = UUID.randomUUID().toString();
                     approalDetail.setId(zuid);
                     capproalList.add(approalDetail);
                     sys_approal.setChildren(capproalList);
-                    String sysuid=UUID.randomUUID().toString();
+                    String sysuid = UUID.randomUUID().toString();
                     sys_approal.setId(sysuid);
                     approalList.add(sys_approal);
                 } else {
@@ -2762,123 +2885,124 @@ public class DataManager {
         }
     }
 
-    public static void getApproalDataTow(Sys_Approal sys_approal,Sys_Approal approal,Sys_Approal localApproval){
-        if ((Integer.valueOf(approal.getOneResearcherDraftingNum())-Integer.valueOf(localApproval.getOneResearcherDraftingNum()))!=0){
-            sys_approal.setOneResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getOneResearcherDraftingNum())-Integer.valueOf(localApproval.getOneResearcherDraftingNum())));
-        }else {
+    public static void getApproalDataTow(Sys_Approal sys_approal, Sys_Approal approal, Sys_Approal localApproval) {
+        if ((Integer.valueOf(approal.getOneResearcherDraftingNum()) - Integer.valueOf(localApproval.getOneResearcherDraftingNum())) != 0) {
+            sys_approal.setOneResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getOneResearcherDraftingNum()) - Integer.valueOf(localApproval.getOneResearcherDraftingNum())));
+        } else {
             sys_approal.setOneResearcherDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getTowResearcherDraftingNum())-Integer.valueOf(localApproval.getTowResearcherDraftingNum()))!=0){
-            sys_approal.setTowResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getTowResearcherDraftingNum())-Integer.valueOf(localApproval.getTowResearcherDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getTowResearcherDraftingNum()) - Integer.valueOf(localApproval.getTowResearcherDraftingNum())) != 0) {
+            sys_approal.setTowResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getTowResearcherDraftingNum()) - Integer.valueOf(localApproval.getTowResearcherDraftingNum())));
+        } else {
             sys_approal.setTowResearcherDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getThreeResearcherDraftingNum())-Integer.valueOf(localApproval.getThreeResearcherDraftingNum()))!=0){
-            sys_approal.setThreeResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getThreeResearcherDraftingNum())-Integer.valueOf(localApproval.getThreeResearcherDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getThreeResearcherDraftingNum()) - Integer.valueOf(localApproval.getThreeResearcherDraftingNum())) != 0) {
+            sys_approal.setThreeResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getThreeResearcherDraftingNum()) - Integer.valueOf(localApproval.getThreeResearcherDraftingNum())));
+        } else {
             sys_approal.setThreeResearcherDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getFourResearcherDraftingNum())-Integer.valueOf(localApproval.getFourResearcherDraftingNum()))!=0){
-            sys_approal.setFourResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getFourResearcherDraftingNum())-Integer.valueOf(localApproval.getFourResearcherDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getFourResearcherDraftingNum()) - Integer.valueOf(localApproval.getFourResearcherDraftingNum())) != 0) {
+            sys_approal.setFourResearcherDraftingNum(String.valueOf(Integer.valueOf(approal.getFourResearcherDraftingNum()) - Integer.valueOf(localApproval.getFourResearcherDraftingNum())));
+        } else {
             sys_approal.setFourResearcherDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getOneClerkDraftingNum())-Integer.valueOf(localApproval.getOneClerkDraftingNum()))!=0){
-            sys_approal.setOneClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getOneClerkDraftingNum())-Integer.valueOf(localApproval.getOneClerkDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getOneClerkDraftingNum()) - Integer.valueOf(localApproval.getOneClerkDraftingNum())) != 0) {
+            sys_approal.setOneClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getOneClerkDraftingNum()) - Integer.valueOf(localApproval.getOneClerkDraftingNum())));
+        } else {
             sys_approal.setOneClerkDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getTowClerkDraftingNum())-Integer.valueOf(localApproval.getTowClerkDraftingNum()))!=0){
-            sys_approal.setTowClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getTowClerkDraftingNum())-Integer.valueOf(localApproval.getTowClerkDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getTowClerkDraftingNum()) - Integer.valueOf(localApproval.getTowClerkDraftingNum())) != 0) {
+            sys_approal.setTowClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getTowClerkDraftingNum()) - Integer.valueOf(localApproval.getTowClerkDraftingNum())));
+        } else {
             sys_approal.setTowClerkDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getThreeClerkDraftingNum())-Integer.valueOf(localApproval.getThreeClerkDraftingNum()))!=0){
-            sys_approal.setThreeClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getThreeClerkDraftingNum())-Integer.valueOf(localApproval.getThreeClerkDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getThreeClerkDraftingNum()) - Integer.valueOf(localApproval.getThreeClerkDraftingNum())) != 0) {
+            sys_approal.setThreeClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getThreeClerkDraftingNum()) - Integer.valueOf(localApproval.getThreeClerkDraftingNum())));
+        } else {
             sys_approal.setThreeClerkDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getFourClerkDraftingNum())-Integer.valueOf(localApproval.getFourClerkDraftingNum()))!=0){
-            sys_approal.setFourClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getFourClerkDraftingNum())-Integer.valueOf(localApproval.getFourClerkDraftingNum())));
-        }else {
+        if ((Integer.valueOf(approal.getFourClerkDraftingNum()) - Integer.valueOf(localApproval.getFourClerkDraftingNum())) != 0) {
+            sys_approal.setFourClerkDraftingNum(String.valueOf(Integer.valueOf(approal.getFourClerkDraftingNum()) - Integer.valueOf(localApproval.getFourClerkDraftingNum())));
+        } else {
             sys_approal.setFourClerkDraftingNum("");
         }
-        if ((Integer.valueOf(approal.getDrafting())-Integer.valueOf(localApproval.getDrafting()))!=0){
-            sys_approal.setDrafting(String.valueOf(Integer.valueOf(approal.getDrafting())-Integer.valueOf(localApproval.getDrafting())));
-        }else {
+        if ((Integer.valueOf(approal.getDrafting()) - Integer.valueOf(localApproval.getDrafting())) != 0) {
+            sys_approal.setDrafting(String.valueOf(Integer.valueOf(approal.getDrafting()) - Integer.valueOf(localApproval.getDrafting())));
+        } else {
             sys_approal.setDrafting("");
         }
-        if ((Integer.valueOf(approal.getOneTowResearcherNum())-Integer.valueOf(localApproval.getOneTowResearcherNum()))!=0){
-            sys_approal.setOneTowResearcherNum(String.valueOf(Integer.valueOf(approal.getOneTowResearcherNum())-Integer.valueOf(localApproval.getOneTowResearcherNum())));
-        }else {
+        if ((Integer.valueOf(approal.getOneTowResearcherNum()) - Integer.valueOf(localApproval.getOneTowResearcherNum())) != 0) {
+            sys_approal.setOneTowResearcherNum(String.valueOf(Integer.valueOf(approal.getOneTowResearcherNum()) - Integer.valueOf(localApproval.getOneTowResearcherNum())));
+        } else {
             sys_approal.setOneTowResearcherNum("");
         }
-        if ((Integer.valueOf(approal.getOneResearcherNum())-Integer.valueOf(localApproval.getOneResearcherNum()))!=0){
-            sys_approal.setOneResearcherNum(String.valueOf(Integer.valueOf(approal.getOneResearcherNum())-Integer.valueOf(localApproval.getOneResearcherNum())));
-        }else {
+        if ((Integer.valueOf(approal.getOneResearcherNum()) - Integer.valueOf(localApproval.getOneResearcherNum())) != 0) {
+            sys_approal.setOneResearcherNum(String.valueOf(Integer.valueOf(approal.getOneResearcherNum()) - Integer.valueOf(localApproval.getOneResearcherNum())));
+        } else {
             sys_approal.setOneResearcherNum("");
         }
-        if ((Integer.valueOf(approal.getTowResearcherNum())-Integer.valueOf(localApproval.getTowResearcherNum()))!=0){
-            sys_approal.setTowResearcherNum(String.valueOf(Integer.valueOf(approal.getTowResearcherNum())-Integer.valueOf(localApproval.getTowResearcherNum())));
-        }else {
+        if ((Integer.valueOf(approal.getTowResearcherNum()) - Integer.valueOf(localApproval.getTowResearcherNum())) != 0) {
+            sys_approal.setTowResearcherNum(String.valueOf(Integer.valueOf(approal.getTowResearcherNum()) - Integer.valueOf(localApproval.getTowResearcherNum())));
+        } else {
             sys_approal.setTowResearcherNum("");
         }
-        if ((Integer.valueOf(approal.getThreeFourResearcherNum())-Integer.valueOf(localApproval.getThreeFourResearcherNum()))!=0){
-            sys_approal.setThreeFourResearcherNum(String.valueOf(Integer.valueOf(approal.getThreeFourResearcherNum())-Integer.valueOf(localApproval.getThreeFourResearcherNum())));
-        }else {
+        if ((Integer.valueOf(approal.getThreeFourResearcherNum()) - Integer.valueOf(localApproval.getThreeFourResearcherNum())) != 0) {
+            sys_approal.setThreeFourResearcherNum(String.valueOf(Integer.valueOf(approal.getThreeFourResearcherNum()) - Integer.valueOf(localApproval.getThreeFourResearcherNum())));
+        } else {
             sys_approal.setThreeFourResearcherNum("");
         }
-        if ((Integer.valueOf(approal.getThreeResearcherNum())-Integer.valueOf(localApproval.getThreeResearcherNum()))!=0){
-            sys_approal.setThreeResearcherNum(String.valueOf(Integer.valueOf(approal.getThreeResearcherNum())-Integer.valueOf(localApproval.getThreeResearcherNum())));
-        }else {
+        if ((Integer.valueOf(approal.getThreeResearcherNum()) - Integer.valueOf(localApproval.getThreeResearcherNum())) != 0) {
+            sys_approal.setThreeResearcherNum(String.valueOf(Integer.valueOf(approal.getThreeResearcherNum()) - Integer.valueOf(localApproval.getThreeResearcherNum())));
+        } else {
             sys_approal.setThreeResearcherNum("");
         }
-        if ((Integer.valueOf(approal.getFourResearcherNum())-Integer.valueOf(localApproval.getFourResearcherNum()))!=0){
-            sys_approal.setFourResearcherNum(String.valueOf(Integer.valueOf(approal.getFourResearcherNum())-Integer.valueOf(localApproval.getFourResearcherNum())));
-        }else {
+        if ((Integer.valueOf(approal.getFourResearcherNum()) - Integer.valueOf(localApproval.getFourResearcherNum())) != 0) {
+            sys_approal.setFourResearcherNum(String.valueOf(Integer.valueOf(approal.getFourResearcherNum()) - Integer.valueOf(localApproval.getFourResearcherNum())));
+        } else {
             sys_approal.setFourResearcherNum("");
         }
-        if ((Integer.valueOf(approal.getResearcherTotal())-Integer.valueOf(localApproval.getResearcherTotal()))!=0){
-            sys_approal.setResearcherTotal(String.valueOf(Integer.valueOf(approal.getResearcherTotal())-Integer.valueOf(localApproval.getResearcherTotal())));
-        }else {
+        if ((Integer.valueOf(approal.getResearcherTotal()) - Integer.valueOf(localApproval.getResearcherTotal())) != 0) {
+            sys_approal.setResearcherTotal(String.valueOf(Integer.valueOf(approal.getResearcherTotal()) - Integer.valueOf(localApproval.getResearcherTotal())));
+        } else {
             sys_approal.setResearcherTotal("");
         }
-        if ((Integer.valueOf(approal.getOneTowClerkNum())-Integer.valueOf(localApproval.getOneTowClerkNum()))!=0){
-            sys_approal.setOneTowClerkNum(String.valueOf(Integer.valueOf(approal.getOneTowClerkNum())-Integer.valueOf(localApproval.getOneTowClerkNum())));
-        }else {
+        if ((Integer.valueOf(approal.getOneTowClerkNum()) - Integer.valueOf(localApproval.getOneTowClerkNum())) != 0) {
+            sys_approal.setOneTowClerkNum(String.valueOf(Integer.valueOf(approal.getOneTowClerkNum()) - Integer.valueOf(localApproval.getOneTowClerkNum())));
+        } else {
             sys_approal.setOneTowClerkNum("");
         }
-        if ((Integer.valueOf(approal.getOneClerkNum())-Integer.valueOf(localApproval.getOneClerkNum()))!=0){
-            sys_approal.setOneClerkNum(String.valueOf(Integer.valueOf(approal.getOneClerkNum())-Integer.valueOf(localApproval.getOneClerkNum())));
-        }else {
+        if ((Integer.valueOf(approal.getOneClerkNum()) - Integer.valueOf(localApproval.getOneClerkNum())) != 0) {
+            sys_approal.setOneClerkNum(String.valueOf(Integer.valueOf(approal.getOneClerkNum()) - Integer.valueOf(localApproval.getOneClerkNum())));
+        } else {
             sys_approal.setOneClerkNum("");
         }
-        if ((Integer.valueOf(approal.getTowClerkNum())-Integer.valueOf(localApproval.getTowClerkNum()))!=0){
-            sys_approal.setTowClerkNum(String.valueOf(Integer.valueOf(approal.getTowClerkNum())-Integer.valueOf(localApproval.getTowClerkNum())));
-        }else {
+        if ((Integer.valueOf(approal.getTowClerkNum()) - Integer.valueOf(localApproval.getTowClerkNum())) != 0) {
+            sys_approal.setTowClerkNum(String.valueOf(Integer.valueOf(approal.getTowClerkNum()) - Integer.valueOf(localApproval.getTowClerkNum())));
+        } else {
             sys_approal.setTowClerkNum("");
         }
-        if ((Integer.valueOf(approal.getThreeFourClerkNum())-Integer.valueOf(localApproval.getThreeFourClerkNum()))!=0){
-            sys_approal.setThreeFourClerkNum(String.valueOf(Integer.valueOf(approal.getThreeFourClerkNum())-Integer.valueOf(localApproval.getThreeFourClerkNum())));
-        }else {
+        if ((Integer.valueOf(approal.getThreeFourClerkNum()) - Integer.valueOf(localApproval.getThreeFourClerkNum())) != 0) {
+            sys_approal.setThreeFourClerkNum(String.valueOf(Integer.valueOf(approal.getThreeFourClerkNum()) - Integer.valueOf(localApproval.getThreeFourClerkNum())));
+        } else {
             sys_approal.setThreeFourClerkNum("");
         }
-        if ((Integer.valueOf(approal.getThreeClerkNum())-Integer.valueOf(localApproval.getThreeClerkNum()))!=0){
-            sys_approal.setThreeClerkNum(String.valueOf(Integer.valueOf(approal.getThreeClerkNum())-Integer.valueOf(localApproval.getThreeClerkNum())));
-        }else {
+        if ((Integer.valueOf(approal.getThreeClerkNum()) - Integer.valueOf(localApproval.getThreeClerkNum())) != 0) {
+            sys_approal.setThreeClerkNum(String.valueOf(Integer.valueOf(approal.getThreeClerkNum()) - Integer.valueOf(localApproval.getThreeClerkNum())));
+        } else {
             sys_approal.setThreeClerkNum("");
         }
-        if ((Integer.valueOf(approal.getFourClerkNum())-Integer.valueOf(localApproval.getFourClerkNum()))!=0){
-            sys_approal.setFourClerkNum(String.valueOf(Integer.valueOf(approal.getFourClerkNum())-Integer.valueOf(localApproval.getFourClerkNum())));
-        }else {
+        if ((Integer.valueOf(approal.getFourClerkNum()) - Integer.valueOf(localApproval.getFourClerkNum())) != 0) {
+            sys_approal.setFourClerkNum(String.valueOf(Integer.valueOf(approal.getFourClerkNum()) - Integer.valueOf(localApproval.getFourClerkNum())));
+        } else {
             sys_approal.setFourClerkNum("");
         }
-        if ((Integer.valueOf(approal.getClerkTotal())-Integer.valueOf(localApproval.getClerkTotal()))!=0){
-            sys_approal.setClerkTotal(String.valueOf(Integer.valueOf(approal.getClerkTotal())-Integer.valueOf(localApproval.getClerkTotal())));
-        }else {
+        if ((Integer.valueOf(approal.getClerkTotal()) - Integer.valueOf(localApproval.getClerkTotal())) != 0) {
+            sys_approal.setClerkTotal(String.valueOf(Integer.valueOf(approal.getClerkTotal()) - Integer.valueOf(localApproval.getClerkTotal())));
+        } else {
             sys_approal.setClerkTotal("");
         }
     }
+
     /**
      * 插入单位下行数据
      *
@@ -2983,7 +3107,7 @@ public class DataManager {
                 }
             }
             SYS_Rank proRank = rankService.selectAprodRanksByPid(rank.getPeopleId());
-            if (proRank!=null){
+            if (proRank != null) {
                 people.setPositionLevel(proRank.getName());
                 people.setPositionLevelTime(proRank.getCreateTime());
                 peopleService.updatePeople(people);
@@ -3003,7 +3127,7 @@ public class DataManager {
                 }
                 SYS_Rank proRank = rankService.selectAprodRanksByPid(rank.getPeopleId());
                 SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
-                if (proRank!=null){
+                if (proRank != null) {
                     people.setPositionLevel(proRank.getName());
                     people.setPositionLevelTime(proRank.getCreateTime());
                     peopleService.updatePeople(people);
@@ -3041,7 +3165,7 @@ public class DataManager {
                 }
             }
             SYS_Duty produty = dutyService.selectProDutyByPidOrderByTime(duty.getPeopleId());
-            if (produty!=null){
+            if (produty != null) {
                 people.setPosition(duty.getName());
                 people.setPositionTime(duty.getCreateTime());
                 peopleService.updatePeople(people);
@@ -3061,7 +3185,7 @@ public class DataManager {
                 }
                 SYS_People people = peopleService.selectPeopleById(duty.getPeopleId());
                 SYS_Duty produty = dutyService.selectProDutyByPidOrderByTime(duty.getPeopleId());
-                if (produty!=null){
+                if (produty != null) {
                     people.setPosition(duty.getName());
                     people.setPositionTime(duty.getCreateTime());
                     peopleService.updatePeople(people);
@@ -3223,6 +3347,7 @@ public class DataManager {
         }
         return userList;
     }
+
     /**
      * 上行消化表数据
      *
@@ -3245,6 +3370,7 @@ public class DataManager {
 
     /**
      * 上行消化表数据
+     *
      * @return
      */
     public static List<SYS_UNIT> saveRejectUnitData(List<SYS_UNIT> units, UnitService unitService) {
@@ -3260,6 +3386,7 @@ public class DataManager {
         }
         return unitList;
     }
+
     /**
      * 上行或下行
      *
@@ -3268,28 +3395,28 @@ public class DataManager {
      * @param unitId
      * @return
      */
-    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId, UnitService unitService,String flag) {
+    public static List<Sys_Approal> saveApprovalData(List<Sys_Approal> approals, ApprovalService approvalService, String unitId, UnitService unitService, String flag) {
         List<Sys_Approal> approalList = new ArrayList<>();
         for (Sys_Approal approal : approals) {
             approalList.add(approal);
             Sys_Approal approal1 = approvalService.selectApprovalById(approal.getId());
             if (approal1 != null) {
-                if ("1".equals(flag)){
+                if ("1".equals(flag)) {
                     approal.setFlag("1");
-                }else {
+                } else {
                     approal.setFlag("0");
                 }
                 approal.setId(approal1.getId());
                 approvalService.updataApproal(approal);
             } else {
-                if ("1".equals(flag)){
+                if ("1".equals(flag)) {
                     approal.setFlag("1");
-                }else {
+                } else {
                     approal.setFlag("0");
                 }
                 approvalService.insertApproal(approal);
             }
-            if ("1".equals(flag)){
+            if ("1".equals(flag)) {
                 SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
                 if (unit != null) {
                     saveUnitData(unitService, unit, approal);
@@ -3316,9 +3443,12 @@ public class DataManager {
         return unit;
     }
 
-    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user,String states) {
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user, String states) {
         List<Sys_Process> approalList = new ArrayList<>();
         for (Sys_Process process : processes) {
+            if ("".equals(name)) {
+                name = process.getPeople();
+            }
             approalList.add(process);
             if (process.getParentId() == null) {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
@@ -3340,9 +3470,9 @@ public class DataManager {
                     for (Sys_Process cprocess : process.getChildren()) {
                         Sys_Process capproal1 = processService.selectProcessById(cprocess.getId());
                         if (capproal1 != null) {
-                            processService.updateProcess(capproal1);
+                            processService.updateProcess(cprocess);
                         } else {
-                            processService.insertProcess(capproal1);
+                            processService.insertProcess(cprocess);
                         }
                     }
                 }
@@ -3523,81 +3653,82 @@ public class DataManager {
         return assessmentList;
     }
 
-    public static String getCustomizeData(SYS_People people,String name,AssessmentService assessmentService)throws Exception{
-        String value="";
-         if ("性别".equals(name)){
-            value=people.getSex();
-        }else if ("民族".equals(name)){
-            value=people.getNationality();
-        }else if ("出生日期".equals(name)){
-             if (people.getBirthday()!=null){
-                 value=DateUtil.dateToString(people.getBirthday());
-             }
-        }else if ("年龄".equals(name)){
-             if (people.getBirthday()!=null) {
-                 int age = DateUtil.getAgeByBirth(people.getBirthday());
-                 value = String.valueOf(age);
-             }
-        }else if ("参加工作时间".equals(name)){
-             if (people.getBirthday()!=null) {
-                 value = DateUtil.dateToString(people.getWorkday());
-             }
-        }else if ("入党（团）时间".equals(name)){
-             if (people.getBirthday()!=null) {
-                 value = DateUtil.dateToString(people.getPartyTime());
-             }
-        }else if ("政治面貌".equals(name)){
-            value=people.getParty();
-        }else if ("现任职级".equals(name)){
-            value=people.getPositionLevel();
-        }else if ("套转职级".equals(name)){
-            value=people.getTurnRank();
-        }else if ("现任职务".equals(name)){
-            value=people.getPosition();
-        }else if ("公务员登记时间".equals(name)){
-             if (people.getBirthday()!=null) {
-                 value = DateUtil.dateToString(people.getCreateTime());
-             }
-        }else if ("军转干部首次套转不占职数".equals(name)){
-             if ("军转干部".equals(people.getDetail())){
-                 value="是";
-             }else {
-                 value="否";
-             }
-        }else if ("实名制（单列）管理干部".equals(name)){
-             if ("实名制管理领导干部".equals(people.getDetail())){
-                 value="是";
-             }else {
-                 value="否";
-             }
-        }else if ("籍贯".equals(name)){
-            value=people.getBirthplace();
-        }else if ("是否基层工作两年以上".equals(name)){
-            value=people.getBaseWorker();
-        }else if ("学历".equals(name)){
-            value=people.getEducation();
-        } else if (name.contains("考核")){
-             String[] kao=name.split("年");
-             SYS_Assessment assessment=assessmentService.selectAssessmentByYear(people.getId(), Integer.parseInt(kao[0]));
-             if (assessment!=null){
-                 value=assessment.getName();
-             }
-         }
+    public static String getCustomizeData(SYS_People people, String name, AssessmentService assessmentService) throws Exception {
+        String value = "";
+        if ("性别".equals(name)) {
+            value = people.getSex();
+        } else if ("民族".equals(name)) {
+            value = people.getNationality();
+        } else if ("出生日期".equals(name)) {
+            if (people.getBirthday() != null) {
+                value = DateUtil.dateToString(people.getBirthday());
+            }
+        } else if ("年龄".equals(name)) {
+            if (people.getBirthday() != null) {
+                int age = DateUtil.getAgeByBirth(people.getBirthday());
+                value = String.valueOf(age);
+            }
+        } else if ("参加工作时间".equals(name)) {
+            if (people.getBirthday() != null) {
+                value = DateUtil.dateToString(people.getWorkday());
+            }
+        } else if ("入党（团）时间".equals(name)) {
+            if (people.getBirthday() != null) {
+                value = DateUtil.dateToString(people.getPartyTime());
+            }
+        } else if ("政治面貌".equals(name)) {
+            value = people.getParty();
+        } else if ("现任职级".equals(name)) {
+            value = people.getPositionLevel();
+        } else if ("套转职级".equals(name)) {
+            value = people.getTurnRank();
+        } else if ("现任职务".equals(name)) {
+            value = people.getPosition();
+        } else if ("公务员登记时间".equals(name)) {
+            if (people.getBirthday() != null) {
+                value = DateUtil.dateToString(people.getCreateTime());
+            }
+        } else if ("军转干部首次套转不占职数".equals(name)) {
+            if ("军转干部".equals(people.getDetail())) {
+                value = "是";
+            } else {
+                value = "否";
+            }
+        } else if ("实名制（单列）管理干部".equals(name)) {
+            if ("实名制管理领导干部".equals(people.getDetail())) {
+                value = "是";
+            } else {
+                value = "否";
+            }
+        } else if ("籍贯".equals(name)) {
+            value = people.getBirthplace();
+        } else if ("是否基层工作两年以上".equals(name)) {
+            value = people.getBaseWorker();
+        } else if ("学历".equals(name)) {
+            value = people.getEducation();
+        } else if (name.contains("考核")) {
+            String[] kao = name.split("年");
+            SYS_Assessment assessment = assessmentService.selectAssessmentByYear(people.getId(), Integer.parseInt(kao[0]));
+            if (assessment != null) {
+                value = assessment.getName();
+            }
+        }
         return value;
     }
 
     /**
      * 到期退休
+     *
      * @return
      */
-    public static Date getRetirTime(String position,Date birthday,String sex) {
+    public static Date getRetirTime(String position, Date birthday, String sex) {
         Date retirTime = new Date();
         if ("男".equals(sex)) {
             retirTime = DateUtil.addYears(birthday, 60);
         } else {
             if (position.contains("县处级正职") || position.contains("县处级副职") || position.contains("厅局级正职") || position.contains("厅局级副职")) {
                 retirTime = DateUtil.addYears(birthday, 60);
-            }else {
+            } else {
                 retirTime = DateUtil.addYears(birthday, 55);
             }
         }
