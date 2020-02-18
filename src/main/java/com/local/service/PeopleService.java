@@ -21,7 +21,6 @@ public interface PeopleService {
 
     List<SYS_People> selectPeoplesByUnitId(String unitId,String isChild,String states);//根据单位ID查询，是否包含下级单位的 人员1:包含
 
-
     List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId,String rank,String states);
 
     List<SYS_People> selectPeoplesByUnitIdAndDuty(String unitId,String duty,String states);

@@ -3,7 +3,7 @@ package com.local.controller;
 import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UserManager;
-import com.local.config.ZipUtil;
+import com.local.util.ZipUtil;
 import com.local.entity.sys.*;
 import com.local.service.*;
 import com.local.util.*;
@@ -16,9 +16,7 @@ import org.nutz.dao.pager.Pager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -204,15 +202,16 @@ public class PeopleController {
           //从请求的header中取出当前登录的登录
           List<File> srcfile = new ArrayList<File>();
           for (String peopleId: peopleIds){
-              Map<String, Object> paramsMap = new HashMap<>();
-              paramsMap.put("note", "调出");
-              paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
-              paramsMap.put("peopleId", peopleId);
-              Map<String, Object> resultMap = new HashMap<>();
               List<SYS_People> peopleList = new ArrayList<>();
               SYS_People people = peopleService.selectPeopleById(peopleId);
               if (people != null) {
                   if (people.getStates().contains("调出")) {
+                      Map<String, Object> paramsMap = new HashMap<>();
+                      paramsMap.put("note", "调出");
+                      paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
+                      paramsMap.put("peopleId", peopleId);
+                      paramsMap.put("idCard", people.getIdcard());
+                      Map<String, Object> resultMap = new HashMap<>();
                       peopleList.add(people);
                       JSONArray peoples = JSONArray.fromObject(peopleList);
                       resultMap.put("peopleList", peoples);
@@ -227,25 +226,23 @@ public class PeopleController {
                       objects.addAll(rankList);
                       List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
                       objects.addAll(assessmentList);
+                      JSONObject resultList = JSONObject.fromObject(resultMap);
+                      paramsMap.put("result", resultList);
+                      JSONObject resultJson = JSONObject.fromObject(paramsMap);
+                      byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
+                      String paramsCipher = AESUtil.parseByte2HexStr(encode);
+                      ZipUtil.getFile(filePathStr);
+                      String filePath=filePathStr+"\\"+people.getName()+"_调出信息.json";
+                      File file = new File(filePath);
+                      Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+                      writer.write(paramsCipher);
+                      srcfile.add(file);
+                      writer.flush();
+                      writer.close();
                   }
               } else {
                   return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
               }
-          JSONObject resultList = JSONObject.fromObject(resultMap);
-          paramsMap.put("result", resultList);
-          JSONObject resultJson = JSONObject.fromObject(paramsMap);
-          byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
-          String paramsCipher = AESUtil.parseByte2HexStr(encode);
-          ZipUtil.getFile(filePathStr);
-          String filePath=filePathStr+"\\"+people.getName()+"_调出信息.json";
-          File file = new File(filePath);
-          Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-          writer.write(paramsCipher);
-//          Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-//          writer.write(paramsCipher);
-          srcfile.add(file);
-          writer.flush();
-          writer.close();
           }
           ZipUtil.zipFiles(srcfile,response,"批量导出调出人员信息",request);
           return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();

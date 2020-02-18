@@ -83,6 +83,12 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String parentId;
 
+  @ApiModelProperty("审批部门ID")
+  @Comment("审批部门ID")
+  @Column("approval_Unit")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String approvalUnit;
+
   private String processFlag;
 
   public String getProcessFlag() {
@@ -99,7 +105,15 @@ public class Sys_Process implements Serializable {
         return children;
     }
 
-    public void setChildren(List<Sys_Process> children) {
+  public String getApprovalUnit() {
+    return approvalUnit;
+  }
+
+  public void setApprovalUnit(String approvalUnit) {
+    this.approvalUnit = approvalUnit;
+  }
+
+  public void setChildren(List<Sys_Process> children) {
         this.children = children;
     }
 
