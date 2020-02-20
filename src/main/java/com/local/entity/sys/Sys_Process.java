@@ -55,20 +55,30 @@ public class Sys_Process implements Serializable {
 
   @ApiModelProperty("创建日期")
   @Comment("创建日期")
-  @DateTimeFormat(pattern = "yyyy-MM-dd")
-  @JsonFormat(pattern = "yyyy-MM-dd")
+  @DateTimeFormat(pattern = "yyyy-MM-dd hh24:mi:ss")
+  @JsonFormat(pattern = "yyyy-MM-dd hh24:mi:ss")
   @Column("create_time")
   @ColDefine(type = ColType.DATETIME)
   private Date createTime;
+
+  @ApiModelProperty("创建日期字符串")
+  @Comment("创建日期字符串")
+  @Column("create_Time_Str")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
   private String createTimeStr;
 
   @ApiModelProperty("审批日期")
   @Comment("审批日期")
-  @DateTimeFormat(pattern = "yyyy-MM-dd")
-  @JsonFormat(pattern = "yyyy-MM-dd")
+  @DateTimeFormat(pattern = "yyyy-MM-dd hh24:mi:ss")
+  @JsonFormat(pattern = "yyyy-MM-dd hh24:mi:ss")
   @Column("process_time")
   @ColDefine(type = ColType.DATETIME)
   private Date processTime;
+
+  @ApiModelProperty("审批日期字符串")
+  @Comment("审批日期字符串")
+  @Column("process_Time_Str")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
   private String processTimeStr;
 
   @ApiModelProperty("审批状态")
@@ -89,6 +99,27 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String approvalUnit;
 
+  @ApiModelProperty("即将审批部门ID")
+  @Comment("即将审批部门ID")
+  @Column("approval_Eve")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String approvalEve;
+
+
+  @ApiModelProperty("审批部门顺序")
+  @Comment("审批部门顺序")
+  @Column("approval_Order")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String approvalOrder;
+
+  @ApiModelProperty("是否已审批0 是 1否")
+  @Comment("是否已审批0 是 1否")
+  @Column("approvaled")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String approvaled;
+
+
+
   private String processFlag;
 
   public String getProcessFlag() {
@@ -104,6 +135,30 @@ public class Sys_Process implements Serializable {
     public List<Sys_Process> getChildren() {
         return children;
     }
+
+  public String getApprovalEve() {
+    return approvalEve;
+  }
+
+  public void setApprovalEve(String approvalEve) {
+    this.approvalEve = approvalEve;
+  }
+
+  public String getApprovaled() {
+    return approvaled;
+  }
+
+  public void setApprovaled(String approvaled) {
+    this.approvaled = approvaled;
+  }
+
+  public String getApprovalOrder() {
+    return approvalOrder;
+  }
+
+  public void setApprovalOrder(String approvalOrder) {
+    this.approvalOrder = approvalOrder;
+  }
 
   public String getApprovalUnit() {
     return approvalUnit;
@@ -137,20 +192,20 @@ public class Sys_Process implements Serializable {
     this.flag = flag;
   }
 
-  public String getProcessTimeStr() {
-    return DateUtil.dateToString(processTime);
-  }
-
-  public void setProcessTimeStr(String processTimeStr) {
-    this.processTimeStr = processTimeStr;
-  }
-
   public String getCreateTimeStr() {
-    return DateUtil.dateToString(createTime);
+    return createTimeStr;
   }
 
   public void setCreateTimeStr(String createTimeStr) {
     this.createTimeStr = createTimeStr;
+  }
+
+  public String getProcessTimeStr() {
+    return processTimeStr;
+  }
+
+  public void setProcessTimeStr(String processTimeStr) {
+    this.processTimeStr = processTimeStr;
   }
 
   public String getId() {

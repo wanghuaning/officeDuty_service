@@ -1901,11 +1901,11 @@ public class DataManager {
             } else {
                 List<Sys_Process> processes = processService.selectApprProcess(unit.getId());
                 if (processes != null) {
-                    for (Sys_Process process:processes){
-                        if (process.getParentId()==null){
-                            List<Sys_Process> cprocesses=new ArrayList<>();
-                            for (Sys_Process cprocess:processes){
-                                if (process.getId().equals(cprocess.getParentId())){
+                    for (Sys_Process process : processes) {
+                        if (process.getParentId() == null) {
+                            List<Sys_Process> cprocesses = new ArrayList<>();
+                            for (Sys_Process cprocess : processes) {
+                                if (process.getId().equals(cprocess.getParentId())) {
                                     cprocesses.add(cprocess);
                                 }
                             }
@@ -2062,36 +2062,35 @@ public class DataManager {
                         JSONObject ckey = (JSONObject) cprocessList.get(j);
                         EntityUtil.setReflectModelValue(cprocess, ckey);
                         cprocess.setCreateTime(DateUtil.stringToDate(String.valueOf(ckey.get("createTimeStr"))));
+                        cprocess.setProcessTime(DateUtil.stringToDate(String.valueOf(ckey.get("processTimeStr"))));
                         cprocesss.add(cprocess);
                     }
                     process.setChildren(cprocesss);
                 }
                 process.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
-                if ("上行".equals(flag)) {
-                    if (!process.getStates().contains("已审核")) {
-                        if (user.getRoles().contains("0")) {
-                            List<Sys_Process> cprocesss = new ArrayList<>();
-                            Sys_Process cprocess = new Sys_Process();
-                            BeanUtils.copyProperties(process, cprocess);
-                            Sys_Process cprocess2 = processService.selectProcessByParentId(process.getId(), "初审");
-                            if (cprocess2 != null) {
-                                cprocess.setId(cprocess2.getId());
-                            } else {
-                                String uuid = UUID.randomUUID().toString();
-                                cprocess.setId(uuid);
-                            }
-                            cprocess.setStates("初审");
-                            cprocess.setCreateTime(new Date());
-                            cprocess.setUnitName(unit.getName());
-                            cprocess.setParentId(process.getId());
-                            cprocesss.add(cprocess);
-                            process.setStates("初审");
-                            process.setChildren(cprocesss);
-                        }
-                    }
-                }
-//                if (process.getChildren().size()>0){
-//                    processs.addAll(process.getChildren());
+                process.setProcessTime(DateUtil.stringToDate(String.valueOf(key.get("processTimeStr"))));
+//                if ("上行".equals(flag)) {
+//                    if (!process.getStates().contains("已审核")) {
+//                        if (user.getRoles().contains("0")) {
+//                            List<Sys_Process> cprocesss = new ArrayList<>();
+//                            Sys_Process cprocess = new Sys_Process();
+//                            BeanUtils.copyProperties(process, cprocess);
+//                            Sys_Process cprocess2 = processService.selectProcessByParentId(process.getId(), "初审");
+//                            if (cprocess2 != null) {
+//                                cprocess.setId(cprocess2.getId());
+//                            } else {
+//                                String uuid = UUID.randomUUID().toString();
+//                                cprocess.setId(uuid);
+//                            }
+//                            cprocess.setStates("初审");
+//                            cprocess.setCreateTime(new Date());
+//                            cprocess.setUnitName(unit.getName());
+//                            cprocess.setParentId(process.getId());
+//                            cprocesss.add(cprocess);
+//                            process.setStates("初审");
+//                            process.setChildren(cprocesss);
+//                        }
+//                    }
 //                }
                 processs.add(process);
             } catch (SecurityException e) {
@@ -2110,11 +2109,76 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
-        if (processs.size() > 0) {
-            DataManager.saveprocessData(processs, processService, "", null, "未审批");
-        }
         return processs;
     }
+//    public static List<Sys_Process> saveProcessJsonModel(JSONArray processList, SYS_USER user, String flag, SYS_UNIT unit, ProcessService processService) {
+//        List<Sys_Process> processs = new ArrayList<>();
+//        for (int i = 0; i < processList.size(); i++) {
+//            Sys_Process process = new Sys_Process();
+//            JSONObject key = (JSONObject) processList.get(i);
+//            try {
+//                EntityUtil.setReflectModelValue(process, key);
+//                JSONArray cprocessList = key.getJSONArray("children");
+//                if (cprocessList.size() > 0) {
+//                    List<Sys_Process> cprocesss = new ArrayList<>();
+//                    for (int j = 0; j < cprocessList.size(); j++) {
+//                        Sys_Process cprocess = new Sys_Process();
+//                        JSONObject ckey = (JSONObject) cprocessList.get(j);
+//                        EntityUtil.setReflectModelValue(cprocess, ckey);
+//                        cprocess.setCreateTime(DateUtil.stringToDate(String.valueOf(ckey.get("createTimeStr"))));
+//                        cprocesss.add(cprocess);
+//                    }
+//                    process.setChildren(cprocesss);
+//                }
+//                process.setCreateTime(DateUtil.stringToDate(String.valueOf(key.get("createTimeStr"))));
+//                if ("上行".equals(flag)) {
+//                    if (!process.getStates().contains("已审核")) {
+//                        if (user.getRoles().contains("0")) {
+//                            List<Sys_Process> cprocesss = new ArrayList<>();
+//                            Sys_Process cprocess = new Sys_Process();
+//                            BeanUtils.copyProperties(process, cprocess);
+//                            Sys_Process cprocess2 = processService.selectProcessByParentId(process.getId(), "初审");
+//                            if (cprocess2 != null) {
+//                                cprocess.setId(cprocess2.getId());
+//                            } else {
+//                                String uuid = UUID.randomUUID().toString();
+//                                cprocess.setId(uuid);
+//                            }
+//                            cprocess.setStates("初审");
+//                            cprocess.setCreateTime(new Date());
+//                            cprocess.setUnitName(unit.getName());
+//                            cprocess.setParentId(process.getId());
+//                            cprocesss.add(cprocess);
+//                            process.setStates("初审");
+//                            process.setChildren(cprocesss);
+//                        }
+//                    }
+//                }
+////                if (process.getChildren().size()>0){
+////                    processs.addAll(process.getChildren());
+////                }
+//                processs.add(process);
+//            } catch (SecurityException e) {
+//                e.printStackTrace();
+//            } catch (IllegalArgumentException e) {
+//                e.printStackTrace();
+//            } catch (NoSuchMethodException e) {
+//                e.printStackTrace();
+//            } catch (IllegalAccessException e) {
+//                e.printStackTrace();
+//            } catch (InvocationTargetException e) {
+//                e.printStackTrace();
+//            } catch (InstantiationException e) {
+//                e.printStackTrace();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (processs.size() > 0) {
+//            DataManager.saveprocessData(processs, processService, "", null, "未审批");
+//        }
+//        return processs;
+//    }
 
     /**
      * 获取人员数据json
@@ -3443,13 +3507,20 @@ public class DataManager {
         return unit;
     }
 
-    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user, String states) {
-        List<Sys_Process> approalList = new ArrayList<>();
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user, String states)throws Exception {
+        List<Sys_Process>  approalList=new ArrayList<>();
         for (Sys_Process process : processes) {
+            if (!StrUtils.isBlank(process.getCreateTimeStr())){
+                process.setCreateTime(DateUtil.stringToDateMM(process.getCreateTimeStr()));
+            }
+            if (!StrUtils.isBlank(process.getProcessTimeStr())){
+                process.setProcessTime(DateUtil.stringToDateMM(process.getProcessTimeStr()));
+            } else if ("已审核".equals(states)){
+                process.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
+            }
             if ("".equals(name)) {
                 name = process.getPeople();
             }
-            approalList.add(process);
             if (process.getParentId() == null) {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
                 if (user != null) {
@@ -3467,7 +3538,26 @@ public class DataManager {
                     processService.insertProcess(process);
                 }
                 if (process.getChildren() != null) {
+                    boolean sts=false;
+                    int sd=0;
                     for (Sys_Process cprocess : process.getChildren()) {
+                        if (!StrUtils.isBlank(cprocess.getCreateTimeStr())){
+                            cprocess.setCreateTime(DateUtil.stringToDateMM(cprocess.getCreateTimeStr()));
+                        }
+                        if (!StrUtils.isBlank(cprocess.getProcessTimeStr())){
+                            cprocess.setProcessTime(DateUtil.stringToDateMM(cprocess.getProcessTimeStr()));
+                        }
+                        if (!StrUtils.isBlank(process.getApprovalEve()) && user!=null){
+                            if (cprocess.getApprovalUnit().equals(user.getUnitId())){
+                                cprocess.setStates("初审");
+                                cprocess.setApprovaled("0");
+                                cprocess.setPeople(name);
+                                cprocess.setProcessTime(new Date());
+                                cprocess.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
+                                sd=Integer.valueOf(cprocess.getApprovalOrder());
+                                sts= true;
+                            }
+                        }
                         Sys_Process capproal1 = processService.selectProcessById(cprocess.getId());
                         if (capproal1 != null) {
                             processService.updateProcess(cprocess);
@@ -3475,32 +3565,119 @@ public class DataManager {
                             processService.insertProcess(cprocess);
                         }
                     }
+                    if (sts){
+                        sd=sd+1;
+                       Sys_Process sys_process= processService.selectProcessById(process.getId()+sd);
+                       if (sys_process!=null){
+                           process.setApprovalEve(sys_process.getApprovalUnit());
+                       }
+                        process.setStates("初审");
+                        processService.updateProcess(process);
+                    }
                 }
             }
+            approalList.add(process);
         }
         return approalList;
     }
 
-    public static Sys_Process setProcessDate(ProcessService processService, String flag, SYS_UNIT unit, String name, String param) {
+    public static Sys_Process setProcessDate(ProcessService processService, String flag, SYS_UNIT unit, String name, String param,
+                                             UnitService unitService) {
         Sys_Process process = processService.selectProcessByFlag(unit.getId(), flag);
+        System.out.println("原时间 " + new Date());
+        String uuid = "";
         if (process != null) {
             process.setCreateTime(new Date());
+            process.setCreateTimeStr(DateUtil.dateMMToString(new Date()));
             process.setUnitId(unit.getId());
             process.setUnitName(unit.getName());
             process.setPeople(name);
             process.setParam(param);
             processService.updateProcess(process);
+            uuid = process.getId();
         } else {
             process = new Sys_Process();
-            String uuid = UUID.randomUUID().toString();
+            uuid = UUID.randomUUID().toString();
+            process.setCreateTime(new Date());
+            process.setCreateTimeStr(DateUtil.dateMMToString(new Date()));
             process.setId(uuid);
             process.setFlag(flag);
-            process.setCreateTime(new Date());
             process.setUnitId(unit.getId());
             process.setUnitName(unit.getName());
             process.setPeople(name);
             process.setParam(param);
             process.setStates("未审批");
+            processService.insertProcess(process);
+        }
+        SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
+        if (punit != null) {
+            process.setApprovalEve(punit.getId());
+            processService.updateProcess(process);
+            if (!"0".equals(punit.getApprovalFlag())) {
+                saveChildProcessDate(processService, flag, unit, punit.getName(), param, punit.getId(), "1", uuid,process.getId()+"1");
+                SYS_UNIT punit1 = unitService.selectUnitById(punit.getParentId());
+                if (punit1 != null) {
+                    if (!"0".equals(punit1.getApprovalFlag())) {
+                        saveChildProcessDate(processService, flag, unit, punit1.getName(), param, punit1.getId(), "2", uuid,process.getId()+"2");
+                        SYS_UNIT punit2 = unitService.selectUnitById(punit1.getParentId());
+                        if (punit2 != null) {
+                            if (!"0".equals(punit2.getApprovalFlag())) {
+                                saveChildProcessDate(processService, flag, unit, punit2.getName(), param, punit2.getId(), "3", uuid,process.getId()+"3");
+                                SYS_UNIT punit3 = unitService.selectUnitById(punit2.getParentId());
+                                if (punit3 != null) {
+                                    if (!"0".equals(punit3.getApprovalFlag())) {
+                                        saveChildProcessDate(processService, flag, unit, punit3.getName(), param, punit3.getId(), "4", uuid,process.getId()+"4");
+                                        SYS_UNIT punit4 = unitService.selectUnitById(punit3.getParentId());
+                                        if (punit4 != null) {
+                                            if (!"0".equals(punit4.getApprovalFlag())) {
+                                                saveChildProcessDate(processService, flag, unit, punit4.getName(), param, punit4.getId(), "5", uuid,process.getId()+"5");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return process;
+    }
+
+    public static Sys_Process saveChildProcessDate(ProcessService processService, String flag, SYS_UNIT unit, String name, String param,
+                                                   String approvalUnitId, String order, String pprocessId,String proId) {
+        Sys_Process process = processService.selectProcessById(proId);
+        String uuid = "";
+        if (process != null) {
+            process.setCreateTime(new Date());
+            process.setCreateTimeStr(DateUtil.dateMMToString(new Date()));
+            process.setUnitId(unit.getId());
+            process.setUnitName(unit.getName());
+            process.setPeople(name);
+            process.setParam(param);
+            process.setApprovalUnit(approvalUnitId);
+            process.setApprovalOrder(order);
+            process.setApprovaled("1");
+            processService.updateProcess(process);
+            process.setParentId(pprocessId);
+            uuid = process.getId();
+        } else {
+            process = new Sys_Process();
+            uuid = pprocessId+order;
+            process.setId(uuid);
+            process.setFlag(flag);
+            process.setCreateTime(new Date());
+            process.setCreateTimeStr(DateUtil.dateMMToString(new Date()));
+            process.setUnitId(unit.getId());
+            process.setUnitName(unit.getName());
+            process.setPeople(name);
+            process.setParam(param);
+            process.setStates("未审批");
+            process.setApprovalUnit(approvalUnitId);
+            process.setApprovalOrder(order);
+            process.setApprovaled("1");
+            processService.updateProcess(process);
+            process.setParentId(pprocessId);
             processService.insertProcess(process);
         }
         return process;

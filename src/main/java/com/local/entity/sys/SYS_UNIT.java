@@ -303,6 +303,13 @@ public class SYS_UNIT implements Serializable {
     @Default("0")
     @ColDefine(type = ColType.VARCHAR,width = 1)
     private String isEdit;
+
+    @ApiModelProperty("审批部门 0 是 1 否")
+    @Comment("审批部门 0 是 1 否")
+    @Column("approval_Flag")
+    @ColDefine(type = ColType.VARCHAR,width = 1)
+    private String approvalFlag="1";
+
     private String[] areaStrs;
     private boolean hasChildren;
 
@@ -319,6 +326,14 @@ public class SYS_UNIT implements Serializable {
 
     public void setChildren(List<SYS_UNIT> children) {
         this.children = children;
+    }
+
+    public String getApprovalFlag() {
+        return approvalFlag;
+    }
+
+    public void setApprovalFlag(String approvalFlag) {
+        this.approvalFlag = approvalFlag;
     }
 
     public String getIsEdit() {

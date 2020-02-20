@@ -198,7 +198,7 @@ public class ProcessServiceImpl implements ProcessService {
             peopleList = dao.query(Sys_Process.class,cri,pager);
             if (peopleList.size()>0){
                 for (Sys_Process process:peopleList){
-                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()));
+                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()).and("approvaled", "=", "0").desc("approval_Order"));
                     if (cprocessList.size()>0){
                         process.setChildren(cprocessList);
                     }else {
@@ -247,7 +247,7 @@ public class ProcessServiceImpl implements ProcessService {
             peopleList = dao.query(Sys_Process.class,cri,pager);
             if (peopleList.size()>0){
                 for (Sys_Process process:peopleList){
-                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()));
+                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()).and("approvaled", "=", "0").desc("approval_Order"));
                     if (cprocessList.size()>0){
                         process.setChildren(cprocessList);
                     }else {

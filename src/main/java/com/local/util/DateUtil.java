@@ -67,6 +67,21 @@ public class DateUtil {
             return new SimpleDateFormat(format).parse(dateStr);
         }
     }
+
+    public static Date stringToDateMM(String dateStr) throws Exception {
+        String[] arr = null;
+        if (dateStr == null && "".equals(dateStr) && "null".equals(dateStr)) {
+            return null;
+        }
+         if (dateStr.contains(":") && dateStr.contains(" ")) {
+            arr = dateStr.split(":");
+        }
+        if (arr != null && arr.length == 2) {
+            return new SimpleDateFormat(fm3).parse(dateStr.trim() + "-01");
+        } else {
+            return new SimpleDateFormat(fm3).parse(dateStr);
+        }
+    }
     /**
      * 时间戳转换成日期格式字符串
      * @param seconds 精确到秒的字符串
@@ -81,6 +96,13 @@ public class DateUtil {
             return null;
         }
         return new SimpleDateFormat(fm).format(date);
+    }
+
+    public static String dateMMToString(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new SimpleDateFormat(fm3).format(date);
     }
     public static Date addYears(Date date, int num) {
         Calendar calendar = Calendar.getInstance();
