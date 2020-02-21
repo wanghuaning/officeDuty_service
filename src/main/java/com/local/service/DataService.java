@@ -9,6 +9,7 @@ import java.util.List;
 public interface DataService {
     void inserData(SYS_Data data);
     void updateData(SYS_Data data);
+    void deleteData(String id);
     SYS_Data selectDataById(String id);
     SYS_Data selectDataByProcessId(String processId);
 

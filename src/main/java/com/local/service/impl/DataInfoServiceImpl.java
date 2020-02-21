@@ -34,6 +34,12 @@ public class DataInfoServiceImpl implements DataInfoService {
     }
 
     @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "删除备份数据", type = "U")
+    public void deleteDataInfo(String id){
+        dao.delete(SYS_DataInfo.class,id);
+    }
+    @Override
     public SYS_DataInfo selectDataInfById(String id){
         List<SYS_DataInfo> list=new ArrayList<>();
         Criteria cir= Cnd.cri();

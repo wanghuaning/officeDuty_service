@@ -118,6 +118,13 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String approvaled;
 
+  @ApiModelProperty("审批表原来ID")
+  @Comment("审批表原来ID")
+  @Column("old_Id")
+  @ColDefine(type = ColType.VARCHAR, width = 256)
+  private String oldId;
+
+
 
 
   private String processFlag;
@@ -135,6 +142,14 @@ public class Sys_Process implements Serializable {
     public List<Sys_Process> getChildren() {
         return children;
     }
+
+  public String getOldId() {
+    return oldId;
+  }
+
+  public void setOldId(String oldId) {
+    this.oldId = oldId;
+  }
 
   public String getApprovalEve() {
     return approvalEve;

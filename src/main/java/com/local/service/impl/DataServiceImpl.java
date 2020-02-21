@@ -35,6 +35,12 @@ public class DataServiceImpl implements DataService {
     public void updateData(SYS_Data data){
         dao.update(data);
     }
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "删除备份数据", type = "U")
+    public void deleteData(String id){
+        dao.delete(SYS_Data.class,id);
+    }
 
     @Override
     public SYS_Data selectDataById(String id){

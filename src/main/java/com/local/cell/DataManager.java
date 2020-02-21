@@ -3593,6 +3593,7 @@ public class DataManager {
             process.setUnitName(unit.getName());
             process.setPeople(name);
             process.setParam(param);
+            process.setOldId(process.getId());
             processService.updateProcess(process);
             uuid = process.getId();
         } else {
@@ -3607,6 +3608,7 @@ public class DataManager {
             process.setPeople(name);
             process.setParam(param);
             process.setStates("未审批");
+            process.setOldId(uuid);
             processService.insertProcess(process);
         }
         SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
@@ -3655,6 +3657,7 @@ public class DataManager {
             process.setUnitName(unit.getName());
             process.setPeople(name);
             process.setParam(param);
+            process.setOldId(process.getId());
             process.setApprovalUnit(approvalUnitId);
             process.setApprovalOrder(order);
             process.setApprovaled("1");
@@ -3678,6 +3681,7 @@ public class DataManager {
             process.setApprovaled("1");
             processService.updateProcess(process);
             process.setParentId(pprocessId);
+            process.setOldId(uuid);
             processService.insertProcess(process);
         }
         return process;

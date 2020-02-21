@@ -16,7 +16,7 @@ public class SYS_Data implements Serializable {
   @ApiModelProperty("id")//用在属性上，对属性做注释
   @Comment("id")//定义脚本中添加comment属性来添加注释
   @Column("id")
-  @ColDefine(type = ColType.VARCHAR, width = 64)
+  @ColDefine(type = ColType.VARCHAR, width = 128)
   private String id;
 
   @ApiModelProperty("数据类型；上行、下行")

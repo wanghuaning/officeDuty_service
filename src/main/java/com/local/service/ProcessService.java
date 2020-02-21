@@ -9,6 +9,7 @@ import java.util.List;
 public interface ProcessService {
     void insertProcess(Sys_Process process);
     void updateProcess(Sys_Process process);
+    void deleteProcess(String id);
     Sys_Process selectProcessById(String id);
     Sys_Process selectProcessByFlag(String unitId,String flag);
     Sys_Process selectProcessByFlagAndDate(String unitId, String flag, Date startDate);

@@ -1,10 +1,7 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.sys.SYS_Data;
-import com.local.entity.sys.SYS_Duty;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.entity.sys.Sys_Process;
+import com.local.entity.sys.*;
 import com.local.service.ProcessService;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
@@ -35,6 +32,13 @@ public class ProcessServiceImpl implements ProcessService {
     @SLog(tag = "修改审批表", type = "U")
     public void updateProcess(Sys_Process process){
         dao.update(process);
+    }
+
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "删除审批表", type = "D")
+    public void deleteProcess(String id){
+        dao.delete(Sys_Process.class, id);
     }
     @Override
     public List<Sys_Process> selectApprProcess(String unitId){
