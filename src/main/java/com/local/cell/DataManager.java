@@ -3507,7 +3507,8 @@ public class DataManager {
         return unit;
     }
 
-    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user, String states)throws Exception {
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user,
+                                                    String states,UnitService unitService,SYS_UNIT unit)throws Exception {
         List<Sys_Process>  approalList=new ArrayList<>();
         for (Sys_Process process : processes) {
             if (!StrUtils.isBlank(process.getCreateTimeStr())){
@@ -3570,6 +3571,13 @@ public class DataManager {
                        Sys_Process sys_process= processService.selectProcessById(process.getId()+sd);
                        if (sys_process!=null){
                            process.setApprovalEve(sys_process.getApprovalUnit());
+                       }else {
+                           SYS_UNIT sys_unit=unitService.selectUnitById(unit.getParentId());
+                           if (sys_unit!=null){
+                               if ("0".equals(sys_unit.getApprovalFlag()) && !"单位".equals(sys_unit.getName())) {
+                                   process.setApprovalEve(sys_unit.getId());
+                               }
+                           }
                        }
                         process.setStates("初审");
                         processService.updateProcess(process);

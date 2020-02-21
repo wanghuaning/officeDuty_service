@@ -409,7 +409,7 @@ public class DataController {
                                 List<Sys_Process> sprocesses = new ArrayList<>();
                                 if (processes.size() > 0) {
                                     if (punit.getId().equals(processes.get(0).getApprovalEve())) {
-                                        DataManager.saveprocessData(processes, processService, "", null, "未审批");
+                                        DataManager.saveprocessData(processes, processService, "", null, "未审批", unitService, punit);
                                         for (Sys_Process process : processes) {
                                             SYS_Data data = DataManager.saveData(dataId, process.getId(), dataType, iunitId, dataService);
                                             resultMap.put("dataId", data.getId());
@@ -602,7 +602,7 @@ public class DataController {
                                 if (people != null) {
                                     name = name + "/" + people.getName();
                                 }
-                                DataManager.saveprocessData(sys_processes, processService, name, user, "已审核");
+                                DataManager.saveprocessData(sys_processes, processService, name, user, "已审核", unitService, unit);
                                 objects.add(sys_processes);
                             }
                         }
@@ -860,7 +860,7 @@ public class DataController {
                             processes = DataManager.saveProcessJsonModel(processList, user, "下行", unit, processService);
                             if (processes.size() > 0) {
                                 DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "process", gson.toJson(processes), null);
-                                DataManager.saveprocessData(processes, processService, "", user, "已审核");
+                                DataManager.saveprocessData(processes, processService, "", user, "已审核", unitService, unit);
                                 objects.add(processes);
                             }
                             if (peopleList != null) {
@@ -1109,13 +1109,13 @@ public class DataController {
             List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
             process.setProcessTime(new Date());
             if ("撤销".equals(flag)) {
-                editeBoHuiProsessTable(csys_processes, process,unit.getId());
+                editeBoHuiProsessTable(csys_processes, process, unit);
             } else if ("驳回".equals(flag)) {
-                editeBoHuiProsessTable(csys_processes, process,unit.getId());
+                editeBoHuiProsessTable(csys_processes, process, unit);
             } else if ("审核".equals(flag)) {
-                editeAgreeAgenProcessTable(process, admin,unit.getId());
+                editeAgreeAgenProcessTable(process, admin, unit);
             } else if ("复审".equals(flag)) {
-                editeAgreeProcessTable(process, admin,unit.getId());
+                editeAgreeProcessTable(process, admin, unit.getId());
             }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
         } else {
@@ -1123,7 +1123,7 @@ public class DataController {
         }
     }
 
-    public void editeAgreeAgenProcessTable(Sys_Process process, boolean admin,String unitId) {
+    public void editeAgreeAgenProcessTable(Sys_Process process, boolean admin, SYS_UNIT unit) {
         List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
         if (csys_processes != null) {
             for (Sys_Process csys_process : csys_processes) {
@@ -1132,7 +1132,7 @@ public class DataController {
                 } else {
                     csys_process.setStates("初审");
                 }
-                if (unitId.equals(csys_process.getApprovalUnit())){
+                if (unit.getId().equals(csys_process.getApprovalUnit())) {
                     csys_process.setApprovaled("0");
                 }
                 csys_process.setProcessTime(new Date());
@@ -1151,6 +1151,12 @@ public class DataController {
         } else {
             process.setStates("初审");
         }
+        SYS_UNIT sys_unit = unitService.selectUnitById(unit.getParentId());
+        if (sys_unit != null) {
+            if (!"单位".equals(sys_unit.getName())) {
+                process.setApprovalEve(sys_unit.getId());
+            }
+        }
         process.setId(process.getOldId());
         Sys_Process process2 = processService.selectProcessById(process.getId());
         if (process2 != null) {
@@ -1160,18 +1166,36 @@ public class DataController {
         }
     }
 
-    public void editeAgreeProcessTable(Sys_Process process, boolean admin,String unitId) {
+    public void backAgreeProcessTable(Sys_Process process, SYS_UNIT unit) {
+        List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
+        if (csys_processes != null) {
+            for (Sys_Process csys_process : csys_processes) {
+                if (unit.getId().equals(csys_process.getApprovalUnit())) {
+                    csys_process.setApprovaled("0");
+                }
+                csys_process.setId(csys_process.getOldId());
+                csys_process.setParentId(process.getOldId());
+                Sys_Process process1 = processService.selectProcessById(csys_process.getId());
+                if (process1 != null) {
+                    processService.updateProcess(csys_process);
+                } else {
+                    processService.insertProcess(csys_process);
+                }
+            }
+        }
+        process.setStates("未审批");
+        process.setPeople(unit.getName());
+        processService.updateProcess(process);
+    }
+
+    public void editeAgreeProcessTable(Sys_Process process, boolean admin, String unitId) {
         List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
         if (csys_processes != null) {
             for (Sys_Process csys_process : csys_processes) {
                 Sys_Process csys_process1 = new Sys_Process();
                 BeanUtils.copyProperties(csys_process, csys_process1);
-                if (admin) {
-                    csys_process1.setStates("已审核");
-                } else {
-                    csys_process1.setStates("初审");
-                }
-                if (unitId.equals(csys_process1.getApprovalUnit())){
+                csys_process1.setStates("初审");
+                if (unitId.equals(csys_process1.getApprovalUnit())) {
                     csys_process1.setApprovaled("0");
                 }
                 csys_process1.setProcessTime(new Date());
@@ -1204,7 +1228,7 @@ public class DataController {
         processService.deleteProcess(process.getId());
     }
 
-    public void editeBoHuiProsessTable(List<Sys_Process> csys_processes, Sys_Process process, String unitId) {
+    public void editeBoHuiProsessTable(List<Sys_Process> csys_processes, Sys_Process process, SYS_UNIT unit) {
         if (csys_processes != null) {
             for (Sys_Process csys_process : csys_processes) {
                 Sys_Process csys_process1 = new Sys_Process();
@@ -1213,7 +1237,7 @@ public class DataController {
                 csys_process1.setStates("已驳回");
                 csys_process1.setId(csys_process.getId() + "bohui");
                 csys_process1.setParentId(process.getId() + "-bohui");
-                if (unitId.equals(csys_process1.getApprovalUnit())){
+                if (unit.getId().equals(csys_process1.getApprovalUnit())) {
                     csys_process1.setApprovaled("0");
                 }
                 Sys_Process process1 = processService.selectProcessById(csys_process1.getId());
@@ -1230,6 +1254,12 @@ public class DataController {
         BeanUtils.copyProperties(process, process1);
         process1.setStates("已驳回");
         process1.setId(process.getOldId() + "-bohui");
+        SYS_UNIT sys_unit = unitService.selectUnitById(unit.getParentId());
+        if (sys_unit != null) {
+            if (!"单位".equals(sys_unit.getName())) {
+                process1.setApprovalEve(sys_unit.getId());
+            }
+        }
         Sys_Process process2 = processService.selectProcessById(process1.getId());
         if (process2 != null) {
             processService.updateProcess(process1);
@@ -1283,6 +1313,45 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), "账号未登录！", null, null).getJson();
         }
         SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
+        if (unit == null) {
+            return new Result(ResultCode.ERROR.toString(), "账号未登录！", null, null).getJson();
+        }
+        if (user.getPeopleName() != null) {
+            people = unit.getName() + "/" + user.getPeopleName();
+        } else {
+            people = unit.getName();
+        }
+        if (!StrUtils.isBlank(dataId)) {
+            SYS_Data data = dataService.selectDataById(dataId);
+            if (data != null) {
+                Sys_Process process = processService.selectProcessById(data.getProcessId());
+                if (process == null) {
+                    return new Result(ResultCode.ERROR.toString(), "驳回失败，数据包出错！", null, null).getJson();
+                }
+                process.setPeople(people);
+                processService.updateProcess(process);
+                List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
+                process.setProcessTime(new Date());
+                editeBoHuiProsessTable(csys_processes, process, unit);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, objects, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), "此数据包为下行数据包", null, null).getJson();
+            }
+        } else {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "返回审批表", notes = "返回审批表", httpMethod = "POST", tags = "返回审批表接口")
+    @PostMapping(value = "/backImportData")
+    public String backImportData(@RequestParam(value = "dataId", required = false) String dataId, HttpServletRequest request) {
+        List<Object> objects = new ArrayList<>();
+        String people = "";
+        SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+        if (user == null) {
+            return new Result(ResultCode.ERROR.toString(), "账号未登录！", null, null).getJson();
+        }
+        SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
         if (unit != null) {
             if (user.getPeopleName() != null) {
                 people = unit.getName() + "/" + user.getPeopleName();
@@ -1297,11 +1366,7 @@ public class DataController {
                 if (process == null) {
                     return new Result(ResultCode.ERROR.toString(), "驳回失败，数据包出错！", null, null).getJson();
                 }
-                process.setPeople(people);
-                processService.updateProcess(process);
-                List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
-                process.setProcessTime(new Date());
-                editeBoHuiProsessTable(csys_processes, process,unit.getId());
+                backAgreeProcessTable(process, unit);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, objects, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), "此数据包为下行数据包", null, null).getJson();
