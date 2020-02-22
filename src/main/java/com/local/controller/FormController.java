@@ -126,21 +126,19 @@ public class FormController {
         try {
             //从请求的header中取出当前登录的登录
             String[] arr;
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (user == null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_OUT, null, null).getJson();
+            }
             if (!"true".equals(isChild)) {
                 //从请求的header中取出当前登录的登录
-                SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-                if (user != null) {
-                    arr = new String[]{user.getUnitId()};
-                } else {
-                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
-                }
-
+                arr = new String[]{user.getUnitId()};
             } else {
                 if (!StrUtils.isBlank(childUnit)) {
                     childUnit = childUnit.substring(1, childUnit.length() - 1);
                     arr = childUnit.split(";");
                 } else {
-                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                    arr = new String[]{user.getUnitId()};
                 }
             }
             RetireModel model = new RetireModel();
@@ -461,10 +459,8 @@ public class FormController {
                 model.setFourMonthFuKeRetire(fourMonthFuKeRetire);
                 model.setFourMonthKeYuanRetire(fourMonthKeYuanRetire);
                 model.setFourMonthTotalRetire(fourMonthOverChuRetire + fourMonthChuJiRetire + fourMonthFuChuRetire + fourMonthZhengKeRetire + fourMonthFuKeRetire + fourMonthKeYuanRetire);
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
-            } else {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
             }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();

@@ -1902,42 +1902,24 @@ public class DataController {
         }
     }
 
-    //        @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
-//    @RequestMapping(value = "/exportFreePeoples")
-//    public String exportFreePeoples(HttpServletRequest request, HttpServletResponse response ,@RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
-//        try {
-//            String userAgent = request.getHeader("User-Agent");
-//            if (StrUtils.isBlank(peopleIds)){
-//                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
-//            }else {
-//                List<Workbook> workBookList = new ArrayList<>();
-//                for (int i = 0; i < peopleIds.length; i++) {
-//                    String peopleId = peopleIds[0];
-//                    SYS_People people = peopleService.selectPeopleById(peopleId);
-//                    if (people != null) {
-//                        ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
-//                        String path = resource.getFile().getPath();
-//                        Workbook temp = ExcelFileGenerator.getTeplet(path);
-//                                 DataManager.exportFreePeoples(temp,response, peopleService, peopleId, rankService, educationService, assessmentService, unitService);
-//                        workBookList.add(temp);
-//                    }
-//                }
-//                    ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
-//                    excelFileGenerator.creatExcelZip(workBookList, "批量导出公务员职级任免审批表", response, userAgent, 0, 2, 0);
-//                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
-//
-//            }
-//        } catch (Exception e) {
-//            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
-//            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
-//        }
-//    }
+    @ApiOperation(value = "导出公务员干部任免审批表", notes = "导出公务员干部任免审批表", httpMethod = "GET", tags = "导出公务员干部任免审批表接口")
+    @RequestMapping(value = "/exportDutyFreePeople")
+    public String exportDutyFreePeople(HttpServletRequest request, HttpServletResponse
+            response, @RequestParam(value = "peopleId", required = false) String peopleId) {
+        try {
+            ReimbursementModel model = DataManager.exportDutyFreePeople(response, peopleService, peopleId, dutyService, educationService, assessmentService, unitService);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
     @ApiOperation(value = "批量导出公务员职级任免审批表", notes = "批量导出公务员职级任免审批表", httpMethod = "GET", tags = "批量导出公务员职级任免审批表接口")
     @RequestMapping(value = "/exportFreePeoples")
     public String exportFreePeoples(HttpServletRequest request, HttpServletResponse
             response, @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) throws
             IOException, InvalidClassException, Exception {
-//       String[] peopleIdss={"02d9eaba-06bf-42c5-988f-724cd78fdd2f","23d97495-773b-41c9-acfc-0452a193be95"};
         if (StrUtils.isBlank(peopleIds)) {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         } else {
@@ -1959,6 +1941,37 @@ public class DataController {
                 output.close();
             }
             ZipUtil.zipFiles(srcfile, response, "批量导出公务员职级任免审批表", request);
+            ZipUtil.delFile(new File(filePathStr));
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
+
+        }
+    }
+    @ApiOperation(value = "批量导出公务员干部任免审批表", notes = "批量导出公务员干部任免审批表", httpMethod = "GET", tags = "批量导出公务员干部任免审批表接口")
+    @RequestMapping(value = "/exportDutyFreePeoples")
+    public String exportDutyFreePeoples(HttpServletRequest request, HttpServletResponse
+            response, @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) throws
+            IOException, InvalidClassException, Exception {
+        if (StrUtils.isBlank(peopleIds)) {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        } else {
+            Resource resource = new ClassPathResource("exportExcel/intendeDutyAndDepose.xls");
+            String path = resource.getFile().getPath();
+            List<Workbook> workBookList = new ArrayList<>();
+            List<File> srcfile = new ArrayList<File>();
+            String filePathStr = "C:\\RM\\file\\excel";
+            for (int i = 0; i < peopleIds.length; i++) {
+                SYS_People people = peopleService.selectPeopleById(peopleIds[i]);
+                Workbook temp = ExcelFileGenerator.getTeplet(path);
+                DataManager.exportDutyFreePeoples(temp, peopleService, peopleIds[i], dutyService, educationService, assessmentService, unitService);
+//                workBookList.add(temp);
+                ZipUtil.getFile(filePathStr);
+                String filePath = filePathStr + "\\" + people.getName() + "_公务员干部任免审批表.xls";
+                FileOutputStream output = new FileOutputStream(filePath);
+                temp.write(output);//写入磁盘
+                srcfile.add(new File(filePath));
+                output.close();
+            }
+            ZipUtil.zipFiles(srcfile, response, "批量导出公务员干部任免审批表", request);
             ZipUtil.delFile(new File(filePathStr));
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
 

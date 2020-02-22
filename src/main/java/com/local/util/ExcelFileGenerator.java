@@ -836,6 +836,36 @@ public class ExcelFileGenerator<T> {
     }
 
     /**
+     * 干部任免审批表
+     * @param sheet
+     * @param data
+     * @throws Exception
+     */
+    public void createDutyReimbursementExcel(Sheet sheet, ReimbursementModel data) throws Exception {
+        CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        Font font = sheet.getWorkbook().createFont();
+        font.setBold(false);
+        font.setFontHeightInPoints((short) 12);//设置行高像素
+        font.setFontName("仿宋");
+        cellStyle.setFont(font);
+        cellStyle.setWrapText(true);
+        setValue(sheet,1,1,data.getName());
+        setValue(sheet,1,3,data.getSex());
+        setValue(sheet,1,5,data.getYears());
+        setValue(sheet,3,1,data.getNationality());
+        setValue(sheet,3,3,data.getBirthplace());
+        setValue(sheet,4,1,data.getPartyTime());
+        setValue(sheet,4,3,data.getWorkday());
+        setValue(sheet,8,2,data.getFullTimeEducation());
+        setValue(sheet,8,5,data.getFullTimeSchool());
+        setValue(sheet,10,2,data.getWorkEducation());
+        setValue(sheet,10,5,data.getWorkSchool());
+        setValue(sheet,12,2,data.getNowDuty());
+        setValue(sheet,13,2,data.getNiRenDuty());
+        setValue(sheet,14,2,data.getNiMianDuty());
+    }
+    /**
      * 标题
      * @param sheet
      * @param data

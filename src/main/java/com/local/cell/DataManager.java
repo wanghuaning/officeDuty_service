@@ -682,7 +682,7 @@ public class DataManager {
             } else {
                 year = endYear - startYear - 1;
             }
-            String years = DateUtil.dateToString(people.getBirthday()) + "\n(" + year + ")";
+            String years = startYear +"."+startMonth + "\n(" + year + ")";
             reimbursementModel.setYears(years);
             reimbursementModel.setBirthplace(people.getBirthplace());
             reimbursementModel.setNationality(people.getNationality());
@@ -752,6 +752,188 @@ public class DataManager {
             return reimbursementModel;
         } else {
             return null;
+        }
+    }
+
+    public static ReimbursementModel exportDutyFreePeople(HttpServletResponse response, PeopleService peopleService, String peopleId,
+                                                      DutyService dutyService, EducationService educationService,
+                                                      AssessmentService assessmentService, UnitService unitService) throws Exception {
+        SYS_People people = peopleService.selectPeopleById(peopleId);
+        if (people != null) {
+            ReimbursementModel reimbursementModel = new ReimbursementModel();
+            reimbursementModel.setName(people.getName());
+            reimbursementModel.setSex(people.getSex());
+            int startYear = DateUtil.getYear(people.getBirthday());
+            int endYear = DateUtil.getYear(new Date());
+            int startMonth = DateUtil.getMonth(people.getBirthday());
+            int endMonth = DateUtil.getMonth(new Date());
+            int year = 0;
+            if (endMonth > startMonth) {
+                year = endYear - startYear;
+            } else {
+                year = endYear - startYear - 1;
+            }
+            String years = startYear+"."+ startMonth + "\n(" + year + ")";
+            reimbursementModel.setYears(years);
+            reimbursementModel.setBirthplace(people.getBirthplace());
+            reimbursementModel.setNationality(people.getNationality());
+            if ("中共党员".equals(people.getParty()) && people.getPartyTime()!=null){
+                reimbursementModel.setParty(people.getParty());
+                reimbursementModel.setPartyTime(DateUtil.dateToString(people.getPartyTime()));
+            }
+            if (people.getWorkday()!=null){
+                reimbursementModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
+            }
+            SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+            SYS_Duty nowDuty = dutyService.selectNowDutyByPidOrderByTime(peopleId);
+            if (nowDuty != null) {
+                reimbursementModel.setNowDuty(nowDuty.getName());
+            }
+            SYS_Duty niRenDuty = dutyService.selectNotProDutyByPidOrderByTime(peopleId);
+            if (niRenDuty!=null){
+                reimbursementModel.setNiRenDuty(niRenDuty.getName());
+            }
+            SYS_Duty niMianDuty = dutyService.selectNotEnableDutyByPidOrderByTime(peopleId);
+            if (niMianDuty!=null){
+                reimbursementModel.setNiMianDuty(niMianDuty.getName());
+            }
+            SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
+            SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
+            if (education != null) {
+                reimbursementModel.setFullTimeEducation(education.getName());
+                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+            }
+            if (education1 != null) {
+                reimbursementModel.setWorkEducation(education1.getName());
+                reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
+            }
+            List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
+            int youxiu = 0, hege = 0, buhege = 0;
+            if (assessments != null) {
+                for (SYS_Assessment assessment : assessments) {
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
+                        youxiu++;
+                    }
+                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
+                        buhege++;
+                    }
+                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
+                        hege++;
+                    }
+                }
+            }
+            if (youxiu > 0) {
+                reimbursementModel.setSuperYears(String.valueOf(youxiu));
+            } else {
+                reimbursementModel.setSuperYears("");
+            }
+            if (hege > 0) {
+                reimbursementModel.setCompetentYears(String.valueOf(hege));
+            } else {
+                reimbursementModel.setCompetentYears("");
+            }
+            if (buhege > 0) {
+                reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
+            } else {
+                reimbursementModel.setNotCompetentYears("");
+            }
+            ClassPathResource resource = new ClassPathResource("exportExcel/intendeDutyAndDepose.xls");
+            String path = resource.getFile().getPath();
+            Workbook temp = ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.setExcleNAME(response, "公务员干部任免审批表.xls");
+            excelFileGenerator.createDutyReimbursementExcel(temp.getSheet("干部任免审批表"), reimbursementModel);
+            temp.write(response.getOutputStream());
+            temp.close();
+            return reimbursementModel;
+        } else {
+            return null;
+        }
+    }
+    public static void exportDutyFreePeoples(Workbook temp, PeopleService peopleService, String peopleId,
+                                         DutyService dutyService, EducationService educationService,
+                                         AssessmentService assessmentService, UnitService unitService) throws Exception {
+        SYS_People people = peopleService.selectPeopleById(peopleId);
+        if (people != null) {
+            ReimbursementModel reimbursementModel = new ReimbursementModel();
+            reimbursementModel.setName(people.getName());
+            reimbursementModel.setSex(people.getSex());
+            int startYear = DateUtil.getYear(people.getBirthday());
+            int endYear = DateUtil.getYear(new Date());
+            int startMonth = DateUtil.getMonth(people.getBirthday());
+            int endMonth = DateUtil.getMonth(new Date());
+            int year = 0;
+            if (endMonth > startMonth) {
+                year = endYear - startYear;
+            } else {
+                year = endYear - startYear - 1;
+            }
+            String years = startYear+"."+ startMonth + "\n(" + year + ")";
+            reimbursementModel.setYears(years);
+            reimbursementModel.setBirthplace(people.getBirthplace());
+            reimbursementModel.setNationality(people.getNationality());
+            if ("中共党员".equals(people.getParty()) && people.getPartyTime()!=null){
+                reimbursementModel.setParty(people.getParty());
+                reimbursementModel.setPartyTime(DateUtil.dateToString(people.getPartyTime()));
+            }
+            if (people.getWorkday()!=null){
+                reimbursementModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
+            }
+            SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+            SYS_Duty nowDuty = dutyService.selectNowDutyByPidOrderByTime(peopleId);
+            if (nowDuty != null) {
+                reimbursementModel.setNowDuty(nowDuty.getName());
+            }
+            SYS_Duty niRenDuty = dutyService.selectNotProDutyByPidOrderByTime(peopleId);
+            if (niRenDuty!=null){
+                reimbursementModel.setNiRenDuty(niRenDuty.getName());
+            }
+            SYS_Duty niMianDuty = dutyService.selectNotEnableDutyByPidOrderByTime(peopleId);
+            if (niMianDuty!=null){
+                reimbursementModel.setNiMianDuty(niMianDuty.getName());
+            }
+            SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
+            SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
+            if (education != null) {
+                reimbursementModel.setFullTimeEducation(education.getName());
+                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+            }
+            if (education1 != null) {
+                reimbursementModel.setWorkEducation(education1.getName());
+                reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
+            }
+            List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
+            int youxiu = 0, hege = 0, buhege = 0;
+            if (assessments != null) {
+                for (SYS_Assessment assessment : assessments) {
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
+                        youxiu++;
+                    }
+                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
+                        buhege++;
+                    }
+                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
+                        hege++;
+                    }
+                }
+            }
+            if (youxiu > 0) {
+                reimbursementModel.setSuperYears(String.valueOf(youxiu));
+            } else {
+                reimbursementModel.setSuperYears("");
+            }
+            if (hege > 0) {
+                reimbursementModel.setCompetentYears(String.valueOf(hege));
+            } else {
+                reimbursementModel.setCompetentYears("");
+            }
+            if (buhege > 0) {
+                reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
+            } else {
+                reimbursementModel.setNotCompetentYears("");
+            }
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.createDutyReimbursementExcel(temp.getSheet("干部任免审批表"), reimbursementModel);
         }
     }
 

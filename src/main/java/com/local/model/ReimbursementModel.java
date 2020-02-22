@@ -12,9 +12,10 @@ public class ReimbursementModel {
     private String name;
     private String sex;
     private String years;
-    private String birthplace;
-    private String nationality;
+    private String birthplace;//籍贯
+    private String nationality;//民族
     private String party;
+    private String partyTime;
     private String unitAndDuty;//工作单位及职务职级
     private String workday;
     private String fullTimeEducation;
@@ -30,6 +31,43 @@ public class ReimbursementModel {
     private String intendedRank;//拟任职级
     private String convertYears;//年度考核折算年限
     private String deposeRank;//拟免职级
+
+    private String nowDuty;//现  任  职  务
+    private String niRenDuty;//拟  任  职  务
+    private String niMianDuty;//拟  免  职  务
+
+
+    public String getNowDuty() {
+        return nowDuty;
+    }
+
+    public void setNowDuty(String nowDuty) {
+        this.nowDuty = nowDuty;
+    }
+
+    public String getNiRenDuty() {
+        return niRenDuty;
+    }
+
+    public void setNiRenDuty(String niRenDuty) {
+        this.niRenDuty = niRenDuty;
+    }
+
+    public String getNiMianDuty() {
+        return niMianDuty;
+    }
+
+    public void setNiMianDuty(String niMianDuty) {
+        this.niMianDuty = niMianDuty;
+    }
+
+    public String getPartyTime() {
+        return partyTime;
+    }
+
+    public void setPartyTime(String partyTime) {
+        this.partyTime = partyTime;
+    }
 
     public String getName() {
         return name;
