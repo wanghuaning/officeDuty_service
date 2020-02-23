@@ -214,17 +214,22 @@ public class UnitConttoller {
                 if (unit == null) {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
                 }
-                SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
-                if (punit != null) {
-                    unit.setParentName(punit.getName());
-                    punit.setHasChild("1");
-                    unitService.updateUnit(punit);
-                }
                 unitService.deleteUnit(id);
                 List<SYS_UNIT> cunits = unitService.selectAllChildUnits(id);
                 if (cunits.size() > 0) {
                     for (SYS_UNIT cunit : cunits) {
                         unitService.deleteUnit(cunit.getId());
+                    }
+                }
+                SYS_UNIT punit = unitService.selectUnitById(unit.getParentId());
+                if (punit != null) {
+                    List<SYS_UNIT> ccunits = unitService.selectAllChildUnits(punit.getId());
+                    if (ccunits.size() > 0) {
+                        punit.setHasChild("1");
+                        unitService.updateUnit(punit);
+                    }else {
+                        punit.setHasChild("0");
+                        unitService.updateUnit(punit);
                     }
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();

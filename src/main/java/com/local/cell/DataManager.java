@@ -152,7 +152,7 @@ public class DataManager {
 
     public static List<RankModel> filingList(UnitService unitService, String unitName, HttpServletResponse response,
                                              PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService,
-                                             RegModel model, ProcessService processService) throws Exception {
+                                             RegModel model, ProcessService processService, String flag) throws Exception {
         List<RankModel> rankModels = new ArrayList<>();
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
         model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
@@ -376,15 +376,21 @@ public class DataManager {
         model.setContactNumber(contactNum);
         model.setNowDateStr(nowDate);
         model.setRankModels(rankModels);
-        saveRegProcess(unit, model, processService);
-        return filingDataList(rankModels, response, unit, model);
+        if ("导出".equals(flag)){
+            return filingDataList(rankModels, response, unit, model);
+        }else {
+            setProcessDate(processService, "0", unit, "", gson.toJson(model), unitService);
+//            saveRegProcess(unit, model, processService);
+        }
+        return rankModels;
     }
 
     private final static Gson gson = new Gson();
 
-    public static Sys_Process saveRegProcess(SYS_UNIT unit, RegModel model, ProcessService processService) {
+    public static Sys_Process saveRegProcess(SYS_UNIT unit, RegModel model, ProcessService processService,UnitService unitService) {
         Sys_Process process = processService.selectProcessByFlag(unit.getId(), "0");
         if (process != null) {
+            SYS_UNIT sys_unit=unitService.selectUnitById(unit.getParentId());
             process.setCreateTime(new Date());
             process.setFlag("0");
             process.setParam(gson.toJson(model));
@@ -3774,7 +3780,6 @@ public class DataManager {
     public static Sys_Process setProcessDate(ProcessService processService, String flag, SYS_UNIT unit, String name, String param,
                                              UnitService unitService) {
         Sys_Process process = processService.selectProcessByFlag(unit.getId(), flag);
-        System.out.println("原时间 " + new Date());
         String uuid = "";
         if (process != null) {
             process.setCreateTime(new Date());

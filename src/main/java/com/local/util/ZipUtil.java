@@ -15,6 +15,37 @@ public class ZipUtil {
 
 
     /**
+     * 解压缩
+     *
+     * @param zipfile File 需要解压缩的文件
+     * @param descDir String 解压后的目标目录
+     */
+    public static void unZipFiles(File zipfile, String descDir) {
+        try {
+            // Open the ZIP file
+            ZipFile zf = new ZipFile(zipfile);
+            for (Enumeration entries = zf.entries(); entries.hasMoreElements(); ) {
+                // Get the entry name
+                ZipEntry entry = ((ZipEntry) entries.nextElement());
+                String zipEntryName = entry.getName();
+                InputStream in = zf.getInputStream(entry);
+                // System.out.println(zipEntryName);
+                OutputStream out = new FileOutputStream(descDir + zipEntryName);
+                byte[] buf1 = new byte[1024];
+                int len;
+                while ((len = in.read(buf1)) > 0) {
+                    out.write(buf1, 0, len);
+                }
+                // Close the file and stream
+                in.close();
+                out.close();
+            }
+        } catch (IOException e) {
+            log.error("ZipUtil unZipFiles exception:" + e);
+        }
+    }
+
+    /**
      * 压缩文件
      *
      * @param srcfile File[] 需要压缩的文件列表
@@ -56,37 +87,6 @@ public class ZipUtil {
             zipOut.close();
         } catch (IOException e) {
             log.error("ZipUtil zipFiles exception:" + e);
-        }
-    }
-
-    /**
-     * 解压缩
-     *
-     * @param zipfile File 需要解压缩的文件
-     * @param descDir String 解压后的目标目录
-     */
-    public static void unZipFiles(File zipfile, String descDir) {
-        try {
-            // Open the ZIP file
-            ZipFile zf = new ZipFile(zipfile);
-            for (Enumeration entries = zf.entries(); entries.hasMoreElements(); ) {
-                // Get the entry name
-                ZipEntry entry = ((ZipEntry) entries.nextElement());
-                String zipEntryName = entry.getName();
-                InputStream in = zf.getInputStream(entry);
-                // System.out.println(zipEntryName);
-                OutputStream out = new FileOutputStream(descDir + zipEntryName);
-                byte[] buf1 = new byte[1024];
-                int len;
-                while ((len = in.read(buf1)) > 0) {
-                    out.write(buf1, 0, len);
-                }
-                // Close the file and stream
-                in.close();
-                out.close();
-            }
-        } catch (IOException e) {
-            log.error("ZipUtil unZipFiles exception:" + e);
         }
     }
 

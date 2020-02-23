@@ -8,6 +8,7 @@ import com.local.entity.sys.*;
 import com.local.service.*;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -755,6 +756,43 @@ public class PeopleController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "考核批量添加查询", notes = "考核批量添加查询", httpMethod = "GET", tags = "考核批量添加查询接口")
+    @GetMapping("/addAssessmentInfo")
+    @ResponseBody
+    public String addAssessmentInfo(@RequestParam(value = "size", required = false) String pageSize,
+                                    @RequestParam(value = "page", required = false) String pageNumber,
+                                    @RequestParam(value = "unitId", required = false) String unitId,
+                                    @RequestParam(value = "name", required = false) String name,
+                                    @RequestParam(value = "year", required = false) String year,
+                                    @RequestParam(value = "unitName", required = false) String unitName, HttpServletRequest request) {
+        try {
+            if (StrUtils.isBlank(unitId)) {
+                SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+                if (user != null) {
+                    unitId = user.getUnitId();
+                }
+            }
+            if (!StrUtils.isBlank(unitName)){
+                SYS_UNIT unit=unitService.selectUnitByName(unitName);
+                if (unit!=null){
+                    unitId=unit.getId();
+                }
+            }
+            Pager pager = new Pager();
+            pager.setPageNumber(Integer.valueOf(pageNumber) + 1);
+            pager.setPageSize(Integer.valueOf(pageSize));
+            if (StrUtils.isBlank(pager)) {
+                pager = new Pager();
+            }
+//            List<SYS_People> peopleList = peopleService.selectPeoplesByUnitId(unitId,"0","在职");
+//            pager.setRecordCount(peopleList.size());
+//            QueryResult queryResult = new QueryResult(peopleList, pager);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, new ArrayList<>(), null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
 }

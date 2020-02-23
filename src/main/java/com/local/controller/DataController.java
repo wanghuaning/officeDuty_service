@@ -185,6 +185,33 @@ public class DataController {
         }
     }
 
+    @ApiOperation(value = "提交晋升职级人员备案名册", notes = "提交晋升职级人员备案名册", httpMethod = "POST", tags = "提交晋升职级人员备案名册接口")
+    @PostMapping(value = "/submitRegApproval")
+    @ResponseBody
+    public String submitRegApproval(HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
+            , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds,
+                                    @RequestParam(value = "month", required = false) String month, @RequestParam(value = "day", required = false) String day,
+                                    @RequestParam(value = "peopleName", required = false) String peopleName, @RequestParam(value = "peopleNum", required = false) String peopleNum) {
+        try {
+            RegModel model = new RegModel();
+            model.setMonth(month);
+            model.setDay(day);
+            model.setPeopleName(peopleName);
+            model.setPeopleNum(peopleNum);
+            model.setUnitName(unitName);
+            List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService,
+                    model, processService, "提交");
+            if (rankModels.size() > 0) {
+                return new Result(ResultCode.SUCCESS.toString(), "提交成功", rankModels, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), "无审批数据", null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+
     @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "GET", tags = "导出晋升职级人员备案名册接口")
     @RequestMapping(value = "/exportDataExcel")
     public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
@@ -199,7 +226,8 @@ public class DataController {
                 model.setPeopleName(peopleName);
                 model.setPeopleNum(peopleNum);
                 model.setUnitName(unitName);
-                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService, model, processService);
+                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,
+                        dutyService, assessmentService, model, processService, "导出");
                 return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
             }
             if ("approval".equals(flag)) {
@@ -978,7 +1006,7 @@ public class DataController {
             if (process == null) {
                 return new Result(ResultCode.ERROR.toString(), "审批表不存在！", null, null).getJson();
             }
-            if (!"撤销".equals(flag)) {
+            if (!"不通过".equals(flag) && !"撤销".equals(flag)) {
                 {
                     SYS_Data data = dataService.selectDataByProcessId(process.getId());
                     if (data == null) {
@@ -1108,7 +1136,7 @@ public class DataController {
             }
             List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
             process.setProcessTime(new Date());
-            if ("撤销".equals(flag)) {
+            if ("不通过".equals(flag)) {
                 editeBoHuiProsessTable(csys_processes, process, unit);
             } else if ("驳回".equals(flag)) {
                 editeBoHuiProsessTable(csys_processes, process, unit);
@@ -1116,6 +1144,16 @@ public class DataController {
                 editeAgreeAgenProcessTable(process, admin, unit);
             } else if ("复审".equals(flag)) {
                 editeAgreeProcessTable(process, admin, unit.getId());
+            }else if ("撤销".equals(flag)) {
+                if ("未审批".equals(process.getStates())){
+                    if (csys_processes.size()>0){
+                        for (Sys_Process cprocess:csys_processes){
+                            processService.deleteProcess(cprocess.getId());
+                        }
+                    }
+                    processService.deleteProcess(process.getId());
+                }
+
             }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
         } else {
@@ -1946,6 +1984,7 @@ public class DataController {
 
         }
     }
+
     @ApiOperation(value = "批量导出公务员干部任免审批表", notes = "批量导出公务员干部任免审批表", httpMethod = "GET", tags = "批量导出公务员干部任免审批表接口")
     @RequestMapping(value = "/exportDutyFreePeoples")
     public String exportDutyFreePeoples(HttpServletRequest request, HttpServletResponse

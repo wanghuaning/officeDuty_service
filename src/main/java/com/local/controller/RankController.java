@@ -1,10 +1,7 @@
 package com.local.controller;
 
 import com.local.cell.UserManager;
-import com.local.entity.sys.SYS_Duty;
-import com.local.entity.sys.SYS_Rank;
-import com.local.entity.sys.SYS_People;
-import com.local.entity.sys.SYS_USER;
+import com.local.entity.sys.*;
 import com.local.service.PeopleService;
 import com.local.service.RankService;
 import com.local.service.UnitService;
@@ -22,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -75,6 +73,9 @@ public class RankController {
                 if (rankTurn1 != null && "是".equals(rank.getFlag())) {
                     return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
                 }
+                SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
+                List<SYS_People> coutRank=peopleService.selectPeoplesByUnitIdAndRank(people.getUnitId(),rank.getName(),"在职");
+
                 rankService.insertRank(rank);
                 SYS_Rank sys_rank = rankService.selectNowRankByPidOrderByTime(people.getId());
                 SYS_Rank rankTurn = rankService.selectTurnRankById(people.getId());
