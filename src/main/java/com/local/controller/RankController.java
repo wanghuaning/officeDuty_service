@@ -52,12 +52,10 @@ public class RankController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
-
-
-    @ApiOperation(value = "新增职级", notes = "新增职级", httpMethod = "POST", tags = "新增职级接口")
-    @PostMapping(value = "/add")
+    @ApiOperation(value = "新增职级判断", notes = "新增职级判断", httpMethod = "POST", tags = "新增职级判断接口")
+    @PostMapping(value = "/addRank")
     @ResponseBody
-    public String insertPeople(@Validated @RequestBody SYS_Rank rank) {
+    public String insertRankSold(@Validated @RequestBody SYS_Rank rank) {
         try {
             SYS_Rank rankByNameAndTime = rankService.selectRankByNameAndTime(rank.getName(), rank.getPeopleId(), rank.getCreateTime());
             if (rankByNameAndTime != null) {
@@ -74,32 +72,39 @@ public class RankController {
                     return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
                 }
                 SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
-                List<SYS_People> coutRank=peopleService.selectPeoplesByUnitIdAndRank(people.getUnitId(),rank.getName(),"在职");
-
-                rankService.insertRank(rank);
-                SYS_Rank sys_rank = rankService.selectNowRankByPidOrderByTime(people.getId());
-                SYS_Rank rankTurn = rankService.selectTurnRankById(people.getId());
-                if (rankTurn != null) {
-                    people.setTurnRank(rankTurn.getName());
-                    people.setTurnRankTime(rankTurn.getCreateTime());
-                } else {
-                    people.setTurnRank("");
-                    people.setTurnRankTime(null);
+                List<SYS_Rank> coutRank= rankService.selectRanksByUnitIdAndStates(people.getUnitId(),rank.getName(),"在任");
+                int size= 1;
+                if (coutRank!=null){
+                    size=coutRank.size();
                 }
-                if (sys_rank != null) {
-                    if ("是".equals(sys_rank.getLeaders())) {
-                        people.setDetail("军转干部");
+                if (checkRankNum(unit,rank, size)){
+                    rankService.insertRank(rank);
+                    SYS_Rank sys_rank = rankService.selectNowRankByPidOrderByTime(people.getId());
+                    SYS_Rank rankTurn = rankService.selectTurnRankById(people.getId());
+                    if (rankTurn != null) {
+                        people.setTurnRank(rankTurn.getName());
+                        people.setTurnRankTime(rankTurn.getCreateTime());
+                    } else {
+                        people.setTurnRank("");
+                        people.setTurnRankTime(null);
                     }
-                    people.setPositionLevel(sys_rank.getName());
-                    people.setPositionLevelTime(sys_rank.getCreateTime());
-                    peopleService.updatePeople(people);
-                } else {
-                    people.setPositionLevel("");
-                    people.setPositionLevelTime(null);
+                    if (sys_rank != null) {
+                        if ("是".equals(sys_rank.getLeaders())) {
+                            people.setDetail("军转干部");
+                        }
+                        people.setPositionLevel(sys_rank.getName());
+                        people.setPositionLevelTime(sys_rank.getCreateTime());
+                        peopleService.updatePeople(people);
+                    } else {
+                        people.setPositionLevel("");
+                        people.setPositionLevelTime(null);
 
-                    peopleService.updatePeople(people);
+                        peopleService.updatePeople(people);
+                    }
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
+                }else {
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, "false", null).getJson();
                 }
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
             }
@@ -109,6 +114,95 @@ public class RankController {
         }
     }
 
+    @ApiOperation(value = "新增职级", notes = "新增职级", httpMethod = "POST", tags = "新增职级接口")
+    @PostMapping(value = "/add")
+    @ResponseBody
+    public String insertRank(@Validated @RequestBody SYS_Rank rank) {
+        try {
+            SYS_Rank rankByNameAndTime = rankService.selectRankByNameAndTime(rank.getName(), rank.getPeopleId(), rank.getCreateTime());
+            if (rankByNameAndTime != null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.PEOPLE_RANK_ERROE, null, null).getJson();
+            }
+            SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
+            if (people != null) {
+                String uuid = UUID.randomUUID().toString();
+                rank.setId(uuid);
+                rank.setPeopleName(people.getName());
+                rank.setUnitId(people.getUnitId());
+                SYS_Rank rankTurn1 = rankService.selectTurnRankById(people.getId());
+                if (rankTurn1 != null && "是".equals(rank.getFlag())) {
+                    return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
+                }
+                    rankService.insertRank(rank);
+                    SYS_Rank sys_rank = rankService.selectNowRankByPidOrderByTime(people.getId());
+                    SYS_Rank rankTurn = rankService.selectTurnRankById(people.getId());
+                    if (rankTurn != null) {
+                        people.setTurnRank(rankTurn.getName());
+                        people.setTurnRankTime(rankTurn.getCreateTime());
+                    } else {
+                        people.setTurnRank("");
+                        people.setTurnRankTime(null);
+                    }
+                    if (sys_rank != null) {
+                        if ("是".equals(sys_rank.getLeaders())) {
+                            people.setDetail("军转干部");
+                        }
+                        people.setPositionLevel(sys_rank.getName());
+                        people.setPositionLevelTime(sys_rank.getCreateTime());
+                        peopleService.updatePeople(people);
+                    } else {
+                        people.setPositionLevel("");
+                        people.setPositionLevelTime(null);
+
+                        peopleService.updatePeople(people);
+                    }
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
+                }else {
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, "false", null).getJson();
+                }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
+
+    public boolean checkRankNum(SYS_UNIT unit,SYS_Rank sys_rank, int rankSize){
+        boolean fas= true;
+        if ("一级调研员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getOneResearcherNum()){
+                fas= false;
+            }
+        }else if ("二级调研员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getTowResearcherNum()){
+                fas= false;
+            }
+        }else if ("三级调研员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getThreeResearcherNum()){
+                fas= false;
+            }
+        }else if ("四级调研员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getFourResearcherNum()){
+                fas= false;
+            }
+        }else if ("一级主任科员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getOneClerkNum()){
+                fas= false;
+            }
+        }else if ("二级主任科员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getTowClerkNum()){
+                fas= false;
+            }
+        }else if ("三级主任科员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getThreeClerkNum()){
+                fas= false;
+            }
+        }else if ("四级主任科员".equals(sys_rank.getName())){
+            if (rankSize>=unit.getFourClerkNum()){
+                fas= false;
+            }
+        }
+        return fas;
+    }
 
     @ApiOperation(value = "删除职级", notes = "删除职级", httpMethod = "POST", tags = "删除职级接口")
     @PostMapping(value = "/delete")
@@ -207,6 +301,65 @@ public class RankController {
                         peopleService.updatePeople(people);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, rank, null).getJson();
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
+                }
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "修改职级控制", notes = "修改职级控制", httpMethod = "POST", tags = "修改职级控制接口")
+    @PostMapping(value = "/editRank")
+    @ResponseBody
+    public String updateSoldRank(@Validated @RequestBody SYS_Rank rank) {
+        try {
+            SYS_Rank rankById = rankService.selectRankById(rank.getId());
+            if (rankById != null) {
+                rank.setPeopleId(rankById.getPeopleId());
+                SYS_People people = peopleService.selectPeopleById(rankById.getPeopleId());
+                if (people != null) {
+                    rank.setPeopleName(people.getName());
+                    rank.setUnitId(people.getUnitId());
+                    SYS_Rank rank1 = rankService.selectTurnNotSelfRankById(people.getId(), rank.getId());
+                    if (rank1 != null && "是".equals(rank.getFlag())) {
+                        return new Result(ResultCode.ERROR.toString(), "职级只能有一条！", null, null).getJson();
+                    }
+                    SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
+                    List<SYS_Rank> coutRank= rankService.selectRanksByUnitIdAndStates(people.getUnitId(),rank.getName(),"在任");
+                    int size= 1;
+                    if (coutRank!=null){
+                        size=coutRank.size();
+                    }
+                    if (!checkRankNum(unit,rank, size) && !rankById.getName().equals(rank.getName())) {
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, "false", null).getJson();
+                    }
+                        rankService.updateRank(rank);
+                        SYS_Rank sys_rank = rankService.selectNowRankByPidOrderByTime(people.getId());
+                        SYS_Rank rankTurn = rankService.selectTurnRankById(people.getId());
+                        if (rankTurn != null) {
+                            people.setTurnRank(rankTurn.getName());
+                            people.setTurnRankTime(rankTurn.getCreateTime());
+                        } else {
+                            people.setTurnRank("");
+                            people.setTurnRankTime(null);
+                        }
+                        if (sys_rank != null) {
+                            if ("是".equals(sys_rank.getLeaders())) {
+                                people.setDetail("军转干部");
+                            }
+                            people.setPositionLevel(sys_rank.getName());
+                            people.setPositionLevelTime(sys_rank.getCreateTime());
+                            peopleService.updatePeople(people);
+                        } else {
+                            people.setPositionLevel("");
+                            people.setPositionLevelTime(null);
+                            peopleService.updatePeople(people);
+                        }
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, rank, null).getJson();
                 } else {
                     return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
                 }
