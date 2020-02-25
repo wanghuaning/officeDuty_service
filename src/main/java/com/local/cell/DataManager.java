@@ -4069,7 +4069,7 @@ public class DataManager {
             if (people.getBirthday() != null) {
                 value = DateUtil.dateToString(people.getCreateTime());
             }
-        } else if ("军转干部首次套转不占职数".equals(name)) {
+        } else if ("军转干部首次确定职级不占职数".equals(name)) {
             if ("是".equals(people.getDetail())) {
                 value = "是";
             } else {
