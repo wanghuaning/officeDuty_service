@@ -51,11 +51,11 @@ public class PeopleServiceImpl implements PeopleService {
         }
         if (!StrUtils.isBlank(detail)) {
             if ("jun".equals(detail)) {
-                cri.where().andEquals("detail", "军转干部");
+                cri.where().andEquals("detail", "是");
             } else if ("ganbu".equals(detail)) {
-                cri.where().andEquals("detail", "实名制管理领导干部");
+                cri.where().andEquals("real_Name", "是");
             } else if ("other".equals(detail)) {
-                cri.where().andNotEquals("detail", "军转干部").andNotEquals("detail", "实名制管理领导干部");
+                cri.where().andNotEquals("detail", "是").andNotEquals("real_Name", "是");
             }
         }
         if (!StrUtils.isBlank(states) && !"全部".equals(states)) {

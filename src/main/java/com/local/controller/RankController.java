@@ -90,7 +90,7 @@ public class RankController {
                     }
                     if (sys_rank != null) {
                         if ("是".equals(sys_rank.getLeaders())) {
-                            people.setDetail("军转干部");
+                            people.setDetail("是");
                         }
                         people.setPositionLevel(sys_rank.getName());
                         people.setPositionLevelTime(sys_rank.getCreateTime());
@@ -145,7 +145,7 @@ public class RankController {
                     }
                     if (sys_rank != null) {
                         if ("是".equals(sys_rank.getLeaders())) {
-                            people.setDetail("军转干部");
+                            people.setDetail("是");
                         }
                         people.setPositionLevel(sys_rank.getName());
                         people.setPositionLevelTime(sys_rank.getCreateTime());
@@ -238,7 +238,7 @@ public class RankController {
                         }
                         if (sys_rank != null) {
                             if ("是".equals(sys_rank.getLeaders())) {
-                                people.setDetail("军转干部");
+                                people.setDetail("是");
                             }
                             people.setPositionLevel(sys_rank.getName());
                             people.setPositionLevelTime(sys_rank.getCreateTime());
@@ -290,7 +290,7 @@ public class RankController {
                     }
                     if (sys_rank != null) {
                         if ("是".equals(sys_rank.getLeaders())) {
-                            people.setDetail("军转干部");
+                            people.setDetail("是");
                         }
                         people.setPositionLevel(sys_rank.getName());
                         people.setPositionLevelTime(sys_rank.getCreateTime());
@@ -349,7 +349,7 @@ public class RankController {
                         }
                         if (sys_rank != null) {
                             if ("是".equals(sys_rank.getLeaders())) {
-                                people.setDetail("军转干部");
+                                people.setDetail("是");
                             }
                             people.setPositionLevel(sys_rank.getName());
                             people.setPositionLevelTime(sys_rank.getCreateTime());

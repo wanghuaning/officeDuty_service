@@ -1337,9 +1337,10 @@ public class DataManager {
                     String jun = StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数"));
                     String danlei = StrUtils.toNullStr(map.get("实名制职务名称"));
                     if (jun != null) {
-                        people.setDetail("军转干部");
-                    } else if (danlei != null) {
-                        people.setDetail("实名制管理领导干部");
+                        people.setDetail("是");
+                    }
+                    if (danlei != null) {
+                        people.setRealName("是");
                     }
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
                     if (people1 != null) {
@@ -1643,7 +1644,9 @@ public class DataManager {
                 rank.setRankTime(DateUtil.stringToDate(rankTime));
             }
             rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));
-            ;
+            if ("是".equals(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")))){
+                people.setDetail("是");
+            }
             rank.setStatus("在任");
             String approvalTime = String.valueOf(map.get("审批通过时间"));
             rank.setFlag("是");
@@ -1707,7 +1710,9 @@ public class DataManager {
                 rank.setRankTime(DateUtil.stringToDate(rankTime));
             }
             rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));
-            ;
+            if ("是".equals(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")))){
+                people.setDetail("是");
+            }
 //            rank.setStatus(StrUtils.toNullStr(map.get("状态")));
             rank.setStatus("在任");
             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
@@ -4065,13 +4070,13 @@ public class DataManager {
                 value = DateUtil.dateToString(people.getCreateTime());
             }
         } else if ("军转干部首次套转不占职数".equals(name)) {
-            if ("军转干部".equals(people.getDetail())) {
+            if ("是".equals(people.getDetail())) {
                 value = "是";
             } else {
                 value = "否";
             }
         } else if ("实名制（单列）管理干部".equals(name)) {
-            if ("实名制管理领导干部".equals(people.getDetail())) {
+            if ("是".equals(people.getRealName())) {
                 value = "是";
             } else {
                 value = "否";

@@ -226,7 +226,7 @@ public class UnitManager {
         if (realName!=null){
             um.setRealNameNumNow(realName.size());
         }
-        List<SYS_People> junzhuan=peopleService.selectPeoplesByUnitIdAndJunZhuan(unitId,"在职","军转干部");
+        List<SYS_People> junzhuan=peopleService.selectPeoplesByUnitIdAndJunZhuan(unitId,"在职","是");
         if(junzhuan!=null){
             um.setMilitaryNumNow(junzhuan.size());
         }
