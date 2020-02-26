@@ -94,6 +94,19 @@ public class RewardServiceImpl implements RewardService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_Reward> selectRewardsByUnitId(String unitId){
+        List<SYS_Reward> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("unit_Id", unitId);
+        list = dao.query(SYS_Reward.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     /**
      * ;//根据单位ID查询，是否包含下级单位的 奖惩1:包含
      * @param unitId

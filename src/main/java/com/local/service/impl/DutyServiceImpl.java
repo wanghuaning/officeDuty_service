@@ -167,6 +167,19 @@ public class DutyServiceImpl implements DutyService {
         }
     }
 
+    @Override
+    public List<SYS_Duty> selectDutysByUnitId(String unitId){
+        List<SYS_Duty> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("unit_Id", unitId);
+        list = dao.query(SYS_Duty.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * ;//根据单位ID查询，是否包含下级单位的 职务1:包含
      * @param unitId

@@ -124,6 +124,14 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 256)
   private String oldId;
 
+  @ApiModelProperty("审批部门名称")
+  @Comment("审批部门名称")
+  @Column("approval_Unit_Name")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String approvalUnitName;
+
+
+
 
 
 
@@ -135,6 +143,14 @@ public class Sys_Process implements Serializable {
     }else {
       return "职级职数使用审批表";
     }
+  }
+
+  public String getApprovalUnitName() {
+    return approvalUnitName;
+  }
+
+  public void setApprovalUnitName(String approvalUnitName) {
+    this.approvalUnitName = approvalUnitName;
   }
 
   private List<Sys_Process> children;

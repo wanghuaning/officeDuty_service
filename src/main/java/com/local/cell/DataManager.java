@@ -2714,9 +2714,7 @@ public class DataManager {
      *
      * @param resultMap
      */
-    public static void dutyDataCheck(Map<String, Object> resultMap, List<SYS_Duty> duties, DutyService dutyService, String unitId) {
-        //人员信息
-        List<SYS_Duty> localDutys = dutyService.selectDutysByUnitId(unitId, "1");
+    public static void dutyDataCheck(Map<String, Object> resultMap, List<SYS_Duty> duties, DutyService dutyService, List<SYS_Duty> localDutys) {
         List<SYS_Duty> addPeoples = new ArrayList<>();
         List<SYS_Duty> deletePeoples = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
@@ -2775,9 +2773,7 @@ public class DataManager {
      *
      * @param resultMap
      */
-    public static void rankDataCheck(Map<String, Object> resultMap, List<SYS_Rank> duties, RankService rankService, String unitId) {
-        //人员信息
-        List<SYS_Rank> localDutys = rankService.selectRanksByUnitId(unitId, "1");
+    public static void rankDataCheck(Map<String, Object> resultMap, List<SYS_Rank> duties, RankService rankService, List<SYS_Rank> localDutys) {
         List<SYS_Rank> addPeoples = new ArrayList<>();
         List<SYS_Rank> deletePeoples = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
@@ -2837,9 +2833,8 @@ public class DataManager {
      *
      * @param resultMap
      */
-    public static void educationDataCheck(Map<String, Object> resultMap, List<SYS_Education> duties, EducationService educationService, String unitId) {
-        //人员信息
-        List<SYS_Education> localDutys = educationService.selectEducationsByUnitId(unitId, "1");
+    public static void educationDataCheck(Map<String, Object> resultMap, List<SYS_Education> duties, EducationService educationService,
+                                          List<SYS_Education> localEducations) {
         List<SYS_Education> addPeoples = new ArrayList<>();
         List<SYS_Education> deletePeoples = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
@@ -2868,9 +2863,9 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys != null) {
-            if (localDutys.size() > 0) {
-                for (SYS_Education people : localDutys) {
+        if (localEducations != null) {
+            if (localEducations.size() > 0) {
+                for (SYS_Education people : localEducations) {
                     boolean isdelete = true;
                     for (SYS_Education people1 : duties) {
                         if (people.getId().equals(people1.getId())) {
@@ -2899,9 +2894,8 @@ public class DataManager {
      *
      * @param resultMap
      */
-    public static void rewardDataCheck(Map<String, Object> resultMap, List<SYS_Reward> duties, RewardService rewardService, String unitId) {
-        //人员信息
-        List<SYS_Reward> localDutys = rewardService.selectRewardsByUnitId(unitId, "1");
+    public static void rewardDataCheck(Map<String, Object> resultMap, List<SYS_Reward> duties, RewardService rewardService,
+                                       List<SYS_Reward> localRewards) {
         List<SYS_Reward> addPeoples = new ArrayList<>();
         List<SYS_Reward> deletePeoples = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
@@ -2930,9 +2924,9 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys != null) {
-            if (localDutys.size() > 0) {
-                for (SYS_Reward people : localDutys) {
+        if (localRewards != null) {
+            if (localRewards.size() > 0) {
+                for (SYS_Reward people : localRewards) {
                     boolean isdelete = true;
                     for (SYS_Reward people1 : duties) {
                         if (people.getId().equals(people1.getId())) {
@@ -2961,9 +2955,9 @@ public class DataManager {
      *
      * @param resultMap
      */
-    public static void assessmentDataCheck(Map<String, Object> resultMap, List<SYS_Assessment> duties, AssessmentService assessmentService, String unitId) {
+    public static void assessmentDataCheck(Map<String, Object> resultMap, List<SYS_Assessment> duties, AssessmentService assessmentService,
+                                           List<SYS_Assessment> localAssessments) {
         //人员信息
-        List<SYS_Assessment> localDutys = assessmentService.selectAssessmentsByUnitId(unitId, "1");
         List<SYS_Assessment> addPeoples = new ArrayList<>();
         List<SYS_Assessment> deletePeoples = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
@@ -2992,8 +2986,8 @@ public class DataManager {
             }
         }
         //人员删除
-        if (localDutys != null) {
-            for (SYS_Assessment people : localDutys) {
+        if (localAssessments != null) {
+            for (SYS_Assessment people : localAssessments) {
                 boolean isdelete = true;
                 for (SYS_Assessment people1 : duties) {
                     if (people.getId().equals(people1.getId())) {
@@ -3021,9 +3015,8 @@ public class DataManager {
      *
      * @param resultMap
      */
-    public static void userDataCheck(Map<String, Object> resultMap, List<SYS_USER> duties, UserService userService, String unitId) {
+    public static void userDataCheck(Map<String, Object> resultMap, List<SYS_USER> duties, UserService userService, List<SYS_USER> localUsers) {
         //人员信息
-        List<SYS_USER> localDutys = userService.selectUsersByUnitId(unitId);
         List<SYS_USER> addPeoples = new ArrayList<>();
         List<SYS_USER> deletePeoples = new ArrayList<>();
         List<DataModel> peopleModels = new ArrayList<>();
@@ -3051,9 +3044,9 @@ public class DataManager {
                 }
             }
         }
-        if (localDutys != null) {
+        if (localUsers != null) {
             //人员删除
-            for (SYS_USER people : localDutys) {
+            for (SYS_USER people : localUsers) {
                 boolean isdelete = true;
                 for (SYS_USER people1 : duties) {
                     if (people.getId().equals(people1.getId())) {
@@ -3700,7 +3693,8 @@ public class DataManager {
         return unit;
     }
 
-    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService, String name, SYS_USER user,
+    public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService,
+                                                    String approvalUnitName,String peopleName, SYS_USER user,
                                                     String states,UnitService unitService,SYS_UNIT unit)throws Exception {
         List<Sys_Process>  approalList=new ArrayList<>();
         for (Sys_Process process : processes) {
@@ -3712,8 +3706,11 @@ public class DataManager {
             } else if ("已审核".equals(states)){
                 process.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
             }
-            if ("".equals(name)) {
-                name = process.getPeople();
+            if ("".equals(peopleName)) {
+                peopleName = process.getPeople();
+            }
+            if ("".equals(approvalUnitName)) {
+                approvalUnitName = process.getApprovalUnitName();
             }
             if (process.getParentId() == null) {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
@@ -3723,11 +3720,13 @@ public class DataManager {
                     }
                 }
                 if (approal1 != null) {
-                    process.setPeople(name);
+                    process.setPeople(peopleName);
+                    process.setApprovalUnitName(approvalUnitName);
                     process.setProcessTime(new Date());
                     processService.updateProcess(process);
                 } else {
-                    process.setPeople(name);
+                    process.setPeople(peopleName);
+                    process.setApprovalUnitName(approvalUnitName);
                     process.setProcessTime(new Date());
                     processService.insertProcess(process);
                 }
@@ -3745,7 +3744,8 @@ public class DataManager {
                             if (cprocess.getApprovalUnit().equals(user.getUnitId())){
                                 cprocess.setStates("初审");
                                 cprocess.setApprovaled("0");
-                                cprocess.setPeople(name);
+                                cprocess.setPeople(peopleName);
+                                cprocess.setApprovalUnitName(approvalUnitName);
                                 cprocess.setProcessTime(new Date());
                                 cprocess.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
                                 sd=Integer.valueOf(cprocess.getApprovalOrder());
