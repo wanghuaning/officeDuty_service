@@ -781,20 +781,21 @@ public class PeopleController {
                     unitId=unit.getId();
                 }
             }
+            Pager pager = new Pager();
+            pager.setPageNumber(Integer.valueOf(pageNumber) + 1);
+            pager.setPageSize(Integer.valueOf(pageSize));
+            if (StrUtils.isBlank(pager)) {
+                pager = new Pager();
+            }
             List<SYS_Assessment>  sys_assessmentList = assessmentService.selectAssessmentsByYears(unitId, year,name);
             if (sys_assessmentList!=null){
                 List<AssessmentModel> modelList=PeopleManager.getAssessmentModel(sys_assessmentList);
-                Pager pager = new Pager();
-                pager.setPageNumber(Integer.valueOf(pageNumber) + 1);
-                pager.setPageSize(Integer.valueOf(pageSize));
-                if (StrUtils.isBlank(pager)) {
-                    pager = new Pager();
-                }
                 pager.setRecordCount(modelList.size());
                 QueryResult queryResult = new QueryResult(modelList, pager);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             }else {
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, null, null).getJson();
+                QueryResult queryResult = new QueryResult(new ArrayList<AssessmentModel>(), pager);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
