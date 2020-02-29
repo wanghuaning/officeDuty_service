@@ -1,8 +1,10 @@
 package com.local.cell;
 
 import com.local.entity.sys.*;
+import com.local.model.AssessmentModel;
 import com.local.service.*;
 import com.local.util.DateUtil;
+import com.local.util.EntityUtil;
 import com.local.util.StrUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -483,5 +485,33 @@ public class PeopleManager {
         String minute=String.valueOf(DateUtil.getMinute(date));
         String num = year + month + day + "_" + hour+minute;
         return num;
+    }
+
+    public static List<AssessmentModel> getAssessmentModel(List<SYS_Assessment> sys_assessmentList){
+        List<AssessmentModel> assessmentModelList=new ArrayList<>();
+        List<List<SYS_Assessment>> assessmentList= EntityUtil.createList(sys_assessmentList,3);
+        for (List<SYS_Assessment> assessments:assessmentList){
+            AssessmentModel model=new AssessmentModel();
+            if (assessments.size()>0){
+                model.setId(assessments.get(0).getId());
+                model.setName(assessments.get(0).getName());
+                model.setPeopleName(assessments.get(0).getPeopleName());
+                model.setYear(String.valueOf(assessments.get(0).getYear()));
+            }
+            if (assessments.size()>1){
+                model.setId1(assessments.get(1).getId());
+                model.setName1(assessments.get(1).getName());
+                model.setPeopleName1(assessments.get(1).getPeopleName());
+                model.setYear1(String.valueOf(assessments.get(1).getYear()));
+            }
+            if (assessments.size()>2){
+                model.setId2(assessments.get(2).getId());
+                model.setName2(assessments.get(2).getName());
+                model.setPeopleName2(assessments.get(2).getPeopleName());
+                model.setYear2(String.valueOf(assessments.get(2).getYear()));
+            }
+            assessmentModelList.add(model);
+        }
+        return assessmentModelList;
     }
 }

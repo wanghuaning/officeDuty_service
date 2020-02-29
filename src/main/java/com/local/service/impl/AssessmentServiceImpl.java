@@ -9,14 +9,21 @@ import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
+import org.nutz.dao.Sqls;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.sql.Sql;
+import org.nutz.dao.sql.SqlCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -43,6 +50,40 @@ public class AssessmentServiceImpl implements AssessmentService {
         return queryResult;
     }
 
+    @Override
+    public List<SYS_Assessment>  selectAssessmentsByYears(String unit,String year,String name){
+        List<SYS_Assessment> peopleList = new ArrayList<>();
+        Criteria cri = Cnd.cri();
+        List<String> peopleIds=getPeopleIds(unit,"在职");
+        if (peopleIds.size()>0) {
+            cri.where().andInStrList("people_Id", peopleIds).andEquals("year",year);
+            if (!StrUtils.isBlank(name)){
+                cri.where().andLike("people_Name","%"+name+"%");
+            }
+            cri.getOrderBy().desc("people_Id");
+            peopleList = dao.query(SYS_Assessment.class, cri);
+        }
+        if (peopleList.size()>0){
+            return peopleList;
+        }else {
+            return null;
+        }
+    }
+
+    public List<String> getPeopleIds(String unitId,String states) {
+        Sql sql = Sqls.create("SELECT id FROM sys_people WHERE unit_Id=@unitId and states=@states");
+        sql.params().set("unitId", unitId).set("states",states);
+        sql.setCallback(new SqlCallback() {
+            public Object invoke(Connection conn, ResultSet rs, Sql sql) throws SQLException {
+                List<String> list = new LinkedList<String>();
+                while (rs.next())
+                    list.add(rs.getString("id"));
+                return list;
+            }
+        });
+        dao.execute(sql);
+        return sql.getList(String.class);
+    }
     @Override
     public SYS_Assessment selectAssessmentByPidOrderByTime(String pid) {
         List<SYS_Assessment> list = new ArrayList<>();

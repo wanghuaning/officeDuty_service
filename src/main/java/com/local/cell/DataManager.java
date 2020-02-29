@@ -3806,6 +3806,7 @@ public class DataManager {
             process.setApprovalUnit(approvalUnitId);
             process.setApprovalOrder(order);
             process.setApprovaled("1");
+            process.setApprovalUnitName(unit.getName());
             processService.updateProcess(process);
             process.setParentId(pprocessId);
             uuid = process.getId();

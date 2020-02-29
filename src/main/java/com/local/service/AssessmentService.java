@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface AssessmentService {
+    List<SYS_Assessment> selectAssessmentsByYears(String unit,String year,String name);
     QueryResult selectAssessments(int pageSize, int pageNumber, String pid);
     SYS_Assessment selectAssessmentById(String id);
     SYS_Assessment selectAssessmentByPidOrderByTime(String pid);

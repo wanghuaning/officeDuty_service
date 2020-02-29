@@ -293,7 +293,7 @@ public class DataController {
         Map<String, Object> resultMap = new HashMap<>();
         if (dataInfoList!=null){
             for (SYS_DataInfo dataInfo:dataInfoList){
-                System.out.println(dataInfo.getTableName()+"=>");
+//                System.out.println(dataInfo.getTableName()+"=>");
 //                if ("1".equals(user.getRoles())) {
                     if (dataInfo.getTableName().contains("people")) {
                         List<SYS_People> sys_peoples = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_People>>() {
@@ -1275,7 +1275,7 @@ public class DataController {
             } else if ("审核".equals(flag)) {
                 editeAgreeAgenProcessTable(process, admin, unit);
             } else if ("复审".equals(flag)) {
-                editeAgreeProcessTable(process, admin, unit.getId());
+                editeAgreeProcessTable(process, admin, unit);
             }else if ("撤销".equals(flag)) {
                 if ("未审批".equals(process.getStates())){
                     if (csys_processes.size()>0){
@@ -1308,6 +1308,7 @@ public class DataController {
                 csys_process.setProcessTime(new Date());
                 csys_process.setId(csys_process.getOldId());
                 csys_process.setParentId(process.getOldId());
+                csys_process.setApprovalUnitName(unit.getName());
                 Sys_Process process1 = processService.selectProcessById(csys_process.getId());
                 if (process1 != null) {
                     processService.updateProcess(csys_process);
@@ -1328,6 +1329,7 @@ public class DataController {
             }
         }
         process.setId(process.getOldId());
+        process.setApprovalUnitName(unit.getName());
         Sys_Process process2 = processService.selectProcessById(process.getId());
         if (process2 != null) {
             processService.updateProcess(process);
@@ -1358,19 +1360,20 @@ public class DataController {
         processService.updateProcess(process);
     }
 
-    public void editeAgreeProcessTable(Sys_Process process, boolean admin, String unitId) {
+    public void editeAgreeProcessTable(Sys_Process process, boolean admin, SYS_UNIT unit) {
         List<Sys_Process> csys_processes = processService.selectProcesssByParentId(process.getId());
         if (csys_processes != null) {
             for (Sys_Process csys_process : csys_processes) {
                 Sys_Process csys_process1 = new Sys_Process();
                 BeanUtils.copyProperties(csys_process, csys_process1);
                 csys_process1.setStates("初审");
-                if (unitId.equals(csys_process1.getApprovalUnit())) {
+                if (unit.getId().equals(csys_process1.getApprovalUnit())) {
                     csys_process1.setApprovaled("0");
                 }
                 csys_process1.setProcessTime(new Date());
                 csys_process1.setId(csys_process.getOldId());
                 csys_process1.setParentId(process.getOldId());
+                csys_process1.setApprovalUnitName(unit.getName());
                 Sys_Process process1 = processService.selectProcessById(csys_process1.getId());
                 if (process1 != null) {
                     processService.updateProcess(csys_process1);
@@ -1388,6 +1391,7 @@ public class DataController {
             process1.setStates("初审");
         }
         process1.setId(process.getOldId());
+        process1.setApprovalUnitName(unit.getName());
         Sys_Process process2 = processService.selectProcessById(process1.getId());
         if (process2 != null) {
             processService.updateProcess(process1);
@@ -1407,6 +1411,7 @@ public class DataController {
                 csys_process1.setStates("已驳回");
                 csys_process1.setId(csys_process.getId() + "bohui");
                 csys_process1.setParentId(process.getId() + "-bohui");
+                csys_process1.setApprovalUnitName(unit.getName());
                 if (unit.getId().equals(csys_process1.getApprovalUnit())) {
                     csys_process1.setApprovaled("0");
                 }
@@ -1424,6 +1429,7 @@ public class DataController {
         BeanUtils.copyProperties(process, process1);
         process1.setStates("已驳回");
         process1.setId(process.getOldId() + "-bohui");
+        process1.setApprovalUnitName(unit.getName());
         SYS_UNIT sys_unit = unitService.selectUnitById(unit.getParentId());
         if (sys_unit != null) {
             if (!"单位".equals(sys_unit.getName())) {
