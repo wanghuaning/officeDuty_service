@@ -675,78 +675,8 @@ public class DataManager {
                                                       AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
         if (people != null) {
-            ReimbursementModel reimbursementModel = new ReimbursementModel();
-            reimbursementModel.setName(people.getName());
-            reimbursementModel.setSex(people.getSex());
-            int startYear = DateUtil.getYear(people.getBirthday());
-            int endYear = DateUtil.getYear(new Date());
-            int startMonth = DateUtil.getMonth(people.getBirthday());
-            int endMonth = DateUtil.getMonth(new Date());
-            int year = 0;
-            if (endMonth > startMonth) {
-                year = endYear - startYear;
-            } else {
-                year = endYear - startYear - 1;
-            }
-            String years = startYear +"."+startMonth + "\n(" + year + ")";
-            reimbursementModel.setYears(years);
-            reimbursementModel.setBirthplace(people.getBirthplace());
-            reimbursementModel.setNationality(people.getNationality());
-            reimbursementModel.setParty(people.getParty());
-            SYS_Rank rank = rankService.selectAprodRanksByPid(peopleId);
-            SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
-            if (rank != null) {
-                String unitAndDuty = unit.getName() + rank.getName();
-                reimbursementModel.setUnitAndDuty(unitAndDuty);
-                reimbursementModel.setWorkday(DateUtil.dateToString(DateUtil.parseDateYMD(people.getWorkday())));
-                reimbursementModel.setDutyAndRank(rank.getName());
-                reimbursementModel.setDutyAndRankTime(DateUtil.dateToString(rank.getCreateTime()));
-                reimbursementModel.setDeposeRank(rank.getName());
-            }
-            SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
-            SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
-            if (education != null) {
-                reimbursementModel.setFullTimeEducation(education.getName());
-                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
-            }
-            if (education1 != null) {
-                reimbursementModel.setWorkEducation(education1.getName());
-                reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
-            }
-            List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
-            int youxiu = 0, hege = 0, buhege = 0;
-            if (assessments != null) {
-                for (SYS_Assessment assessment : assessments) {
-                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
-                        youxiu++;
-                    }
-                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
-                        buhege++;
-                    }
-                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
-                        hege++;
-                    }
-                }
-            }
-            if (youxiu > 0) {
-                reimbursementModel.setSuperYears(String.valueOf(youxiu));
-            } else {
-                reimbursementModel.setSuperYears("");
-            }
-            if (hege > 0) {
-                reimbursementModel.setCompetentYears(String.valueOf(hege));
-            } else {
-                reimbursementModel.setCompetentYears("");
-            }
-            if (buhege > 0) {
-                reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
-            } else {
-                reimbursementModel.setNotCompetentYears("");
-            }
-            SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
-            if (rank1 != null) {
-                reimbursementModel.setIntendedRank(rank1.getName());
-            }
+            ReimbursementModel reimbursementModel= getRenMianShenPi(peopleService, peopleId,
+                    rankService, educationService, assessmentService,  unitService,people);
             ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
             String path = resource.getFile().getPath();
             Workbook temp = ExcelFileGenerator.getTeplet(path);
@@ -1028,11 +958,9 @@ public class DataManager {
         }
     }
 
-    public static void exportFreePeoples(Workbook temp, PeopleService peopleService, String peopleId,
+    public static ReimbursementModel  getRenMianShenPi(PeopleService peopleService, String peopleId,
                                          RankService rankService, EducationService educationService,
-                                         AssessmentService assessmentService, UnitService unitService) throws Exception {
-        SYS_People people = peopleService.selectPeopleById(peopleId);
-        if (people != null) {
+                                         AssessmentService assessmentService, UnitService unitService,SYS_People people) {
             ReimbursementModel reimbursementModel = new ReimbursementModel();
             reimbursementModel.setName(people.getName());
             reimbursementModel.setSex(people.getSex());
@@ -1046,13 +974,14 @@ public class DataManager {
             } else {
                 year = endYear - startYear - 1;
             }
-            String years = DateUtil.dateToString(people.getBirthday()) + "\n(" + year + ")";
+            String years = startYear + "." + startMonth + "\n(" + year + ")";
             reimbursementModel.setYears(years);
             reimbursementModel.setBirthplace(people.getBirthplace());
             reimbursementModel.setNationality(people.getNationality());
             reimbursementModel.setParty(people.getParty());
             SYS_Rank rank = rankService.selectAprodRanksByPid(peopleId);
             SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+            int youxiuYear = 2019;
             if (rank != null) {
                 String unitAndDuty = unit.getName() + rank.getName();
                 reimbursementModel.setUnitAndDuty(unitAndDuty);
@@ -1060,6 +989,9 @@ public class DataManager {
                 reimbursementModel.setDutyAndRank(rank.getName());
                 reimbursementModel.setDutyAndRankTime(DateUtil.dateToString(rank.getCreateTime()));
                 reimbursementModel.setDeposeRank(rank.getName());
+                if ("否".equals(rank.getFlag())) {
+                    youxiuYear = DateUtil.getYear(rank.getCreateTime());
+                }
             }
             SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
             SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
@@ -1073,20 +1005,23 @@ public class DataManager {
             }
             List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
             int youxiu = 0, hege = 0, buhege = 0;
+            double convertYears = 0;
             if (assessments != null) {
                 for (SYS_Assessment assessment : assessments) {
-                    if ("优秀".equals(assessment.getName()) && assessment.getYear() > 2018) {
+                    if ("优秀".equals(assessment.getName()) && assessment.getYear() >= youxiuYear) {
                         youxiu++;
+                        convertYears += 0.5;
                     }
                     if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
                         buhege++;
                     }
-                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && "不合格".equals(assessment.getName())) {
+                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && !"不合格".equals(assessment.getName())) {
                         hege++;
                     }
                 }
             }
             if (youxiu > 0) {
+                reimbursementModel.setConvertYears(String.valueOf(convertYears));
                 reimbursementModel.setSuperYears(String.valueOf(youxiu));
             } else {
                 reimbursementModel.setSuperYears("");
@@ -1105,9 +1040,19 @@ public class DataManager {
             if (rank1 != null) {
                 reimbursementModel.setIntendedRank(rank1.getName());
             }
+        return reimbursementModel;
+    }
+    public static void exportFreePeoples(Workbook temp, PeopleService peopleService, String peopleId,
+                                         RankService rankService, EducationService educationService,
+                                         AssessmentService assessmentService, UnitService unitService) throws Exception {
+        SYS_People people = peopleService.selectPeopleById(peopleId);
+        if (people != null) {
+            ReimbursementModel reimbursementModel = getRenMianShenPi(peopleService, peopleId,
+                    rankService, educationService, assessmentService, unitService,people);
             ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
             excelFileGenerator.createReimbursementExcel(temp.getSheet("任免审批表"), reimbursementModel);
         }
+
     }
 
     public static Sys_Approal approvalExport(UnitService unitService, String unitName, HttpServletResponse response,
