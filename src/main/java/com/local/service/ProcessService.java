@@ -22,5 +22,5 @@ public interface ProcessService {
     List<Sys_Process> selectNotApprProcessByFlag(String unitId,String flag);
     List<Sys_Process> selectApprProcess(String unitId);
     QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag,String states);
-    QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag);
+    QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName,String flag);
 }

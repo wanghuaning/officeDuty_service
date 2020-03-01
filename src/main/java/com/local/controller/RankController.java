@@ -72,7 +72,7 @@ public class RankController {
                     return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
                 }
                 SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
-                List<SYS_Rank> coutRank= rankService.selectRanksByUnitIdAndStates(people.getUnitId(),rank.getName(),"在任");
+                List<SYS_Rank> coutRank= rankService.selectRanksByUnitIdAndStatesNotJunZhuan(people.getUnitId(),rank.getName(),"在任");
                 int size= 1;
                 if (coutRank!=null){
                     size=coutRank.size();
@@ -166,7 +166,7 @@ public class RankController {
         }
     }
 
-    public boolean checkRankNum(SYS_UNIT unit,SYS_Rank sys_rank, int rankSize){
+    public static boolean checkRankNum(SYS_UNIT unit,SYS_Rank sys_rank, int rankSize){
         boolean fas= true;
         if ("一级调研员".equals(sys_rank.getName())){
             if (rankSize>=unit.getOneResearcherNum()){
@@ -329,7 +329,7 @@ public class RankController {
                         return new Result(ResultCode.ERROR.toString(), "职级只能有一条！", null, null).getJson();
                     }
                     SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
-                    List<SYS_Rank> coutRank= rankService.selectRanksByUnitIdAndStates(people.getUnitId(),rank.getName(),"在任");
+                    List<SYS_Rank> coutRank= rankService.selectRanksByUnitIdAndStatesNotJunZhuan(people.getUnitId(),rank.getName(),"在任");
                     int size= 1;
                     if (coutRank!=null){
                         size=coutRank.size();

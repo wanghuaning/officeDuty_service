@@ -102,6 +102,21 @@ public class SYS_Education implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String unitId;
 
+  @ApiModelProperty("学历排序")
+  @Comment("学历排序")
+  @Column("education_Order")
+  @ColDefine(type = ColType.VARCHAR, width = 16)
+  private String educationOrder;
+
+
+  public String getEducationOrder() {
+    return educationOrder;
+  }
+
+  public void setEducationOrder(String educationOrder) {
+    this.educationOrder = educationOrder;
+  }
+
   public String getPeopleName() {
     return peopleName;
   }

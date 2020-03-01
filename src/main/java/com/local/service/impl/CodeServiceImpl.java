@@ -35,6 +35,18 @@ public class CodeServiceImpl implements CodeService {
   }
 
   @Override
+  public SYS_CODE selectCodeByName(String name,String pcode){
+      List<SYS_CODE> list=new ArrayList<>();
+      Criteria criteria= Cnd.cri();
+      criteria.where().andEquals("code_name",name).andEquals("parent_id",pcode);
+      list=dao.query(SYS_CODE.class,criteria);
+      if (list.size()>0){
+          return list.get(0);
+      }else {
+          return null;
+      }
+  }
+  @Override
   public SYS_AREA selectAreaByCode(String code){
         List<SYS_AREA> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();

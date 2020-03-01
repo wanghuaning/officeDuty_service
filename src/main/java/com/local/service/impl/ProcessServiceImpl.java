@@ -178,7 +178,7 @@ public class ProcessServiceImpl implements ProcessService {
     private static List<String> cunits=new ArrayList<>();
 
     @Override
-    public QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag){
+    public QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName,String flag){
         Pager pager=new Pager();
         pager.setPageNumber(pageNumber+1);
         pager.setPageSize(pageSize);
@@ -192,8 +192,8 @@ public class ProcessServiceImpl implements ProcessService {
             if (!StrUtils.isBlank(unitName)){//市
                 cri.where().andLike("unit_Name","%"+unitName+"%");
             }
-            if (!StrUtils.isBlank(approveFlag) && !"all".equals(approveFlag)){//市
-                cri.where().andEquals("flag",approveFlag);
+            if (!StrUtils.isBlank(flag) && !"all".equals(flag)){
+                cri.where().andEquals("flag",flag);
             }
             cri.where().andNotEquals("states","已审核");
             cri.where().andNotEquals("states","已驳回");

@@ -35,4 +35,6 @@ public interface CodeService {
     List<SYS_CODE> selectPoliticalStatus();
 
     List<SYS_CODE> selectCodesByPid(String pid);
+
+    SYS_CODE selectCodeByName(String name,String pcode);
 }

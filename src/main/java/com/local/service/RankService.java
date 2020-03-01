@@ -22,6 +22,7 @@ public interface RankService {
     SYS_Rank selectAprodRanksByPid(String pid);
     SYS_Rank selectAprodRanksByPidAndBatch(String pid,String batch);
     List<SYS_Rank> selectRanksByUnitIdAndStates(String unitId,String name,String states);
+    List<SYS_Rank> selectRanksByUnitIdAndStatesNotJunZhuan(String unitId,String name,String states);
     List<SYS_Rank> selectRanksByPeopleId(String pid);
     void insertRank(SYS_Rank rank);
 

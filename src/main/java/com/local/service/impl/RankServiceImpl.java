@@ -141,6 +141,19 @@ public class RankServiceImpl implements RankService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_Rank> selectRanksByUnitIdAndStatesNotJunZhuan(String unitId,String name,String states){
+        List<SYS_Rank> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("unit_Id", unitId).andEquals("name",name).andEquals("status",states).andNotEquals("leaders","是");
+        list = dao.query(SYS_Rank.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     @Override
     public SYS_Rank selectNotAproRanksByPid(String pid) {
         List<SYS_Rank> list = new ArrayList<>();

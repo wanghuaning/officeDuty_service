@@ -1,7 +1,9 @@
 package com.local.controller;
 
+import com.local.entity.sys.SYS_CODE;
 import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_Education;
+import com.local.service.CodeService;
 import com.local.service.EducationService;
 import com.local.service.PeopleService;
 import com.local.util.Result;
@@ -28,6 +30,9 @@ public class EducationController {
 
     @Autowired
     private PeopleService peopleService;
+
+    @Autowired
+    private CodeService codeService;
 
     @ApiOperation(value = "学历信息", notes = "学历信息", httpMethod = "GET", tags = "学历信息接口")
     @GetMapping("/educationInof")
@@ -60,6 +65,10 @@ public class EducationController {
                 education.setId(uuid);
                 education.setPeopleName(people.getName());
                 education.setUnitId(people.getUnitId());
+                SYS_CODE code=codeService.selectCodeByName(education.getName(),"250");
+                if (code!=null){
+                    education.setEducationOrder(String.valueOf(code.getId()));
+                }
                 educationService.insertEducation(education);
                 SYS_Education sys_education=educationService.selectEducationByPidOrderByTime(people.getId());
                 if (sys_education!=null){
@@ -116,6 +125,10 @@ public class EducationController {
                 if (people!=null){
                     Education.setPeopleName(people.getName());
                     Education.setUnitId(people.getUnitId());
+                    SYS_CODE code=codeService.selectCodeByName(Education.getName(),"250");
+                    if (code!=null){
+                        Education.setEducationOrder(String.valueOf(code.getId()));
+                    }
                     educationService.updateEducation(Education);
                     SYS_Education sys_education=educationService.selectEducationByPidOrderByTime(people.getId());
                     if (sys_education!=null){

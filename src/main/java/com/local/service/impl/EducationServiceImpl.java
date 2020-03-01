@@ -63,7 +63,7 @@ public class EducationServiceImpl implements EducationService {
         List<SYS_Education> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
         cir.where().andEquals("people_Id", pid).andEquals("school_Type",schoolType);
-        cir.getOrderBy().desc("create_Time");
+        cir.getOrderBy().asc("education_Order");
         list = dao.query(SYS_Education.class, cir);
         if (list.size() > 0) {
             return list.get(0);

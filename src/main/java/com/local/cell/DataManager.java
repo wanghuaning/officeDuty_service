@@ -1184,7 +1184,8 @@ public class DataManager {
 
     public static List<SYS_People> getPeopleDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
                                                         UnitService unitService, String fullImport, EducationService educationService, DutyService dutyService,
-                                                        RankService rankService, RewardService rewardService, AssessmentService assessmentService) throws Exception {
+                                                        RankService rankService, RewardService rewardService, AssessmentService assessmentService,
+                                                        CodeService codeService) throws Exception {
         List<SYS_People> peopleList = new ArrayList<>();
         for (Map<String, Object> map : list) {
             SYS_UNIT unit = unitService.selectUnitByName(String.valueOf(map.get("单位")));
@@ -1197,8 +1198,8 @@ public class DataManager {
                         saveRealDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService, service);//实名制（单列）管理信息
                         getPeopleTaoRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService, service);
                         getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService, service);
-                        saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people, service);
-                        saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people);
+                        saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people, service,codeService);
+                        saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people,codeService);
                         getPeopleRewardDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rewardService);
                         getPeopleAssessmentDataByExcel(map, list, people, stringBuffer, unitService, fullImport, assessmentService);
                     }
@@ -1332,7 +1333,8 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Education saveEducationDataByExcel(Map<String, Object> map, SYS_UNIT unit, EducationService educationService, String fullImport, StringBuffer stringBuffer,
-                                                         List<Map<String, Object>> list, SYS_People people, PeopleService peopleService) throws Exception {
+                                                         List<Map<String, Object>> list, SYS_People people, PeopleService peopleService,
+                                                         CodeService codeService) throws Exception {
         SYS_Education education = new SYS_Education();
         String name = StrUtils.toNullStr(map.get("全日制学历"));
         if (!StrUtils.isBlank(name)) {
@@ -1359,6 +1361,10 @@ public class DataManager {
             SYS_Education education1 = educationService.selectEducationByName(education.getName(), people.getId());
             people.setEducation(education.getName());
             peopleService.updatePeople(people);
+            SYS_CODE code=codeService.selectCodeByName(education.getName(),"250");
+            if (code!=null){
+                education.setEducationOrder(String.valueOf(code.getId()));
+            }
             if ("1".equals(fullImport)) {//覆盖导入
                 if (education1 != null) {
                     education.setId(education1.getId());
@@ -1392,7 +1398,7 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Education saveEducationDataByExcel2(Map<String, Object> map, SYS_UNIT unit, EducationService educationService, String fullImport, StringBuffer stringBuffer,
-                                                          List<Map<String, Object>> list, SYS_People people) throws Exception {
+                                                          List<Map<String, Object>> list, SYS_People people,CodeService codeService) throws Exception {
         SYS_Education education = new SYS_Education();
         String name = StrUtils.toNullStr(map.get("在职学历"));
         if (!StrUtils.isBlank(name)) {
@@ -1417,6 +1423,10 @@ public class DataManager {
             education.setSchool(StrUtils.toNullStr(map.get("在职毕业学校")));
             education.setProfession(StrUtils.toNullStr(map.get("在职所学专业")));
             SYS_Education education1 = educationService.selectEducationByNameAndTime(education.getName(), people.getId(), education.getCreateTime());
+            SYS_CODE code=codeService.selectCodeByName(education.getName(),"250");
+            if (code!=null){
+                education.setEducationOrder(String.valueOf(code.getId()));
+            }
             if ("1".equals(fullImport)) {//覆盖导入
                 if (education1 != null) {
                     education.setId(education1.getId());
@@ -1519,7 +1529,7 @@ public class DataManager {
                 duty.setCreateTime(DateUtil.stringToDate(creatTime));
             }
             duty.setDutyType(StrUtils.toNullStr(map.get("现任职务")));
-            duty.setName(StrUtils.toNullStr(map.get("职务名称")));
+            duty.setName(StrUtils.toNullStr(map.get("实名制职务名称")));
             duty.setSelectionMethod(StrUtils.toNullStr(map.get("单列管理事由")));
 //            duty.setStatus(StrUtils.toNullStr(map.get("任职状态")));
             duty.setStatus("在任");
@@ -2338,7 +2348,7 @@ public class DataManager {
                 people.setWorkday(DateUtil.stringToDate(String.valueOf(key.get("workdayStr"))));
                 people.setPositionLevelTime(DateUtil.stringToDate(String.valueOf(key.get("positionLevelTimeStr"))));
                 people.setOutTime(DateUtil.stringToDate(String.valueOf(key.get("outTimeStr"))));
-                people.setInsertTime(DateUtil.stringToDate(String.valueOf(key.get("insertTime"))));
+                people.setInsertTime(DateUtil.stringToDate(String.valueOf(key.get("insertTimeStr"))));
 //                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
                 peoples.add(people);
             } catch (SecurityException e) {
