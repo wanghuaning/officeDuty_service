@@ -12,6 +12,7 @@ public class FormModel {
     private Integer fourYear=0;
     private Integer fiveYear=0;
 
+    private Integer bianZhiNum=0;
     private Integer incumbent=0;//在职人数
     private Integer leavePeople=0;
     private Integer turnPeople=0;
@@ -50,6 +51,14 @@ public class FormModel {
     private Integer fourYearNotGe=0;
     private Integer fiveYearNotGe=0;
     private FormRankModel formRankModel;
+
+    public Integer getBianZhiNum() {
+        return bianZhiNum;
+    }
+
+    public void setBianZhiNum(Integer bianZhiNum) {
+        this.bianZhiNum = bianZhiNum;
+    }
 
     public Integer getOneYear() {
         return oneYear;

@@ -1281,11 +1281,15 @@ public class DataManager {
                     people.setRealName(StrUtils.toNullStr(map.get("单列管理事由")));
                     String jun = StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数"));
                     String danlei = StrUtils.toNullStr(map.get("实名制职务名称"));
-                    if (jun != null) {
-                        people.setDetail("是");
+                    if (!StrUtils.isBlank(jun)) {
+                        people.setDetail(jun);
+                    }else {
+                        people.setDetail("否");
                     }
-                    if (danlei != null) {
-                        people.setRealName("是");
+                    if (!StrUtils.isBlank(danlei)) {
+                        people.setRealName(danlei);
+                    }else {
+                        people.setRealName("否");
                     }
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
                     if (people1 != null) {
@@ -1506,7 +1510,7 @@ public class DataManager {
                                                    UnitService unitService, String fullImport, DutyService dutyService, PeopleService peopleService) throws Exception {
         SYS_Duty duty = new SYS_Duty();
         String name = StrUtils.toNullStr(map.get("实名制职务名称"));
-        if (!StrUtils.isBlank(name)) {
+        if (!StrUtils.isBlank(name) && !"".equals(name)) {
             duty.setPeopleId(people.getId());
             duty.setPeopleName(people.getName());
             duty.setUnitId(people.getUnitId());
@@ -1654,11 +1658,6 @@ public class DataManager {
             if (!StrUtils.isBlank(rankTime)) {
                 rank.setRankTime(DateUtil.stringToDate(rankTime));
             }
-            rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));
-            if ("是".equals(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")))){
-                people.setDetail("是");
-            }
-//            rank.setStatus(StrUtils.toNullStr(map.get("状态")));
             rank.setStatus("在任");
             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
             rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
@@ -2339,6 +2338,7 @@ public class DataManager {
                 people.setWorkday(DateUtil.stringToDate(String.valueOf(key.get("workdayStr"))));
                 people.setPositionLevelTime(DateUtil.stringToDate(String.valueOf(key.get("positionLevelTimeStr"))));
                 people.setOutTime(DateUtil.stringToDate(String.valueOf(key.get("outTimeStr"))));
+                people.setInsertTime(DateUtil.stringToDate(String.valueOf(key.get("insertTime"))));
 //                System.out.println(unit.getName()+"=>"+unit.getReferOfficialDate()+"-->"+unit.getOneClerkNum()+"==>"+String.valueOf(key.get("oneClerkNum")));
                 peoples.add(people);
             } catch (SecurityException e) {

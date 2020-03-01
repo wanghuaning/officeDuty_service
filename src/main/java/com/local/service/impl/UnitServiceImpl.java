@@ -398,4 +398,16 @@ public class UnitServiceImpl implements UnitService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_UNIT> selectAllUnits(String[] units){
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrArray("id", units);
+        List<SYS_UNIT> unitList = dao.query(SYS_UNIT.class, cri);
+        if (unitList.size() > 0) {
+            return unitList;
+        } else {
+            return null;
+        }
+    }
 }

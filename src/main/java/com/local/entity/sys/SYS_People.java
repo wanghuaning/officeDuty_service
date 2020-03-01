@@ -161,7 +161,7 @@ public class SYS_People implements Serializable {
   @Comment("是否具有两年以上基层工作经历")
   @Column("base_Worker")
   @ColDefine(type = ColType.VARCHAR, width = 8)
-  private String baseWorker;
+  private String baseWorker="否";
 
   @ApiModelProperty("编制类型")
   @Comment("编制类型")
@@ -179,11 +179,11 @@ public class SYS_People implements Serializable {
 
   private String createTimeStr;
 
-  @ApiModelProperty("特殊人员")
-  @Comment("特殊人员")
+  @ApiModelProperty("军转干部首次确定职级不占职数")
+  @Comment("军转干部首次确定职级不占职数")
   @Column("detail")
   @ColDefine(type = ColType.VARCHAR, width = 2000)
-  private String detail;
+  private String detail="否";
 
   @ApiModelProperty("单位名称")
   @Comment("单位名称")
@@ -201,7 +201,7 @@ public class SYS_People implements Serializable {
   @Comment("是否兼职")
   @Column("isEnable")
   @ColDefine(type = ColType.VARCHAR, width = 8)
-  private String isEnable;
+  private String isEnable="否";
 
   @ApiModelProperty("排序")
   @Comment("排序")
@@ -216,7 +216,7 @@ public class SYS_People implements Serializable {
   @Comment("单列管理事由")
   @Column("real_Name")
   @ColDefine(type = ColType.VARCHAR, width = 64)
-  private String realName;
+  private String realName="否";
 
   @ApiModelProperty("人员状态")
   @Comment("人员状态")
@@ -233,6 +233,16 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date outTime;
 
+  @ApiModelProperty("新增时间")
+  @Comment("新增时间")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @Column("insert_Time")
+  @ColDefine(type = ColType.DATETIME)
+  private Date insertTime=new Date();
+
+  private String insertTimeStr;
+
   private String outTimeStr;
 
   private Date retireDate;
@@ -245,6 +255,22 @@ public class SYS_People implements Serializable {
     }else {
       return 0;
     }
+  }
+
+  public Date getInsertTime() {
+    return insertTime;
+  }
+
+  public void setInsertTime(Date insertTime) {
+    this.insertTime = insertTime;
+  }
+
+  public String getInsertTimeStr() {
+    return DateUtil.dateToString(insertTime);
+  }
+
+  public void setInsertTimeStr(String insertTimeStr) {
+    this.insertTimeStr = insertTimeStr;
   }
 
   public void setAge(Integer age) {

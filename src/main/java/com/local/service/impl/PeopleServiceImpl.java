@@ -62,7 +62,7 @@ public class PeopleServiceImpl implements PeopleService {
                 cri.where().andEquals("states", states);
         }
         cri.where().andEquals("unit_Id", unitId);
-        cri.getOrderBy().desc("create_Time");
+        cri.getOrderBy().desc("insert_Time");
         peopleList = dao.query(SYS_People.class, cri, pager);
         if (StrUtils.isBlank(pager)) {
             pager = new Pager();

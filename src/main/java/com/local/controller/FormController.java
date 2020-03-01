@@ -68,7 +68,15 @@ public class FormController {
             if (incumbents != null) {
                 model.setIncumbent(incumbents.size());
             }
-            List<SYS_People> leavePeoples = peopleService.selectLevelPeoplesByUnitId(arr);
+            List<SYS_UNIT> unitList=unitService.selectAllUnits(arr);
+            if (unitList!=null){
+                int officeNum=0;
+                for (SYS_UNIT unit:unitList){
+                    officeNum+=(unit.getOfficialNum()+unit.getReferOfficialNum());
+                }
+                model.setBianZhiNum(officeNum);
+            }
+            List<SYS_People> leavePeoples = peopleService.selectPeoplesByUnitIds(arr,"退休");
             if (leavePeoples != null) {
                 model.setLeavePeople(leavePeoples.size());
             }
