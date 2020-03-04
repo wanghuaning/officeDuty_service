@@ -64,22 +64,21 @@ public class UnitConttoller {
     @GetMapping("/unit")
     @ResponseBody
     public String getUnitsTree(@RequestParam(value = "name", required = false) String name,
-                               @RequestParam(value = "enabled", required = false) String enabled, HttpServletRequest request) {
+                               @RequestParam(value = "enabled", required = false) String enabled, HttpServletRequest request,
+                               @RequestParam(value = "childUnit", required = false) String childUnit) {
         try {
-            //从请求的header中取出当前登录的登录
+            String[] arr;
             SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
-            if (user != null) {
-                String parentId = user.getUnitId();
-                if (!StrUtils.isBlank(parentId)) {
-                    SYS_UNIT unit=unitService.selectUnitById(parentId);
-                    List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled, parentId);
-                    if (unit==null){
-                        return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-                    }
-                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, unitService.buildTree(queryResult,unit), user).getJson();
-                } else {
-                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-                }
+            if (!StrUtils.isBlank(childUnit)) {
+                childUnit = childUnit.substring(1, childUnit.length() - 1);
+                arr = childUnit.split(";");
+            } else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+            }
+            SYS_UNIT unit=unitService.selectUnitById(user.getUnitId());
+            if (!StrUtils.isBlank(arr)) {
+                List<SYS_UNIT> queryResult = unitService.selectUnitsByParam(name, enabled, arr);
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, unitService.buildTree(queryResult, unit), user).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
             }
@@ -227,7 +226,7 @@ public class UnitConttoller {
                     if (ccunits.size() > 0) {
                         punit.setHasChild("1");
                         unitService.updateUnit(punit);
-                    }else {
+                    } else {
                         punit.setHasChild("0");
                         unitService.updateUnit(punit);
                     }

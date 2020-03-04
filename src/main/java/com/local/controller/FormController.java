@@ -624,7 +624,7 @@ public class FormController {
             }
             List<SYS_People> zhengKe = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "乡科级正职", "在职");
             if (zhengKe != null) {
-                model.setZhengChu(zhengKe.size());
+                model.setZhengKe(zhengKe.size());
                 zhengKeN+=zhengKe.size();
             }
             List<SYS_People> fuChu = peopleService.selectPeoplesByUnitIdsAndDuty(arr, "县处级副职", "在职");
@@ -637,7 +637,7 @@ public class FormController {
                 model.setZhengChu(zhengChu.size());
                 zhengChuN+=zhengChu.size();
             }
-            List<SYS_People> all = peopleService.selectPeoplesByUnitIds(arr,"在职");
+            List<SYS_People> all = peopleService.selectPeoplesByUnitIdsAndAllDuty(arr,"在职");
             if (all != null) {
                 model.setQita(all.size()-(zhengChuN+fuChuN+zhengKeN+fukeN));
             }

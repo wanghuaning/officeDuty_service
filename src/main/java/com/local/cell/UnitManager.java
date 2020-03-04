@@ -66,6 +66,7 @@ public class UnitManager {
                     unit.setAffiliation(StrUtils.toNullStr(map.get("隶属关系")));
                     unit.setCategory(StrUtils.toNullStr(map.get("所属序列")));
                     unit.setLevel(StrUtils.toNullStr(map.get("单位级别")));
+                    unit.setUnitType(StrUtils.toNullStr(map.get("单位性质")));
                     unit.setOfficialNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("行政编制数"))));
                     unit.setOfficialRealNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("（行政)实有人数"))));
                     unit.setReferOfficialNum(StrUtils.strToLong(StrUtils.toNullStr(map.get("参照公务员法管理事业单位编制数"))));

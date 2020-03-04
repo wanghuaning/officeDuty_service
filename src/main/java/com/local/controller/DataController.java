@@ -31,7 +31,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 @CrossOrigin
@@ -2577,4 +2579,46 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
+    public static SimpleDateFormat dmy_hms =new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+    @ApiOperation(value = "数据库备份", notes = "数据库备份", httpMethod = "POST", tags = "数据库备份接口")
+    @PostMapping(value = "/backUpData")
+    @ResponseBody
+    public String editDigest() {
+        String backName = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())+".sql";
+        String backPath = "C:\\RM\\file\\data\\";
+        ZipUtil.getFile(backPath);
+        String dbName="officeDuty";
+        String root="root";
+        String pwd="1990";
+        try {
+            String pathSql = backPath+"backUpData_"+backName;
+            File fileSql = new File(pathSql);
+            //创建备份sql文件
+            if (!fileSql.exists()){
+                fileSql.createNewFile();
+            }
+            //mysqldump -hlocalhost -uroot -p123456 db > /home/back.sql
+            StringBuffer sb = new StringBuffer();
+            sb.append("mysqldump");
+            sb.append(" -h127.0.0.1");
+            sb.append(" -u"+root);
+            sb.append(" -p"+pwd);
+            sb.append(" "+dbName+" >");
+            sb.append(pathSql);
+            System.out.println("cmd命令为："+sb.toString());
+            Runtime runtime = Runtime.getRuntime();
+            System.out.println("开始备份："+dbName);
+            Process process = runtime.exec("cmd /c"+sb.toString());
+            byte[] bytes = new byte[process.getInputStream().available()];
+            process.getInputStream().read(bytes);
+            process.getErrorStream().read(bytes);
+            System.out.println("备份成功!");
+            ZipUtil.deleteLogFileMyself(backPath, 1);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, "backUpData_"+backName, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+        }
+    }
+
 }

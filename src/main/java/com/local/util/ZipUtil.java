@@ -1,5 +1,8 @@
 package com.local.util;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipOutputStream;
 import java.util.zip.ZipEntry;
@@ -109,11 +112,44 @@ public class ZipUtil {
         }
         return file.delete();
     }
+
+
+    /**
+     * 定时删除日志
+     *
+     * @param path 路径
+     * @param day 最近几天
+     */
+    public static void deleteLogFileMyself(String path, int day) {
+        File file = new File(path);
+        Calendar calendar = Calendar.getInstance();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date currentDate = new Date();
+            calendar.setTime(currentDate);
+            calendar.add(Calendar.DATE, -day); //得到前几天
+            Date date = calendar.getTime();
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                for (File f : files) {//xxxx_2019-09-05_2325
+                    String[] arr=f.getName().split("_");
+                    if (arr.length>2){
+                        Date logdate = df.parse(arr[1]);
+                        //若是文件夹且在设定日期之前
+                        if (f.exists() && logdate.before(date)) {
+                            f.delete();
+                        }
+                    }
+                } }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Main
      *
      * @param args
-     */
     public static void main(String[] args) {
         List<File> srcfile = new ArrayList<File>();
         srcfile.add(new File("D:\\公务员\\压缩\\1.xls"));
@@ -123,4 +159,5 @@ public class ZipUtil {
         File zipfile = new File("D:\\公务员\\压缩\\edm.zip");
 //        ZipUtil.zipFiles(srcfile, zipfile);
     }
+    */
 }
