@@ -163,7 +163,7 @@ public class DateUtil {
     public static int getMonth(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int day = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.MONTH)+1;
         return day;
     }
 
@@ -292,11 +292,11 @@ public class DateUtil {
                     "The birthDay is before Now.It's unbelievable!");
         }
         int yearNow = cal.get(Calendar.YEAR);  //当前年份
-        int monthNow = cal.get(Calendar.MONTH);  //当前月份
+        int monthNow = cal.get(Calendar.MONTH)+1;  //当前月份
         int dayOfMonthNow = cal.get(Calendar.DAY_OF_MONTH); //当前日期
         cal.setTime(birthDay);
         int yearBirth = cal.get(Calendar.YEAR);
-        int monthBirth = cal.get(Calendar.MONTH);
+        int monthBirth = cal.get(Calendar.MONTH)+1;
         int dayOfMonthBirth = cal.get(Calendar.DAY_OF_MONTH);
         age = yearNow - yearBirth;   //计算整岁数
         if (monthNow <= monthBirth) {

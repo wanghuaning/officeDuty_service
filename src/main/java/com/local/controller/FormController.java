@@ -166,26 +166,26 @@ public class FormController {
                         int age = DateUtil.getAgeByMonth(people.getBirthday(), ca);
 
                         Calendar ca1 = Calendar.getInstance();
-                        int month = ca1.get(Calendar.MONTH);
+                        int month = ca1.get(Calendar.MONTH)+1;
                         ca1.set(Calendar.MONTH, month + 1);
                         ca1.set(Calendar.DAY_OF_MONTH, ca1.getActualMaximum(Calendar.DAY_OF_MONTH));
                         SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd");
                         int age1 = DateUtil.getAgeByMonth(people.getBirthday(), ca1);
 
                         Calendar ca2 = Calendar.getInstance();
-                        int month2 = ca2.get(Calendar.MONTH);
+                        int month2 = ca2.get(Calendar.MONTH)+1;
                         ca2.set(Calendar.MONTH, month2 + 2);
                         ca2.set(Calendar.DAY_OF_MONTH, ca2.getActualMaximum(Calendar.DAY_OF_MONTH));
                         int age2 = DateUtil.getAgeByMonth(people.getBirthday(), ca2);
 
                         Calendar ca3 = Calendar.getInstance();
-                        int month3 = ca3.get(Calendar.MONTH);
+                        int month3 = ca3.get(Calendar.MONTH)+1;
                         ca3.set(Calendar.MONTH, month3 + 3);
                         ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
                         int age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
                         if (people.getPosition() != null){
                             if (people.getPosition().contains("县处级正职")) {
-                                if (age == 60) {
+                                if (age == 60 && bmonth == nmonth) {
                                     nowMonthChuJiRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {

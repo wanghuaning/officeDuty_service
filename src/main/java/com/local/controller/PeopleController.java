@@ -322,6 +322,11 @@ public class PeopleController {
                                 @RequestParam(value = "unitId", required = false) String unitId,
                                 @RequestParam(value = "states", required = false) String states, HttpServletRequest request) {
         try {
+            if (!"全部".equals(states)&& !StrUtils.isBlank(states)){
+                int month=DateUtil.getMonth(new Date());
+                int index=Integer.valueOf(states)-month+1;
+                states=String.valueOf(index);
+            }
             String[] arr;
             if (!"true".equals(isChild)) {
                 //从请求的header中取出当前登录的登录
