@@ -2630,6 +2630,7 @@ public class DataManager {
                 }
                 if (peopleStr.length() > 0) {
                     dataModel.setId(people.getId());
+                    dataModel.setPeopleName(people.getName());
                     dataModel.setName(people.getName());
                     dataModel.setValue(peopleStr.toString());
                     peopleModels.add(dataModel);
@@ -2750,6 +2751,7 @@ public class DataManager {
                 }
                 if (peopleStr.length() > 0) {
                     dataModel.setId(duty.getId());
+                    dataModel.setPeopleName(duty.getPeopleName());
                     dataModel.setName(duty.getName() + "/" + DateUtil.dateToString(duty.getCreateTime()));
                     dataModel.setValue(peopleStr.toString());
                     peopleModels.add(dataModel);
@@ -2811,6 +2813,7 @@ public class DataManager {
                 }
                 if (peopleStr.length() > 0) {
                     dataModel.setId(duty.getId());
+                    dataModel.setPeopleName(duty.getPeopleName());
                     dataModel.setName(duty.getName() + "/" + DateUtil.dateToString(duty.getCreateTime()));
                     dataModel.setValue(peopleStr.toString());
                     peopleModels.add(dataModel);
@@ -2872,6 +2875,7 @@ public class DataManager {
                 }
                 if (peopleStr.length() > 0) {
                     dataModel.setId(duty.getId());
+                    dataModel.setPeopleName(duty.getPeopleName());
                     dataModel.setName(duty.getName() + "/" + DateUtil.dateToString(duty.getCreateTime()));
                     dataModel.setValue(peopleStr.toString());
                     peopleModels.add(dataModel);
@@ -2934,6 +2938,7 @@ public class DataManager {
                 }
                 if (peopleStr.length() > 0) {
                     dataModel.setId(duty.getId());
+                    dataModel.setPeopleName(duty.getPeopleName());
                     dataModel.setName(duty.getName() + "/" + duty.getYear());
                     dataModel.setValue(peopleStr.toString());
                     peopleModels.add(dataModel);
@@ -3661,27 +3666,30 @@ public class DataManager {
             } else if ("已审核".equals(states)){
                 process.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
             }
-            if ("".equals(peopleName)) {
-                peopleName = process.getPeople();
-            }
-            if ("".equals(approvalUnitName)) {
-                approvalUnitName = process.getApprovalUnitName();
-            }
+
             if (process.getParentId() == null) {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
                 if (user != null) {
                     if ("1".equals(user.getRoles())) {
                         process.setStates(states);
+//                        process.setProcessTime(new Date());
+                        process.setApprovalUnit(user.getUnitId());
+                        process.setApprovaled("0");
+                        process.setPeople(peopleName);
+                    }
+                }else{
+                    if ("".equals(peopleName)) {
+                        peopleName = process.getPeople();
                     }
                 }
                 if (approal1 != null) {
                     process.setPeople(peopleName);
-                    process.setApprovalUnitName(approvalUnitName);
+                    process.setApprovalUnitName(unit.getName());
                     process.setProcessTime(new Date());
                     processService.updateProcess(process);
                 } else {
                     process.setPeople(peopleName);
-                    process.setApprovalUnitName(approvalUnitName);
+                    process.setApprovalUnitName(unit.getName());
                     process.setProcessTime(new Date());
                     processService.insertProcess(process);
                 }

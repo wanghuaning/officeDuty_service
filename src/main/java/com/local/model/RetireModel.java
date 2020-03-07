@@ -10,6 +10,11 @@ public class RetireModel {
     private Integer nowMonthZhengKeRetire=0;
     private Integer nowMonthFuKeRetire=0;
     private Integer nowMonthKeYuanRetire=0;
+    private Integer nowMonthOneTowDiaoRetire=0;
+    private Integer nowMonthThreeFourDiaoRetire=0;
+    private Integer nowMonthOneTowZhuRenRetire=0;
+    private Integer nowMonthThreeFourZhuRenRetire=0;
+    private Integer nowMonthOneTowKeYuanRetire=0;
     private Integer nowMonthTotalRetire=0;
 
     private Integer towMonthOverChuRetire=0;
@@ -18,6 +23,11 @@ public class RetireModel {
     private Integer towMonthZhengKeRetire=0;
     private Integer towMonthFuKeRetire=0;
     private Integer towMonthKeYuanRetire=0;
+    private Integer towMonthOneTowDiaoRetire=0;
+    private Integer towMonthThreeFourDiaoRetire=0;
+    private Integer towMonthOneTowZhuRenRetire=0;
+    private Integer towMonthThreeFourZhuRenRetire=0;
+    private Integer towMonthOneTowKeYuanRetire=0;
     private Integer towMonthTotalRetire=0;
 
 
@@ -27,6 +37,11 @@ public class RetireModel {
     private Integer threeMonthZhengKeRetire=0;
     private Integer threeMonthFuKeRetire=0;
     private Integer threeMonthKeYuanRetire=0;
+    private Integer threeMonthOneTowDiaoRetire=0;
+    private Integer threeMonthThreeFourDiaoRetire=0;
+    private Integer threeMonthOneTowZhuRenRetire=0;
+    private Integer threeMonthThreeFourZhuRenRetire=0;
+    private Integer threeMonthOneTowKeYuanRetire=0;
     private Integer threeMonthTotalRetire=0;
 
 
@@ -36,7 +51,173 @@ public class RetireModel {
     private Integer fourMonthZhengKeRetire=0;
     private Integer fourMonthFuKeRetire=0;
     private Integer fourMonthKeYuanRetire=0;
+    private Integer fourMonthOneTowDiaoRetire=0;
+    private Integer fourMonthThreeFourDiaoRetire=0;
+    private Integer fourMonthOneTowZhuRenRetire=0;
+    private Integer fourMonthThreeFourZhuRenRetire=0;
+    private Integer fourMonthOneTowKeYuanRetire=0;
     private Integer fourMonthTotalRetire=0;
+
+
+    public Integer getNowMonthOneTowDiaoRetire() {
+        return nowMonthOneTowDiaoRetire;
+    }
+
+    public void setNowMonthOneTowDiaoRetire(Integer nowMonthOneTowDiaoRetire) {
+        this.nowMonthOneTowDiaoRetire = nowMonthOneTowDiaoRetire;
+    }
+
+    public Integer getNowMonthThreeFourDiaoRetire() {
+        return nowMonthThreeFourDiaoRetire;
+    }
+
+    public void setNowMonthThreeFourDiaoRetire(Integer nowMonthThreeFourDiaoRetire) {
+        this.nowMonthThreeFourDiaoRetire = nowMonthThreeFourDiaoRetire;
+    }
+
+    public Integer getNowMonthOneTowZhuRenRetire() {
+        return nowMonthOneTowZhuRenRetire;
+    }
+
+    public void setNowMonthOneTowZhuRenRetire(Integer nowMonthOneTowZhuRenRetire) {
+        this.nowMonthOneTowZhuRenRetire = nowMonthOneTowZhuRenRetire;
+    }
+
+    public Integer getNowMonthThreeFourZhuRenRetire() {
+        return nowMonthThreeFourZhuRenRetire;
+    }
+
+    public void setNowMonthThreeFourZhuRenRetire(Integer nowMonthThreeFourZhuRenRetire) {
+        this.nowMonthThreeFourZhuRenRetire = nowMonthThreeFourZhuRenRetire;
+    }
+
+    public Integer getNowMonthOneTowKeYuanRetire() {
+        return nowMonthOneTowKeYuanRetire;
+    }
+
+    public void setNowMonthOneTowKeYuanRetire(Integer nowMonthOneTowKeYuanRetire) {
+        this.nowMonthOneTowKeYuanRetire = nowMonthOneTowKeYuanRetire;
+    }
+
+    public Integer getTowMonthOneTowDiaoRetire() {
+        return towMonthOneTowDiaoRetire;
+    }
+
+    public void setTowMonthOneTowDiaoRetire(Integer towMonthOneTowDiaoRetire) {
+        this.towMonthOneTowDiaoRetire = towMonthOneTowDiaoRetire;
+    }
+
+    public Integer getTowMonthThreeFourDiaoRetire() {
+        return towMonthThreeFourDiaoRetire;
+    }
+
+    public void setTowMonthThreeFourDiaoRetire(Integer towMonthThreeFourDiaoRetire) {
+        this.towMonthThreeFourDiaoRetire = towMonthThreeFourDiaoRetire;
+    }
+
+    public Integer getTowMonthOneTowZhuRenRetire() {
+        return towMonthOneTowZhuRenRetire;
+    }
+
+    public void setTowMonthOneTowZhuRenRetire(Integer towMonthOneTowZhuRenRetire) {
+        this.towMonthOneTowZhuRenRetire = towMonthOneTowZhuRenRetire;
+    }
+
+    public Integer getTowMonthThreeFourZhuRenRetire() {
+        return towMonthThreeFourZhuRenRetire;
+    }
+
+    public void setTowMonthThreeFourZhuRenRetire(Integer towMonthThreeFourZhuRenRetire) {
+        this.towMonthThreeFourZhuRenRetire = towMonthThreeFourZhuRenRetire;
+    }
+
+    public Integer getTowMonthOneTowKeYuanRetire() {
+        return towMonthOneTowKeYuanRetire;
+    }
+
+    public void setTowMonthOneTowKeYuanRetire(Integer towMonthOneTowKeYuanRetire) {
+        this.towMonthOneTowKeYuanRetire = towMonthOneTowKeYuanRetire;
+    }
+
+    public Integer getThreeMonthOneTowDiaoRetire() {
+        return threeMonthOneTowDiaoRetire;
+    }
+
+    public void setThreeMonthOneTowDiaoRetire(Integer threeMonthOneTowDiaoRetire) {
+        this.threeMonthOneTowDiaoRetire = threeMonthOneTowDiaoRetire;
+    }
+
+    public Integer getThreeMonthThreeFourDiaoRetire() {
+        return threeMonthThreeFourDiaoRetire;
+    }
+
+    public void setThreeMonthThreeFourDiaoRetire(Integer threeMonthThreeFourDiaoRetire) {
+        this.threeMonthThreeFourDiaoRetire = threeMonthThreeFourDiaoRetire;
+    }
+
+    public Integer getThreeMonthOneTowZhuRenRetire() {
+        return threeMonthOneTowZhuRenRetire;
+    }
+
+    public void setThreeMonthOneTowZhuRenRetire(Integer threeMonthOneTowZhuRenRetire) {
+        this.threeMonthOneTowZhuRenRetire = threeMonthOneTowZhuRenRetire;
+    }
+
+    public Integer getThreeMonthThreeFourZhuRenRetire() {
+        return threeMonthThreeFourZhuRenRetire;
+    }
+
+    public void setThreeMonthThreeFourZhuRenRetire(Integer threeMonthThreeFourZhuRenRetire) {
+        this.threeMonthThreeFourZhuRenRetire = threeMonthThreeFourZhuRenRetire;
+    }
+
+    public Integer getThreeMonthOneTowKeYuanRetire() {
+        return threeMonthOneTowKeYuanRetire;
+    }
+
+    public void setThreeMonthOneTowKeYuanRetire(Integer threeMonthOneTowKeYuanRetire) {
+        this.threeMonthOneTowKeYuanRetire = threeMonthOneTowKeYuanRetire;
+    }
+
+    public Integer getFourMonthOneTowDiaoRetire() {
+        return fourMonthOneTowDiaoRetire;
+    }
+
+    public void setFourMonthOneTowDiaoRetire(Integer fourMonthOneTowDiaoRetire) {
+        this.fourMonthOneTowDiaoRetire = fourMonthOneTowDiaoRetire;
+    }
+
+    public Integer getFourMonthThreeFourDiaoRetire() {
+        return fourMonthThreeFourDiaoRetire;
+    }
+
+    public void setFourMonthThreeFourDiaoRetire(Integer fourMonthThreeFourDiaoRetire) {
+        this.fourMonthThreeFourDiaoRetire = fourMonthThreeFourDiaoRetire;
+    }
+
+    public Integer getFourMonthOneTowZhuRenRetire() {
+        return fourMonthOneTowZhuRenRetire;
+    }
+
+    public void setFourMonthOneTowZhuRenRetire(Integer fourMonthOneTowZhuRenRetire) {
+        this.fourMonthOneTowZhuRenRetire = fourMonthOneTowZhuRenRetire;
+    }
+
+    public Integer getFourMonthThreeFourZhuRenRetire() {
+        return fourMonthThreeFourZhuRenRetire;
+    }
+
+    public void setFourMonthThreeFourZhuRenRetire(Integer fourMonthThreeFourZhuRenRetire) {
+        this.fourMonthThreeFourZhuRenRetire = fourMonthThreeFourZhuRenRetire;
+    }
+
+    public Integer getFourMonthOneTowKeYuanRetire() {
+        return fourMonthOneTowKeYuanRetire;
+    }
+
+    public void setFourMonthOneTowKeYuanRetire(Integer fourMonthOneTowKeYuanRetire) {
+        this.fourMonthOneTowKeYuanRetire = fourMonthOneTowKeYuanRetire;
+    }
 
     public Integer getNowMonthOverChuRetire() {
         return nowMonthOverChuRetire;

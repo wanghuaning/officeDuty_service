@@ -53,6 +53,56 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
     @Override
+    public List<Sys_Process> selectProcesssByUnitIds(String[] unitIds){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andInStrArray("unit_Id",unitIds).andEquals("parent_Id",null);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Sys_Process> selectProcesssByUnitIdsAndFlag(String[] unitIds, String states){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andInStrArray("unit_Id",unitIds).andEquals("parent_Id",null).andEquals("states",states);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public List<Sys_Process> selectProcesssByUnitIdsAndZuZhiBu(String[] unitIds,String zuzhiUnitId){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andInStrArray("unit_Id",unitIds).andEquals("approval_Unit",zuzhiUnitId);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Sys_Process> selectShangProcesssByUnitIds(String[] unitIds){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andInStrArray("approval_Unit",unitIds).andEquals("approvaled","0").andNotEquals("parent_Id",null);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
+    @Override
     public List<Sys_Process> selectNotApprProcess(String unitId){
         List<Sys_Process> list=new ArrayList<>();
         Criteria cir= Cnd.cri();

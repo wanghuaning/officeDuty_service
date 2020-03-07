@@ -568,7 +568,7 @@ public class DataController {
                                 List<Sys_Process> sprocesses = new ArrayList<>();
                                 if (processes.size() > 0) {
                                     if (punit.getId().equals(processes.get(0).getApprovalEve())) {
-                                        DataManager.saveprocessData(processes, processService, "","", null, "未审批", unitService, punit);
+                                        DataManager.saveprocessData(processes, processService, "","", user, "未审批", unitService, punit);
                                         for (Sys_Process process : processes) {
                                             SYS_Data data = DataManager.saveData(dataId, process.getId(), dataType, iunitId, dataService);
                                             resultMap.put("dataId", data.getId());
@@ -1120,8 +1120,8 @@ public class DataController {
     public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid, @RequestParam(value = "flag", required = false) String flag, HttpServletRequest request) {
         List<Object> objects = new ArrayList<>();
         String people = "";
+        String approveUnitName = "";
         boolean admin = false;
-        String unitName = "";
         SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
         if (user == null) {
             return new Result(ResultCode.ERROR.toString(), "账号未登录！", null, null).getJson();
@@ -1131,11 +1131,9 @@ public class DataController {
         }
         SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
         if (unit != null) {
-            unitName = unit.getName();
+            approveUnitName = unit.getName();
             if (user.getPeopleName() != null) {
-                people = unit.getName() + "/" + user.getPeopleName();
-            } else {
-                people = unit.getName();
+                people =user.getPeopleName();
             }
         }
         if (!StrUtils.isBlank(rowid)) {
@@ -1154,8 +1152,8 @@ public class DataController {
                         return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                     }
                     if ("驳回".equals(flag)) {
-                        if (process.getPeople() != null) {
-                            if (!process.getPeople().contains(unitName)) {
+                        if (process.getApprovalUnitName() != null) {
+                            if (!process.getApprovalUnitName().contains(approveUnitName)) {
                                 return new Result(ResultCode.ERROR.toString(), "权限不足！", null, null).getJson();
                             }
                         }
@@ -1168,8 +1166,8 @@ public class DataController {
                         }
                     }
                     if ("审核".equals(flag)) {
-                        if (process.getPeople() != null) {
-                            if (!process.getPeople().contains(unitName)) {
+                        if (process.getApprovalUnitName() != null) {
+                            if (!process.getApprovalUnitName().contains(approveUnitName)) {
                                 return new Result(ResultCode.ERROR.toString(), "权限不足！", null, null).getJson();
                             }
                         }
@@ -1313,7 +1311,7 @@ public class DataController {
                 csys_process.setProcessTime(new Date());
                 csys_process.setId(csys_process.getOldId());
                 csys_process.setParentId(process.getOldId());
-                csys_process.setApprovalUnitName(unit.getName());
+//                csys_process.setApprovalUnitName(unit.getName());
                 Sys_Process process1 = processService.selectProcessById(csys_process.getId());
                 if (process1 != null) {
                     processService.updateProcess(csys_process);
@@ -1378,7 +1376,7 @@ public class DataController {
                 csys_process1.setProcessTime(new Date());
                 csys_process1.setId(csys_process.getOldId());
                 csys_process1.setParentId(process.getOldId());
-                csys_process1.setApprovalUnitName(unit.getName());
+//                csys_process1.setApprovalUnitName(unit.getName());
                 Sys_Process process1 = processService.selectProcessById(csys_process1.getId());
                 if (process1 != null) {
                     processService.updateProcess(csys_process1);
@@ -1416,7 +1414,7 @@ public class DataController {
                 csys_process1.setStates("已驳回");
                 csys_process1.setId(csys_process.getId() + "bohui");
                 csys_process1.setParentId(process.getId() + "-bohui");
-                csys_process1.setApprovalUnitName(unit.getName());
+//                csys_process1.setApprovalUnitName(unit.getName());
                 if (unit.getId().equals(csys_process1.getApprovalUnit())) {
                     csys_process1.setApprovaled("0");
                 }
@@ -1882,7 +1880,7 @@ public class DataController {
                         ranks = DataManager.saveRankJsonModel(rankList);
                         if (ranks.size() > 0) {
                             for (SYS_Rank rank : ranks) {
-                                if ("在任".equals(rank.getStatus())){
+                                if ("在任".equals(rank.getStatus()) && !"一级科员".equals(rank.getName()) && !"二级科员".equals(rank.getName())){
                                     sys_rank = rank;
                                     sold=true;
                                     rankName=rank.getName();

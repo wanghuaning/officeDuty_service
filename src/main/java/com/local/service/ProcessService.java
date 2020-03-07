@@ -21,6 +21,10 @@ public interface ProcessService {
     List<Sys_Process> selectNotApprProcess(String unitId);
     List<Sys_Process> selectNotApprProcessByFlag(String unitId,String flag);
     List<Sys_Process> selectApprProcess(String unitId);
+    List<Sys_Process> selectProcesssByUnitIds(String[] unitIds);
+    List<Sys_Process> selectProcesssByUnitIdsAndFlag(String[] unitIds, String states);
+    List<Sys_Process> selectShangProcesssByUnitIds(String[] unitIds);
+    List<Sys_Process> selectProcesssByUnitIdsAndZuZhiBu(String[] unitIds,String zuzhiUnitId);
     QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag,String states);
     QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName,String flag);
 }

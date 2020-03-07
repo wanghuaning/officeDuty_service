@@ -223,7 +223,7 @@ public class SYS_People implements Serializable {
   @Column("states")
   @Default(value = "在职")
   @ColDefine(type = ColType.VARCHAR, width = 16)
-  private String states;
+  private String states="在职";
 
   @ApiModelProperty("离职时间")
   @Comment("离职时间")

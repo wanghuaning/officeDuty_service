@@ -36,6 +36,8 @@ public class FormController {
     private ApprovalService approvalService;
     @Autowired
     private PeopleService peopleService;
+    @Autowired
+    private ProcessService processService;
 
     @Autowired
     private AssessmentService assessmentService;
@@ -156,6 +158,10 @@ public class FormController {
                 int towMonthOverChuRetire = 0, towMonthChuJiRetire = 0, towMonthFuChuRetire = 0, towMonthZhengKeRetire = 0, towMonthFuKeRetire = 0, towMonthKeYuanRetire = 0;
                 int threeMonthOverChuRetire = 0, threeMonthChuJiRetire = 0, threeMonthFuChuRetire = 0, threeMonthZhengKeRetire = 0, threeMonthFuKeRetire = 0, threeMonthKeYuanRetire = 0;
                 int fourMonthOverChuRetire = 0, fourMonthChuJiRetire = 0, fourMonthFuChuRetire = 0, fourMonthZhengKeRetire = 0, fourMonthFuKeRetire = 0, fourMonthKeYuanRetire = 0;
+                int nowMonthOneTowDiaoRetire=0,nowMonthThreeFourDiaoRetire=0,nowMonthOneTowZhuRenRetire=0,nowMonthThreeFourZhuRenRetire=0,nowMonthOneTowKeYuanRetire=0;
+                int towMonthOneTowDiaoRetire=0, towMonthThreeFourDiaoRetire=0,towMonthOneTowZhuRenRetire=0,towMonthThreeFourZhuRenRetire=0,towMonthOneTowKeYuanRetire=0;
+                int threeMonthOneTowDiaoRetire=0,threeMonthThreeFourDiaoRetire=0,threeMonthOneTowZhuRenRetire=0,threeMonthThreeFourZhuRenRetire=0,threeMonthOneTowKeYuanRetire=0;
+                int fourMonthOneTowDiaoRetire=0, fourMonthThreeFourDiaoRetire=0,fourMonthOneTowZhuRenRetire=0,fourMonthThreeFourZhuRenRetire=0,fourMonthOneTowKeYuanRetire=0;
                 for (SYS_People people : peoples) {
                     if (people.getBirthday() != null) {
                         int bmonth=DateUtil.getMonth(people.getBirthday());
@@ -183,7 +189,7 @@ public class FormController {
                         ca3.set(Calendar.MONTH, month3 + 3);
                         ca3.set(Calendar.DAY_OF_MONTH, ca3.getActualMaximum(Calendar.DAY_OF_MONTH));
                         int age3 = DateUtil.getAgeByMonth(people.getBirthday(), ca3);
-                        if (people.getPosition() != null){
+                        if (!StrUtils.isBlank((people.getPosition()))){
                             if (people.getPosition().contains("县处级正职")) {
                                 if (age == 60 && bmonth == nmonth) {
                                     nowMonthChuJiRetire++;
@@ -308,115 +314,117 @@ public class FormController {
                                     fourMonthOverChuRetire++;
                                 }
                             }
-                        }else if (people.getPositionLevel()!=null){
+                        }else if (!StrUtils.isBlank(people.getPositionLevel())){
                             if (people.getPositionLevel().contains("二级调研员") || people.getPositionLevel().contains("一级调研员")) {
                                 if (age == 60 && bmonth == nmonth) {
-                                    nowMonthChuJiRetire++;
+                                    nowMonthOneTowDiaoRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {
-                                    towMonthChuJiRetire++;
+                                    towMonthOneTowDiaoRetire++;
                                 }
                                 if (age2 == 60 && bmonth == (nmonth+2)) {
-                                    threeMonthChuJiRetire++;
+                                    threeMonthOneTowDiaoRetire++;
                                 }
                                 if (age3 == 60 && bmonth == (nmonth+3)) {
-                                    fourMonthChuJiRetire++;
+                                    fourMonthOneTowDiaoRetire++;
                                 }
                             } else if (people.getPositionLevel().contains("四级调研员") || people.getPositionLevel().contains("三级调研员")) {
                                 if (age == 60 && bmonth == nmonth) {
-                                    nowMonthFuChuRetire++;
+                                    nowMonthThreeFourDiaoRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {
-                                    towMonthFuChuRetire++;
+                                    towMonthThreeFourDiaoRetire++;
                                 }
                                 if (age2 == 60 && bmonth == (nmonth+2)) {
-                                    threeMonthFuChuRetire++;
+                                    threeMonthThreeFourDiaoRetire++;
                                 }
                                 if (age3 == 60 && bmonth == (nmonth+3)) {
-                                    fourMonthFuChuRetire++;
+                                    fourMonthThreeFourDiaoRetire++;
                                 }
                             } else if (people.getPositionLevel().contains("二级主任科员") || people.getPositionLevel().contains("一级主任科员")) {
                                 if (people.getSex().contains("男")) {
                                     if (age == 60 && bmonth == nmonth) {
-                                        nowMonthZhengKeRetire++;
+                                        nowMonthOneTowZhuRenRetire++;
                                     }
                                     if (age1 == 60 && bmonth == (nmonth+1)) {
-                                        towMonthZhengKeRetire++;
+                                        towMonthOneTowZhuRenRetire++;
+//                                        System.out.println(people.getName()+"=>"+towMonthOneTowZhuRenRetire+"=>"+people.getSex()+"=>"+age1);
                                     }
                                     if (age2 == 60 && bmonth == (nmonth+2)) {
-                                        threeMonthZhengKeRetire++;
+                                        threeMonthOneTowZhuRenRetire++;
                                     }
                                     if (age3 == 60 && bmonth == (nmonth+3)) {
-                                        fourMonthZhengKeRetire++;
+                                        fourMonthOneTowZhuRenRetire++;
                                     }
                                 } else {
                                     if (age == 55 && bmonth == nmonth) {
-                                        nowMonthZhengKeRetire++;
+                                        nowMonthOneTowZhuRenRetire++;
                                     }
                                     if (age1 == 55 && bmonth == (nmonth+1)) {
-                                        towMonthZhengKeRetire++;
+                                        towMonthOneTowZhuRenRetire++;
+//                                        System.out.println(people.getName()+"=>"+towMonthOneTowZhuRenRetire+"=>"+people.getSex()+"=>"+age1);
                                     }
                                     if (age2 == 55 && bmonth == (nmonth+2)) {
-                                        threeMonthZhengKeRetire++;
+                                        threeMonthOneTowZhuRenRetire++;
                                     }
                                     if (age3 == 55 && bmonth == (nmonth+3)) {
-                                        fourMonthZhengKeRetire++;
+                                        fourMonthOneTowZhuRenRetire++;
                                     }
                                 }
                             } else if (people.getPositionLevel().contains("四级主任科员") || people.getPositionLevel().contains("三级主任科员")) {
                                 if (people.getSex().contains("男")) {
                                     if (age == 60 && bmonth == nmonth) {
-                                        nowMonthFuKeRetire++;
+                                        nowMonthThreeFourZhuRenRetire++;
                                     }
                                     if (age1 == 60 && bmonth == (nmonth+1)) {
-                                        towMonthFuKeRetire++;
+                                        towMonthThreeFourZhuRenRetire++;
                                     }
                                     if (age2 == 60 && bmonth == (nmonth+2)) {
-                                        threeMonthFuKeRetire++;
+                                        threeMonthThreeFourZhuRenRetire++;
                                     }
                                     if (age3 == 60 && bmonth == (nmonth+3)) {
-                                        fourMonthFuKeRetire++;
+                                        fourMonthThreeFourZhuRenRetire++;
                                     }
                                 } else {
                                     if (age == 55 && bmonth == nmonth) {
-                                        nowMonthFuKeRetire++;
+                                        nowMonthThreeFourZhuRenRetire++;
                                     }
                                     if (age1 == 55 && bmonth == (nmonth+1)) {
-                                        towMonthFuKeRetire++;
+                                        towMonthThreeFourZhuRenRetire++;
                                     }
                                     if (age2 == 55 && bmonth == (nmonth+2)) {
-                                        threeMonthFuKeRetire++;
+                                        threeMonthThreeFourZhuRenRetire++;
                                     }
                                     if (age3 == 55 && bmonth == (nmonth+3)) {
-                                        fourMonthFuKeRetire++;
+                                        fourMonthThreeFourZhuRenRetire++;
                                     }
                                 }
                             } else if (people.getPositionLevel().contains("一级科员") || people.getPositionLevel().contains("二级科员")) {
                                 if (people.getSex().contains("男")) {
                                     if (age == 60 && bmonth == nmonth) {
-                                        nowMonthKeYuanRetire++;
+                                        nowMonthOneTowKeYuanRetire++;
                                     }
                                     if (age1 == 60 && bmonth == (nmonth+1)) {
-                                        towMonthKeYuanRetire++;
+                                        towMonthOneTowKeYuanRetire++;
                                     }
                                     if (age2 == 60 && bmonth == (nmonth+2)) {
-                                        threeMonthKeYuanRetire++;
+                                        threeMonthOneTowKeYuanRetire++;
                                     }
                                     if (age3 == 60 && bmonth == (nmonth+3)) {
-                                        fourMonthKeYuanRetire++;
+                                        fourMonthOneTowKeYuanRetire++;
                                     }
                                 } else {
                                     if (age == 55 && bmonth == nmonth) {
-                                        nowMonthKeYuanRetire++;
+                                        nowMonthOneTowKeYuanRetire++;
                                     }
                                     if (age1 == 55 && bmonth == (nmonth+1)) {
-                                        towMonthKeYuanRetire++;
+                                        towMonthOneTowKeYuanRetire++;
                                     }
                                     if (age2 == 55 && bmonth == (nmonth+2)) {
-                                        threeMonthKeYuanRetire++;
+                                        threeMonthOneTowKeYuanRetire++;
                                     }
                                     if (age3 == 55 && bmonth == (nmonth+3)) {
-                                        fourMonthKeYuanRetire++;
+                                        fourMonthOneTowKeYuanRetire++;
                                     }
                                 }
                             } else {
@@ -442,7 +450,13 @@ public class FormController {
                 model.setNowMonthZhengKeRetire(nowMonthZhengKeRetire);
                 model.setNowMonthFuKeRetire(nowMonthFuKeRetire);
                 model.setNowMonthKeYuanRetire(nowMonthKeYuanRetire);
-                model.setNowMonthTotalRetire(nowMonthOverChuRetire + nowMonthChuJiRetire + nowMonthFuChuRetire + nowMonthZhengKeRetire + nowMonthFuKeRetire + nowMonthKeYuanRetire);
+                model.setNowMonthOneTowDiaoRetire(nowMonthOneTowDiaoRetire);
+                model.setNowMonthThreeFourDiaoRetire(nowMonthThreeFourDiaoRetire);
+                model.setNowMonthOneTowZhuRenRetire(nowMonthOneTowZhuRenRetire);
+                model.setNowMonthThreeFourZhuRenRetire(nowMonthThreeFourZhuRenRetire);
+                model.setNowMonthOneTowKeYuanRetire(nowMonthOneTowKeYuanRetire);
+                model.setNowMonthTotalRetire(nowMonthOverChuRetire + nowMonthChuJiRetire + nowMonthFuChuRetire + nowMonthZhengKeRetire + nowMonthFuKeRetire + nowMonthKeYuanRetire+
+                        nowMonthOneTowDiaoRetire+nowMonthThreeFourDiaoRetire+nowMonthOneTowZhuRenRetire+nowMonthThreeFourZhuRenRetire+nowMonthOneTowKeYuanRetire);
 
                 model.setTowMonthOverChuRetire(towMonthOverChuRetire);
                 model.setTowMonthChuJiRetire(towMonthChuJiRetire);
@@ -450,7 +464,13 @@ public class FormController {
                 model.setTowMonthZhengKeRetire(towMonthZhengKeRetire);
                 model.setTowMonthFuKeRetire(towMonthFuKeRetire);
                 model.setTowMonthKeYuanRetire(towMonthKeYuanRetire);
-                model.setTowMonthTotalRetire(towMonthOverChuRetire + towMonthChuJiRetire + towMonthFuChuRetire + towMonthZhengKeRetire + towMonthFuKeRetire + towMonthKeYuanRetire);
+                model.setTowMonthOneTowDiaoRetire(towMonthOneTowDiaoRetire);
+                model.setTowMonthThreeFourDiaoRetire(towMonthThreeFourDiaoRetire);
+                model.setTowMonthOneTowZhuRenRetire(towMonthOneTowZhuRenRetire);
+                model.setTowMonthThreeFourZhuRenRetire(towMonthThreeFourZhuRenRetire);
+                model.setTowMonthOneTowKeYuanRetire(towMonthOneTowKeYuanRetire);
+                model.setTowMonthTotalRetire(towMonthOverChuRetire + towMonthChuJiRetire + towMonthFuChuRetire + towMonthZhengKeRetire + towMonthFuKeRetire + towMonthKeYuanRetire+
+                        towMonthOneTowDiaoRetire+towMonthThreeFourDiaoRetire+towMonthOneTowZhuRenRetire+towMonthThreeFourZhuRenRetire+towMonthOneTowKeYuanRetire);
 
                 model.setThreeMonthOverChuRetire(threeMonthOverChuRetire);
                 model.setThreeMonthChuJiRetire(threeMonthChuJiRetire);
@@ -458,7 +478,13 @@ public class FormController {
                 model.setThreeMonthZhengKeRetire(threeMonthZhengKeRetire);
                 model.setThreeMonthFuKeRetire(threeMonthFuKeRetire);
                 model.setThreeMonthKeYuanRetire(threeMonthKeYuanRetire);
-                model.setThreeMonthTotalRetire(threeMonthOverChuRetire + threeMonthChuJiRetire + threeMonthFuChuRetire + threeMonthZhengKeRetire + threeMonthFuKeRetire + threeMonthKeYuanRetire);
+                model.setThreeMonthOneTowDiaoRetire(threeMonthOneTowDiaoRetire);
+                model.setThreeMonthThreeFourDiaoRetire(threeMonthThreeFourDiaoRetire);
+                model.setThreeMonthOneTowZhuRenRetire(threeMonthOneTowZhuRenRetire);
+                model.setThreeMonthThreeFourZhuRenRetire(threeMonthThreeFourZhuRenRetire);
+                model.setThreeMonthOneTowKeYuanRetire(threeMonthOneTowKeYuanRetire);
+                model.setThreeMonthTotalRetire(threeMonthOverChuRetire + threeMonthChuJiRetire + threeMonthFuChuRetire + threeMonthZhengKeRetire + threeMonthFuKeRetire + threeMonthKeYuanRetire+
+                        threeMonthOneTowDiaoRetire+threeMonthThreeFourDiaoRetire+threeMonthOneTowZhuRenRetire+threeMonthThreeFourZhuRenRetire+threeMonthOneTowKeYuanRetire);
 
                 model.setFourMonthOverChuRetire(fourMonthOverChuRetire);
                 model.setFourMonthChuJiRetire(fourMonthChuJiRetire);
@@ -466,7 +492,13 @@ public class FormController {
                 model.setFourMonthZhengKeRetire(fourMonthZhengKeRetire);
                 model.setFourMonthFuKeRetire(fourMonthFuKeRetire);
                 model.setFourMonthKeYuanRetire(fourMonthKeYuanRetire);
-                model.setFourMonthTotalRetire(fourMonthOverChuRetire + fourMonthChuJiRetire + fourMonthFuChuRetire + fourMonthZhengKeRetire + fourMonthFuKeRetire + fourMonthKeYuanRetire);
+                model.setFourMonthOneTowDiaoRetire(fourMonthOneTowDiaoRetire);
+                model.setFourMonthThreeFourDiaoRetire(fourMonthThreeFourDiaoRetire);
+                model.setFourMonthOneTowZhuRenRetire(fourMonthOneTowZhuRenRetire);
+                model.setFourMonthThreeFourZhuRenRetire(fourMonthThreeFourZhuRenRetire);
+                model.setFourMonthOneTowKeYuanRetire(fourMonthOneTowKeYuanRetire);
+                model.setFourMonthTotalRetire(fourMonthOverChuRetire + fourMonthChuJiRetire + fourMonthFuChuRetire + fourMonthZhengKeRetire + fourMonthFuKeRetire + fourMonthKeYuanRetire+
+                        fourMonthOneTowDiaoRetire+fourMonthThreeFourDiaoRetire+fourMonthOneTowZhuRenRetire+fourMonthThreeFourZhuRenRetire+fourMonthOneTowKeYuanRetire);
             }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
         } catch (Exception e) {
@@ -781,6 +813,97 @@ public class FormController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), "数据库备份失败", null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "审批详情", notes = "审批详情", httpMethod = "POST", tags = "审批详情接口")
+    @PostMapping(value = "/processTuoPuLoad")
+    @ResponseBody
+    public String processTuoPuLoad(HttpServletRequest request, @RequestParam(value = "isChild", required = false) String isChild, @RequestParam(value = "childUnit", required = false) String childUnit) {
+        try {
+            String[] arr;
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                if (user != null) {
+                    arr = new String[]{user.getUnitId()};
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
+            FormModel model=new FormModel();
+            List<Sys_Process> processList=processService.selectProcesssByUnitIds(arr);
+            if (user != null) {
+                SYS_UNIT approvaUnit = unitService.selectApprovalUnit(user.getUnitId());
+                if (approvaUnit != null) {
+                    List<Sys_Process> zprocessList = processService.selectProcesssByUnitIdsAndZuZhiBu(arr, approvaUnit.getId());
+                    if (zprocessList!=null){
+                        model.setZuZhiBuNuM(zprocessList.size());
+                    }
+                }
+            }
+            if (processList!=null){
+                model.setDanWeiNum(processList.size());
+            }
+            List<Sys_Process> shangProcessList=processService.selectShangProcesssByUnitIds(arr);
+            if (shangProcessList!=null){
+                model.setZhuGuanNum(shangProcessList.size());
+            }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "审批提醒", notes = "审批提醒", httpMethod = "POST", tags = "审批提醒")
+    @PostMapping(value = "/processDetailForm")
+    @ResponseBody
+    public String processDetailForm(HttpServletRequest request, @RequestParam(value = "isChild", required = false) String isChild, @RequestParam(value = "childUnit", required = false) String childUnit) {
+        try {
+            String[] arr;
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                if (user != null) {
+                    arr = new String[]{user.getUnitId()};
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
+            FormModel model=new FormModel();
+            List<Sys_Process> processList=processService.selectProcesssByUnitIdsAndFlag(arr,"未审批");
+            if (processList!=null){
+                model.setNotApprNum(processList.size());
+            }
+            List<Sys_Process> processList1=processService.selectProcesssByUnitIdsAndFlag(arr,"已审核");
+            if (processList1!=null){
+                model.setApprEdNum(processList1.size());
+            }
+            List<Sys_Process> processList2=processService.selectProcesssByUnitIdsAndFlag(arr,"已驳回");
+            if (processList2!=null){
+                model.setNotApprEdNum(processList2.size());
+            }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
         }
     }
 }

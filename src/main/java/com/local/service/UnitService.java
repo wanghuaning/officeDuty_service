@@ -22,6 +22,7 @@ public interface UnitService {
     SYS_UNIT selectUnitByCodeNotId(String code,String id);//根据名称查询单位除本单位以外
 
     SYS_UNIT selectUnitById(String id);
+    SYS_UNIT selectApprovalUnit(String unitId);// 获取审批单位
 
     List<SYS_UNIT> selectUnitAll();
 

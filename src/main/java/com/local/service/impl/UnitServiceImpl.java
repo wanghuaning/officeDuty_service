@@ -385,6 +385,42 @@ public class UnitServiceImpl implements UnitService {
     }
 
     @Override
+    public SYS_UNIT selectApprovalUnit(String unitId){
+        Criteria cri = Cnd.cri();
+        SYS_UNIT unit=new SYS_UNIT();
+        List<SYS_UNIT> seftUnit = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unitId));
+        if (seftUnit.size()>0){
+            if ("0".equals(seftUnit.get(0).getApprovalFlag())){
+                unit=seftUnit.get(0);
+            }else {
+                List<SYS_UNIT> unit1 = dao.query(SYS_UNIT.class, Cnd.where("id", "=", seftUnit.get(0).getParentId()));
+                if (unit1.size()>0){
+                    if ("0".equals(unit1.get(0).getApprovalFlag())){
+                        unit=unit1.get(0);
+                    }else {
+                        List<SYS_UNIT> unit2 = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unit1.get(0).getParentId()));
+                        if (unit2.size()>0){
+                            if ("0".equals(unit2.get(0).getApprovalFlag())){
+                                unit=unit2.get(0);
+                            }else {
+                                List<SYS_UNIT> unit3 = dao.query(SYS_UNIT.class, Cnd.where("id", "=", unit2.get(0).getParentId()));
+                                if (unit3.size()>0){
+                                    if ("0".equals(unit3.get(0).getApprovalFlag())){
+                                        unit=unit3.get(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return unit;
+        }else {
+            return null;
+        }
+    }
+
+    @Override
     public List<SYS_UNIT> selectUnitAll() {
         Criteria cri = Cnd.cri();
         cri.where().andNotEquals("name", "'单位'");

@@ -5,6 +5,13 @@ import lombok.Data;
 
 @Data
 public class FormModel {
+    private Integer danWeiNum=0;
+    private Integer zhuGuanNum=0;
+    private Integer zuZhiBuNuM=0;
+
+    private Integer notApprNum=0;
+    private Integer ApprEdNum=0;
+    private Integer notApprEdNum=0;
 
     private Integer oneYear=0;
     private Integer towYear=0;
@@ -51,6 +58,54 @@ public class FormModel {
     private Integer fourYearNotGe=0;
     private Integer fiveYearNotGe=0;
     private FormRankModel formRankModel;
+
+    public Integer getDanWeiNum() {
+        return danWeiNum;
+    }
+
+    public void setDanWeiNum(Integer danWeiNum) {
+        this.danWeiNum = danWeiNum;
+    }
+
+    public Integer getZhuGuanNum() {
+        return zhuGuanNum;
+    }
+
+    public void setZhuGuanNum(Integer zhuGuanNum) {
+        this.zhuGuanNum = zhuGuanNum;
+    }
+
+    public Integer getZuZhiBuNuM() {
+        return zuZhiBuNuM;
+    }
+
+    public void setZuZhiBuNuM(Integer zuZhiBuNuM) {
+        this.zuZhiBuNuM = zuZhiBuNuM;
+    }
+
+    public Integer getNotApprNum() {
+        return notApprNum;
+    }
+
+    public void setNotApprNum(Integer notApprNum) {
+        this.notApprNum = notApprNum;
+    }
+
+    public Integer getApprEdNum() {
+        return ApprEdNum;
+    }
+
+    public void setApprEdNum(Integer apprEdNum) {
+        ApprEdNum = apprEdNum;
+    }
+
+    public Integer getNotApprEdNum() {
+        return notApprEdNum;
+    }
+
+    public void setNotApprEdNum(Integer notApprEdNum) {
+        this.notApprEdNum = notApprEdNum;
+    }
 
     public Integer getBianZhiNum() {
         return bianZhiNum;
