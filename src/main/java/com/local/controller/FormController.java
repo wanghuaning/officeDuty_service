@@ -310,7 +310,7 @@ public class FormController {
                             }
                         }else if (people.getPositionLevel()!=null){
                             if (people.getPositionLevel().contains("二级调研员") || people.getPositionLevel().contains("一级调研员")) {
-                                if (age == 60) {
+                                if (age == 60 && bmonth == nmonth) {
                                     nowMonthChuJiRetire++;
                                 }
                                 if (age1 == 60 && bmonth == (nmonth+1)) {
