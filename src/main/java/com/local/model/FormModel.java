@@ -5,6 +5,10 @@ import lombok.Data;
 
 @Data
 public class FormModel {
+    private Integer order=0;
+    private String title="";
+    private String unitName="";
+    private String detail="";
     private Integer danWeiNum=0;
     private Integer zhuGuanNum=0;
     private Integer zuZhiBuNuM=0;
@@ -58,6 +62,38 @@ public class FormModel {
     private Integer fourYearNotGe=0;
     private Integer fiveYearNotGe=0;
     private FormRankModel formRankModel;
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
 
     public Integer getDanWeiNum() {
         return danWeiNum;

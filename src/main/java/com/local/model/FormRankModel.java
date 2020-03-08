@@ -5,6 +5,9 @@ import lombok.Data;
 @Data
 public class FormRankModel {
 
+    private String unitName;
+    private String id;
+
     private Long oneResearcherNum=0l;//核准一级调研员职数
     private Long towResearcherNum=0l;//核准二级调研员职数
     private Long threeResearcherNum=0l;//核准三级调研员职数
@@ -40,6 +43,7 @@ public class FormRankModel {
     private Long oneClerkNow=0l;//现有一级科员
     private Long towClerkNow=0l;//现有二级科员
     private Long probationNow=0l;//现有试用期
+    private Long total=0l;
 
     private Long oneResearcherNumLave=0l;//剩余一级调研员职数
     private Long towResearcherNumLave=0l;//剩余二级调研员职数
@@ -58,6 +62,30 @@ public class FormRankModel {
     private Long towClerkDraftingNum=0l;//二级主任科员职数拟定
     private Long threeClerkDraftingNum=0l;//三级主任科员职数拟定
     private Long fourClerkDraftingNum=0l;//四级主任科员职数拟定
+
+    public Long getTotal() {
+        return total;
+    }
+
+    public void setTotal(Long total) {
+        this.total = total;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public Long getOneResearcherNum() {
         return oneResearcherNum;

@@ -1,6 +1,8 @@
 package com.local.controller;
 
+import com.local.cell.DataManager;
 import com.local.cell.FormManager;
+import com.local.cell.PeopleManager;
 import com.local.cell.UserManager;
 import com.local.entity.sys.*;
 import com.local.model.FormModel;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -864,6 +867,78 @@ public class FormController {
         }
     }
 
+    @ApiOperation(value = "消息队列", notes = "消息队列", httpMethod = "POST", tags = "消息队列接口")
+    @PostMapping(value = "/noticeUl")
+    @ResponseBody
+    public String noticeUl(HttpServletRequest request, @RequestParam(value = "isChild", required = false) String isChild, @RequestParam(value = "childUnit", required = false) String childUnit) {
+        try {
+            String[] arr;
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                if (user != null) {
+                    arr = new String[]{user.getUnitId()};
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
+            int index=0;
+            List<FormModel> modelList=new ArrayList<>();
+            String[] statess={"未审批","初审"};
+            List<Sys_Process> processList=processService.selectApprProcessByStates(statess);
+            if (processList!=null){
+                for (Sys_Process process:processList){
+                    index++;
+                    FormModel model=new FormModel();
+                    model.setOrder(index);
+                    model.setTitle("流程未审批");
+                    model.setUnitName(process.getUnitName());
+                    if ("0".equals(process.getFlag())){
+                        model.setDetail("备案审批表");
+                    }else {
+                        model.setDetail("职数审批表");
+                    }
+                    modelList.add(model);
+                }
+            }
+            List<SYS_People> peopleList = new ArrayList<>();
+            PeopleManager.getRetireInfoData(peopleList, arr, "全部",peopleService,unitService);
+            if (peopleList.size()>0){
+                for (SYS_People people:peopleList){
+                    index++;
+                    FormModel model=new FormModel();
+                    model.setOrder(index);
+                    model.setTitle("到期退休");
+                    model.setUnitName(people.getUnitName());
+                    model.setDetail(people.getName());
+                    modelList.add(model);
+                }
+            }
+            List<SYS_Message> messageList=userService.selectMessages();
+            if (messageList!=null){
+                for (SYS_Message message:messageList){
+                    index++;
+                    FormModel model=new FormModel();
+                    model.setOrder(index);
+                    model.setTitle("通知消息");
+                    model.setDetail(message.getName());
+                    modelList.add(model);
+                }
+            }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, modelList, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "审批提醒", notes = "审批提醒", httpMethod = "POST", tags = "审批提醒")
     @PostMapping(value = "/processDetailForm")
     @ResponseBody
@@ -888,10 +963,16 @@ public class FormController {
                 }
             }
             FormModel model=new FormModel();
+            int size=0;
+            List<Sys_Process> processListc=processService.selectProcesssByUnitIdsAndFlag(arr,"初审");
+            if (processListc!=null){
+                size+=processListc.size();
+            }
             List<Sys_Process> processList=processService.selectProcesssByUnitIdsAndFlag(arr,"未审批");
             if (processList!=null){
-                model.setNotApprNum(processList.size());
+                size+=processList.size();
             }
+            model.setNotApprNum(size);
             List<Sys_Process> processList1=processService.selectProcesssByUnitIdsAndFlag(arr,"已审核");
             if (processList1!=null){
                 model.setApprEdNum(processList1.size());
@@ -901,6 +982,69 @@ public class FormController {
                 model.setNotApprEdNum(processList2.size());
             }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "职级详情", notes = "审批提醒", httpMethod = "POST", tags = "审批提醒")
+    @PostMapping(value = "/rankDetail")
+    @ResponseBody
+    public String rankDetail(HttpServletRequest request, @RequestParam(value = "isChild", required = false) String isChild, @RequestParam(value = "childUnit", required = false) String childUnit,
+                             @RequestParam(value = "title", required = false) String title,@RequestParam(value = "name", required = false) String name) {
+        try {
+            String[] arr;
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (!"true".equals(isChild)) {
+                //从请求的header中取出当前登录的登录
+                if (user != null) {
+                    arr = new String[]{user.getUnitId()};
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+
+            } else {
+                if (!StrUtils.isBlank(childUnit)) {
+                    childUnit = childUnit.substring(1, childUnit.length() - 1);
+                    arr = childUnit.split(";");
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
+                }
+            }
+            List<FormRankModel> modelList = new ArrayList<>();
+            if (StrUtils.isBlank(name)){
+                for (int i=0; i<arr.length;i++){
+                    String unitId=arr[i];
+                    SYS_UNIT unit=unitService.selectUnitById(arr[i]);
+                    if (unit!=null){
+                        FormRankModel model = new FormRankModel();
+                        model.setId(unit.getId());
+                        model.setUnitName(unit.getName());
+                        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
+                        if (peoples!=null){
+                            FormManager.getApprovalDataCellByTitle(model, unit, peoples, rankService,title);
+                        }
+                        modelList.add(model);
+                    }
+                }
+            }else {
+                List<SYS_UNIT> unitList=unitService.selectAllUnitsByName(arr,name);
+                if (unitList!=null){
+                    for (SYS_UNIT unit:unitList){
+                        if (unit!=null){
+                            FormRankModel model = new FormRankModel();
+                            model.setId(unit.getId());
+                            model.setUnitName(unit.getName());
+                            List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0","在职");
+                            if (peoples!=null){
+                                FormManager.getApprovalDataCellByTitle(model, unit, peoples, rankService,title);
+                            }
+                            modelList.add(model);
+                        }
+                    }
+                }
+            }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, modelList, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();

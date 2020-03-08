@@ -33,6 +33,7 @@ public interface UnitService {
     List<SYS_UNIT> selectAllParentUnits(SYS_UNIT unit);
 
     List<SYS_UNIT> selectAllUnits(String[] units);
+    List<SYS_UNIT> selectAllUnitsByName(String[] units,String name);
 
     String  selectUnitAndChildUnits(String parentId);
 

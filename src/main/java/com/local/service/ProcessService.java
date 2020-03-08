@@ -19,6 +19,7 @@ public interface ProcessService {
     Sys_Process selectProcessByParentIdAndUnitName(String parentId,String unitName);
     List<Sys_Process> selectProcesssByParentId(String parentId);
     List<Sys_Process> selectNotApprProcess(String unitId);
+    List<Sys_Process> selectApprProcessByStates(String[] states);
     List<Sys_Process> selectNotApprProcessByFlag(String unitId,String flag);
     List<Sys_Process> selectApprProcess(String unitId);
     List<Sys_Process> selectProcesssByUnitIds(String[] unitIds);
