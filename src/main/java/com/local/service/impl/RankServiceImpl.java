@@ -294,6 +294,18 @@ public class RankServiceImpl implements RankService {
             return null;
         }
     }
+    @Override
+    public List<SYS_Rank> selectRanksByUnitIds(List<String> unitIds){
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrList("unit_Id", unitIds);
+        List<SYS_Rank> peoples = new ArrayList<>();
+        List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     /**
      * ;//根据单位ID查询，是否包含下级单位的 职级1:包含
      *

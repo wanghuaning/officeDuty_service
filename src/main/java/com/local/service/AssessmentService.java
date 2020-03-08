@@ -25,4 +25,5 @@ public interface AssessmentService {
     List<SYS_Assessment> selectKaoHeByPidAndResult(String pid,String result);
     List<SYS_Assessment> selectAssessmentsByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
     List<SYS_Assessment> selectAssessmentsByUnitId(String unitId);
+    List<SYS_Assessment> selectAssessmentsByUnitId(List<String> unitIds);
 }

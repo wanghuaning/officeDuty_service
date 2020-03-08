@@ -12,7 +12,7 @@ public interface DataInfoService {
     void updateDataInfo(SYS_DataInfo data);
     void deleteDataInfo(String id);
     SYS_DataInfo selectDataInfById(String id);
-
+    List<SYS_DataInfo> selectDataInfosByUnitId(String unitId);
     List<SYS_DataInfo> selectDataInfosByDataId(String dataId,String type);
 
 

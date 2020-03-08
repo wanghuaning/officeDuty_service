@@ -157,6 +157,19 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_USER> selectAllUsers(){
+        List<SYS_USER> list = new ArrayList<>();
+        Criteria criteria = Cnd.cri();
+        criteria.where().andNotEquals("unit_id", null);
+        list = dao.query(SYS_USER.class, criteria);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     @Override
     public SYS_USER selectUserById(String id){
         List<SYS_USER> list = new ArrayList<>();

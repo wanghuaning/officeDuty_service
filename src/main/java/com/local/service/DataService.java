@@ -12,6 +12,7 @@ public interface DataService {
     void deleteData(String id);
     SYS_Data selectDataById(String id);
     SYS_Data selectDataByProcessId(String processId);
+    List<SYS_Data> selectDataByUnitId(String unitId);
 
     List<SYS_Digest> selectDigestsByUnitId(String unitId);
     SYS_Digest selectDigestById(String id);

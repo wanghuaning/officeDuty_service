@@ -29,6 +29,8 @@ public interface UserService {
 
     List<SYS_USER> selectUsersByUnitId(String unitId);
 
+    List<SYS_USER> selectAllUsers();
+
     SYS_USER selectUserById(String id);
 
     QueryResult selectMessages(int pageSize, int pageNumber);

@@ -52,6 +52,19 @@ public class ProcessServiceImpl implements ProcessService {
             return null;
         }
     }
+
+    @Override
+    public List<Sys_Process> selectProcessByUnitId(String unitId){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
     @Override
     public List<Sys_Process> selectProcesssByUnitIds(String[] unitIds){
         List<Sys_Process> list=new ArrayList<>();
@@ -65,6 +78,18 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
 
+    @Override
+    public List<Sys_Process> selectProcesssByUnitIds(List<String> unitIds){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andInStrList("unit_Id",unitIds);
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list;
+        }else {
+            return null;
+        }
+    }
     @Override
     public List<Sys_Process> selectProcesssByUnitIdsAndFlag(String[] unitIds, String states){
         List<Sys_Process> list=new ArrayList<>();

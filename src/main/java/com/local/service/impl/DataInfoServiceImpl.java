@@ -22,45 +22,59 @@ public class DataInfoServiceImpl implements DataInfoService {
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "新增备份数据", type = "C")
-    public void inserDataInfo(SYS_DataInfo data){
+    public void inserDataInfo(SYS_DataInfo data) {
         dao.insert(data);
     }
 
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "修改备份数据", type = "U")
-    public void updateDataInfo(SYS_DataInfo data){
+    public void updateDataInfo(SYS_DataInfo data) {
         dao.update(data);
     }
 
     @Override
     @Transactional//声明式事务管理
     @SLog(tag = "删除备份数据", type = "U")
-    public void deleteDataInfo(String id){
-        dao.delete(SYS_DataInfo.class,id);
+    public void deleteDataInfo(String id) {
+        dao.delete(SYS_DataInfo.class, id);
     }
+
     @Override
-    public SYS_DataInfo selectDataInfById(String id){
-        List<SYS_DataInfo> list=new ArrayList<>();
-        Criteria cir= Cnd.cri();
-        cir.where().andEquals("id",id);
-        list=dao.query(SYS_DataInfo.class,cir);
-        if (list.size()>0){
+    public SYS_DataInfo selectDataInfById(String id) {
+        List<SYS_DataInfo> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("id", id);
+        list = dao.query(SYS_DataInfo.class, cir);
+        if (list.size() > 0) {
             return list.get(0);
-        }else {
+        } else {
             return null;
         }
     }
 
     @Override
-    public List<SYS_DataInfo> selectDataInfosByDataId(String dataId,String type){
-        List<SYS_DataInfo> list=new ArrayList<>();
-        Criteria cir= Cnd.cri();
-        cir.where().andEquals("data_Id",dataId).andEquals("type",type);
-        list=dao.query(SYS_DataInfo.class,cir);
-        if (list.size()>0){
+    public List<SYS_DataInfo> selectDataInfosByUnitId(String unitId) {
+        List<SYS_DataInfo> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("unit_Id", unitId);
+        list = dao.query(SYS_DataInfo.class, cir);
+        if (list.size() > 0) {
             return list;
-        }else {
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_DataInfo> selectDataInfosByDataId(String dataId, String type) {
+        List<SYS_DataInfo> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("data_Id", dataId).andEquals("type", type);
+        list = dao.query(SYS_DataInfo.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
             return null;
         }
     }

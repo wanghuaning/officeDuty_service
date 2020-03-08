@@ -22,7 +22,9 @@ public interface ProcessService {
     List<Sys_Process> selectApprProcessByStates(String[] states);
     List<Sys_Process> selectNotApprProcessByFlag(String unitId,String flag);
     List<Sys_Process> selectApprProcess(String unitId);
+    List<Sys_Process> selectProcessByUnitId(String unitId);
     List<Sys_Process> selectProcesssByUnitIds(String[] unitIds);
+    List<Sys_Process> selectProcesssByUnitIds(List<String> unitIds);
     List<Sys_Process> selectProcesssByUnitIdsAndFlag(String[] unitIds, String states);
     List<Sys_Process> selectShangProcesssByUnitIds(String[] unitIds);
     List<Sys_Process> selectProcesssByUnitIdsAndZuZhiBu(String[] unitIds,String zuzhiUnitId);

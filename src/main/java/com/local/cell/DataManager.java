@@ -376,9 +376,9 @@ public class DataManager {
         model.setContactNumber(contactNum);
         model.setNowDateStr(nowDate);
         model.setRankModels(rankModels);
-        if ("导出".equals(flag)){
+        if ("导出".equals(flag)) {
             return filingDataList(rankModels, response, unit, model);
-        }else {
+        } else {
             setProcessDate(processService, "0", unit, "", gson.toJson(model), unitService);
 //            saveRegProcess(unit, model, processService);
         }
@@ -387,10 +387,10 @@ public class DataManager {
 
     private final static Gson gson = new Gson();
 
-    public static Sys_Process saveRegProcess(SYS_UNIT unit, RegModel model, ProcessService processService,UnitService unitService) {
+    public static Sys_Process saveRegProcess(SYS_UNIT unit, RegModel model, ProcessService processService, UnitService unitService) {
         Sys_Process process = processService.selectProcessByFlag(unit.getId(), "0");
         if (process != null) {
-            SYS_UNIT sys_unit=unitService.selectUnitById(unit.getParentId());
+            SYS_UNIT sys_unit = unitService.selectUnitById(unit.getParentId());
             process.setCreateTime(new Date());
             process.setFlag("0");
             process.setParam(gson.toJson(model));
@@ -675,8 +675,8 @@ public class DataManager {
                                                       AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
         if (people != null) {
-            ReimbursementModel reimbursementModel= getRenMianShenPi(peopleService, peopleId,
-                    rankService, educationService, assessmentService,  unitService,people);
+            ReimbursementModel reimbursementModel = getRenMianShenPi(peopleService, peopleId,
+                    rankService, educationService, assessmentService, unitService, people);
             ClassPathResource resource = new ClassPathResource("exportExcel/intendeAndDepose.xls");
             String path = resource.getFile().getPath();
             Workbook temp = ExcelFileGenerator.getTeplet(path);
@@ -692,8 +692,8 @@ public class DataManager {
     }
 
     public static ReimbursementModel exportDutyFreePeople(HttpServletResponse response, PeopleService peopleService, String peopleId,
-                                                      DutyService dutyService, EducationService educationService,
-                                                      AssessmentService assessmentService, UnitService unitService) throws Exception {
+                                                          DutyService dutyService, EducationService educationService,
+                                                          AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
         if (people != null) {
             ReimbursementModel reimbursementModel = new ReimbursementModel();
@@ -709,15 +709,15 @@ public class DataManager {
             } else {
                 year = endYear - startYear - 1;
             }
-            String years = startYear+"."+ startMonth + "\n(" + year + ")";
+            String years = startYear + "." + startMonth + "\n(" + year + ")";
             reimbursementModel.setYears(years);
             reimbursementModel.setBirthplace(people.getBirthplace());
             reimbursementModel.setNationality(people.getNationality());
-            if ("中共党员".equals(people.getParty()) && people.getPartyTime()!=null){
+            if ("中共党员".equals(people.getParty()) && people.getPartyTime() != null) {
                 reimbursementModel.setParty(people.getParty());
                 reimbursementModel.setPartyTime(DateUtil.dateToString(people.getPartyTime()));
             }
-            if (people.getWorkday()!=null){
+            if (people.getWorkday() != null) {
                 reimbursementModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
             }
             SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
@@ -726,11 +726,11 @@ public class DataManager {
                 reimbursementModel.setNowDuty(nowDuty.getName());
             }
             SYS_Duty niRenDuty = dutyService.selectNotProDutyByPidOrderByTime(peopleId);
-            if (niRenDuty!=null){
+            if (niRenDuty != null) {
                 reimbursementModel.setNiRenDuty(niRenDuty.getName());
             }
             SYS_Duty niMianDuty = dutyService.selectNotEnableDutyByPidOrderByTime(peopleId);
-            if (niMianDuty!=null){
+            if (niMianDuty != null) {
                 reimbursementModel.setNiMianDuty(niMianDuty.getName());
             }
             SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
@@ -786,9 +786,10 @@ public class DataManager {
             return null;
         }
     }
+
     public static void exportDutyFreePeoples(Workbook temp, PeopleService peopleService, String peopleId,
-                                         DutyService dutyService, EducationService educationService,
-                                         AssessmentService assessmentService, UnitService unitService) throws Exception {
+                                             DutyService dutyService, EducationService educationService,
+                                             AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
         if (people != null) {
             ReimbursementModel reimbursementModel = new ReimbursementModel();
@@ -804,15 +805,15 @@ public class DataManager {
             } else {
                 year = endYear - startYear - 1;
             }
-            String years = startYear+"."+ startMonth + "\n(" + year + ")";
+            String years = startYear + "." + startMonth + "\n(" + year + ")";
             reimbursementModel.setYears(years);
             reimbursementModel.setBirthplace(people.getBirthplace());
             reimbursementModel.setNationality(people.getNationality());
-            if ("中共党员".equals(people.getParty()) && people.getPartyTime()!=null){
+            if ("中共党员".equals(people.getParty()) && people.getPartyTime() != null) {
                 reimbursementModel.setParty(people.getParty());
                 reimbursementModel.setPartyTime(DateUtil.dateToString(people.getPartyTime()));
             }
-            if (people.getWorkday()!=null){
+            if (people.getWorkday() != null) {
                 reimbursementModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
             }
             SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
@@ -821,11 +822,11 @@ public class DataManager {
                 reimbursementModel.setNowDuty(nowDuty.getName());
             }
             SYS_Duty niRenDuty = dutyService.selectNotProDutyByPidOrderByTime(peopleId);
-            if (niRenDuty!=null){
+            if (niRenDuty != null) {
                 reimbursementModel.setNiRenDuty(niRenDuty.getName());
             }
             SYS_Duty niMianDuty = dutyService.selectNotEnableDutyByPidOrderByTime(peopleId);
-            if (niMianDuty!=null){
+            if (niMianDuty != null) {
                 reimbursementModel.setNiMianDuty(niMianDuty.getName());
             }
             SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
@@ -958,97 +959,98 @@ public class DataManager {
         }
     }
 
-    public static ReimbursementModel  getRenMianShenPi(PeopleService peopleService, String peopleId,
-                                         RankService rankService, EducationService educationService,
-                                         AssessmentService assessmentService, UnitService unitService,SYS_People people) {
-            ReimbursementModel reimbursementModel = new ReimbursementModel();
-            reimbursementModel.setName(people.getName());
-            reimbursementModel.setSex(people.getSex());
-            int startYear = DateUtil.getYear(people.getBirthday());
-            int endYear = DateUtil.getYear(new Date());
-            int startMonth = DateUtil.getMonth(people.getBirthday());
-            int endMonth = DateUtil.getMonth(new Date());
-            int year = 0;
-            if (endMonth > startMonth) {
-                year = endYear - startYear;
-            } else {
-                year = endYear - startYear - 1;
+    public static ReimbursementModel getRenMianShenPi(PeopleService peopleService, String peopleId,
+                                                      RankService rankService, EducationService educationService,
+                                                      AssessmentService assessmentService, UnitService unitService, SYS_People people) {
+        ReimbursementModel reimbursementModel = new ReimbursementModel();
+        reimbursementModel.setName(people.getName());
+        reimbursementModel.setSex(people.getSex());
+        int startYear = DateUtil.getYear(people.getBirthday());
+        int endYear = DateUtil.getYear(new Date());
+        int startMonth = DateUtil.getMonth(people.getBirthday());
+        int endMonth = DateUtil.getMonth(new Date());
+        int year = 0;
+        if (endMonth > startMonth) {
+            year = endYear - startYear;
+        } else {
+            year = endYear - startYear - 1;
+        }
+        String years = startYear + "." + startMonth + "\n(" + year + ")";
+        reimbursementModel.setYears(years);
+        reimbursementModel.setBirthplace(people.getBirthplace());
+        reimbursementModel.setNationality(people.getNationality());
+        reimbursementModel.setParty(people.getParty());
+        SYS_Rank rank = rankService.selectAprodRanksByPid(peopleId);
+        SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
+        int youxiuYear = 2019;
+        if (rank != null) {
+            String unitAndDuty = unit.getName() + rank.getName();
+            reimbursementModel.setUnitAndDuty(unitAndDuty);
+            reimbursementModel.setWorkday(DateUtil.dateToString(DateUtil.parseDateYMD(people.getWorkday())));
+            reimbursementModel.setDutyAndRank(rank.getName());
+            reimbursementModel.setDutyAndRankTime(DateUtil.dateToString(rank.getCreateTime()));
+            reimbursementModel.setDeposeRank(rank.getName());
+            if ("否".equals(rank.getFlag())) {
+                youxiuYear = DateUtil.getYear(rank.getCreateTime());
             }
-            String years = startYear + "." + startMonth + "\n(" + year + ")";
-            reimbursementModel.setYears(years);
-            reimbursementModel.setBirthplace(people.getBirthplace());
-            reimbursementModel.setNationality(people.getNationality());
-            reimbursementModel.setParty(people.getParty());
-            SYS_Rank rank = rankService.selectAprodRanksByPid(peopleId);
-            SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
-            int youxiuYear = 2019;
-            if (rank != null) {
-                String unitAndDuty = unit.getName() + rank.getName();
-                reimbursementModel.setUnitAndDuty(unitAndDuty);
-                reimbursementModel.setWorkday(DateUtil.dateToString(DateUtil.parseDateYMD(people.getWorkday())));
-                reimbursementModel.setDutyAndRank(rank.getName());
-                reimbursementModel.setDutyAndRankTime(DateUtil.dateToString(rank.getCreateTime()));
-                reimbursementModel.setDeposeRank(rank.getName());
-                if ("否".equals(rank.getFlag())) {
-                    youxiuYear = DateUtil.getYear(rank.getCreateTime());
+        }
+        SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
+        SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
+        if (education != null) {
+            reimbursementModel.setFullTimeEducation(education.getName());
+            reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+        }
+        if (education1 != null) {
+            reimbursementModel.setWorkEducation(education1.getName());
+            reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
+        }
+        List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
+        int youxiu = 0, hege = 0, buhege = 0;
+        double convertYears = 0;
+        if (assessments != null) {
+            for (SYS_Assessment assessment : assessments) {
+                if ("优秀".equals(assessment.getName()) && assessment.getYear() >= youxiuYear) {
+                    youxiu++;
+                    convertYears += 0.5;
+                }
+                if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
+                    buhege++;
+                }
+                if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && !"不合格".equals(assessment.getName())) {
+                    hege++;
                 }
             }
-            SYS_Education education = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "全日制教育");
-            SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
-            if (education != null) {
-                reimbursementModel.setFullTimeEducation(education.getName());
-                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
-            }
-            if (education1 != null) {
-                reimbursementModel.setWorkEducation(education1.getName());
-                reimbursementModel.setWorkSchool(education1.getSchool() + "\n" + education1.getProfession());
-            }
-            List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByPeopleId(peopleId);
-            int youxiu = 0, hege = 0, buhege = 0;
-            double convertYears = 0;
-            if (assessments != null) {
-                for (SYS_Assessment assessment : assessments) {
-                    if ("优秀".equals(assessment.getName()) && assessment.getYear() >= youxiuYear) {
-                        youxiu++;
-                        convertYears += 0.5;
-                    }
-                    if ("不称职".equals(assessment.getName()) || "不合格".equals(assessment.getName())) {
-                        buhege++;
-                    }
-                    if (!"优秀".equals(assessment.getName()) && !"不称职".equals(assessment.getName()) && !"不合格".equals(assessment.getName())) {
-                        hege++;
-                    }
-                }
-            }
-            if (youxiu > 0) {
-                reimbursementModel.setConvertYears(String.valueOf(convertYears));
-                reimbursementModel.setSuperYears(String.valueOf(youxiu));
-            } else {
-                reimbursementModel.setSuperYears("");
-            }
-            if (hege > 0) {
-                reimbursementModel.setCompetentYears(String.valueOf(hege));
-            } else {
-                reimbursementModel.setCompetentYears("");
-            }
-            if (buhege > 0) {
-                reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
-            } else {
-                reimbursementModel.setNotCompetentYears("");
-            }
-            SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
-            if (rank1 != null) {
-                reimbursementModel.setIntendedRank(rank1.getName());
-            }
+        }
+        if (youxiu > 0) {
+            reimbursementModel.setConvertYears(String.valueOf(convertYears));
+            reimbursementModel.setSuperYears(String.valueOf(youxiu));
+        } else {
+            reimbursementModel.setSuperYears("");
+        }
+        if (hege > 0) {
+            reimbursementModel.setCompetentYears(String.valueOf(hege));
+        } else {
+            reimbursementModel.setCompetentYears("");
+        }
+        if (buhege > 0) {
+            reimbursementModel.setNotCompetentYears(String.valueOf(buhege));
+        } else {
+            reimbursementModel.setNotCompetentYears("");
+        }
+        SYS_Rank rank1 = rankService.selectNotAproRanksByPid(peopleId);
+        if (rank1 != null) {
+            reimbursementModel.setIntendedRank(rank1.getName());
+        }
         return reimbursementModel;
     }
+
     public static void exportFreePeoples(Workbook temp, PeopleService peopleService, String peopleId,
                                          RankService rankService, EducationService educationService,
                                          AssessmentService assessmentService, UnitService unitService) throws Exception {
         SYS_People people = peopleService.selectPeopleById(peopleId);
         if (people != null) {
             ReimbursementModel reimbursementModel = getRenMianShenPi(peopleService, peopleId,
-                    rankService, educationService, assessmentService, unitService,people);
+                    rankService, educationService, assessmentService, unitService, people);
             ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
             excelFileGenerator.createReimbursementExcel(temp.getSheet("任免审批表"), reimbursementModel);
         }
@@ -1198,8 +1200,8 @@ public class DataManager {
                         saveRealDutyDataByExcel(map, list, people, stringBuffer, unitService, fullImport, dutyService, service);//实名制（单列）管理信息
                         getPeopleTaoRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService, service);
                         getPeopleRankDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rankService, service);
-                        saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people, service,codeService);
-                        saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people,codeService);
+                        saveEducationDataByExcel(map, unit, educationService, fullImport, stringBuffer, list, people, service, codeService);
+                        saveEducationDataByExcel2(map, unit, educationService, fullImport, stringBuffer, list, people, codeService);
                         getPeopleRewardDataByExcel(map, list, people, stringBuffer, unitService, fullImport, rewardService);
                         getPeopleAssessmentDataByExcel(map, list, people, stringBuffer, unitService, fullImport, assessmentService);
                     }
@@ -1284,12 +1286,12 @@ public class DataManager {
                     String danlei = StrUtils.toNullStr(map.get("实名制职务名称"));
                     if (!StrUtils.isBlank(jun)) {
                         people.setDetail(jun);
-                    }else {
+                    } else {
                         people.setDetail("否");
                     }
                     if (!StrUtils.isBlank(danlei)) {
                         people.setRealName(danlei);
-                    }else {
+                    } else {
                         people.setRealName("否");
                     }
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
@@ -1361,8 +1363,8 @@ public class DataManager {
             SYS_Education education1 = educationService.selectEducationByName(education.getName(), people.getId());
             people.setEducation(education.getName());
             peopleService.updatePeople(people);
-            SYS_CODE code=codeService.selectCodeByName(education.getName(),"250");
-            if (code!=null){
+            SYS_CODE code = codeService.selectCodeByName(education.getName(), "250");
+            if (code != null) {
                 education.setEducationOrder(String.valueOf(code.getId()));
             }
             if ("1".equals(fullImport)) {//覆盖导入
@@ -1398,7 +1400,7 @@ public class DataManager {
      * @throws Exception
      */
     public static SYS_Education saveEducationDataByExcel2(Map<String, Object> map, SYS_UNIT unit, EducationService educationService, String fullImport, StringBuffer stringBuffer,
-                                                          List<Map<String, Object>> list, SYS_People people,CodeService codeService) throws Exception {
+                                                          List<Map<String, Object>> list, SYS_People people, CodeService codeService) throws Exception {
         SYS_Education education = new SYS_Education();
         String name = StrUtils.toNullStr(map.get("在职学历"));
         if (!StrUtils.isBlank(name)) {
@@ -1423,8 +1425,8 @@ public class DataManager {
             education.setSchool(StrUtils.toNullStr(map.get("在职毕业学校")));
             education.setProfession(StrUtils.toNullStr(map.get("在职所学专业")));
             SYS_Education education1 = educationService.selectEducationByNameAndTime(education.getName(), people.getId(), education.getCreateTime());
-            SYS_CODE code=codeService.selectCodeByName(education.getName(),"250");
-            if (code!=null){
+            SYS_CODE code = codeService.selectCodeByName(education.getName(), "250");
+            if (code != null) {
                 education.setEducationOrder(String.valueOf(code.getId()));
             }
             if ("1".equals(fullImport)) {//覆盖导入
@@ -1603,7 +1605,7 @@ public class DataManager {
                 rank.setRankTime(DateUtil.stringToDate(rankTime));
             }
             rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")));
-            if ("是".equals(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")))){
+            if ("是".equals(StrUtils.toNullStr(map.get("是否军转干部首次套转不占职数")))) {
                 people.setDetail("是");
             }
             rank.setStatus("在任");
@@ -2160,7 +2162,32 @@ public class DataManager {
         }
         return users;
     }
-
+    public static List<SYS_Message> saveMessageJsonModel(JSONArray messagetList) {
+        List<SYS_Message> users = new ArrayList<>();
+        for (int i = 0; i < messagetList.size(); i++) {
+            SYS_Message user = new SYS_Message();
+            JSONObject key = (JSONObject) messagetList.get(i);
+            try {
+                EntityUtil.setReflectModelValue(user, key);
+                users.add(user);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return users;
+    }
     public static List<Sys_Approal> saveApproalJsonModel(JSONArray approalList) {
         List<Sys_Approal> approals = new ArrayList<>();
         for (int i = 0; i < approalList.size(); i++) {
@@ -3654,16 +3681,16 @@ public class DataManager {
     }
 
     public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService,
-                                                    String approvalUnitName,String peopleName, SYS_USER user,
-                                                    String states,UnitService unitService,SYS_UNIT unit)throws Exception {
-        List<Sys_Process>  approalList=new ArrayList<>();
+                                                    String approvalUnitName, String peopleName, SYS_USER user,
+                                                    String states, UnitService unitService, SYS_UNIT unit) throws Exception {
+        List<Sys_Process> approalList = new ArrayList<>();
         for (Sys_Process process : processes) {
-            if (!StrUtils.isBlank(process.getCreateTimeStr())){
+            if (!StrUtils.isBlank(process.getCreateTimeStr())) {
                 process.setCreateTime(DateUtil.stringToDateMM(process.getCreateTimeStr()));
             }
-            if (!StrUtils.isBlank(process.getProcessTimeStr())){
+            if (!StrUtils.isBlank(process.getProcessTimeStr())) {
                 process.setProcessTime(DateUtil.stringToDateMM(process.getProcessTimeStr()));
-            } else if ("已审核".equals(states)){
+            } else if ("已审核".equals(states)) {
                 process.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
             }
 
@@ -3677,7 +3704,7 @@ public class DataManager {
                         process.setApprovaled("0");
                         process.setPeople(peopleName);
                     }
-                }else{
+                } else {
                     if ("".equals(peopleName)) {
                         peopleName = process.getPeople();
                     }
@@ -3694,25 +3721,25 @@ public class DataManager {
                     processService.insertProcess(process);
                 }
                 if (process.getChildren() != null) {
-                    boolean sts=false;
-                    int sd=0;
+                    boolean sts = false;
+                    int sd = 0;
                     for (Sys_Process cprocess : process.getChildren()) {
-                        if (!StrUtils.isBlank(cprocess.getCreateTimeStr())){
+                        if (!StrUtils.isBlank(cprocess.getCreateTimeStr())) {
                             cprocess.setCreateTime(DateUtil.stringToDateMM(cprocess.getCreateTimeStr()));
                         }
-                        if (!StrUtils.isBlank(cprocess.getProcessTimeStr())){
+                        if (!StrUtils.isBlank(cprocess.getProcessTimeStr())) {
                             cprocess.setProcessTime(DateUtil.stringToDateMM(cprocess.getProcessTimeStr()));
                         }
-                        if (!StrUtils.isBlank(process.getApprovalEve()) && user!=null){
-                            if (cprocess.getApprovalUnit().equals(user.getUnitId())){
+                        if (!StrUtils.isBlank(process.getApprovalEve()) && user != null) {
+                            if (cprocess.getApprovalUnit().equals(user.getUnitId())) {
                                 cprocess.setStates("初审");
                                 cprocess.setApprovaled("0");
                                 cprocess.setPeople(peopleName);
                                 cprocess.setApprovalUnitName(approvalUnitName);
                                 cprocess.setProcessTime(new Date());
                                 cprocess.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
-                                sd=Integer.valueOf(cprocess.getApprovalOrder());
-                                sts= true;
+                                sd = Integer.valueOf(cprocess.getApprovalOrder());
+                                sts = true;
                             }
                         }
                         Sys_Process capproal1 = processService.selectProcessById(cprocess.getId());
@@ -3722,19 +3749,19 @@ public class DataManager {
                             processService.insertProcess(cprocess);
                         }
                     }
-                    if (sts){
-                        sd=sd+1;
-                       Sys_Process sys_process= processService.selectProcessById(process.getId()+sd);
-                       if (sys_process!=null){
-                           process.setApprovalEve(sys_process.getApprovalUnit());
-                       }else {
-                           SYS_UNIT sys_unit=unitService.selectUnitById(unit.getParentId());
-                           if (sys_unit!=null){
-                               if ("0".equals(sys_unit.getApprovalFlag()) && !"单位".equals(sys_unit.getName())) {
-                                   process.setApprovalEve(sys_unit.getId());
-                               }
-                           }
-                       }
+                    if (sts) {
+                        sd = sd + 1;
+                        Sys_Process sys_process = processService.selectProcessById(process.getId() + sd);
+                        if (sys_process != null) {
+                            process.setApprovalEve(sys_process.getApprovalUnit());
+                        } else {
+                            SYS_UNIT sys_unit = unitService.selectUnitById(unit.getParentId());
+                            if (sys_unit != null) {
+                                if ("0".equals(sys_unit.getApprovalFlag()) && !"单位".equals(sys_unit.getName())) {
+                                    process.setApprovalEve(sys_unit.getId());
+                                }
+                            }
+                        }
                         process.setStates("初审");
                         processService.updateProcess(process);
                     }
@@ -3779,23 +3806,23 @@ public class DataManager {
             process.setApprovalEve(punit.getId());
             processService.updateProcess(process);
             if (!"0".equals(punit.getApprovalFlag())) {
-                saveChildProcessDate(processService, flag, unit, punit.getName(), param, punit.getId(), "1", uuid,process.getId()+"1");
+                saveChildProcessDate(processService, flag, unit, punit.getName(), param, punit.getId(), "1", uuid, process.getId() + "1");
                 SYS_UNIT punit1 = unitService.selectUnitById(punit.getParentId());
                 if (punit1 != null) {
                     if (!"0".equals(punit1.getApprovalFlag())) {
-                        saveChildProcessDate(processService, flag, unit, punit1.getName(), param, punit1.getId(), "2", uuid,process.getId()+"2");
+                        saveChildProcessDate(processService, flag, unit, punit1.getName(), param, punit1.getId(), "2", uuid, process.getId() + "2");
                         SYS_UNIT punit2 = unitService.selectUnitById(punit1.getParentId());
                         if (punit2 != null) {
                             if (!"0".equals(punit2.getApprovalFlag())) {
-                                saveChildProcessDate(processService, flag, unit, punit2.getName(), param, punit2.getId(), "3", uuid,process.getId()+"3");
+                                saveChildProcessDate(processService, flag, unit, punit2.getName(), param, punit2.getId(), "3", uuid, process.getId() + "3");
                                 SYS_UNIT punit3 = unitService.selectUnitById(punit2.getParentId());
                                 if (punit3 != null) {
                                     if (!"0".equals(punit3.getApprovalFlag())) {
-                                        saveChildProcessDate(processService, flag, unit, punit3.getName(), param, punit3.getId(), "4", uuid,process.getId()+"4");
+                                        saveChildProcessDate(processService, flag, unit, punit3.getName(), param, punit3.getId(), "4", uuid, process.getId() + "4");
                                         SYS_UNIT punit4 = unitService.selectUnitById(punit3.getParentId());
                                         if (punit4 != null) {
                                             if (!"0".equals(punit4.getApprovalFlag())) {
-                                                saveChildProcessDate(processService, flag, unit, punit4.getName(), param, punit4.getId(), "5", uuid,process.getId()+"5");
+                                                saveChildProcessDate(processService, flag, unit, punit4.getName(), param, punit4.getId(), "5", uuid, process.getId() + "5");
                                             }
                                         }
                                     }
@@ -3810,7 +3837,7 @@ public class DataManager {
     }
 
     public static Sys_Process saveChildProcessDate(ProcessService processService, String flag, SYS_UNIT unit, String name, String param,
-                                                   String approvalUnitId, String order, String pprocessId,String proId) {
+                                                   String approvalUnitId, String order, String pprocessId, String proId) {
         Sys_Process process = processService.selectProcessById(proId);
         String uuid = "";
         if (process != null) {
@@ -3830,7 +3857,7 @@ public class DataManager {
             uuid = process.getId();
         } else {
             process = new Sys_Process();
-            uuid = pprocessId+order;
+            uuid = pprocessId + order;
             process.setId(uuid);
             process.setFlag(flag);
             process.setCreateTime(new Date());
@@ -4078,5 +4105,339 @@ public class DataManager {
             }
         }
         return retirTime;
+    }
+
+    /**
+     * 单位备份数据
+     *
+     * @param resultMap
+     * @param unitId
+     * @param unitService
+     * @return
+     */
+    public static List<SYS_UNIT> getBackDataUnitJson(Map<String, Object> resultMap, String unitId, UnitService unitService) {
+        List<SYS_UNIT> unitList = new ArrayList<>();
+        SYS_UNIT unit = unitService.selectUnitById(unitId);
+        if (unit != null) {
+            unitList.add(unit);
+        }
+        List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unitId);
+        if (cunitList != null) {
+            unitList.addAll(cunitList);
+        }
+        resultMap.put("date", DateUtil.dateToString(new Date()));
+        JSONArray array = JSONArray.fromObject(unitList);
+        resultMap.put("unitList", array);
+        return unitList;
+    }
+
+    /**
+     * 获取审批表备份jsan
+     *
+     * @param resultMap
+     * @param units
+     * @param processService
+     * @return
+     */
+    public static List<Sys_Process> getProcessBackDataJson(Map<String, Object> resultMap, List<SYS_UNIT> units, ProcessService processService) {
+        List<Sys_Process> processList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            List<Sys_Process> processes = processService.selectProcessByUnitId(unit.getId());
+            if (processes != null) {
+                processList.addAll(processes);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(processList);
+        resultMap.put("processList", array);
+        return processList;
+    }
+
+    /**
+     * 获取审批表备份jsan
+     *
+     * @param resultMap
+     * @param units
+     * @return
+     */
+    public static List<SYS_Data> getDataBackDataJson(Map<String, Object> resultMap, List<SYS_UNIT> units, DataService dataService) {
+        List<SYS_Data> dataList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            List<SYS_Data> sys_datas = dataService.selectDataByUnitId(unit.getId());
+            if (sys_datas != null) {
+                dataList.addAll(sys_datas);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(dataList);
+        resultMap.put("dataList", array);
+        return dataList;
+    }
+
+    /**
+     * 备份dataInfo
+     *
+     * @param resultMap
+     * @param units
+     * @param dataInfoService
+     * @return
+     */
+    public static List<SYS_DataInfo> getDataInfoBackDataJson(Map<String, Object> resultMap, List<SYS_UNIT> units, DataInfoService dataInfoService) {
+        List<SYS_DataInfo> dataList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            List<SYS_DataInfo> sys_datas = dataInfoService.selectDataInfosByUnitId(unit.getId());
+            if (sys_datas != null) {
+                dataList.addAll(sys_datas);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(dataList);
+        resultMap.put("dataInfoList", array);
+        return dataList;
+    }
+
+    /**
+     * 备份Digest
+     *
+     * @param resultMap
+     * @param units
+     * @return
+     */
+    public static List<SYS_Digest> getDigestBackDataJson(Map<String, Object> resultMap, List<SYS_UNIT> units, DataService dataService) {
+        List<SYS_Digest> dataList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            List<SYS_Digest> sys_datas = dataService.selectDigestsByUnitId(unit.getId());
+            if (sys_datas != null) {
+                dataList.addAll(sys_datas);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(dataList);
+        resultMap.put("digestList", array);
+        return dataList;
+    }
+
+    /**
+     * 备份Digest
+     *
+     * @param resultMap
+     * @param units
+     * @return
+     */
+    public static List<SYS_Message> getMessageBackDataJson(Map<String, Object> resultMap, List<SYS_UNIT> units, UserService userService) {
+        List<SYS_Message> dataList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            List<SYS_Message> sys_datas = userService.selectMessages();
+            if (sys_datas != null) {
+                dataList.addAll(sys_datas);
+            }
+        }
+        JSONArray array = JSONArray.fromObject(dataList);
+        resultMap.put("messageList", array);
+        return dataList;
+    }
+
+    /**
+     * 导入备份数据
+     *
+     * @param units
+     * @param unitService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_UNIT> saveBackUnitData(List<SYS_UNIT> units, UnitService unitService, String unitId) {
+        List<SYS_UNIT> unitList = new ArrayList<>();
+        for (SYS_UNIT unit : units) {
+            unitList.add(unit);
+            SYS_UNIT unit1 = unitService.selectUnitById(unit.getId());
+            if (unit1 != null) {
+                unitService.updateUnit(unit);
+            } else {
+                unitService.insertUnit(unit);
+            }
+        }
+        return unitList;
+    }
+
+    /**
+     * 导入审批表备份数据
+     *
+     * @return
+     */
+    public static List<Sys_Process> saveBackProcessData(List<Sys_Process> processList, ProcessService processService) {
+        List<Sys_Process> unitList = new ArrayList<>();
+        for (Sys_Process process : processList) {
+            unitList.add(process);
+            Sys_Process unit1 = processService.selectProcessById(process.getId());
+            if (unit1 != null) {
+                processService.updateProcess(process);
+            } else {
+                processService.insertProcess(process);
+            }
+        }
+        return unitList;
+    }
+
+    /**
+     * 备份人员数据导入
+     *
+     * @param peoples
+     * @param peopleService
+     * @return
+     */
+    public static List<SYS_People> saveBackPeopleData(List<SYS_People> peoples, PeopleService peopleService) {
+        List<SYS_People> peopleList = new ArrayList<>();
+        for (SYS_People people : peoples) {
+            peopleList.add(people);
+            SYS_People people1 = peopleService.selectPeopleById(people.getId());
+            if (people1 != null) {
+                peopleService.updatePeople(people);
+            } else {
+                peopleService.insertPeoples(people);
+            }
+        }
+        return peopleList;
+    }
+
+    /**
+     * 备份职务数据导入
+     *
+     * @param dutys
+     * @param dutyService
+     * @param unitId
+     * @return
+     */
+    public static List<SYS_Duty> saveBackDutyData(List<SYS_Duty> dutys, DutyService dutyService) {
+        List<SYS_Duty> dutyList = new ArrayList<>();
+        for (SYS_Duty duty : dutys) {
+            if (duty.getApprovalTime() == null) {
+                duty.setApprovalTime(new Date());
+            }
+            dutyList.add(duty);
+            SYS_Duty duty1 = dutyService.selectDutyById(duty.getId());
+            if (duty1 != null) {
+                if (duty.getApprovalTime() == null) {
+                    duty.setApprovalTime(new Date());
+                }
+                dutyService.updateDuty(duty);
+            } else {
+                dutyService.insertDuty(duty);
+            }
+        }
+        return dutyList;
+    }
+
+    /**
+     * 备份职级数据恢复
+     *
+     * @param ranks
+     * @param rankService
+     * @return
+     */
+    public static List<SYS_Rank> saveBackRankData(List<SYS_Rank> ranks, RankService rankService) {
+        List<SYS_Rank> rankList = new ArrayList<>();
+        for (SYS_Rank rank : ranks) {
+            rankList.add(rank);
+            SYS_Rank rank1 = rankService.selectRankById(rank.getId());
+            if (rank1 != null) {
+                rankService.updateRank(rank);
+            } else {
+                rankService.insertRank(rank);
+            }
+        }
+        return rankList;
+    }
+
+    /**
+     * 上行奖惩数据恢复
+     *
+     * @param rewards
+     * @param rewardService
+     * @return
+     */
+    public static List<SYS_Reward> saveBackRewardData(List<SYS_Reward> rewards, RewardService rewardService) {
+        List<SYS_Reward> rewardList = new ArrayList<>();
+        for (SYS_Reward reward : rewards) {
+            rewardList.add(reward);
+            SYS_Reward reward1 = rewardService.selectRewardById(reward.getId());
+            if (reward1 != null) {
+                rewardService.updateReward(reward);
+            } else {
+                rewardService.insertReward(reward);
+            }
+        }
+        return rewardList;
+    }
+
+    /**
+     * 上行学历数据恢复
+     *
+     * @param educations
+     * @param educationService
+     * @return
+     */
+    public static List<SYS_Education> saveBackEducationData(List<SYS_Education> educations, EducationService educationService) {
+        List<SYS_Education> educationList = new ArrayList<>();
+        for (SYS_Education education : educations) {
+            educationList.add(education);
+            SYS_Education education1 = educationService.selectEducationById(education.getId());
+            if (education1 != null) {
+                educationService.updateEducation(education);
+            } else {
+                educationService.insertEducation(education);
+            }
+        }
+        return educationList;
+    }
+
+    /**
+     * 备份考核数据导入
+     *
+     * @param assessments
+     * @param assessmentService
+     * @return
+     */
+    public static List<SYS_Assessment> saveBackAssessmentData(List<SYS_Assessment> assessments, AssessmentService assessmentService) {
+        List<SYS_Assessment> assessmentList = new ArrayList<>();
+        for (SYS_Assessment assessment : assessments) {
+            assessmentList.add(assessment);
+            SYS_Assessment assessment1 = assessmentService.selectAssessmentByYear(assessment.getPeopleId(), assessment.getYear());
+            if (assessment1 != null) {
+                assessmentService.updateAssessment(assessment);
+            } else {
+                assessmentService.insertAssessment(assessment);
+            }
+        }
+        return assessmentList;
+    }
+    /**
+     * 备份考核数据导入
+     * @return
+     */
+    public static List<SYS_Digest> saveBackDigestData(List<SYS_Digest> digests, DataService dataService) {
+        List<SYS_Digest> digestList = new ArrayList<>();
+        for (SYS_Digest digest: digests) {
+            digestList.add(digest);
+            SYS_Digest digest1 = dataService.selectDigestById(digest.getId());
+            if (digest1 != null) {
+                dataService.updateDigest(digest);
+            } else {
+                dataService.insertDigest(digest);
+            }
+        }
+        return digestList;
+    }
+    /**
+     * 备份考核数据导入
+     * @return
+     */
+    public static List<SYS_Message> saveBackMessageData(List<SYS_Message> messages, UserService userService) {
+        List<SYS_Message> digestList = new ArrayList<>();
+        for (SYS_Message message: messages) {
+            digestList.add(message);
+            SYS_Message digest1 = userService.selectMessageById(message.getId());
+            if (digest1 != null) {
+                userService.updateMessage(message);
+            } else {
+                userService.insertMessage(message);
+            }
+        }
+        return digestList;
     }
 }

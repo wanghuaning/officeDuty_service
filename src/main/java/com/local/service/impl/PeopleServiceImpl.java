@@ -437,6 +437,19 @@ public class PeopleServiceImpl implements PeopleService {
             return null;
         }
     }
+
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIds(List<String> units){
+        Criteria cri = Cnd.cri();
+        cri.where().andInStrList("unitId", units);
+        List<SYS_People> peoples = new ArrayList<>();
+        List<SYS_People> list = dao.query(SYS_People.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     @Override
     public List<SYS_People> selectPeoplesByUnitIdsAndPager(int pageSize, int pageNumber,String[] units){
         Pager pager = new Pager();
