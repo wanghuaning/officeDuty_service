@@ -436,34 +436,39 @@ public class DataController {
             paramsMap.put("flag", flag);
             paramsMap.put("processId", process.getId());
             Map<String, Object> resultMap = new HashMap<>();
-            List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
-            objects.addAll(unitList);
-            if (!"职数".equals(flag)) {
-                List<Sys_Process> processeList = DataManager.getUpProcessJson(resultMap, process, processService, dataType, "0");
-                objects.addAll(processeList);
-                List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
-                List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
-                List<SYS_Digest> digestList = DataManager.getDigestJson(resultMap, unitList, dataService);
-                if (peopleList.size() > 0) {
-                    objects.addAll(peopleList);
-                    List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
-                    objects.addAll(dutyList);
-                    List<SYS_Rank> rankList = DataManager.getRankJson(resultMap, peopleList, rankService);
-                    objects.addAll(rankList);
-                    List<SYS_Education> educationList = DataManager.getEducationJson(resultMap, peopleList, educationService);
-                    objects.addAll(educationList);
-                    List<SYS_Reward> rewardList = DataManager.getRewardJson(resultMap, peopleList, rewardService);
-                    objects.addAll(rankList);
-                    List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
-                    objects.addAll(assessmentList);
+            List<Sys_Process> processeList = DataManager.getUpProcessJson(resultMap, process, processService);
+            objects.addAll(processeList);
+            if ("初审".equals(process.getStates())){
+                SYS_Data data=dataService.selectDataByProcessId(processId);
+                if (data!=null){
+                    DataManager.getDataInfoManager(dataInfoService,data,unitId,unitService,resultMap);
                 }
-                objects.addAll(userList);
-                objects.addAll(digestList);
             } else {
-                List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
-                objects.addAll(approvalList);
-                List<Sys_Process> processeList = DataManager.getUpProcessJson(resultMap, process, processService, dataType, "1");
-                objects.addAll(processeList);
+                List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
+                objects.addAll(unitList);
+                if (!"职数".equals(flag)) {
+                    List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
+                    List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
+                    objects.addAll(userList);
+                    List<SYS_Digest> digestList = DataManager.getDigestJson(resultMap, unitList, dataService);
+                    objects.addAll(digestList);
+                    if (peopleList.size() > 0) {
+                        objects.addAll(peopleList);
+                        List<SYS_Duty> dutyList = DataManager.getDutyJson(resultMap, peopleList, dutyService);
+                        objects.addAll(dutyList);
+                        List<SYS_Rank> rankList = DataManager.getRankJson(resultMap, peopleList, rankService);
+                        objects.addAll(rankList);
+                        List<SYS_Education> educationList = DataManager.getEducationJson(resultMap, peopleList, educationService);
+                        objects.addAll(educationList);
+                        List<SYS_Reward> rewardList = DataManager.getRewardJson(resultMap, peopleList, rewardService);
+                        objects.addAll(rewardList);
+                        List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
+                        objects.addAll(assessmentList);
+                    }
+                } else {
+                    List<Sys_Approal> approvalList = DataManager.getApproalJson(resultMap, unitList, approvalService, dataType);
+                    objects.addAll(approvalList);
+                }
             }
             JSONObject resultList = JSONObject.fromObject(resultMap);
             paramsMap.put("result", resultList);
@@ -598,7 +603,7 @@ public class DataController {
                                                 }
                                             }
                                             sprocesses.add(process1);
-                                            if (unitList.size() > 0) {
+                                            if (unitList!=null) {
                                                 units = DataManager.saveUnitJsonModel(unitList);
                                                 if (units.size() > 0) {
                                                     List<SYS_UNIT> us = new ArrayList<>();
@@ -608,36 +613,42 @@ public class DataController {
                                                     }
                                                     DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "unit", gson.toJson(units), gson.toJson(us));
                                                 }
-                                                users = DataManager.saveUserJsonModel(userList);
-                                                if (users.size() > 0) {
-                                                    String beforeparam = null;
-                                                    List<SYS_USER> us = userService.selectUsersByUnitId(iunitId);
-                                                    if (us != null) {
-                                                        beforeparam = gson.toJson(us);
-                                                    }
-                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "user", gson.toJson(users), beforeparam);
-                                                }
-                                                digests = DataManager.saveDigestJsonModel(digestList);
-                                                if (digests.size() > 0) {
-                                                    String beforeparam = null;
-                                                    List<SYS_Digest> us = dataService.selectDigestsByUnitId(iunitId);
-                                                    if (us != null) {
-                                                        beforeparam = gson.toJson(us);
-                                                    }
-                                                    DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "digest", gson.toJson(digests), beforeparam);
-                                                }
-                                                if (approvalList.size() > 0) {
-                                                    approals = DataManager.saveApproalJsonModel(approvalList);
-                                                    if (approals.size() > 0) {
+                                                if (userList!=null){
+                                                    users = DataManager.saveUserJsonModel(userList);
+                                                    if (users.size() > 0) {
                                                         String beforeparam = null;
-                                                        List<Sys_Approal> us = approvalService.selectApprovals(iunitId);
+                                                        List<SYS_USER> us = userService.selectUsersByUnitId(iunitId);
                                                         if (us != null) {
                                                             beforeparam = gson.toJson(us);
                                                         }
-                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "approval", gson.toJson(approals), beforeparam);
+                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "user", gson.toJson(users), beforeparam);
                                                     }
                                                 }
-                                                if (peopleList.size() > 0) {
+                                                if (digestList!=null){
+                                                    digests = DataManager.saveDigestJsonModel(digestList);
+                                                    if (digests.size() > 0) {
+                                                        String beforeparam = null;
+                                                        List<SYS_Digest> us = dataService.selectDigestsByUnitId(iunitId);
+                                                        if (us != null) {
+                                                            beforeparam = gson.toJson(us);
+                                                        }
+                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "digest", gson.toJson(digests), beforeparam);
+                                                    }
+                                                }
+                                                if (approvalList!=null){
+                                                    if (approvalList.size() > 0) {
+                                                        approals = DataManager.saveApproalJsonModel(approvalList);
+                                                        if (approals.size() > 0) {
+                                                            String beforeparam = null;
+                                                            List<Sys_Approal> us = approvalService.selectApprovals(iunitId);
+                                                            if (us != null) {
+                                                                beforeparam = gson.toJson(us);
+                                                            }
+                                                            DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "approval", gson.toJson(approals), beforeparam);
+                                                        }
+                                                    }
+                                                }
+                                                if (peopleList!=null){
                                                     peoples = DataManager.savePeopleJsonModel(peopleList);
                                                     if (peoples.size() > 0) {
                                                         String beforeparam = null;
@@ -647,50 +658,60 @@ public class DataController {
                                                         }
                                                         DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "people", gson.toJson(peoples), beforeparam);
                                                     }
-                                                    duties = DataManager.saveDutyJsonModel(dutyList);
-                                                    if (duties.size() > 0) {
-                                                        String beforeparam = null;
-                                                        List<SYS_Duty> us = dutyService.selectDutysByUnitId(iunitId);
-                                                        if (us != null) {
-                                                            beforeparam = gson.toJson(us);
+                                                    if (dutyList!=null){
+                                                        duties = DataManager.saveDutyJsonModel(dutyList);
+                                                        if (duties.size() > 0) {
+                                                            String beforeparam = null;
+                                                            List<SYS_Duty> us = dutyService.selectDutysByUnitId(iunitId);
+                                                            if (us != null) {
+                                                                beforeparam = gson.toJson(us);
+                                                            }
+                                                            DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "duty", gson.toJson(duties), beforeparam);
                                                         }
-                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "duty", gson.toJson(duties), beforeparam);
                                                     }
-                                                    ranks = DataManager.saveRankJsonModel(rankList);
-                                                    if (ranks.size() > 0) {
-                                                        String beforeparam = null;
-                                                        List<SYS_Rank> us = rankService.selectRanksByUnitId(iunitId);
-                                                        if (us != null) {
-                                                            beforeparam = gson.toJson(us);
+                                                    if (rankList!=null){
+                                                        ranks = DataManager.saveRankJsonModel(rankList);
+                                                        if (ranks.size() > 0) {
+                                                            String beforeparam = null;
+                                                            List<SYS_Rank> us = rankService.selectRanksByUnitId(iunitId);
+                                                            if (us != null) {
+                                                                beforeparam = gson.toJson(us);
+                                                            }
+                                                            DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "rank", gson.toJson(ranks), beforeparam);
                                                         }
-                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "rank", gson.toJson(ranks), beforeparam);
                                                     }
-                                                    rewards = DataManager.saveRewardJsonModel(rewardList);
-                                                    if (rewards.size() > 0) {
-                                                        String beforeparam = null;
-                                                        List<SYS_Reward> us = rewardService.selectRewardsByUnitId(iunitId);
-                                                        if (us != null) {
-                                                            beforeparam = gson.toJson(us);
+                                                    if (rewardList!=null){
+                                                        rewards = DataManager.saveRewardJsonModel(rewardList);
+                                                        if (rewards.size() > 0) {
+                                                            String beforeparam = null;
+                                                            List<SYS_Reward> us = rewardService.selectRewardsByUnitId(iunitId);
+                                                            if (us != null) {
+                                                                beforeparam = gson.toJson(us);
+                                                            }
+                                                            DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "reward", gson.toJson(rewards), beforeparam);
                                                         }
-                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "reward", gson.toJson(rewards), beforeparam);
                                                     }
-                                                    educations = DataManager.saveEducationJsonModel(educationList);
-                                                    if (educations.size() > 0) {
-                                                        String beforeparam = null;
-                                                        List<SYS_Education> us = educationService.selectEducationsByUnitId(iunitId);
-                                                        if (us != null) {
-                                                            beforeparam = gson.toJson(us);
+                                                    if (educationList!=null){
+                                                        educations = DataManager.saveEducationJsonModel(educationList);
+                                                        if (educations.size() > 0) {
+                                                            String beforeparam = null;
+                                                            List<SYS_Education> us = educationService.selectEducationsByUnitId(iunitId);
+                                                            if (us != null) {
+                                                                beforeparam = gson.toJson(us);
+                                                            }
+                                                            DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "education", gson.toJson(educations), beforeparam);
                                                         }
-                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "education", gson.toJson(educations), beforeparam);
                                                     }
-                                                    assessments = DataManager.saveAssessmentJsonModel(assessmentList);
-                                                    if (assessments.size() > 0) {
-                                                        String beforeparam = null;
-                                                        List<SYS_Assessment> us = assessmentService.selectAssessmentsByUnitId(iunitId);
-                                                        if (us != null) {
-                                                            beforeparam = gson.toJson(us);
+                                                    if (assessmentList!=null){
+                                                        assessments = DataManager.saveAssessmentJsonModel(assessmentList);
+                                                        if (assessments.size() > 0) {
+                                                            String beforeparam = null;
+                                                            List<SYS_Assessment> us = assessmentService.selectAssessmentsByUnitId(iunitId);
+                                                            if (us != null) {
+                                                                beforeparam = gson.toJson(us);
+                                                            }
+                                                            DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "assessment", gson.toJson(assessments), beforeparam);
                                                         }
-                                                        DataManager.saveDataInfo(dataId, dataType, iunitId, dataInfoService, "assessment", gson.toJson(assessments), beforeparam);
                                                     }
                                                 }
                                                 Map<String, Object> map = new HashMap<>();

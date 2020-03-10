@@ -1,6 +1,7 @@
 package com.local.cell;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.local.common.config.CompareFileds;
 import com.local.entity.sys.*;
 import com.local.model.*;
@@ -2005,10 +2006,9 @@ public class DataManager {
      *
      * @param resultMap
      * @param processService
-     * @param dataType
      * @return
      */
-    public static List<Sys_Process> getUpProcessJson(Map<String, Object> resultMap, Sys_Process process, ProcessService processService, String dataType, String flag) {
+    public static List<Sys_Process> getUpProcessJson(Map<String, Object> resultMap, Sys_Process process, ProcessService processService) {
         List<Sys_Process> processList = new ArrayList<>();
         List<Sys_Process> cprocesses = processService.selectProcesssByParentId(process.getId());
         if (cprocesses != null) {
@@ -3561,7 +3561,7 @@ public class DataManager {
         List<SYS_USER> userList = new ArrayList<>();
         for (SYS_USER user : users) {
             userList.add(user);
-            SYS_USER user1 = userService.selectUserById(user.getId());
+            SYS_USER user1 = userService.selectUserByName(user.getUserAccount());
             if (user1 != null) {
                 userService.updateUser(user);
             } else {
@@ -4439,5 +4439,123 @@ public class DataManager {
             }
         }
         return digestList;
+    }
+
+    /**
+     * 获取 备份数据
+     */
+    public static void getDataInfoManager(DataInfoService dataInfoService,SYS_Data data,String unitId,UnitService unitService,Map<String, Object> resultMap){
+        List<SYS_DataInfo> sys_dataInfo=dataInfoService.selectDataInfosByDataId(data.getId(),"上行");
+        if (sys_dataInfo!=null){
+            Map<String,String> map=new HashMap<>();
+            for (SYS_DataInfo dataInfo:sys_dataInfo){
+                if ("unit".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("unit",dataInfo.getParam());
+                }else if ("people".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("people",dataInfo.getParam());
+                }else if ("user".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("user",dataInfo.getParam());
+                }else if ("duty".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("duty",dataInfo.getParam());
+                }else if ("rank".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("rank",dataInfo.getParam());
+                }else if ("education".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("education",dataInfo.getParam());
+                }else if ("reward".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("reward",dataInfo.getParam());
+                }else if ("assessment".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("assessment",dataInfo.getParam());
+                }else if ("approal".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("approal",dataInfo.getParam());
+                } else if ("digest".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
+                    map.put("digest",dataInfo.getParam());
+                }
+            }
+            JSONArray arrayNull = JSONArray.fromObject(new ArrayList<>());
+            if (map.containsKey("unit")){
+                List<SYS_UNIT> sys_units = gson.fromJson(map.get("unit"), new TypeToken<List<SYS_UNIT>>() {
+                }.getType());
+                SYS_UNIT unit = unitService.selectUnitById(unitId);
+                resultMap.put("unitId", unit.getId());
+                resultMap.put("date", DateUtil.dateToString(new Date()));
+                resultMap.put("unitName", unit.getName());
+                JSONArray array = JSONArray.fromObject(sys_units);
+                resultMap.put("unitList", array);
+            }else {
+                resultMap.put("unitList",arrayNull);
+            }
+            if (map.containsKey("people")){
+                List<SYS_People> sys_peoples = gson.fromJson(map.get("people"), new TypeToken<List<SYS_People>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_peoples);
+                resultMap.put("peopleList", array);
+            }else {
+                resultMap.put("peopleList",arrayNull);
+            }
+            if (map.containsKey("user")){
+                List<SYS_USER> sys_userss = gson.fromJson(map.get("user"), new TypeToken<List<SYS_USER>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_userss);
+                resultMap.put("userList", array);
+            }else {
+                resultMap.put("userList",arrayNull);
+            }
+            if (map.containsKey("duty")){
+                List<SYS_Duty> sys_duties = gson.fromJson(map.get("duty"), new TypeToken<List<SYS_Duty>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_duties);
+                resultMap.put("dutyList", array);
+            }else {
+                resultMap.put("dutyList",arrayNull);
+            }
+            if (map.containsKey("rank")){
+                List<SYS_Rank> sys_ranks = gson.fromJson(map.get("rank"), new TypeToken<List<SYS_Rank>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_ranks);
+                resultMap.put("rankList", array);
+            }else {
+                resultMap.put("rankList",arrayNull);
+            }
+            if (map.containsKey("education")){
+                List<SYS_Education> sys_educations = gson.fromJson(map.get("education"), new TypeToken<List<SYS_Education>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_educations);
+                resultMap.put("educationList", array);
+            }else {
+                resultMap.put("educationList",arrayNull);
+            }
+            if (map.containsKey("reward")){
+                List<SYS_Reward> sys_rewards = gson.fromJson(map.get("reward"), new TypeToken<List<SYS_Reward>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_rewards);
+                resultMap.put("rewardList", array);
+            }else {
+                resultMap.put("rewardList",arrayNull);
+            }
+            if (map.containsKey("assessment")){
+                List<SYS_Assessment> sys_assessments = gson.fromJson(map.get("assessment"), new TypeToken<List<SYS_Assessment>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_assessments);
+                resultMap.put("assessmentList", array);
+            }else {
+                resultMap.put("assessmentList",arrayNull);
+            }
+            if (map.containsKey("approval")){
+                List<Sys_Approal> sys_approals = gson.fromJson(map.get("approval"), new TypeToken<List<Sys_Approal>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_approals);
+                resultMap.put("approvalList", array);
+            }else {
+                resultMap.put("approvalList",arrayNull);
+            }
+            if (map.containsKey("digest")){
+                List<SYS_Digest> sys_digests = gson.fromJson(map.get("digest"), new TypeToken<List<SYS_Digest>>() {
+                }.getType());
+                JSONArray array = JSONArray.fromObject(sys_digests);
+                resultMap.put("digestList", array);
+            }else {
+                resultMap.put("digestList",arrayNull);
+            }
+        }
     }
 }
