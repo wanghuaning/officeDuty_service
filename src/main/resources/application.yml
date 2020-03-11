@@ -9,6 +9,11 @@ server:
 spring:
   profiles:
     active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 400MB
 logging:
   file: "C:/log/service_log.log"
   level:

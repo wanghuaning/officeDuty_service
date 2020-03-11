@@ -2693,37 +2693,51 @@ public class DataController {
         }
     }
 
-    @ApiOperation(value = "单位数据备份", notes = "单位数据备份", httpMethod = "POST", tags = "单位数据备份接口")
+    @ApiOperation(value = "单位数据备份/首次注册", notes = "单位数据备份/首次注册", httpMethod = "POST", tags = "单位数据备份/首次注册接口")
     @PostMapping(value = "/backUpUnitData")
     @ResponseBody
-    public String backUpUnitData(@RequestParam(value = "unitName", required = false) String unitName) {
-        if (StrUtils.isBlank(unitName)) {
-            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+    public String backUpUnitData(@RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitId", required = false) String unitId,
+                                 @RequestParam(value = "regDateStr", required = false) String regDateStr,@RequestParam(value = "flag", required = false) String flag) {
+        SYS_UNIT unit =new SYS_UNIT();
+        try {
+            Date regDate=new Date();
+        if ("注册".equals(flag)){
+            if (unitService.selectUnitById(unitId)!=null){
+                unit = unitService.selectUnitById(unitId);
+            }
+            if (regDateStr != null) {
+                regDate = DateUtil.stringToDate(regDateStr);
+            }
+            String regStr = unit.getId() + ";" + DateUtil.dateToString(regDate);
+            String regEncrypt = RSAModelUtils.encryptByPublicKey(regStr, RSAModelUtils.moduleA, RSAModelUtils.puclicKeyA);
+            unit.setRegCode(regEncrypt);
+        }else {
+            if (StrUtils.isBlank(unitName)) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            }
+            if (unitService.selectUnitByName(unitName)!=null){
+                unit = unitService.selectUnitByName(unitName);
+            }
         }
-        SYS_UNIT unit = unitService.selectUnitByName(unitName);
         if (unit == null) {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
-        try {
             List<Object> objects = new ArrayList<>();
             //从请求的header中取出当前登录的登录
             Map<String, Object> paramsMap = new HashMap<>();
             paramsMap.put("note", "成功");
             paramsMap.put("dataId", unit.getId() + DateUtil.getDateNum(new Date()));
             paramsMap.put("unitName", unit.getName());
-            paramsMap.put("flag", "数据备份");
+            paramsMap.put("flag", flag);
             paramsMap.put("unitId", unit.getId());
             Map<String, Object> resultMap = new HashMap<>();
-            List<SYS_UNIT> unitList = DataManager.getBackDataUnitJson(resultMap, unit.getId(), unitService);//单位
+            List<SYS_UNIT> unitList = DataManager.getBackDataUnitJson(resultMap, unit, unitService);//单位
             objects.addAll(unitList);
             List<SYS_UNIT> units = new ArrayList<>();
             units.add(unit);
             List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unit.getId());
             if (cunitList != null) {
                 units.addAll(cunitList);
-                for (SYS_UNIT sys_unit:cunitList){
-
-                }
             }
             List<Sys_Process> processeList = DataManager.getProcessBackDataJson(resultMap, unitList, processService);
             objects.addAll(processeList);
@@ -2979,4 +2993,5 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
         }
     }
+
 }

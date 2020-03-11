@@ -4111,17 +4111,16 @@ public class DataManager {
      * 单位备份数据
      *
      * @param resultMap
-     * @param unitId
+     * @param unit
      * @param unitService
      * @return
      */
-    public static List<SYS_UNIT> getBackDataUnitJson(Map<String, Object> resultMap, String unitId, UnitService unitService) {
+    public static List<SYS_UNIT> getBackDataUnitJson(Map<String, Object> resultMap, SYS_UNIT unit, UnitService unitService) {
         List<SYS_UNIT> unitList = new ArrayList<>();
-        SYS_UNIT unit = unitService.selectUnitById(unitId);
         if (unit != null) {
             unitList.add(unit);
         }
-        List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unitId);
+        List<SYS_UNIT> cunitList = unitService.selectAllChildUnits(unit.getId());
         if (cunitList != null) {
             unitList.addAll(cunitList);
         }

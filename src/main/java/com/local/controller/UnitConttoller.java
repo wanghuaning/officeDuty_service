@@ -306,7 +306,7 @@ public class UnitConttoller {
 
     @ApiOperation(value = "导入单位", notes = "导入单位", httpMethod = "POST", tags = "导入单位接口")
     @RequestMapping(value = "/unit/import")
-    public String importUnitExcel(@RequestParam(value = "excelFile", required = false) MultipartFile excelFile) {
+    public String importUnitExcel(@RequestParam(value = "excelFile", required = false) MultipartFile excelFile,@RequestParam(value = "unitId", required = false) String unitId) {
         StringBuffer stringBuffer = new StringBuffer();
         try {
             // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
@@ -318,6 +318,7 @@ public class UnitConttoller {
                 } else {
                     List<Map<String, Object>> list = ExcelFileGenerator.readeExcelData(excelFile.getInputStream(), 0, 1, 2);
                     List<SYS_UNIT> unitList = UnitManager.getUnitDataByExcel(list, unitService, stringBuffer);
+                    StringBuffer strbur=new StringBuffer();
                     if (unitList.size() > 0) {
                         for (SYS_UNIT unit : unitList) {
                             SYS_UNIT sys_unit = unitService.selectUnitById(unit.getId());
@@ -339,10 +340,15 @@ public class UnitConttoller {
                             }
                         }
                     }
+                    String units=unitId+";";
+                    String unitst=unitService.selectUnitAndChildUnits(unitId);
+                    if (units!=null){
+                        units=units+unitst;
+                    }
                     if (stringBuffer.length() > 0) {
-                        return new Result(ResultCode.SUCCESS.toString(), stringBuffer.toString(), unitList, null).getJson();
+                        return new Result(ResultCode.SUCCESS.toString(), stringBuffer.toString(), units, null).getJson();
                     } else {
-                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.IMPORT_EXCEL_SUCCESS, unitList, null).getJson();
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.IMPORT_EXCEL_SUCCESS, units, null).getJson();
                     }
                 }
             } else {

@@ -2,6 +2,7 @@ package com.local.controller;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
+import com.google.gson.Gson;
 import com.local.cell.DataManager;
 import com.local.cell.PeopleManager;
 import com.local.cell.UnitManager;
@@ -9,15 +10,10 @@ import com.local.cell.UserManager;
 import com.local.common.config.ConfigProperties;
 import com.local.common.data.DatabaseTool;
 import com.local.common.filter.FileUtil;
-import com.local.entity.sys.SYS_Message;
-import com.local.entity.sys.SYS_People;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.entity.sys.SYS_USER;
+import com.local.entity.sys.*;
 import com.local.model.ImgResult;
 import com.local.model.RegCodeModel;
-import com.local.service.PeopleService;
-import com.local.service.UnitService;
-import com.local.service.UserService;
+import com.local.service.*;
 import com.local.util.*;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
@@ -49,6 +45,33 @@ public class UserController {
     private UnitService unitService;
     @Autowired
     private PeopleService peopleService;
+
+    @Autowired
+    private DataService dataService;
+
+    @Autowired
+    private ProcessService processService;
+    @Autowired
+    private ApprovalService approvalService;
+
+    @Autowired
+    private CodeService codeService;
+    @Autowired
+    private RankService rankService;
+
+    @Autowired
+    private EducationService educationService;
+    @Autowired
+    private AssessmentService assessmentService;
+
+    @Autowired
+    private DutyService dutyService;
+    @Autowired
+    private RewardService rewardService;
+
+    @Autowired
+    private DataInfoService dataInfoService;
+
 
     @GetMapping("/systemUser")
     public String setSystemUser() throws Exception {
@@ -358,12 +381,12 @@ public class UserController {
                             codeModel.setCode(regCode);
                             codeModelList.add(codeModel);
                         }
-                        ClassPathResource resource = new ClassPathResource("exportExcel/exportRegCode.xls");
+                        ClassPathResource resource = new ClassPathResource("exportExcel/exportRegCode.xlsx");
                         String path = resource.getFile().getPath();
                         String[] arr = {"id", "name", "code"};
                         Workbook temp = ExcelFileGenerator.getTeplet(path);
                         ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
-                        excelFileGenerator.setExcleNAME(response, "导出注册码.xls");
+                        excelFileGenerator.setExcleNAME(response, "导出注册码.xlsx");
                         excelFileGenerator.createExcelFile(temp.getSheet("注册码"), 2, codeModelList, arr);
                         temp.write(response.getOutputStream());
                         temp.close();
@@ -444,13 +467,18 @@ public class UserController {
                             JSONObject resultJson = JSONObject.fromObject(resultMap);
                             String regCode = RSAModelUtils.encryptByPublicKey(resultJson.toString(), RSAModelUtils.moduleA, RSAModelUtils.puclicKeyA);
 //                                String regCodeP=RSAModelUtils.decryptByPrivateKey(regCode, RSAModelUtils.moduleA ,RSAModelUtils.privateKeyA);
-                            RegCodeModel codeModel = new RegCodeModel();
-                            codeModel.setId(unit.getId());
-                            codeModel.setName(unit.getName());
-                            codeModel.setCode(regCode);
-                            codeModelList.add(codeModel);
+                            if (regCode.length()>3000){
+                              List<String> stringList=StrUtils.getStrList(regCode,3000);
+                              for (String str:stringList){
+                                  RegCodeModel codeModel = new RegCodeModel();
+                                  codeModel.setId(unit.getId());
+                                  codeModel.setName(unit.getName());
+                                  codeModel.setCode(str);
+                                  codeModelList.add(codeModel);
+                              }
+                            }
                         }
-                        ClassPathResource resource = new ClassPathResource("exportExcel/exportRegCode.xls");
+                        ClassPathResource resource = new ClassPathResource("exportExcel/exportRegCode.xlsx");
                         String path = resource.getFile().getPath();
                         String[] arr = {"id", "name", "code"};
                         Workbook temp = ExcelFileGenerator.getTeplet(path);
@@ -547,6 +575,197 @@ public class UserController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+    private final static Gson gson = new Gson();
+    @ApiOperation(value = "首次注册导入", notes = "首次注册导入", httpMethod = "POST", tags = "首次注册导入接口")
+    @RequestMapping(value = "/importFirstRegDatabase")
+    public String importBackDatabase(@RequestParam(value = "excelFile", required = true) MultipartFile excelFile) {
+        StringBuffer stringBuffer = new StringBuffer();
+        List<Object> objects = new ArrayList<>();
+        try {
+            List<SYS_UNIT> units = new ArrayList<>();
+            List<SYS_USER> users = new ArrayList<>();
+            List<Sys_Approal> approals = new ArrayList<>();
+            List<Sys_Process> processes = new ArrayList<>();
+            List<SYS_People> peoples = new ArrayList<>();
+            List<SYS_Duty> duties = new ArrayList<>();
+            List<SYS_Rank> ranks = new ArrayList<>();
+            List<SYS_Reward> rewards = new ArrayList<>();
+            List<SYS_Education> educations = new ArrayList<>();
+            List<SYS_Assessment> assessments = new ArrayList<>();
+            String jsonStrMw = FileUtil.readJsonFile(excelFile.getInputStream());
+            byte[] decode = AESUtil.parseHexStr2Byte(jsonStrMw);
+            byte[] decryptResult = AESUtil.decrypt(decode, AESUtil.privateKey);
+            String jsonStr = new String(decryptResult, "UTF-8");
+            JSONObject object = JSONObject.fromObject(jsonStr);
+            String note = String.valueOf(object.get("note"));
+            String dataId = String.valueOf(object.get("dataId"));
+            String unitName = String.valueOf(object.get("unitName"));
+            String dataType = String.valueOf(object.get("flag"));
+            String unitId = String.valueOf(object.get("unitId"));
+            if (!StrUtils.isBlank(note)) {
+                JSONObject key = object.getJSONObject("result");
+                JSONArray userList = new JSONArray();
+                userList = key.getJSONArray("userList");
+                users = DataManager.saveUserJsonModel(userList);
+                boolean bil = false;
+                List<SYS_USER> sys_users = userService.selectAllUsers();
+                String userbeforeparam = "";
+                if (sys_users != null) {
+                    userbeforeparam = gson.toJson(sys_users);
+                }
+                SYS_Data data = DataManager.saveData(dataId, "", dataType, unitId, dataService);
+                JSONArray peopleList = key.getJSONArray("peopleList");
+                JSONArray rankList = key.getJSONArray("rankList");
+                JSONArray dutyList = key.getJSONArray("dutyList");
+                JSONArray educationList = key.getJSONArray("educationList");
+                JSONArray rewardList = key.getJSONArray("rewardList");
+                JSONArray assessmentList = key.getJSONArray("assessmentList");
+                JSONArray unitList = key.getJSONArray("unitList");
+                List<String> unitIds=new ArrayList<>();
+                if (unitList != null) {
+                    units = DataManager.saveUnitJsonModel(unitList);
+                    if (units.size() > 0) {
+                        for (SYS_UNIT sysUnit:units){
+                            unitIds.add(sysUnit.getId());
+                        }
+                        String beforeparam = null;
+                        List<SYS_UNIT> sys_units =unitService.selectUnitAll();
+                        if (sys_units!=null){
+                            beforeparam = gson.toJson(sys_units);
+                        }
+                        DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "unit", gson.toJson(units), beforeparam);
+                        DataManager.saveBackUnitData(units, unitService, unitId);
+                        objects.add(units);
+                    }
+                    DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "user", gson.toJson(users), userbeforeparam);
+                    DataManager.saveUserData(users, userService, unitId);
+                    objects.add(users);
+                    JSONArray aprovalList = key.getJSONArray("approvalList");
+                    approals = DataManager.saveApproalJsonModel(aprovalList);
+                    if (approals.size() > 0) {
+                        String beforeparam = null;
+                        List<Sys_Approal> us = approvalService.selectApprovals(unitId);
+                        if (us != null) {
+                            beforeparam = gson.toJson(us);
+                        }
+                        DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "approval", gson.toJson(approals), beforeparam);
+                        DataManager.saveApprovalData(approals, approvalService, unitId, unitService, "1");
+                        objects.add(approals);
+                    }
+                    JSONArray processList  = key.getJSONArray("processList");
+                    if (processes.size() > 0) {
+                        String beforeparam = null;
+                        List<Sys_Process> us = processService.selectProcesssByUnitIds(unitIds);
+                        if (us != null) {
+                            beforeparam = gson.toJson(us);
+                        }
+                        DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "process", gson.toJson(processes), null);
+                        DataManager.saveBackProcessData(processes, processService);
+                        objects.add(processes);
+                    }
+                    if (peopleList != null) {
+                        peoples = DataManager.savePeopleJsonModel(peopleList);
+                        if (peoples.size() > 0) {
+                            String beforeparam = null;
+                            List<SYS_People> us = peopleService.selectPeoplesByUnitIds(unitIds);
+                            if (us != null) {
+                                beforeparam = gson.toJson(us);
+                            }
+                            DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "people", gson.toJson(peoples), beforeparam);
+                            DataManager.saveBackPeopleData(peoples, peopleService);
+                            objects.add(peoples);
+                        }
+                        duties = DataManager.saveDutyJsonModel(dutyList);
+                        if (duties.size() > 0) {
+                            String beforeparam = null;
+                            List<SYS_Duty> us = dutyService.selectDutysByUnitIds(unitIds);
+                            if (us != null) {
+                                beforeparam = gson.toJson(us);
+                            }
+                            DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "duty", gson.toJson(duties), beforeparam);
+                            DataManager.saveBackDutyData(duties, dutyService);
+                            objects.add(duties);
+                        }
+                        ranks = DataManager.saveRankJsonModel(rankList);
+                        if (ranks.size() > 0) {
+                            String beforeparam = null;
+                            List<SYS_Rank> us = rankService.selectRanksByUnitIds(unitIds);
+                            if (us != null) {
+                                beforeparam = gson.toJson(us);
+                            }
+                            DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "rank", gson.toJson(ranks), beforeparam);
+                            objects.add(ranks);
+                            DataManager.saveBackRankData(ranks, rankService);
+                        }
+                        rewards = DataManager.saveRewardJsonModel(rewardList);
+                        if (rewards.size() > 0) {
+                            String beforeparam = null;
+                            List<SYS_Reward> us = rewardService.selectRewardsByUnitIds(unitIds);
+                            if (us != null) {
+                                beforeparam = gson.toJson(us);
+                            }
+                            DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "reward", gson.toJson(rewards), beforeparam);
+                            DataManager.saveBackRewardData(rewards, rewardService);
+                            objects.add(rewards);
+                        }
+                        educations = DataManager.saveEducationJsonModel(educationList);
+                        if (educations.size() > 0) {
+                            String beforeparam = null;
+                            List<SYS_Education> us = educationService.selectEducationsByUnitIds(unitIds);
+                            if (us != null) {
+                                beforeparam = gson.toJson(us);
+                            }
+                            DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "education", gson.toJson(educations), beforeparam);
+                            DataManager.saveBackEducationData(educations, educationService);
+                            objects.add(educations);
+                        }
+                        assessments = DataManager.saveAssessmentJsonModel(assessmentList);
+                        if (assessments.size() > 0) {
+                            String beforeparam = null;
+                            List<SYS_Assessment> us = assessmentService.selectAssessmentsByUnitId(unitIds);
+                            if (us != null) {
+                                beforeparam = gson.toJson(us);
+                            }
+                            DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "assessment", gson.toJson(assessments), beforeparam);
+                            DataManager.saveBackAssessmentData(assessments, assessmentService);
+                            objects.add(assessments);
+                        }
+                        JSONArray digestList = key.getJSONArray("digestList");
+                        if (digestList!=null){
+                            List<SYS_Digest> digests = DataManager.saveDigestJsonModel(digestList);
+                            if (digests.size() > 0) {
+                                String beforeparam = null;
+                                List<SYS_Digest> us = dataService.selectDigestsByUnitId(unitId);
+                                if (us != null) {
+                                    beforeparam = gson.toJson(us);
+                                }
+                                DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "digest", gson.toJson(digests), beforeparam);
+                                DataManager.saveBackDigestData(digests, dataService);
+                                objects.add(digests);
+                            }
+                        }
+                        JSONArray messageList = key.getJSONArray("messageList");
+                        if (messageList!=null){
+                            List<SYS_Message> messages = DataManager.saveMessageJsonModel(messageList);
+                            if (messages.size() > 0) {
+                                String beforeparam = null;
+                                DataManager.saveDataInfo(dataId, dataType, unitId, dataInfoService, "digest", gson.toJson(messages), null);
+                                DataManager.saveBackMessageData(messages, userService);
+                                objects.add(messages);
+                            }
+                        }
+                    }
+                    Map<String, Object> map = new HashMap<>();
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
+            } else {
+                return new Result(ResultCode.ERROR.toString(), "备份数据包不全！", null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
         }
     }
 
