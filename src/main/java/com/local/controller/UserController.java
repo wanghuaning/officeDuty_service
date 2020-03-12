@@ -36,7 +36,6 @@ import java.io.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/user")
 public class UserController {
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
@@ -73,7 +72,7 @@ public class UserController {
     private DataInfoService dataInfoService;
 
 
-    @GetMapping("/systemUser")
+    @GetMapping("/api/user/systemUser")
     public String setSystemUser() throws Exception {
         SYS_USER user = new SYS_USER();
         String uuid = UUID.randomUUID().toString();
@@ -91,7 +90,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "登录", notes = "登录", httpMethod = "POST", tags = "登录管理接口")
-    @PostMapping("/login")
+    @PostMapping("/web/user/login")
     public String Login(@Validated @RequestBody SYS_USER user) {
         try {
             SYS_USER searchUser = null;
@@ -215,7 +214,7 @@ public class UserController {
     /**
      * 获取用户信息
      */
-    @GetMapping(value = "/info")
+    @GetMapping(value = "/api/user/info")
     public String getUserInfo(HttpServletRequest request) {
         //通过token获取中取出当前登录
         SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
@@ -228,7 +227,7 @@ public class UserController {
 
 
     @ApiOperation(value = "修改密码", notes = "修改密码\"", httpMethod = "GET", tags = "修改密码接口")
-    @GetMapping("/updatePass")
+    @GetMapping("/api/user/updatePass")
     public String updatePass(@RequestParam(value = "oldPass", required = true) String oldPass,
                              @RequestParam(value = "newPass", required = true) String newPass, HttpServletRequest request) {
         //从请求的header中取出当前登录的登录
@@ -248,7 +247,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "用户信息", notes = "用户信息", httpMethod = "GET", tags = "用户信息接口")
-    @GetMapping("/account")
+    @GetMapping("/api/user/account")
     @ResponseBody
     public String getPeoples(@RequestParam(value = "size", required = false) String pageSize,
                              @RequestParam(value = "page", required = false) String pageNumber,
@@ -271,7 +270,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "新增用户", notes = "新增用户", httpMethod = "POST", tags = "新增用户接口")
-    @PostMapping(value = "/add")
+    @PostMapping(value = "/api/user/add")
     @ResponseBody
     public String createUser(@Validated @RequestBody SYS_USER user) {
         try {
@@ -297,6 +296,11 @@ public class UserController {
             user.setId(uuid);
             user.setEnabled("0");
             userService.insertUser(user);
+            if ("1".equals(user.getRoles())){
+            unit.setApprovalFlag("0");
+            unit.setIsEdit("1");
+            unitService.updateUnit(unit);
+            }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, user, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
@@ -305,7 +309,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "修改用户", notes = "修改用户", httpMethod = "POST", tags = "修改用户接口")
-    @PostMapping(value = "/update")
+    @PostMapping(value = "/api/user/update")
     @ResponseBody
     public String updateUser(@Validated @RequestBody SYS_USER user) {
         try {
@@ -323,6 +327,12 @@ public class UserController {
             }
             user.setUserPassword(MD5Utils.encryptPassword(user.getUserPassword()));
             userService.updateUser(user);
+            SYS_UNIT unit = unitService.selectUnitById(user.getUnitId());
+            if ("1".equals(user.getRoles())){
+                unit.setApprovalFlag("0");
+                unit.setIsEdit("1");
+                unitService.updateUnit(unit);
+            }
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, user, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
@@ -331,7 +341,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "删除用户", notes = "删除用户", httpMethod = "POST", tags = "删除用户接口")
-    @PostMapping(value = "/delete")
+    @PostMapping(value = "/api/user/delete")
     @ResponseBody
     public String deleteUser(@RequestParam(value = "id", required = true) String id, HttpServletRequest request) {
         try {
@@ -356,7 +366,7 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "延期注册码", notes = "延期注册码", httpMethod = "POST", tags = "延期注册码接口")
-    @RequestMapping(value = "/getReg")
+    @RequestMapping(value = "/api/user/getReg")
     public String getRegInfo(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "regDateStr", required = false) String regDateStr, @RequestParam(value = "unitId", required = false) String unitId) {
         try {
             List<RegCodeModel> codeModelList = new ArrayList<>();
@@ -407,7 +417,7 @@ public class UserController {
     }
 
     @ApiOperation(value = " 首次注册码", notes = "首次注册码", httpMethod = "POST", tags = "首次注册码接口")
-    @RequestMapping(value = "/getFirstReg")
+    @RequestMapping(value = "/api/user/getFirstReg")
     public String getFirstRegInfo(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "regDateStr", required = false) String regDateStr, @RequestParam(value = "unitId", required = false) String unitId) {
         try {
             List<RegCodeModel> codeModelList = new ArrayList<>();
@@ -504,7 +514,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "系统注册", notes = "系统注册", httpMethod = "POST", tags = "系统注册接口")
-    @PostMapping(value = "/reg")
+    @PostMapping(value = "/web/user/reg")
     @ResponseBody
     public String submitReg(@RequestParam(value = "regName", required = false) String regName, @RequestParam(value = "regPassword", required = false) String regPassword, @RequestParam(value = "regCode", required = false) String regCode,
                             @RequestParam(value = "flag", required = false) String flag) {
@@ -579,7 +589,7 @@ public class UserController {
     }
     private final static Gson gson = new Gson();
     @ApiOperation(value = "首次注册导入", notes = "首次注册导入", httpMethod = "POST", tags = "首次注册导入接口")
-    @RequestMapping(value = "/importFirstRegDatabase")
+    @RequestMapping(value = "/web/user/importFirstRegDatabase")
     public String importBackDatabase(@RequestParam(value = "excelFile", required = true) MultipartFile excelFile) {
         StringBuffer stringBuffer = new StringBuffer();
         List<Object> objects = new ArrayList<>();
@@ -773,7 +783,7 @@ public class UserController {
     private ConfigProperties configProperties;
 
     @ApiOperation(value = "数据库备份", notes = "数据库备份", httpMethod = "GET", tags = "数据库备份接口")
-    @GetMapping(value = "/backup")
+    @GetMapping(value = "/api/user/backup")
     @ResponseBody
     public String exportDatabase() {
         try {
@@ -792,7 +802,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "数据库还原", notes = "数据库还原", httpMethod = "GET", tags = "数据库还原接口")
-    @PostMapping(value = "/importDatabase")
+    @PostMapping(value = "/api/user/importDatabase")
     @ResponseBody
     public String importDatabase(HttpServletResponse response, @RequestParam("excelFile") MultipartFile excelFile) {
         try {
@@ -824,7 +834,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "用户信息", notes = "用户信息", httpMethod = "GET", tags = "用户信息接口")
-    @GetMapping("/message")
+    @GetMapping("/api/user/message")
     @ResponseBody
     public String getMessages(@RequestParam(value = "size", required = false) String pageSize,
                              @RequestParam(value = "page", required = false) String pageNumber) {
@@ -838,7 +848,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "新增消息", notes = "新增消息", httpMethod = "POST", tags = "新增消息接口")
-    @PostMapping(value = "/addMessage")
+    @PostMapping(value = "/api/user/addMessage")
     @ResponseBody
     public String addMessage(@Validated @RequestBody SYS_Message message) {
         try {
@@ -853,7 +863,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "修改消息", notes = "修改消息", httpMethod = "POST", tags = "修改消息接口")
-    @PostMapping(value = "/editMessage")
+    @PostMapping(value = "/api/user/editMessage")
     @ResponseBody
     public String editMessage(@Validated @RequestBody SYS_Message message) {
         try {
@@ -866,7 +876,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "删除消息", notes = "删除消息", httpMethod = "POST", tags = "删除消息接口")
-    @PostMapping(value = "/delMessage")
+    @PostMapping(value = "/api/user/delMessage")
     @ResponseBody
     public String delMessage(@RequestParam(value = "id", required = true) String id, HttpServletRequest request) {
         try {

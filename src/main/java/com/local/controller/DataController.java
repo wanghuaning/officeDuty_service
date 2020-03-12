@@ -273,7 +273,11 @@ public class DataController {
             }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_ERROR, e);
-            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            if (e.toString().contains("IndexOutOfBoundsException")){
+                return new Result(ResultCode.ERROR.toString(), "采集表格式不对，请检查表头", null, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            }
         }
     }
 
@@ -2766,6 +2770,13 @@ public class DataController {
                 objects.addAll(rewardList);
                 List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
                 objects.addAll(assessmentList);
+            }else {
+                JSONArray array = JSONArray.fromObject(new ArrayList<>());
+                resultMap.put("dutyList", array);
+                resultMap.put("rankList", array);
+                resultMap.put("educationList", array);
+                resultMap.put("rewardList", array);
+                resultMap.put("assessmentList", array);
             }
             JSONObject resultList = JSONObject.fromObject(resultMap);
             paramsMap.put("result", resultList);

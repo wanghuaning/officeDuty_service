@@ -131,8 +131,12 @@ public class UnitConttoller {
     @ApiOperation(value = "新增单位", notes = "新增单位", httpMethod = "POST", tags = "新增单位接口")
     @PostMapping(value = "/unit/add")
     @ResponseBody
-    public String createUnit(@Validated @RequestBody SYS_UNIT unit) {
+    public String createUnit(@Validated @RequestBody SYS_UNIT unit,HttpServletRequest request) {
         try {
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (user == null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_OUT, null, null).getJson();
+            }
             SYS_UNIT unitbyname = unitService.selectUnitByName(unit.getName());
             if (unitbyname != null) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_NAME_ERROE, null, null).getJson();
@@ -152,7 +156,12 @@ public class UnitConttoller {
                 unitService.updateUnit(punit);
             }
             unitService.insertUnit(unit);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
+            String units=user.getUnitId()+";";
+            String unitst=unitService.selectUnitAndChildUnits(user.getUnitId());
+            if (units!=null){
+                units=units+unitst;
+            }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, units, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
@@ -201,8 +210,12 @@ public class UnitConttoller {
     @ApiOperation(value = "删除单位", notes = "删除单位", httpMethod = "POST", tags = "删除单位接口")
     @PostMapping(value = "/unit/delete")
     @ResponseBody
-    public String deleteUnit(@RequestParam(value = "id", required = false) String id) {
+    public String deleteUnit(@RequestParam(value = "id", required = false) String id,HttpServletRequest request) {
         try {
+            SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+            if (user == null) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.USER_OUT, null, null).getJson();
+            }
             if (StrUtils.isBlank(id)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             } else {
@@ -228,7 +241,12 @@ public class UnitConttoller {
                         unitService.updateUnit(punit);
                     }
                 }
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
+                String units=user.getUnitId()+";";
+                String unitst=unitService.selectUnitAndChildUnits(user.getUnitId());
+                if (units!=null){
+                    units=units+unitst;
+                }
+                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, units, null).getJson();
             }
         } catch (Exception e) {
             logger.error(ResultMsg.DEL_ERROR, e);
@@ -356,7 +374,11 @@ public class UnitConttoller {
             }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_ERROR, e);
-            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            if (e.toString().contains("IndexOutOfBoundsException")){
+                return new Result(ResultCode.ERROR.toString(), "采集表格式不对，请检查表头", null, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            }
         }
     }
 
@@ -410,7 +432,11 @@ public class UnitConttoller {
             }
         } catch (Exception e) {
             logger.error(ResultMsg.GET_ERROR, e);
-            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            if (e.toString().contains("IndexOutOfBoundsException")){
+                return new Result(ResultCode.ERROR.toString(), "采集表格式不对，请检查表头", null, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            }
         }
     }
 

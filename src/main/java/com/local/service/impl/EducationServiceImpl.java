@@ -33,7 +33,7 @@ public class EducationServiceImpl implements EducationService {
         Criteria cri = Cnd.cri();
         if (!StrUtils.isBlank(pid)) {
             cri.where().andEquals("people_Id", pid);
-            cri.getOrderBy().desc("create_Time");
+            cri.getOrderBy().asc("education_Order");
             peopleList = dao.query(SYS_Education.class, cri, pager);
             if (StrUtils.isBlank(pager)) {
                 pager = new Pager();
@@ -49,7 +49,7 @@ public class EducationServiceImpl implements EducationService {
         List<SYS_Education> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
         cir.where().andEquals("people_Id", pid);
-        cir.getOrderBy().desc("create_Time");
+        cir.getOrderBy().asc("education_Order");
         list = dao.query(SYS_Education.class, cir);
         if (list.size() > 0) {
             return list.get(0);

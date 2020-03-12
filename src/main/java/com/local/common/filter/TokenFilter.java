@@ -56,28 +56,15 @@ public class TokenFilter extends CorsFilter {
         }else{
             //从请求的header中取出当前登录的用户
             String token=req.getHeader("userToken");
-//            System.out.println(token+"=>>>>>");
             if (token==null || "".equals(token)){
                 //从请求的url中取出当前登录的用户
                 token = req.getParameter("userToken");
             }
-            SYS_USER user=userService.selectUserById(token);
+//            System.out.println(token+"=>>>>>"+req.getRequestURL());
             if (null == token || token.isEmpty()) {
                 response.getWriter().print(_301_JSON);
             }else {
-                if (user!=null){
-                    try {
-                        user=user;
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    if (user ==null) {
-                        response.getWriter().print(_301_JSON);
-                    }
-                    chain.doFilter(request,response);
-                }else {
-                    response.getWriter().print(_301_JSON);
-                }
+                chain.doFilter(request,response);
             }
         }
     }
