@@ -296,8 +296,10 @@ public class UnitConttoller {
             ClassPathResource resource = null;
             String excelName = "全部信息采集表.xls";
             String sheetName = "填报说明";
-            if ("all".equals(flag)) {
-                resource = new ClassPathResource("exportExcel/exportAllInfo.xls");
+            if ("rankAndDuty".equals(flag)) {
+                resource = new ClassPathResource("exportExcel/importAllRankAndDuty.xls");
+                excelName = "单位信息采集表.xls";
+                sheetName = "职务职级采集表";
             } else if ("unit".equals(flag)) {
                 resource = new ClassPathResource("exportExcel/exportUnitInfo.xls");
                 excelName = "单位信息采集表.xls";

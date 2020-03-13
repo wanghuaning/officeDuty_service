@@ -1185,6 +1185,279 @@ public class DataManager {
         approalModel.setVacancyTotal(String.valueOf(vacancyTotal));
     }
 
+    public static List<SYS_People> importAllRankPeopleExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
+                                                            UnitService unitService, DutyService dutyService,
+                                                            RankService rankService) throws Exception {
+        List<SYS_People> peopleList = new ArrayList<>();
+        for (Map<String, Object> map : list) {
+            SYS_UNIT unit = unitService.selectUnitByName(StrUtils.toNullStr((map.get("单位"))));
+            if (unit != null) {
+                SYS_People people = service.selectPeopleByIdcardAndUnitIdAndName(StrUtils.toNullStr((map.get("身份证号"))), StrUtils.toNullStr((map.get("姓名"))), unit.getId());
+                if (people != null) {
+                    saveAllDutyDataByExcel(map, list, people, stringBuffer, dutyService, service);
+                    saveAllMianDutyDataByExcel(map, list, people, dutyService, service,stringBuffer);
+                    getPeopleAllRankDataByExcel(map,  list,  people,  stringBuffer,rankService,  service);
+                    getPeopleMianAllRankDataByExcel(map, list,  people,  stringBuffer, rankService,  service);
+                } else {
+                    logger.error("职级、职务表：第" + list.indexOf(map) + "行;人员信息不正确！");
+                    stringBuffer.append("职级、职务表：第" + list.indexOf(map) + "行;人员信息不正确！");
+                }
+            } else {
+                String name = StrUtils.toNullStr(map.get("姓名"));
+                if (!StrUtils.isBlank(name)) {
+                    logger.error("职级、职务表：第" + list.indexOf(map) + "行;单位不存在！");
+                    stringBuffer.append("职级、职务表：第" + list.indexOf(map) + "行;单位不存在！");
+                }
+            }
+        }
+        return peopleList;
+    }
+
+    public static SYS_Duty saveAllDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+                                                  DutyService dutyService, PeopleService peopleService) throws Exception {
+        SYS_Duty duty = new SYS_Duty();
+        String dutyName = StrUtils.toNullStr((map.get("拟任职务名称")));
+        String dutyTime = StrUtils.toNullStr((map.get("任职时间")));
+        duty.setPeopleId(people.getId());
+        duty.setPeopleName(people.getName());
+        if (!StrUtils.isBlank(dutyTime)) {
+            duty.setCreateTime(DateUtil.stringToDate(dutyTime));
+        }
+        duty.setName(dutyName);
+        duty.setDutyType(StrUtils.toNullStr(map.get("任职部门及职务")));
+        String approvalTime = String.valueOf(map.get("审批时间"));
+        if (!StrUtils.isBlank(approvalTime)) {
+            duty.setApprovalTime(DateUtil.stringToDate(approvalTime));
+        }
+        duty.setUnitId(people.getUnitId());
+        duty.setSelectionMethod(StrUtils.toNullStr(map.get("任职方式")));
+        duty.setStatus(StrUtils.toNullStr(map.get("任免状态")));
+        String ranTime = String.valueOf(map.get("同职级层次任职时间"));
+        if (!StrUtils.isBlank(ranTime)) {
+            duty.setDutyTime(DateUtil.stringToDate(ranTime));
+        }
+        duty.setDjunct(StrUtils.toNullStr(map.get("是否兼任")));
+        if (!StrUtils.isBlank(dutyName) && !StrUtils.isBlank(dutyTime)){
+            SYS_Duty sys_duty = dutyService.selectDutyByNameAndTime(dutyName, people.getId(), duty.getCreateTime());
+            if (sys_duty != null) {
+                if (StrUtils.isBlank(sys_duty.getApprovalTime())) {
+                    duty.setId(sys_duty.getId());
+                    dutyService.updateDuty(duty);
+                } else {
+                    stringBuffer.append("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                    logger.error("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                }
+            } else {
+                String uuid = UUID.randomUUID().toString();
+                duty.setId(uuid);
+                dutyService.insertDuty(duty);
+            }
+            dutyService.selectNowDutyByPidOrderByTime(people.getId());
+            SYS_Duty sysDuty = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
+            if (sysDuty != null) {
+                people.setPosition(sysDuty.getName());
+            } else {
+                people.setPosition("");
+            }
+            peopleService.updatePeople(people);
+        }else {
+            if (!StrUtils.isBlank(dutyName)) {
+                stringBuffer.append("职务、职级表：第" + list.indexOf(map) + "行;职务名称或者任职时间为空！");
+                logger.error("职务、职级表：第" + list.indexOf(map) + "行;职务名称或者任职时间为空！");
+            }
+        }
+        return duty;
+    }
+
+    public static SYS_Duty saveAllMianDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people,
+                                                      DutyService dutyService, PeopleService peopleService, StringBuffer stringBuffer) throws Exception {
+        SYS_Duty duty = new SYS_Duty();
+        String dutyName = StrUtils.toNullStr((map.get("拟免职务名称")));
+        String dutyTime = StrUtils.toNullStr((map.get("拟免职务任职时间")));
+        if (!StrUtils.isBlank(dutyName) && !StrUtils.isBlank(dutyTime)){
+            SYS_Duty sys_duty = dutyService.selectDutyByNameAndTime(dutyName, people.getId(), duty.getCreateTime());
+            if (sys_duty != null) {
+                sys_duty.setPeopleId(people.getId());
+                sys_duty.setPeopleName(people.getName());
+                if (!StrUtils.isBlank(dutyTime)) {
+                    sys_duty.setCreateTime(DateUtil.stringToDate(dutyTime));
+                }
+                sys_duty.setName(dutyName);
+                sys_duty.setDutyType(StrUtils.toNullStr(map.get("拟免职务任职部门及职务")));
+                sys_duty.setUnitId(people.getUnitId());
+                sys_duty.setRealName(StrUtils.toNullStr(map.get("实名制（单列）管理")));
+                String serveTime = String.valueOf(map.get("免职时间"));
+                if (!StrUtils.isBlank(serveTime)) {
+                    sys_duty.setServeTime(DateUtil.stringToDate(serveTime));
+                }
+                sys_duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
+                sys_duty.setServeFlag(StrUtils.toNullStr(map.get("免职事由")));
+                sys_duty.setStatus(StrUtils.toNullStr(map.get("拟免职务任免状态")));
+                dutyService.updateDuty(sys_duty);
+            } else {
+                duty.setPeopleId(people.getId());
+                duty.setPeopleName(people.getName());
+                if (!StrUtils.isBlank(dutyTime)) {
+                    duty.setCreateTime(DateUtil.stringToDate(dutyTime));
+                }
+                duty.setName(dutyName);
+                duty.setDutyType(StrUtils.toNullStr(map.get("拟免职务任职部门及职务")));
+                duty.setUnitId(people.getUnitId());
+                duty.setRealName(StrUtils.toNullStr(map.get("实名制（单列）管理")));
+                String serveTime = String.valueOf(map.get("免职时间"));
+                if (!StrUtils.isBlank(serveTime)) {
+                    duty.setServeTime(DateUtil.stringToDate(serveTime));
+                }
+                duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
+                duty.setServeFlag(StrUtils.toNullStr(map.get("免职事由")));
+                duty.setStatus(StrUtils.toNullStr(map.get("拟免职务任免状态")));
+                String uuid = UUID.randomUUID().toString();
+                duty.setId(uuid);
+                dutyService.insertDuty(duty);
+            }
+            dutyService.selectNowDutyByPidOrderByTime(people.getId());
+            SYS_Duty sysDuty = dutyService.selectDutyByNameAndTime(duty.getName(), people.getId(), duty.getCreateTime());
+            if (sysDuty != null) {
+                people.setPosition(sysDuty.getName());
+                people.setPositionTime(sysDuty.getCreateTime());
+            } else {
+                people.setPosition("");
+                people.setPositionTime(null);
+            }
+            peopleService.updatePeople(people);
+        }else {
+            if (!StrUtils.isBlank(dutyName)) {
+                stringBuffer.append("职务、职级表：第" + list.indexOf(map) + "行;拟免职务名称或者任职时间为空！");
+                logger.error("职务、职级表：第" + list.indexOf(map) + "行;拟免职务名称或者任职时间为空！");
+            }
+        }
+        return duty;
+    }
+
+    public static SYS_Rank getPeopleAllRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+                                                       RankService rankService, PeopleService peopleService) throws Exception {
+        SYS_Rank rank = new SYS_Rank();
+        String name = StrUtils.toNullStr(map.get("拟任职级名称"));
+        String creatTime = String.valueOf(map.get("任职级时间"));
+        if (!StrUtils.isBlank(name) && !StrUtils.isBlank(creatTime)){
+            rank.setPeopleId(people.getId());
+            rank.setPeopleName(people.getName());
+            rank.setUnitId(people.getUnitId());
+            rank.setName(name);
+            if (!StrUtils.isBlank(creatTime)) {
+                rank.setCreateTime(DateUtil.stringToDate(creatTime));
+            }
+            String rankTime = String.valueOf(map.get("同级职级任职时间"));
+            if (!StrUtils.isBlank(rankTime)) {
+                rank.setRankTime(DateUtil.stringToDate(rankTime));
+            }
+            rank.setStatus(StrUtils.toNullStr(map.get("任免状态")));
+            rank.setBatch(StrUtils.toNullStr(map.get("批次")));
+            rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
+            rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
+            rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次确定职级不占职数")));
+            String approvalTime = String.valueOf(map.get("审批日期"));
+            if (!StrUtils.isBlank(approvalTime)) {
+                rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
+            }
+            SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            if (rank1 != null) {
+                if (StrUtils.isBlank(rank1.getApprovalTime())) {
+                    rank.setId(rank1.getId());
+                    rankService.updateRank(rank);
+                } else {
+                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                    logger.error("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                }
+            } else {
+                String uuid = UUID.randomUUID().toString();
+                rank.setId(uuid);
+                rankService.insertRank(rank);
+            }
+            SYS_Rank sysRank = rankService.selectNowRankByPidOrderByTime(people.getId());
+            if (sysRank != null) {
+                people.setPositionLevel(rank.getName());
+                people.setPositionLevelTime(rank.getCreateTime());
+                peopleService.updatePeople(people);
+            } else {
+                people.setPositionLevel("");
+                people.setPositionLevelTime(null);
+                peopleService.updatePeople(people);
+            }
+        }else {
+            if (!StrUtils.isBlank(name)) {
+                stringBuffer.append("职级表：第" + list.indexOf(map) + "行;职级名称或者任职级时间为空！");
+                logger.error("职级表：第" + list.indexOf(map) + "行;职级名称或者任职级时间为空！");
+            }
+        }
+        return rank;
+    }
+
+    public static SYS_Rank getPeopleMianAllRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
+                                                           RankService rankService, PeopleService peopleService) throws Exception {
+        SYS_Rank rank = new SYS_Rank();
+        String name = StrUtils.toNullStr(map.get("拟免职级"));
+        String creatTime = String.valueOf(map.get("拟免职级任职时间"));
+        if (!StrUtils.isBlank(name) && !StrUtils.isBlank(creatTime)){
+            if (!StrUtils.isBlank(creatTime)) {
+                rank.setCreateTime(DateUtil.stringToDate(creatTime));
+            }
+            SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            if (rank1 != null) {
+                rank1.setPeopleId(people.getId());
+                rank1.setPeopleName(people.getName());
+                rank1.setUnitId(people.getUnitId());
+                rank1.setName(name);
+                if (!StrUtils.isBlank(creatTime)) {
+                    rank1.setCreateTime(DateUtil.stringToDate(creatTime));
+                }
+                rank1.setStatus(StrUtils.toNullStr(map.get("拟免任免状态")));
+                rank1.setBatch(StrUtils.toNullStr(map.get("批次")));
+                rank1.setDeposeRank(StrUtils.toNullStr(map.get("免职级事由")));
+                String deposeTime = String.valueOf(map.get("免职级时间"));
+                if (!StrUtils.isBlank(deposeTime)) {
+                    rank1.setDeposeTime(DateUtil.stringToDate(deposeTime));
+                }
+                rank1.setId(rank1.getId());
+                rankService.updateRank(rank1);
+            } else {
+                rank.setPeopleId(people.getId());
+                rank.setPeopleName(people.getName());
+                rank.setUnitId(people.getUnitId());
+                rank.setName(name);
+                if (!StrUtils.isBlank(creatTime)) {
+                    rank.setCreateTime(DateUtil.stringToDate(creatTime));
+                }
+                rank.setStatus(StrUtils.toNullStr(map.get("拟免任免状态")));
+                rank.setBatch(StrUtils.toNullStr(map.get("批次")));
+                rank.setDeposeRank(StrUtils.toNullStr(map.get("免职级事由")));
+                String deposeTime = String.valueOf(map.get("免职级时间"));
+                if (!StrUtils.isBlank(deposeTime)) {
+                    rank.setDeposeTime(DateUtil.stringToDate(deposeTime));
+                }
+                String uuid = UUID.randomUUID().toString();
+                rank.setId(uuid);
+                rankService.insertRank(rank);
+            }
+            SYS_Rank sysRank = rankService.selectNowRankByPidOrderByTime(people.getId());
+            if (sysRank != null) {
+                people.setPositionLevel(rank.getName());
+                people.setPositionLevelTime(rank.getCreateTime());
+                peopleService.updatePeople(people);
+            } else {
+                people.setPositionLevel("");
+                people.setPositionLevelTime(null);
+                peopleService.updatePeople(people);
+            }
+        }else {
+            if (!StrUtils.isBlank(name)){
+                stringBuffer.append("职级表：第" + list.indexOf(map) + "行;拟免职级名称或者任职级时间为空！");
+                logger.error("职级表：第" + list.indexOf(map) + "行;拟免职级名称或者任职级时间为空！");
+            }
+        }
+        return rank;
+    }
+
     public static List<SYS_People> getPeopleDataByExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
                                                         UnitService unitService, String fullImport, EducationService educationService, DutyService dutyService,
                                                         RankService rankService, RewardService rewardService, AssessmentService assessmentService,
@@ -2162,6 +2435,7 @@ public class DataManager {
         }
         return users;
     }
+
     public static List<SYS_Message> saveMessageJsonModel(JSONArray messagetList) {
         List<SYS_Message> users = new ArrayList<>();
         for (int i = 0; i < messagetList.size(); i++) {
@@ -2188,6 +2462,7 @@ public class DataManager {
         }
         return users;
     }
+
     public static List<Sys_Approal> saveApproalJsonModel(JSONArray approalList) {
         List<Sys_Approal> approals = new ArrayList<>();
         for (int i = 0; i < approalList.size(); i++) {
@@ -4299,7 +4574,6 @@ public class DataManager {
      *
      * @param dutys
      * @param dutyService
-     * @param unitId
      * @return
      */
     public static List<SYS_Duty> saveBackDutyData(List<SYS_Duty> dutys, DutyService dutyService) {
@@ -4405,13 +4679,15 @@ public class DataManager {
         }
         return assessmentList;
     }
+
     /**
      * 备份考核数据导入
+     *
      * @return
      */
     public static List<SYS_Digest> saveBackDigestData(List<SYS_Digest> digests, DataService dataService) {
         List<SYS_Digest> digestList = new ArrayList<>();
-        for (SYS_Digest digest: digests) {
+        for (SYS_Digest digest : digests) {
             digestList.add(digest);
             SYS_Digest digest1 = dataService.selectDigestById(digest.getId());
             if (digest1 != null) {
@@ -4422,13 +4698,15 @@ public class DataManager {
         }
         return digestList;
     }
+
     /**
      * 备份考核数据导入
+     *
      * @return
      */
     public static List<SYS_Message> saveBackMessageData(List<SYS_Message> messages, UserService userService) {
         List<SYS_Message> digestList = new ArrayList<>();
-        for (SYS_Message message: messages) {
+        for (SYS_Message message : messages) {
             digestList.add(message);
             SYS_Message digest1 = userService.selectMessageById(message.getId());
             if (digest1 != null) {
@@ -4443,35 +4721,35 @@ public class DataManager {
     /**
      * 获取 备份数据
      */
-    public static void getDataInfoManager(DataInfoService dataInfoService,SYS_Data data,String unitId,UnitService unitService,Map<String, Object> resultMap){
-        List<SYS_DataInfo> sys_dataInfo=dataInfoService.selectDataInfosByDataId(data.getId(),"上行");
-        if (sys_dataInfo!=null){
-            Map<String,String> map=new HashMap<>();
-            for (SYS_DataInfo dataInfo:sys_dataInfo){
-                if ("unit".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("unit",dataInfo.getParam());
-                }else if ("people".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("people",dataInfo.getParam());
-                }else if ("user".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("user",dataInfo.getParam());
-                }else if ("duty".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("duty",dataInfo.getParam());
-                }else if ("rank".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("rank",dataInfo.getParam());
-                }else if ("education".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("education",dataInfo.getParam());
-                }else if ("reward".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("reward",dataInfo.getParam());
-                }else if ("assessment".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("assessment",dataInfo.getParam());
-                }else if ("approal".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("approal",dataInfo.getParam());
-                } else if ("digest".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())){
-                    map.put("digest",dataInfo.getParam());
+    public static void getDataInfoManager(DataInfoService dataInfoService, SYS_Data data, String unitId, UnitService unitService, Map<String, Object> resultMap) {
+        List<SYS_DataInfo> sys_dataInfo = dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
+        if (sys_dataInfo != null) {
+            Map<String, String> map = new HashMap<>();
+            for (SYS_DataInfo dataInfo : sys_dataInfo) {
+                if ("unit".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("unit", dataInfo.getParam());
+                } else if ("people".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("people", dataInfo.getParam());
+                } else if ("user".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("user", dataInfo.getParam());
+                } else if ("duty".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("duty", dataInfo.getParam());
+                } else if ("rank".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("rank", dataInfo.getParam());
+                } else if ("education".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("education", dataInfo.getParam());
+                } else if ("reward".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("reward", dataInfo.getParam());
+                } else if ("assessment".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("assessment", dataInfo.getParam());
+                } else if ("approal".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("approal", dataInfo.getParam());
+                } else if ("digest".equals(dataInfo.getTableName()) && !StrUtils.isBlank(dataInfo.getParam())) {
+                    map.put("digest", dataInfo.getParam());
                 }
             }
             JSONArray arrayNull = JSONArray.fromObject(new ArrayList<>());
-            if (map.containsKey("unit")){
+            if (map.containsKey("unit")) {
                 List<SYS_UNIT> sys_units = gson.fromJson(map.get("unit"), new TypeToken<List<SYS_UNIT>>() {
                 }.getType());
                 SYS_UNIT unit = unitService.selectUnitById(unitId);
@@ -4480,80 +4758,80 @@ public class DataManager {
                 resultMap.put("unitName", unit.getName());
                 JSONArray array = JSONArray.fromObject(sys_units);
                 resultMap.put("unitList", array);
-            }else {
-                resultMap.put("unitList",arrayNull);
+            } else {
+                resultMap.put("unitList", arrayNull);
             }
-            if (map.containsKey("people")){
+            if (map.containsKey("people")) {
                 List<SYS_People> sys_peoples = gson.fromJson(map.get("people"), new TypeToken<List<SYS_People>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_peoples);
                 resultMap.put("peopleList", array);
-            }else {
-                resultMap.put("peopleList",arrayNull);
+            } else {
+                resultMap.put("peopleList", arrayNull);
             }
-            if (map.containsKey("user")){
+            if (map.containsKey("user")) {
                 List<SYS_USER> sys_userss = gson.fromJson(map.get("user"), new TypeToken<List<SYS_USER>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_userss);
                 resultMap.put("userList", array);
-            }else {
-                resultMap.put("userList",arrayNull);
+            } else {
+                resultMap.put("userList", arrayNull);
             }
-            if (map.containsKey("duty")){
+            if (map.containsKey("duty")) {
                 List<SYS_Duty> sys_duties = gson.fromJson(map.get("duty"), new TypeToken<List<SYS_Duty>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_duties);
                 resultMap.put("dutyList", array);
-            }else {
-                resultMap.put("dutyList",arrayNull);
+            } else {
+                resultMap.put("dutyList", arrayNull);
             }
-            if (map.containsKey("rank")){
+            if (map.containsKey("rank")) {
                 List<SYS_Rank> sys_ranks = gson.fromJson(map.get("rank"), new TypeToken<List<SYS_Rank>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_ranks);
                 resultMap.put("rankList", array);
-            }else {
-                resultMap.put("rankList",arrayNull);
+            } else {
+                resultMap.put("rankList", arrayNull);
             }
-            if (map.containsKey("education")){
+            if (map.containsKey("education")) {
                 List<SYS_Education> sys_educations = gson.fromJson(map.get("education"), new TypeToken<List<SYS_Education>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_educations);
                 resultMap.put("educationList", array);
-            }else {
-                resultMap.put("educationList",arrayNull);
+            } else {
+                resultMap.put("educationList", arrayNull);
             }
-            if (map.containsKey("reward")){
+            if (map.containsKey("reward")) {
                 List<SYS_Reward> sys_rewards = gson.fromJson(map.get("reward"), new TypeToken<List<SYS_Reward>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_rewards);
                 resultMap.put("rewardList", array);
-            }else {
-                resultMap.put("rewardList",arrayNull);
+            } else {
+                resultMap.put("rewardList", arrayNull);
             }
-            if (map.containsKey("assessment")){
+            if (map.containsKey("assessment")) {
                 List<SYS_Assessment> sys_assessments = gson.fromJson(map.get("assessment"), new TypeToken<List<SYS_Assessment>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_assessments);
                 resultMap.put("assessmentList", array);
-            }else {
-                resultMap.put("assessmentList",arrayNull);
+            } else {
+                resultMap.put("assessmentList", arrayNull);
             }
-            if (map.containsKey("approval")){
+            if (map.containsKey("approval")) {
                 List<Sys_Approal> sys_approals = gson.fromJson(map.get("approval"), new TypeToken<List<Sys_Approal>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_approals);
                 resultMap.put("approvalList", array);
-            }else {
-                resultMap.put("approvalList",arrayNull);
+            } else {
+                resultMap.put("approvalList", arrayNull);
             }
-            if (map.containsKey("digest")){
+            if (map.containsKey("digest")) {
                 List<SYS_Digest> sys_digests = gson.fromJson(map.get("digest"), new TypeToken<List<SYS_Digest>>() {
                 }.getType());
                 JSONArray array = JSONArray.fromObject(sys_digests);
                 resultMap.put("digestList", array);
-            }else {
-                resultMap.put("digestList",arrayNull);
+            } else {
+                resultMap.put("digestList", arrayNull);
             }
         }
     }

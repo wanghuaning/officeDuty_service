@@ -281,6 +281,39 @@ public class DataController {
         }
     }
 
+    @ApiOperation(value = "批量导入职级、职务", notes = "批量导入职级、职务", httpMethod = "POST", tags = "批量导入职级、职务接口")
+    @RequestMapping(value = "/importAllRankPeople")
+    public String importAllRankPeople(@RequestParam("excelFile") MultipartFile excelFile, @RequestParam(value = "peopleId", required = false) String peopleId) {
+        StringBuffer stringBuffer = new StringBuffer();
+        try {
+            // TODO 业务逻辑，通过excelFile.getInputStream()，处理Excel文件
+            List<String> headList = ExcelFileGenerator.readeExcelHeader(excelFile.getInputStream(), 0, 3);
+            if (headList.size() > 0) {
+                if (!headList.get(2).contains("姓名") && !headList.get(3).contains("身份证号")) {
+                    stringBuffer.append(ResultMsg.IMPORT_EXCEL_FILE_ERROR);
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.IMPORT_EXCEL_FILE_ERROR, null, null).getJson();
+                } else {
+                    List<Map<String, Object>> list = ExcelFileGenerator.readeExcelData(excelFile.getInputStream(), 0, 3, 4);
+                    List<SYS_People> peopleList = DataManager.importAllRankPeopleExcel(list, peopleService, stringBuffer, unitService, dutyService, rankService);
+                    if (stringBuffer.length() > 0) {
+                        return new Result(ResultCode.SUCCESS.toString(), stringBuffer.toString(), peopleList, null).getJson();
+                    } else {
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.IMPORT_EXCEL_SUCCESS, peopleList, null).getJson();
+                    }
+                }
+            } else {
+                return new Result(ResultCode.ERROR.toString(), stringBuffer.toString(), null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            if (e.toString().contains("IndexOutOfBoundsException")){
+                return new Result(ResultCode.ERROR.toString(), "采集表格式不对，请检查表头", null, null).getJson();
+            }else {
+                return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+            }
+        }
+    }
+
     @ApiOperation(value = "查询审批差异数据", notes = "查询审批差异数据", httpMethod = "GET", tags = "查询审批差异数据接口")
     @RequestMapping(value = "/getProcessData")
     public String getProcessData(@RequestParam(value = "processId", required = false) String processId,
