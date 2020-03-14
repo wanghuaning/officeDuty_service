@@ -932,11 +932,11 @@ public class DataController {
             Map<String, Object> resultMap = new HashMap<>();
             List<SYS_UNIT> unitList = DataManager.getUnitJson(resultMap, unitId, unitService);//单位
             objects.addAll(unitList);
+            List<SYS_Message> messageList = DataManager.getMessageBackDataJson(resultMap, unitList, userService);
+            objects.addAll(messageList);
             if (!"职数".equals(flag)) {
                 List<Sys_Process> processeList = DataManager.getProcessJson(resultMap, unitList, processService, dataType, "0");
                 objects.addAll(processeList);
-                List<SYS_Message> messageList = DataManager.getMessageBackDataJson(resultMap, unitList, userService);
-                objects.addAll(messageList);
                 List<SYS_People> peopleList = DataManager.getPeopleJson(resultMap, unitList, peopleService);
                 List<SYS_USER> userList = DataManager.getUserJson(resultMap, unitList, userService);
                 List<SYS_Digest> digestList = DataManager.getDigestJson(resultMap, unitList, dataService);
@@ -949,7 +949,7 @@ public class DataController {
                     List<SYS_Education> educationList = DataManager.getEducationJson(resultMap, peopleList, educationService);
                     objects.addAll(educationList);
                     List<SYS_Reward> rewardList = DataManager.getRewardJson(resultMap, peopleList, rewardService);
-                    objects.addAll(rankList);
+                    objects.addAll(rewardList);
                     List<SYS_Assessment> assessmentList = DataManager.getAssessmentJson(resultMap, peopleList, assessmentService);
                     objects.addAll(assessmentList);
                 }
@@ -1040,7 +1040,10 @@ public class DataController {
                     JSONArray educationList = new JSONArray();
                     JSONArray rewardList = new JSONArray();
                     JSONArray assessmentList = new JSONArray();
+                    JSONArray digestList =new JSONArray();
+                    JSONArray messageList =new JSONArray();
                     if (!"职数".equals(flag)) {
+                        digestList = key.getJSONArray("digestList");
                         userList = key.getJSONArray("userList");
                         peopleList = key.getJSONArray("peopleList");
                         rankList = key.getJSONArray("rankList");
@@ -1052,6 +1055,7 @@ public class DataController {
                         unitList = key.getJSONArray("unitList");
                         aprovalList = key.getJSONArray("approvalList");
                     }
+                    messageList = key.getJSONArray("messageList");
                     processList = key.getJSONArray("processList");
                     SYS_UNIT unit = unitService.selectUnitById(unitID);
                     if (unit == null) {
@@ -1180,7 +1184,6 @@ public class DataController {
                                         objects.add(assessments);
                                     }
                                 }
-                                JSONArray digestList = key.getJSONArray("digestList");
                                 if (digestList!=null){
                                     List<SYS_Digest> digests = DataManager.saveDigestJsonModel(digestList);
                                     if (digests.size() > 0) {
@@ -1194,7 +1197,6 @@ public class DataController {
                                         objects.add(digests);
                                     }
                                 }
-                                JSONArray messageList = key.getJSONArray("messageList");
                                 if (messageList!=null){
                                     List<SYS_Message> messages = DataManager.saveMessageJsonModel(messageList);
                                     if (messages.size() > 0) {

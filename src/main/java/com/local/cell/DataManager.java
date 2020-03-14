@@ -3610,6 +3610,9 @@ public class DataManager {
             }
             SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
             rankList.add(rank);
+            if ("已免".equals(rank.getStatus()) && StrUtils.isBlank(rank.getServeApprovalTime())){
+                rank.setServeApprovalTime(new Date());
+            }
             SYS_Rank rank1 = rankService.selectRankById(rank.getId());
             if (rank1 != null) {
                 rankService.updateRank(rank);
@@ -3664,6 +3667,9 @@ public class DataManager {
                 duty.setApprovalTime(new Date());
             }
             dutyList.add(duty);
+            if ("已免".equals(duty.getStatus()) && StrUtils.isBlank(duty.getServeApprovalTime())){
+                duty.setServeApprovalTime(new Date());
+            }
             SYS_Duty duty1 = dutyService.selectDutyById(duty.getId());
             SYS_People people = peopleService.selectPeopleById(duty.getPeopleId());
             if (duty1 != null) {

@@ -320,6 +320,16 @@ public class SYS_UNIT implements Serializable {
     private String value;
     private String label;
 
+    private List<String> parentIds;
+
+    public List<String> getParentIds() {
+        return parentIds;
+    }
+
+    public void setParentIds(List<String> parentIds) {
+        this.parentIds = parentIds;
+    }
+
     public List<SYS_UNIT> getChildren() {
         return children;
     }

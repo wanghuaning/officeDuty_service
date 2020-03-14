@@ -26,8 +26,36 @@ public class UnitServiceImpl implements UnitService {
 
     private static List<SYS_UNIT> cunits = new ArrayList<>();
     private static List<SYS_UNIT> punits = new ArrayList<>();
+    private static List<String> punitIds = new ArrayList<>();
     private static List<SYS_UNIT> allunits = new ArrayList<>();
 
+    @Override
+    public List<String> selectAllParentUnitIds(SYS_UNIT unit){
+        Criteria criteria = Cnd.cri();
+        punitIds = new ArrayList<>();
+        List<SYS_UNIT> unitList = new ArrayList<>();
+        if (!StrUtils.isBlank(unit.getParentId())) {
+            criteria.where().andEquals("Id", unit.getParentId());
+            unitList = dao.query(SYS_UNIT.class, criteria);
+            if (unitList.size() > 0) {
+                getAllParentUnits(unitList.get(0));
+            }
+            return punitIds;
+        } else {
+            return new ArrayList<String>();
+        }
+    }
+    public void getAllParentUnitIds(SYS_UNIT unit) {
+        if (!StrUtils.isBlank(unit.getParentId())) {
+            punitIds.add(unit.getId());
+            List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("Id", "=", unit.getParentId()));
+            if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {
+                if (!"单位".equals(cunitList.get(0).getName())){
+                    getAllParentUnitIds(cunitList.get(0));
+                }
+            }
+        }
+    }
     @Override
     public List<SYS_UNIT> selectAllParentUnits(SYS_UNIT unit) {
         Criteria criteria = Cnd.cri();
@@ -50,7 +78,9 @@ public class UnitServiceImpl implements UnitService {
             punits.add(unit);
             List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("Id", "=", unit.getParentId()));
             if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {
-                getAllChildUnits(cunitList);
+                if (!"单位".equals(cunitList.get(0).getName())){
+                    getAllParentUnits(cunitList.get(0));
+                }
             }
         }
     }
