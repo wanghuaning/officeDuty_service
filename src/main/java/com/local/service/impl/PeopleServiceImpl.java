@@ -72,7 +72,7 @@ public class PeopleServiceImpl implements PeopleService {
         return queryResult;
     }
     @Override
-    public QueryResult selectPeopleDetailInfo(int pageSize, int pageNumber,String[] arr,String sex,String party,String age,String duty){
+    public QueryResult selectPeopleDetailInfo(int pageSize, int pageNumber,String[] arr,String sex,String party,String age,String duty,String name,String unitName){
         Pager pager = new Pager();
         pager.setPageNumber(pageNumber + 1);
         pager.setPageSize(pageSize);
@@ -81,6 +81,12 @@ public class PeopleServiceImpl implements PeopleService {
         cri.where().andInStrArray("unit_Id",arr);
         if (!StrUtils.isBlank(sex) && !"全部".equals(sex)) {//市
             cri.where().andLike("sex", "%" + sex + "%");
+        }
+        if (!StrUtils.isBlank(name)) {//人员姓名
+            cri.where().andLike("name", "%" + name + "%");
+        }
+        if (!StrUtils.isBlank(unitName)) {//人员姓名
+            cri.where().andLike("unit_Name", "%" + unitName + "%");
         }
         if (!StrUtils.isBlank(party) && !"全部".equals(party)) {
             if ("党员".equals(party)){

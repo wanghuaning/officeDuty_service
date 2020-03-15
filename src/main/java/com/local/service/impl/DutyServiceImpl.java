@@ -89,7 +89,7 @@ public class DutyServiceImpl implements DutyService {
     public SYS_Duty selectNotProDutyByPidOrderByTime(String pid){
         List<SYS_Duty> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
-        cir.where().andEquals("people_Id", pid).andEquals("approval_Time",null);
+        cir.where().andEquals("people_Id", pid).andEquals("approval_Time",null).andEquals("status", "在任");
         cir.getOrderBy().desc("create_Time");
         list = dao.query(SYS_Duty.class, cir);
         if (list.size() > 0) {

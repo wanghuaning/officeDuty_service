@@ -33,7 +33,7 @@ public class SYS_Message implements Serializable {
     @Comment("排序")
     @Column("order_Num")
     @ColDefine(type = ColType.INT, width = 6)
-    private int orderNum;
+    private Integer orderNum;
 
     @ApiModelProperty("状态：0：在用；1:停用")
     @Comment("状态：0：在用；1:停用")

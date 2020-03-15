@@ -403,7 +403,9 @@ public class PeopleController {
                                    @RequestParam(value = "sex", required = false) String sex,
                                    @RequestParam(value = "party", required = false) String party,
                                    @RequestParam(value = "age", required = false) String age,
-                                   @RequestParam(value = "duty", required = false) String duty, HttpServletRequest request) {
+                                   @RequestParam(value = "duty", required = false) String duty,
+                                   @RequestParam(value = "name", required = false) String name,
+                                   @RequestParam(value = "unitName", required = false) String unitName, HttpServletRequest request) {
         try {
             String[] arr;
             if (!"true".equals(isChild)) {
@@ -417,7 +419,7 @@ public class PeopleController {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
             }
-            QueryResult queryResult = peopleService.selectPeopleDetailInfo(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), arr, sex, party, age, duty);
+            QueryResult queryResult = peopleService.selectPeopleDetailInfo(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), arr, sex, party, age, duty,name,unitName);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
