@@ -19,6 +19,7 @@ public class FormRankModel {
     private Long oneClerk=0l;//核准一级科员
     private Long towClerk=0l;//核准二级科员
     private Long probation=0l;//核准试用期
+    private Long heZhunTotal=0l;
 
     private Integer oneResearcherNumTurn=0;//套转一级调研员职数
     private Integer towResearcherNumTurn=0;//套转二级调研员职数
@@ -31,6 +32,7 @@ public class FormRankModel {
     private Integer oneClerkTurn=0;//套转一级科员
     private Integer towClerkTurn=0;//套转二级科员
     private Integer probationTurn=0;//套转试用期
+    private Integer taoZhuanTotal=0;
 
     private Long oneResearcherNumNow=0l;//现有一级调研员职数
     private Long towResearcherNumNow=0l;//现有二级调研员职数
@@ -53,6 +55,7 @@ public class FormRankModel {
     private Long towClerkNumLave=0l;//剩余二级主任科员职数
     private Long threeClerkNumLave=0l;//剩余三级主任科员职数
     private Long fourClerkNumLave=0l;//剩余四级主任科员职数
+    private Long laveTotal=0l;
 
     private Long oneResearcherDraftingNum=0l;//拟使用一级调研员职数
     private Long towResearcherDraftingNum=0l;//拟使用二级调研员职数
@@ -63,12 +66,37 @@ public class FormRankModel {
     private Long threeClerkDraftingNum=0l;//三级主任科员职数拟定
     private Long fourClerkDraftingNum=0l;//四级主任科员职数拟定
 
+
+    public Long getHeZhunTotal() {
+        return heZhunTotal;
+    }
+
+    public void setHeZhunTotal(Long heZhunTotal) {
+        this.heZhunTotal = heZhunTotal;
+    }
+
+    public Integer getTaoZhuanTotal() {
+        return taoZhuanTotal;
+    }
+
+    public void setTaoZhuanTotal(Integer taoZhuanTotal) {
+        this.taoZhuanTotal = taoZhuanTotal;
+    }
+
     public Long getTotal() {
         return total;
     }
 
     public void setTotal(Long total) {
         this.total = total;
+    }
+
+    public Long getLaveTotal() {
+        return laveTotal;
+    }
+
+    public void setLaveTotal(Long laveTotal) {
+        this.laveTotal = laveTotal;
     }
 
     public String getUnitName() {

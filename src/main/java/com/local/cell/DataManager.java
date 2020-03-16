@@ -578,7 +578,7 @@ public class DataManager {
             SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
             if (education != null) {
                 reimbursementModel.setFullTimeEducation(education.getName());
-                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+                reimbursementModel.setFullTimeSchool(StrUtils.toNullStr(education.getSchool()) + "\n" + StrUtils.toNullStr(education.getProfession()));
             }
             if (education1 != null) {
                 reimbursementModel.setWorkEducation(education1.getName());
@@ -674,7 +674,7 @@ public class DataManager {
             SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
             if (education != null) {
                 reimbursementModel.setFullTimeEducation(education.getName());
-                reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+                reimbursementModel.setFullTimeSchool(StrUtils.toNullStr(education.getSchool()) + "\n" + StrUtils.toNullStr(education.getProfession()));
             }
             if (education1 != null) {
                 reimbursementModel.setWorkEducation(education1.getName());
@@ -839,7 +839,7 @@ public class DataManager {
         SYS_Education education1 = educationService.selectEducationByPidAndSchoolOrderByTime(peopleId, "在职教育");
         if (education != null) {
             reimbursementModel.setFullTimeEducation(education.getName());
-            reimbursementModel.setFullTimeSchool(education.getSchool() + "\n" + education.getProfession());
+            reimbursementModel.setFullTimeSchool(StrUtils.toNullStr(education.getSchool() )+ "\n" + StrUtils.toNullStr(education.getProfession()));
         }
         if (education1 != null) {
             reimbursementModel.setWorkEducation(education1.getName());

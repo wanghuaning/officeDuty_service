@@ -123,6 +123,7 @@ public class FormManager {
                 }
             }
         }
+        //核准
         approalModel.setOneResearcherNum(oneResearcherNum);
         approalModel.setTowResearcherNum(towResearcherNum);
         approalModel.setThreeResearcherNum(threeResearcherNum);
@@ -131,6 +132,8 @@ public class FormManager {
         approalModel.setTowClerkNum(towClerkNum);
         approalModel.setThreeClerkNum(threeClerkNum);
         approalModel.setFourClerkNum(fourClerkNum);
+        approalModel.setHeZhunTotal(oneResearcherNum+towResearcherNum+threeResearcherNum+fourResearcherNum+oneClerkNum+towClerkNum+threeClerkNum+fourClerkNum);
+
         approalModel.setOneResearcherNumNow(oneResearcherUserNum);
         approalModel.setTowResearcherNumNow(towResearcherUserNum);
         approalModel.setThreeResearcherNumNow(threeResearcherUserNum);
@@ -142,6 +145,9 @@ public class FormManager {
         approalModel.setOneClerkNow(oneClerk);
         approalModel.setTowClerkNow(towClerk);
         approalModel.setProbationNow(probation);
+        approalModel.setTotal(oneResearcherUserNum+towResearcherUserNum+threeResearcherUserNum+fourResearcherUserNum+oneClerkUserNum+towClerkUserNum+threeClerkUserNum+fourClerkUserNum+
+                oneClerk+towClerk+probation);
+
         approalModel.setOneResearcherNumTurn(oneResearcherNumTurn);
         approalModel.setTowResearcherNumTurn(towResearcherNumTurn);
         approalModel.setThreeResearcherNumTurn(threeResearcherNumTurn);
@@ -153,6 +159,9 @@ public class FormManager {
         approalModel.setOneClerkTurn(oneClerkTurn);
         approalModel.setTowClerkTurn(towClerkTurn);
         approalModel.setProbationTurn(probationTurn);
+        approalModel.setTaoZhuanTotal(oneResearcherNumTurn+towResearcherNumTurn+threeResearcherNumTurn+fourResearcherNumTurn+oneClerkNumTurn+towClerkNumTurn+threeClerkNumTurn+fourClerkNumTurn+
+                oneClerkTurn+towClerkTurn+probationTurn);
+
         approalModel.setOneResearcherDraftingNum(oneResearcherDraftingNum);
         approalModel.setTowResearcherDraftingNum(towResearcherDraftingNum);
         approalModel.setThreeResearcherDraftingNum(threeResearcherDraftingNum);
@@ -170,6 +179,9 @@ public class FormManager {
         approalModel.setTowResearcherNumLave(StrUtils.plusLongNum(towResearcherNum - towResearcherUserNum));
         approalModel.setThreeResearcherNumLave(StrUtils.plusLongNum(threeResearcherNum - threeResearcherUserNum));
         approalModel.setFourResearcherNumLave(StrUtils.plusLongNum(fourResearcherNum - fourResearcherUserNum));
+        approalModel.setLaveTotal(StrUtils.plusLongNum(oneClerkNum - oneClerkUserNum)+StrUtils.plusLongNum(towClerkNum - towClerkUserNum)+StrUtils.plusLongNum(threeClerkNum - threeClerkUserNum)+
+                StrUtils.plusLongNum(fourClerkNum - fourClerkUserNum)+StrUtils.plusLongNum(oneResearcherNum - oneResearcherUserNum)+StrUtils.plusLongNum(towResearcherNum - towResearcherUserNum)+
+                StrUtils.plusLongNum(threeResearcherNum - threeResearcherUserNum)+StrUtils.plusLongNum(fourResearcherNum - fourResearcherUserNum));
         return approalModel;
     }
 
