@@ -339,9 +339,9 @@ public class PeopleController {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.UNIT_CODE_ERROE, null, null).getJson();
                 }
             }
+            Pager pager = new Pager();
             List<SYS_People> peopleList = new ArrayList<>();
             PeopleManager.getRetireInfoData(peopleList, arr, states,peopleService,unitService);
-            Pager pager = new Pager();
             pager.setPageNumber(Integer.parseInt(pageNumber)+1);
             pager.setPageSize(Integer.parseInt(pageSize));
             pager.setRecordCount(peopleList.size());
