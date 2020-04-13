@@ -111,7 +111,27 @@ public class UnitConttoller {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "查询单位", notes = "查询单位", httpMethod = "GET", tags = "查询单位接口")
+    @GetMapping("/unitById")
+    @ResponseBody
+    public String getUnitById(@RequestParam(value = "unitId", required = false) String unitId) {
+        try {
+                if (!StrUtils.isBlank(unitId)) {
+                    SYS_UNIT unit=unitService.selectUnitById(unitId);
+                    if (unit!=null){
+                        return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, unit, null).getJson();
+                    }else {
+                        return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                    }
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
 
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "单位详情其他信息", notes = "单位详情其他信息", httpMethod = "GET", tags = "单位详情其他信息接口")
     @GetMapping(value = "/unit/otherData")
     @ResponseBody
