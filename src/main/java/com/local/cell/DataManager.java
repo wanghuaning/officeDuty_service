@@ -165,6 +165,15 @@ public class DataManager {
         }
         return rankModels;
     }
+
+    public static List<RankModel> filingExcleByProcess(UnitService unitService, HttpServletResponse response,
+                                             PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService,
+                                             RegModel model,EducationService educationService) throws Exception {
+        List<RankModel> rankModels = model.getRankModels();
+        SYS_UNIT unit = unitService.selectUnitByName(model.getUnitName());
+//        getRegDataInfoModel(unit,model,peopleService, rankService,  dutyService,rankModels, assessmentService,educationService);
+        return filingDataList(rankModels, response, unit, model);
+    }
     public static void getRegDataInfoModel(SYS_UNIT unit,RegModel model,PeopleService peopleService,RankService rankService, DutyService dutyService,
                             List<RankModel> rankModels,AssessmentService assessmentService,EducationService educationService){
         model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
@@ -920,7 +929,18 @@ public class DataManager {
         temp.close();
         return approalModel;
     }
-
+    public static Sys_Approal approvalExportByApproval(UnitService unitService, Sys_Approal approalModel, HttpServletResponse response,
+                                             PeopleService peopleService, RankService rankService, ApprovalService approvalService) throws Exception {
+        ClassPathResource resource = new ClassPathResource("exportExcel/approveRank.xls");
+        String path = resource.getFile().getPath();
+        Workbook temp = ExcelFileGenerator.getTeplet(path);
+        ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+        excelFileGenerator.setExcleNAME(response, "公务员职级职数使用审批表.xls");
+        excelFileGenerator.createApprovalExcel(temp.getSheet("职数使用审批表"), approalModel);
+        temp.write(response.getOutputStream());
+        temp.close();
+        return approalModel;
+    }
     public static void getApprovalDataByData(Sys_Approal approalModel, SYS_UNIT unit, List<SYS_People> peoples, RankService rankService) {
         approalModel.setUnitType("");
         approalModel.setLevel(unit.getLevel());
@@ -3812,7 +3832,7 @@ public class DataManager {
 
     public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService,
                                                     String approvalUnitName, String peopleName, SYS_USER user,
-                                                    String states, UnitService unitService, SYS_UNIT unit) throws Exception {
+                                                    String states, UnitService unitService, SYS_UNIT unit,String flag) throws Exception {
         List<Sys_Process> approalList = new ArrayList<>();
         for (Sys_Process process : processes) {
             if (!StrUtils.isBlank(process.getCreateTimeStr())) {
@@ -3827,7 +3847,7 @@ public class DataManager {
             if (process.getParentId() == null) {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
                 if (user != null) {
-                    if ("1".equals(user.getRoles())) {
+                    if ("1".equals(user.getRoles()) && !"下行".equals(flag)) {
                         process.setStates(states);
 //                        process.setProcessTime(new Date());
                         process.setApprovalUnit(user.getUnitId());
@@ -3902,6 +3922,52 @@ public class DataManager {
                 }
             }
             approalList.add(process);
+        }
+        return approalList;
+    }
+
+    /**
+     * 下行审批表
+     * @param processes
+     * @param processService
+     * @param unitService
+     * @param unit
+     * @return
+     * @throws Exception
+     */
+    public static List<Sys_Process> saveAprovaledProcessData(List<Sys_Process> processes, ProcessService processService,
+                                                             UnitService unitService, SYS_UNIT unit) throws Exception {
+        List<Sys_Process> approalList = new ArrayList<>();
+        for (Sys_Process process : processes) {
+            if (!StrUtils.isBlank(process.getCreateTimeStr())) {
+                process.setCreateTime(DateUtil.stringToDateMM(process.getCreateTimeStr()));
+            }
+            if (!StrUtils.isBlank(process.getProcessTimeStr())) {
+                process.setProcessTime(DateUtil.stringToDateMM(process.getProcessTimeStr()));
+            }
+                Sys_Process approal1 = processService.selectProcessById(process.getId());
+                if (approal1 != null) {
+                    processService.updateProcess(process);
+                } else {
+                    processService.insertProcess(process);
+                }
+                if (process.getChildren().size()>0){
+                    for (Sys_Process cprocess : process.getChildren()) {
+                        if (!StrUtils.isBlank(cprocess.getCreateTimeStr())) {
+                            cprocess.setCreateTime(DateUtil.stringToDateMM(cprocess.getCreateTimeStr()));
+                        }
+                        if (!StrUtils.isBlank(cprocess.getProcessTimeStr())) {
+                            cprocess.setProcessTime(DateUtil.stringToDateMM(cprocess.getProcessTimeStr()));
+                        }
+                        Sys_Process capproal1 = processService.selectProcessById(cprocess.getId());
+                        if (capproal1 != null) {
+                            processService.updateProcess(cprocess);
+                        } else {
+                            processService.insertProcess(cprocess);
+                        }
+                    }
+                }
+                approalList.add(process);
         }
         return approalList;
     }

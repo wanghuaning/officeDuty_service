@@ -14,6 +14,7 @@ public interface DataInfoService {
     SYS_DataInfo selectDataInfById(String id);
     List<SYS_DataInfo> selectDataInfosByUnitId(String unitId);
     List<SYS_DataInfo> selectDataInfosByDataId(String dataId,String type);
+    SYS_DataInfo selectDataInfByPidAndTable(String pid,String table);
 
 
 }

@@ -54,6 +54,18 @@ public class DataInfoServiceImpl implements DataInfoService {
     }
 
     @Override
+    public SYS_DataInfo selectDataInfByPidAndTable(String pid,String table){
+        List<SYS_DataInfo> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("data_Id", pid).andEquals("table_Name",table);
+        list = dao.query(SYS_DataInfo.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
     public List<SYS_DataInfo> selectDataInfosByUnitId(String unitId) {
         List<SYS_DataInfo> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
