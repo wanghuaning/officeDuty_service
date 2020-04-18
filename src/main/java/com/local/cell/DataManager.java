@@ -35,11 +35,9 @@ public class DataManager {
     public static Sys_Approal getApprovalDataCell(Sys_Approal approalModel, SYS_UNIT unit, List<SYS_People> peoples, RankService rankService) {
         approalModel.setUnitId(unit.getId());
         approalModel.setUnitName(unit.getName());
-        approalModel.setUnitType(unit.getCategory());
+        approalModel.setUnitType(unit.getUnitType());
         approalModel.setLevel(unit.getLevel());
-        if (unit.getOfficialNum() > 0) {
-            approalModel.setOfficialNum(String.valueOf(unit.getOfficialNum()));
-        }
+        approalModel.setOfficialNum(String.valueOf(unit.getOfficialNum()+unit.getReferOfficialNum()));
         int researcherTotal = 0;
         if (unit.getOneTowResearcherNum() > 0) {
             approalModel.setOneTowResearcherNum(String.valueOf(unit.getOneTowResearcherNum()));
@@ -92,31 +90,59 @@ public class DataManager {
         int towClerkUserNum = 0;//二级主任科员职数使用
         int threeClerkUserNum = 0;//三级主任科员职数使用
         int fourClerkUserNum = 0;//四级主任科员职数使用
-        int userTotal = 0;//使用合计
+        int userClerkTotal = 0,userResearcherTotal=0;//使用合计
+        int oneResearcherJunNum = 0,towResearcherJunNum = 0,threeResearcherJunNum = 0,fourResearcherJunNum = 0;//调研员军转
+        int oneClerkJunNum = 0,towClerkJunNum = 0,threeClerkJunNum = 0,fourClerkJunNum = 0;//主任科员军转
         for (SYS_People people : peoples) {
             SYS_Rank rank = rankService.selectAprodRanksByPid(people.getId());
             if (rank != null) {
                 if ("一级主任科员".equals(rank.getName())) {
                     oneClerkUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        oneClerkJunNum++;
+                    }
                 } else if ("二级主任科员".equals(rank.getName())) {
                     towClerkUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        towClerkJunNum++;
+                    }
                 } else if ("三级主任科员".equals(rank.getName())) {
                     threeClerkUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        threeClerkJunNum++;
+                    }
                 } else if ("四级主任科员".equals(rank.getName())) {
                     fourClerkUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        fourClerkJunNum++;
+                    }
                 } else if ("一级调研员".equals(rank.getName())) {
                     oneResearcherUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        oneResearcherJunNum++;
+                    }
                 } else if ("二级调研员".equals(rank.getName())) {
                     towResearcherUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        towResearcherJunNum++;
+                    }
                 } else if ("三级调研员".equals(rank.getName())) {
                     threeResearcherUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        threeResearcherJunNum++;
+                    }
                 } else if ("四级调研员".equals(rank.getName())) {
                     fourResearcherUserNum += 1;
+                    if ("是".equals(people.getDetail())){
+                        fourResearcherJunNum++;
+                    }
                 }
             }
         }
-        userTotal = oneClerkUserNum + towClerkUserNum + threeClerkUserNum + fourClerkUserNum;
-        approalModel.setUserTotal(String.valueOf(userTotal));
+        userClerkTotal = oneClerkUserNum + towClerkUserNum + threeClerkUserNum + fourClerkUserNum;
+        approalModel.setUserTotal(String.valueOf(userClerkTotal));
+        userResearcherTotal = oneResearcherUserNum + towResearcherUserNum + threeResearcherUserNum + fourResearcherUserNum;
+        approalModel.setResearcherUserTotal(String.valueOf(userResearcherTotal));
         if (oneClerkUserNum > 0) {
             approalModel.setOneClerkUserNum(String.valueOf(oneClerkUserNum));
         }
@@ -129,25 +155,47 @@ public class DataManager {
         if (fourClerkUserNum > 0) {
             approalModel.setFourClerkUserNum(String.valueOf(fourClerkUserNum));
         }
-
-        int vacancyTotal = 0;
-        if (unit.getOneClerkNum() > oneClerkUserNum) {
-            approalModel.setOneClerkVacancyNum(String.valueOf(unit.getOneClerkNum() - oneClerkUserNum));
-            vacancyTotal += unit.getOneClerkNum() - oneClerkUserNum;
+        if (oneResearcherUserNum > 0) {
+            approalModel.setOneResearcherUserNum(String.valueOf(oneResearcherUserNum));
         }
-        if (unit.getTowClerkNum() > towClerkUserNum) {
-            approalModel.setTowClerkVacancyNum(String.valueOf(unit.getTowClerkNum() - towClerkUserNum));
-            vacancyTotal += unit.getTowClerkNum() - towClerkUserNum;
+        if (towResearcherUserNum > 0) {
+            approalModel.setTowResearcherUserNum(String.valueOf(towResearcherUserNum));
         }
-        if (unit.getThreeClerkNum() > threeClerkUserNum) {
-            approalModel.setThreeClerkVacancyNum(String.valueOf(unit.getThreeClerkNum() - threeClerkUserNum));
-            vacancyTotal += unit.getThreeClerkNum() - threeClerkUserNum;
+        if (threeResearcherUserNum > 0) {
+            approalModel.setThreeResearcherUserNum(String.valueOf(threeResearcherUserNum));
         }
-        if (unit.getFourClerkNum() > fourClerkUserNum) {
-            approalModel.setFourClerkVacancyNum(String.valueOf(unit.getFourClerkNum() - fourClerkUserNum));
-            vacancyTotal += unit.getFourClerkNum() - fourClerkUserNum;
+        if (fourResearcherUserNum > 0) {
+            approalModel.setFourResearcherUserNum(String.valueOf(fourResearcherUserNum));
         }
-        approalModel.setVacancyTotal(String.valueOf(vacancyTotal));
+        approalModel.setOneClerkJunNum(String.valueOf(oneClerkJunNum));
+        approalModel.setTowClerkJunNum(String.valueOf(towClerkJunNum));
+        approalModel.setThreeClerkJunNum(String.valueOf(threeClerkJunNum));
+        approalModel.setFourClerkJunNum(String.valueOf(fourClerkJunNum));
+        approalModel.setOneResearcherJunNum(String.valueOf(oneResearcherJunNum));
+        approalModel.setTowResearcherJunNum(String.valueOf(towResearcherJunNum));
+        approalModel.setThreeResearcherJunNum(String.valueOf(threeResearcherJunNum));
+        approalModel.setFourResearcherJunNum(String.valueOf(fourResearcherJunNum));
+        //空缺数
+        long oneClerkUserNums=unit.getOneClerkNum() - oneClerkUserNum+oneClerkJunNum;
+        approalModel.setOneClerkVacancyNum(oneClerkUserNums+"");
+        long towClerkUserNums=unit.getTowClerkNum() - towClerkUserNum+towClerkJunNum;
+        approalModel.setTowClerkVacancyNum(towClerkUserNums+"");
+        long threeClerkUserNums=unit.getThreeClerkNum() - threeClerkUserNum+threeClerkJunNum;
+        approalModel.setThreeClerkVacancyNum(threeClerkUserNums+"");
+        long fourClerkUserNums=unit.getFourClerkNum() - fourClerkUserNum+fourClerkJunNum;
+        approalModel.setFourClerkVacancyNum(fourClerkUserNums+"");
+        long vacancyTotal = oneClerkUserNums + towClerkUserNums + threeClerkUserNums + fourClerkUserNums;
+        approalModel.setVacancyTotal(vacancyTotal+"");
+        long oneResearcherUserNums=unit.getOneResearcherNum() - oneResearcherUserNum+oneResearcherJunNum;
+        approalModel.setOneResearcherVacancyNum(oneResearcherUserNums+"");
+        long towResearcherUserNums=unit.getTowResearcherNum() - towResearcherUserNum+towResearcherJunNum;
+        approalModel.setTowResearcherVacancyNum(towResearcherUserNums+"");
+        long threeResearcherUserNums=unit.getThreeResearcherNum() - threeResearcherUserNum+threeResearcherJunNum;
+        approalModel.setThreeResearcherVacancyNum(threeResearcherUserNums+"");
+        long fourResearcherUserNums=unit.getFourResearcherNum() - fourResearcherUserNum+fourResearcherJunNum;
+        approalModel.setFourResearcherVacancyNum(fourResearcherUserNums+"");
+        long vacancyResearcherTotal = oneResearcherUserNums+towResearcherUserNums+threeResearcherUserNums+fourResearcherUserNums;
+        approalModel.setVacancyResearcherTotal(vacancyResearcherTotal+"");
         return approalModel;
     }
 

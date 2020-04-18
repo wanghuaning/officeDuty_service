@@ -131,6 +131,7 @@ public class DataController {
         try {
             SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
             String uuid = "";
+            Sys_Process process= new Sys_Process();
             Sys_Approal approalNow = approvalService.selectApproval(approal.getUnitId(), "0");
             if (approalNow != null) {
                 approal.setId(approalNow.getId());
@@ -138,14 +139,15 @@ public class DataController {
                 approalNow.setCreateTime(new Date());
                 approvalService.updataApproal(approalNow);
                 uuid = approalNow.getId();
-                DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approalNow), unitService);
+                process=DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approalNow), unitService);
             } else {
                 uuid = UUID.randomUUID().toString();
                 approal.setId(uuid);
                 approal.setCreateTime(new Date());
                 approvalService.insertApproal(approal);
-                DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approal), unitService);
+                process=DataManager.setProcessDate(processService, "1", unit, "", gson.toJson(approal), unitService);
             }
+            dataService.saveApprovalData(process,"职级",unit.getId());
             return new Result(ResultCode.SUCCESS.toString(), "提交成功", approal, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);

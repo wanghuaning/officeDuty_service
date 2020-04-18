@@ -235,6 +235,47 @@ public class Sys_Approal {
   private String userTotal="0";
 
   @Default(value = "0")
+  @ApiModelProperty("调研员使用合计")
+  @Comment("调研员使用合计")
+  @Column("researcher_User_Total")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String researcherUserTotal="0";
+  @Default(value = "0")
+
+  @ApiModelProperty("一级调研员职数空缺")
+  @Comment("一级调研员职数空缺")
+  @Column("one_Researcher_Vacancy_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneResearcherVacancyNum;
+
+  @Default(value = "0")
+  @ApiModelProperty("二级调研员职数空缺")
+  @Comment("二级调研员职数空缺")
+  @Column("tow_Researcher_Vacancy_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towResearcherVacancyNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("三级调研员职数空缺")
+  @Comment("三级调研员职数空缺")
+  @Column("three_Researcher_Vacancy_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeResearcherVacancyNum="0";
+
+  @ApiModelProperty("四级调研员职数空缺")
+  @Comment("四级调研员职数空缺")
+  @Column("four_Researcher_Vacancy_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourResearcherVacancyNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("调研员空缺合计")
+  @Comment("调研员空缺合计")
+  @Column("vacancy_Researcher_Total")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String vacancyResearcherTotal="0";
+
+  @Default(value = "0")
   @ApiModelProperty("一级主任科员职数空缺")
   @Comment("一级主任科员职数空缺")
   @Column("one_Clerk_Vacancy_Num")
@@ -386,9 +427,178 @@ public class Sys_Approal {
   @Column("four_Clerk_Drafting_Num_Detail")
   @ColDefine(type = ColType.VARCHAR,width = 8)
   private String fourClerkDraftingNumDetail="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("一级调研员军转职数")
+  @Comment("一级调研员军转职数")
+  @Column("one_Researcher_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneResearcherJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("二级调研员军转职数")
+  @Comment("二级调研员军转职数")
+  @Column("tow_Researcher_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towResearcherJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("三级调研员军转职数")
+  @Comment("三级调研员军转职数")
+  @Column("three_Researcher_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeResearcherJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("四级调研员军转职数")
+  @Comment("四级调研员军转职数")
+  @Column("four_Researcher_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourResearcherJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("一级主任科员军转职数")
+  @Comment("一级主任科员军转职数")
+  @Column("one_Clerk_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneClerkJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("二级主任科员军转职数")
+  @Comment("二级主任科员军转职数")
+  @Column("tow_Clerk_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towClerkJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("三级主任科员军转职数")
+  @Comment("三级主任科员军转职数")
+  @Column("three_Clerk_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeClerkJunNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("四级主任科员军转职数")
+  @Comment("四级主任科员军转职数")
+  @Column("four_Clerk_Jun_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourClerkJunNum="0";
+
   private String dataFlag;
 
   private List<Sys_Approal> children;
+
+  public String getOneResearcherVacancyNum() {
+    return oneResearcherVacancyNum;
+  }
+
+  public void setOneResearcherVacancyNum(String oneResearcherVacancyNum) {
+    this.oneResearcherVacancyNum = oneResearcherVacancyNum;
+  }
+
+  public String getTowResearcherVacancyNum() {
+    return towResearcherVacancyNum;
+  }
+
+  public void setTowResearcherVacancyNum(String towResearcherVacancyNum) {
+    this.towResearcherVacancyNum = towResearcherVacancyNum;
+  }
+
+  public String getThreeResearcherVacancyNum() {
+    return threeResearcherVacancyNum;
+  }
+
+  public void setThreeResearcherVacancyNum(String threeResearcherVacancyNum) {
+    this.threeResearcherVacancyNum = threeResearcherVacancyNum;
+  }
+
+  public String getFourResearcherVacancyNum() {
+    return fourResearcherVacancyNum;
+  }
+
+  public void setFourResearcherVacancyNum(String fourResearcherVacancyNum) {
+    this.fourResearcherVacancyNum = fourResearcherVacancyNum;
+  }
+
+  public String getVacancyResearcherTotal() {
+    return vacancyResearcherTotal;
+  }
+
+  public void setVacancyResearcherTotal(String vacancyResearcherTotal) {
+    this.vacancyResearcherTotal = vacancyResearcherTotal;
+  }
+
+  public String getResearcherUserTotal() {
+    return researcherUserTotal;
+  }
+
+  public void setResearcherUserTotal(String researcherUserTotal) {
+    this.researcherUserTotal = researcherUserTotal;
+  }
+
+  public String getOneResearcherJunNum() {
+    return oneResearcherJunNum;
+  }
+
+  public void setOneResearcherJunNum(String oneResearcherJunNum) {
+    this.oneResearcherJunNum = oneResearcherJunNum;
+  }
+
+  public String getTowResearcherJunNum() {
+    return towResearcherJunNum;
+  }
+
+  public void setTowResearcherJunNum(String towResearcherJunNum) {
+    this.towResearcherJunNum = towResearcherJunNum;
+  }
+
+  public String getThreeResearcherJunNum() {
+    return threeResearcherJunNum;
+  }
+
+  public void setThreeResearcherJunNum(String threeResearcherJunNum) {
+    this.threeResearcherJunNum = threeResearcherJunNum;
+  }
+
+  public String getFourResearcherJunNum() {
+    return fourResearcherJunNum;
+  }
+
+  public void setFourResearcherJunNum(String fourResearcherJunNum) {
+    this.fourResearcherJunNum = fourResearcherJunNum;
+  }
+
+  public String getOneClerkJunNum() {
+    return oneClerkJunNum;
+  }
+
+  public void setOneClerkJunNum(String oneClerkJunNum) {
+    this.oneClerkJunNum = oneClerkJunNum;
+  }
+
+  public String getTowClerkJunNum() {
+    return towClerkJunNum;
+  }
+
+  public void setTowClerkJunNum(String towClerkJunNum) {
+    this.towClerkJunNum = towClerkJunNum;
+  }
+
+  public String getThreeClerkJunNum() {
+    return threeClerkJunNum;
+  }
+
+  public void setThreeClerkJunNum(String threeClerkJunNum) {
+    this.threeClerkJunNum = threeClerkJunNum;
+  }
+
+  public String getFourClerkJunNum() {
+    return fourClerkJunNum;
+  }
+
+  public void setFourClerkJunNum(String fourClerkJunNum) {
+    this.fourClerkJunNum = fourClerkJunNum;
+  }
 
   public String getCreateTimeStr() {
     return DateUtil.dateToString(createTime);

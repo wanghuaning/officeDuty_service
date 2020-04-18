@@ -2,6 +2,7 @@ package com.local.service;
 
 import com.local.entity.sys.SYS_Data;
 import com.local.entity.sys.SYS_Digest;
+import com.local.entity.sys.Sys_Process;
 import org.nutz.dao.QueryResult;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface DataService {
     void insertDigest(SYS_Digest digest);
     void updateDigest(SYS_Digest digest);
 
+    SYS_Data saveApprovalData(Sys_Process process, String approvalType, String unitId);
 }
