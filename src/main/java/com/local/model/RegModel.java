@@ -49,11 +49,20 @@ public class RegModel {
     private String contact;// 联系人
     private String contactNumber; // 联系电话
     private String nowDateStr; // 填表日期
-    private String month;
-    private String day;
-    private String peopleName;
-    private String peopleNum;
+    private String year="";
+    private String month="";
+    private String day="";
+    private String peopleName="";
+    private String peopleNum="";
     private String unitName;
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
 
     public String getPeopleNums() {
         return peopleNums;

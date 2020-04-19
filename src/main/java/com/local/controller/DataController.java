@@ -195,54 +195,42 @@ public class DataController {
     @ApiOperation(value = "提交晋升职级人员备案名册", notes = "提交晋升职级人员备案名册", httpMethod = "POST", tags = "提交晋升职级人员备案名册接口")
     @PostMapping(value = "/submitRegApproval")
     @ResponseBody
-    public String submitRegApproval(HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
-            , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds,
-                                    @RequestParam(value = "month", required = false) String month, @RequestParam(value = "day", required = false) String day,
-                                    @RequestParam(value = "peopleName", required = false) String peopleName, @RequestParam(value = "peopleNum", required = false) String peopleNum) {
+    public String submitRegApproval(HttpServletResponse response,@Validated @RequestBody RegModel model) {
         try {
-            RegModel model = new RegModel();
-            model.setMonth(month);
-            model.setDay(day);
-            model.setPeopleName(peopleName);
-            model.setPeopleNum(peopleNum);
-            model.setUnitName(unitName);
-            List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService,
-                    model, processService, "提交", educationService);
-            if (rankModels.size() > 0) {
-                return new Result(ResultCode.SUCCESS.toString(), "提交成功", rankModels, null).getJson();
-            } else {
-                return new Result(ResultCode.ERROR.toString(), "无审批数据", null, null).getJson();
-            }
+                SYS_UNIT unit = unitService.selectUnitByName(model.getUnitName());
+                DataManager.setProcessDate(processService, "0", unit, "", gson.toJson(model), unitService);
+                return new Result(ResultCode.SUCCESS.toString(), "提交成功", model, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
-
-    @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "GET", tags = "导出晋升职级人员备案名册接口")
-    @RequestMapping(value = "/exportDataExcel")
-    public String exportDataExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "flag", required = false) String flag
-            , @RequestParam(value = "unitName", required = false) String unitName, @RequestParam(value = "unitIds", required = false) String[] unitIds,
-                                  @RequestParam(value = "month", required = false) String month, @RequestParam(value = "day", required = false) String day,
-                                  @RequestParam(value = "peopleName", required = false) String peopleName, @RequestParam(value = "peopleNum", required = false) String peopleNum) {
+    @ApiOperation(value = "导出晋升职级人员备案名册", notes = "导出晋升职级人员备案名册", httpMethod = "POST", tags = "导出晋升职级人员备案名册接口")
+    @RequestMapping(value = "/exportRegDataExcel")
+    public String exportRegDataExcel(HttpServletResponse response,@Validated @RequestBody RegModel model) {
         try {
-            if ("filingList".equals(flag)) {//备案表
-                RegModel model = new RegModel();
-                model.setMonth(month);
-                model.setDay(day);
-                model.setPeopleName(peopleName);
-                model.setPeopleNum(peopleNum);
-                model.setUnitName(unitName);
-                List<RankModel> rankModels = DataManager.filingList(unitService, unitName, response, peopleService, rankService,
-                        dutyService, assessmentService, model, processService, "导出", educationService);
-                return new Result(ResultCode.SUCCESS.toString(), unitName, rankModels, null).getJson();
-            }
-            if ("approval".equals(flag)) {
-                Sys_Approal approalModel = DataManager.approvalExport(unitService, unitName, response, peopleService, rankService, approvalService);
-                return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
-            } else {
-                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "OK!", null).getJson();
-            }
+            SYS_UNIT unit = unitService.selectUnitByName(model.getUnitName());
+            DataManager.filingDataList(model.getRankModels(), response, unit, model);
+            return new Result(ResultCode.SUCCESS.toString(), model.getUnitName(), model, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "导出晋升职级人员职级表", notes = "导出晋升职级人员职级表", httpMethod = "POST", tags = "导出晋升职级人员职级表接口")
+    @RequestMapping(value = "/exportDataExcel")
+    public String exportDataExcel(HttpServletResponse response,@Validated @RequestBody Sys_Approal approalModel ) {
+        try {
+            ClassPathResource resource = new ClassPathResource("exportExcel/approveRank.xls");
+            String path = resource.getFile().getPath();
+            Workbook temp = ExcelFileGenerator.getTeplet(path);
+            ExcelFileGenerator excelFileGenerator = new ExcelFileGenerator();
+            excelFileGenerator.setExcleNAME(response, "公务员职级职数使用审批表.xls");
+            excelFileGenerator.createApprovalExcel(temp.getSheet("职数使用审批表"), approalModel);
+            temp.write(response.getOutputStream());
+            temp.close();
+            return new Result(ResultCode.SUCCESS.toString(), approalModel.getUnitName(), approalModel, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();

@@ -916,11 +916,61 @@ public class ExcelFileGenerator<T> {
         setValue(sheet,6,7,data.getTowClerkNum());
         setValue(sheet,6,8,data.getThreeClerkNum());
         setValue(sheet,6,9,data.getFourClerkNum());
+        setValue(sheet,10,0,data.getResearcherUserTotal());
+        if (StrUtils.strToLong(data.getOneResearcherJunNum())>0){
+            String str=data.getOneResearcherUserNum()+"\n军转("+data.getOneResearcherJunNum()+")";
+            setValue(sheet,10,1,str);
+        }else {
+            setValue(sheet,10,1,data.getOneResearcherUserNum());
+        }
+        if (StrUtils.strToLong(data.getTowResearcherJunNum())>0){
+            String str=data.getTowResearcherUserNum()+"\n军转("+data.getTowResearcherJunNum()+")";
+            setValue(sheet,10,2,str);
+        }else {
+            setValue(sheet,10,2,data.getTowResearcherUserNum());
+        }
+        if (StrUtils.strToLong(data.getThreeResearcherJunNum())>0){
+            String str=data.getThreeResearcherUserNum()+"\n军转("+data.getThreeResearcherJunNum()+")";
+            setValue(sheet,10,3,str);
+        }else {
+            setValue(sheet,10,3,data.getThreeResearcherUserNum());
+        }
+        if (StrUtils.strToLong(data.getFourResearcherJunNum())>0){
+            String str=data.getFourResearcherUserNum()+"\n军转("+data.getThreeResearcherJunNum()+")";
+            setValue(sheet,10,4,str);
+        }else {
+            setValue(sheet,10,4,data.getFourResearcherUserNum());
+        }
         setValue(sheet,10,5,data.getUserTotal());
-        setValue(sheet,10,6,data.getOneClerkUserNum());
-        setValue(sheet,10,7,data.getTowClerkUserNum());
-        setValue(sheet,10,8,data.getThreeClerkUserNum());
-        setValue(sheet,10,9,data.getFourClerkUserNum());
+        if (StrUtils.strToLong(data.getOneClerkJunNum())>0){
+            String str=data.getOneClerkUserNum()+"\n军转("+data.getOneClerkJunNum()+")";
+            setValue(sheet,10,6,str);
+        }else {
+            setValue(sheet,10,6,data.getOneClerkUserNum());
+        }
+        if (StrUtils.strToLong(data.getTowClerkJunNum())>0){
+            String str=data.getTowClerkUserNum()+"\n军转("+data.getTowClerkJunNum()+")";
+            setValue(sheet,10,7,str);
+        }else {
+            setValue(sheet,10,7,data.getTowClerkUserNum());
+        }
+        if (StrUtils.strToLong(data.getThreeClerkJunNum())>0){
+            String str=data.getThreeClerkUserNum()+"\n军转("+data.getThreeClerkJunNum()+")";
+            setValue(sheet,10,8,str);
+        }else {
+            setValue(sheet,10,8,data.getThreeClerkUserNum());
+        }
+        if (StrUtils.strToLong(data.getFourClerkJunNum())>0){
+            String str=data.getFourClerkUserNum()+"\n军转("+data.getFourClerkJunNum()+")";
+            setValue(sheet,10,9,str);
+        }else {
+            setValue(sheet,10,9,data.getFourClerkUserNum());
+        }
+        setValue(sheet,14,0,data.getVacancyResearcherTotal());
+        setValue(sheet,14,1,data.getOneResearcherVacancyNum());
+        setValue(sheet,14,2,data.getTowResearcherVacancyNum());
+        setValue(sheet,14,3,data.getThreeResearcherVacancyNum());
+        setValue(sheet,14,4,data.getFourResearcherVacancyNum());
         setValue(sheet,14,5,data.getVacancyTotal());
         setValue(sheet,14,6,data.getOneClerkVacancyNum());
         setValue(sheet,14,7,data.getTowClerkVacancyNum());

@@ -209,7 +209,6 @@ public class DataManager {
             return filingDataList(rankModels, response, unit, model);
         } else {
             setProcessDate(processService, "0", unit, "", gson.toJson(model), unitService);
-//            saveRegProcess(unit, model, processService);
         }
         return rankModels;
     }
@@ -227,6 +226,7 @@ public class DataManager {
         model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
         model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
         model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
+        model.setUnitName(unit.getName());
         List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
         if (peoples != null) {
             int order = 0;
@@ -499,6 +499,10 @@ public class DataManager {
         model.setContactNumber(contactNum);
         model.setNowDateStr(nowDate);
         model.setRankModels(rankModels);
+        if (rankModels.size()>0){
+            model.setPeopleNum(rankModels.size()+"");
+            model.setPeopleName(rankModels.get(0).getName());
+        }
     }
 
     private final static Gson gson = new Gson();
@@ -551,7 +555,7 @@ public class DataManager {
             excelFileGenerator.createRankApprovalExcelFile(temp.getSheet("备案名册"), 11, rankModels, arr);
             excelFileGenerator.createRegReimbursementExcel(temp.getSheet("备案名册"), model);
             excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 11, new int[]{0}, new String[]{"说明"}, rankModels.size() + 11, rankModels.size() + 11, 0, 40, HorizontalAlignment.LEFT);
-            excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 12, new int[]{0}, new String[]{"呈报单位意见:经" + model.getMonth() + "月" + model.getDay() + "日党组（党委）会议研究决定，" + model.getPeopleName() + "等" + model.getPeopleNum() + "名同志职级晋升符合规定的资格条件，同意晋升。"}, rankModels.size() + 12, rankModels.size() + 13, 0, 19);
+            excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 12, new int[]{0}, new String[]{"呈报单位意见:经"+ model.getYear() + "年" + model.getMonth() + "月" + model.getDay() + "日党组（党委）会议研究决定，" + model.getPeopleName() + "等" + model.getPeopleNum() + "名同志职级晋升符合规定的资格条件，同意晋升。"}, rankModels.size() + 12, rankModels.size() + 13, 0, 19);
             excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 14, new int[]{0}, new String[]{"（签章）"}, rankModels.size() + 14, rankModels.size() + 14, 0, 19);
             excelFileGenerator.createExcelFileFixedMergeRow(temp.getSheet("备案名册"), rankModels.size() + 15, new int[]{0}, new String[]{" 年   月  日"}, rankModels.size() + 15, rankModels.size() + 15, 0, 19);
             excelFileGenerator.createExcelFileFixedMergeAreaRow(temp.getSheet("备案名册"), rankModels.size() + 12, new int[]{20}, new String[]{"公务员主管部门审核备案意见："}, rankModels.size() + 12, rankModels.size() + 13, 20, 40, HorizontalAlignment.LEFT);
