@@ -11,6 +11,7 @@ public interface ProcessService {
     void updateProcess(Sys_Process process);
     void deleteProcess(String id);
     Sys_Process selectProcessById(String id);
+    Sys_Process selectProcessByOrder(String unitId,String orderStr);
     Sys_Process selectProcessByFlag(String unitId,String flag);
     Sys_Process selectProcessByFlagAndDate(String unitId, String flag, Date startDate);
     Sys_Process selectProcessByFlagAnd(String unitId,String flag,String states);

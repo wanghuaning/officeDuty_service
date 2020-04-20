@@ -30,6 +30,11 @@ public class Sys_Approal {
   @ColDefine(type = ColType.VARCHAR,width = 64)
   private String unitId;
 
+  @ApiModelProperty("审批表Id")
+  @Comment("审批表Id")
+  @Column("process_Id")
+  @ColDefine(type = ColType.VARCHAR,width = 64)
+  private String processId;
 
   @ApiModelProperty("创建日期")
   @Comment("创建日期")
@@ -487,6 +492,14 @@ public class Sys_Approal {
   private String dataFlag;
 
   private List<Sys_Approal> children;
+
+  public String getProcessId() {
+    return processId;
+  }
+
+  public void setProcessId(String processId) {
+    this.processId = processId;
+  }
 
   public String getOneResearcherVacancyNum() {
     return oneResearcherVacancyNum;

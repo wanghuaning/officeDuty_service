@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class RegModel {
+    private String unitId;
     private String peopleNums;//编制数
     private String hdzhengke;//核定正科
     private String hdfuke;//核定副科
@@ -55,6 +56,23 @@ public class RegModel {
     private String peopleName="";
     private String peopleNum="";
     private String unitName;
+    private List<String> peopleIds;
+
+    public List<String> getPeopleIds() {
+        return peopleIds;
+    }
+
+    public void setPeopleIds(List<String> peopleIds) {
+        this.peopleIds = peopleIds;
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(String unitId) {
+        this.unitId = unitId;
+    }
 
     public String getYear() {
         return year;

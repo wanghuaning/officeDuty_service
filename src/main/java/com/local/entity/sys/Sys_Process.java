@@ -47,6 +47,12 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.TEXT)
   private String param;
 
+  @ApiModelProperty("人员Ids集合")
+  @Comment("人员Ids集合")
+  @Column("people_Ids")
+  @ColDefine(type = ColType.TEXT)
+  private String peopleIds;
+
   @ApiModelProperty("单位名称及人员")
   @Comment("单位名称及人员")
   @Column("people")
@@ -116,7 +122,7 @@ public class Sys_Process implements Serializable {
   @Comment("是否已审批0 是 1否")
   @Column("approvaled")
   @ColDefine(type = ColType.VARCHAR, width = 64)
-  private String approvaled;
+  private String approvaled="1";
 
   @ApiModelProperty("审批表原来ID")
   @Comment("审批表原来ID")
@@ -130,10 +136,17 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String approvalUnitName;
 
+  @ApiModelProperty("审批节点 0：审批节点 1：非审批节点")
+  @Comment("审批节点 0：审批节点 1：非审批节点")
+  @Column("approve_Link")
+  @ColDefine(type = ColType.VARCHAR, width = 1)
+  private String approveLink="1";
 
-
-
-
+  @ApiModelProperty("审批样式 0：单机 1：网络")
+  @Comment("审批样式 0：单机 1：网络")
+  @Column("approve_Flag")
+  @ColDefine(type = ColType.VARCHAR, width = 1)
+  private String approveFlag="1";
 
   private String processFlag;
 
@@ -143,6 +156,30 @@ public class Sys_Process implements Serializable {
     }else {
       return "职级职数使用审批表";
     }
+  }
+
+  public String getPeopleIds() {
+    return peopleIds;
+  }
+
+  public void setPeopleIds(String peopleIds) {
+    this.peopleIds = peopleIds;
+  }
+
+  public String getApproveFlag() {
+    return approveFlag;
+  }
+
+  public void setApproveFlag(String approveFlag) {
+    this.approveFlag = approveFlag;
+  }
+
+  public String getApproveLink() {
+    return approveLink;
+  }
+
+  public void setApproveLink(String approveLink) {
+    this.approveLink = approveLink;
   }
 
   public String getApprovalUnitName() {

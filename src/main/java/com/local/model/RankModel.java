@@ -3,8 +3,12 @@ package com.local.model;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 public class RankModel {
+    private String peopleId;
+    private List<String> peopleIds;
+    private String unitId;
     private String id;
     private Integer order;
     private String name;
@@ -29,6 +33,30 @@ public class RankModel {
 
     private String kaoheyouxiu;//因考核优秀 缩短晋升职 级年限情况"
     private String junzhuanganbu;//军转干部、实名制管理干部
+
+    public List<String> getPeopleIds() {
+        return peopleIds;
+    }
+
+    public void setPeopleIds(List<String> peopleIds) {
+        this.peopleIds = peopleIds;
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(String unitId) {
+        this.unitId = unitId;
+    }
+
+    public String getPeopleId() {
+        return peopleId;
+    }
+
+    public void setPeopleId(String peopleId) {
+        this.peopleId = peopleId;
+    }
 
     public String getId() {
         return id;

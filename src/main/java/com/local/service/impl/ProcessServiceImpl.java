@@ -202,6 +202,18 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
     @Override
+    public Sys_Process selectProcessByOrder(String unitId,String orderStr){
+        List<Sys_Process> list=new ArrayList<>();
+        Criteria cir= Cnd.cri();
+        cir.where().andEquals("unit_Id",unitId).andEquals("approval_Order",orderStr).andEquals("states","未审批");
+        list=dao.query(Sys_Process.class,cir);
+        if (list.size()>0){
+            return list.get(0);
+        }else {
+            return null;
+        }
+    }
+    @Override
     public Sys_Process selectProcessByFlagAndDate(String unitId, String flag, Date startDate){
         Criteria cir= Cnd.cri();
         List<Sys_Process> nowDuty=dao.query(Sys_Process.class, Cnd.where("unit_Id", "=", unitId).and("create_Time",">",startDate).andNot("flag","=",flag));
@@ -339,7 +351,7 @@ public class ProcessServiceImpl implements ProcessService {
             peopleList = dao.query(Sys_Process.class,cri,pager);
             if (peopleList.size()>0){
                 for (Sys_Process process:peopleList){
-                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()).and("approvaled", "=", "0").desc("approval_Order"));
+                    List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()).desc("approval_Order"));
                     if (cprocessList.size()>0){
                         process.setChildren(cprocessList);
                     }else {
