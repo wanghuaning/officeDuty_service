@@ -14,6 +14,7 @@ public interface ProcessService {
     Sys_Process selectProcessByOrder(String unitId,String orderStr);
     Sys_Process selectProcessByFlag(String unitId,String flag);
     Sys_Process selectProcessByFlagAndDate(String unitId, String flag, Date startDate);
+    List<Sys_Process> selectProcesssByFlagAndDate(String unitId, String flag, Date startDate);
     Sys_Process selectProcessByFlagAnd(String unitId,String flag,String states);
     Sys_Process selectProProcessByFlag(String unitId,String flag);//初审和审批完成
     Sys_Process selectProcessByParentId(String parentId,String states);

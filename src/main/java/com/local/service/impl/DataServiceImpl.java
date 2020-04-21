@@ -196,10 +196,8 @@ public class DataServiceImpl implements DataService {
             }
         }
         SYS_UNIT unit = unitService.selectUnitById(unitId);
-        List<SYS_UNIT> unitList = new ArrayList<>();
         if (unit != null) {
-            unitList.add(unit);
-            DataManager.saveDataInfo(dataId, "上行", unitId, dataInfoService, "unit", gson.toJson(unitList), gson.toJson(unitList));
+            DataManager.saveDataInfo(dataId, "上行", unitId, dataInfoService, "unit", gson.toJson(unit), gson.toJson(unit));
         }
         List<Sys_Process> processes = processService.selectApprProcess(unitId);
         if (processes != null) {

@@ -4018,7 +4018,6 @@ public class DataManager {
                 SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
                 if (unit != null) {
                     saveUnitData(unitService, unit, approal);
-                    unitService.updateUnit(unit);
                 }
             }
         }
@@ -4038,6 +4037,7 @@ public class DataManager {
         unit.setThreeClerkNum(StrUtils.strToLong(approal.getThreeClerkNum()));
         unit.setFourClerkNum(StrUtils.strToLong(approal.getFourClerkNum()));
         unit.setThreeFourClerkNum(StrUtils.strToLong(approal.getThreeFourClerkNum()));
+        unitService.updateUnit(unit);
         return unit;
     }
 

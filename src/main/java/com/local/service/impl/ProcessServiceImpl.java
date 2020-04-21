@@ -216,9 +216,19 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public Sys_Process selectProcessByFlagAndDate(String unitId, String flag, Date startDate){
         Criteria cir= Cnd.cri();
-        List<Sys_Process> nowDuty=dao.query(Sys_Process.class, Cnd.where("unit_Id", "=", unitId).and("create_Time",">",startDate).andNot("flag","=",flag));
+        List<Sys_Process> nowDuty=dao.query(Sys_Process.class, Cnd.where("unit_Id", "=", unitId).and("parent_Id","is",null).and("create_Time",">",startDate).and("flag","=",flag));
         if (nowDuty.size()>0){
             return nowDuty.get(0);
+        }else {
+            return null;
+        }
+    }
+    @Override
+    public List<Sys_Process> selectProcesssByFlagAndDate(String unitId, String flag, Date startDate){
+        Criteria cir= Cnd.cri();
+        List<Sys_Process> nowDuty=dao.query(Sys_Process.class, Cnd.where("unit_Id", "=", unitId).and("parent_Id","is",null).and("create_Time",">",startDate).and("flag","=",flag));
+        if (nowDuty.size()>0){
+            return nowDuty;
         }else {
             return null;
         }
