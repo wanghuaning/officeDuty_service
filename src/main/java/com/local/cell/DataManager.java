@@ -426,31 +426,28 @@ public class DataManager {
                     if ("一级主任科员".equals(nowRank.getName())) {
                         if ("是".equals(nowRank.getLeaders())) {
                             xianyouOneTowTurn++;
-                        } else {
-                            xianyouOne++;
                         }
+                            xianyouOne++;
                     }
                     if ("二级主任科员".equals(nowRank.getName())) {
                         if ("是".equals(nowRank.getLeaders())) {
                             xianyouOneTowTurn++;
-                        } else {
-                            xianyouTow++;
                         }
+                            xianyouTow++;
                     }
 
                     if ("三级主任科员".equals(nowRank.getName())) {
                         if ("是".equals(nowRank.getLeaders())) {
                             xianyouThreeFourTurn++;
-                        } else {
-                            xianyouThree++;
                         }
+                            xianyouThree++;
                     }
                     if ("四级主任科员".equals(nowRank.getName())) {
                         if ("是".equals(nowRank.getLeaders())) {
                             xianyouThreeFourTurn++;
-                        } else {
-                            xianyouFour++;
                         }
+                            xianyouFour++;
+
                     }
                 }
                 SYS_Duty niDuty = dutyService.selectNotProDutyByPidOrderByTime(people.getId());
@@ -542,31 +539,27 @@ public class DataManager {
                         if ("一级主任科员".equals(nowRank.getName())) {
                             if ("是".equals(niMianRank.getLeaders())) {
                                 mianOneTowTurn++;
-                            } else {
-                                mianOne++;
                             }
+                            mianOne++;
                         }
                         if ("二级主任科员".equals(nowRank.getName())) {
                             if ("是".equals(niMianRank.getLeaders())) {
                                 mianOneTowTurn++;
-                            } else {
-                                mianTow++;
                             }
+                                mianTow++;
                         }
 
                         if ("三级主任科员".equals(nowRank.getName())) {
                             if ("是".equals(niMianRank.getLeaders())) {
                                 mianThreeFourTurn++;
-                            } else {
-                                mianThree++;
                             }
+                                mianThree++;
                         }
                         if ("四级主任科员".equals(nowRank.getName())) {
                             if ("是".equals(niMianRank.getLeaders())) {
                                 mianThreeFourTurn++;
-                            } else {
-                                mianFour++;
                             }
+                                mianFour++;
                         }
                     }
                     SYS_Duty niMianDuty = dutyService.selectNotEnableDutyByPidOrderByTime(people.getId());
@@ -603,11 +596,11 @@ public class DataManager {
             model.setXianyouganbu(Long.toString(xianyouGanbu));//现有实名制干部
             model.setHezhunoneTowClerkNum(Long.toString(unit.getOneTowClerkNum()));//核准职级职数一级、二级
             model.setHezhunthreeFourClerkNum(Long.toString(unit.getThreeFourClerkNum()));//核准职级职数三级、四级
-            model.setXianyouoneTowClerkNum(Long.toString(xianyouOne + xianyouTow + xianyouOneTowTurn));//现有职级一级、二级合计
+            model.setXianyouoneTowClerkNum(Long.toString(xianyouOne + xianyouTow ));//现有职级一级、二级合计
             model.setXianyouoneClerkNum(Long.toString(xianyouOne));//现有职级一级
             model.setXianyoutowClerkNum(Long.toString(xianyouTow));//现有职级二级
             model.setXianyouOneTowJunZhuanNum(Long.toString(xianyouOneTowTurn));//现有职级一级、二级军转
-            model.setXianyouthreeFourClerkNum(Long.toString(xianyouThree + xianyouFour + xianyouThreeFourTurn));//现有职级三级、四级合计
+            model.setXianyouthreeFourClerkNum(Long.toString(xianyouThree + xianyouFour ));//现有职级三级、四级合计
             model.setXianyouThreeClerkNum(Long.toString(xianyouThree));//现有职级三级
             model.setXianyouFourClerkNum(Long.toString(xianyouFour));//现有职级四级
             model.setXianyouThreeFourJunZhuanNum(Long.toString(xianyouThreeFourTurn));//现有职级三级、四级军转
@@ -626,11 +619,11 @@ public class DataManager {
             model.setTiaozhengzhengke(Long.toString(xianyouZhengke + nidingZhengke - mianZhengKe));//调整后正科
             model.setTiaozhengfuke(Long.toString(xianyouFuke + nidingFuKe - mianFuKe));//调整后副科
             model.setTiaozhengganbu(Long.toString(xianyouGanbu + nidingGanbu - mianGanBu));//调整后干部
-            model.setTiaozhengoneTowClerkNum(Long.toString(xianyouOne + nidingOne + jianRenZhengKeOne + xianyouTow + nidingTow + jianRenFukeTow + xianyouOneTowTurn - mianOne - mianTow - mianOneTowTurn));//调整后一级和二级主任科员合计
+            model.setTiaozhengoneTowClerkNum(Long.toString(xianyouOne + nidingOne + jianRenZhengKeOne + xianyouTow + nidingTow + jianRenFukeTow  - mianOne - mianTow ));//调整后一级和二级主任科员合计
             model.setTiaozhengoneClerkNum(Long.toString(xianyouOne + nidingOne + jianRenZhengKeOne - mianOne));//调整后一级主任科员
             model.setTiaozhengtowClerkNum(Long.toString(xianyouTow + nidingTow + jianRenFukeTow - mianTow));//调整后二级主任科员
             model.setTiaozhengOneTowJunZhuanNum(Long.toString(xianyouOneTowTurn - mianOneTowTurn));//调整后一级和二级主任科员首次套转不占职数军转干部数
-            model.setTiaozhenghreeFourClerkNum(Long.toString(xianyouThree + nidingThree + jianRenFukeThree + xianyouFour + nidingFour + xianyouThreeFourTurn - mianThree - mianFour - mianThreeFourTurn));//调整后三级和四级主任科员合计
+            model.setTiaozhenghreeFourClerkNum(Long.toString(xianyouThree + nidingThree + jianRenFukeThree + xianyouFour + nidingFour  - mianThree - mianFour));//调整后三级和四级主任科员合计
             model.setTiaozhengThreeClerkNum(Long.toString(xianyouThree + nidingThree + jianRenFukeThree - mianThree));//调整后三级主任科员
             model.setTiaozhengFourClerkNum(Long.toString(xianyouFour + nidingFour - mianFour));//调整后四级主任科员
             model.setTiaozhengThreeFourJunZhuanNum(Long.toString(xianyouThreeFourTurn - mianThreeFourTurn));//调整后三级和四级主任科员首次套转不占职数军转干部数

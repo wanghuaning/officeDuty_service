@@ -57,7 +57,7 @@ public class ResultMsg {
     public static final String ADD_ERROR = "保存失败";
     public static final String DEL_SUCCESS = "删除成功";
     public static final String DEL_ERROR = "删除失败";
-
+    public static final String RESET_ERROR = "重置失败";
     public static final String UPDATEPASS_SUCCESS = "修改密码成功";
 
     public static final String COMPANY_TYPE_DEL_ERROR = "该企业类型下有企业信息，不能够进行删除";

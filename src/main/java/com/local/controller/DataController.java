@@ -89,7 +89,9 @@ public class DataController {
             Sys_Approal approalNow = approvalService.selectApproval(unit.getId(), "0");
             if (approalNow != null) {
                 approalModel = approalNow;
+                approalModel.setHaves("0");
             } else {
+                approalModel.setHaves("1");
                 DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
             }
             return new Result(ResultCode.SUCCESS.toString(), unitName, approalModel, null).getJson();
@@ -123,7 +125,31 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
-
+    @ApiOperation(value = "重置市级机关公务员职级职数使用审批表", notes = "重置市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "重置市级机关公务员职级职数使用审批表接口")
+    @PostMapping(value = "/resetData")
+    @ResponseBody
+    public String resetData(@Validated @RequestBody Sys_Approal approal) {
+        try {
+            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
+            Sys_Approal approalNow = approvalService.selectApprovalById(approal.getId());
+            if (approalNow != null) {
+                approvalService.deleteApproal(approalNow.getId());
+                List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
+                Sys_Approal approalModel = new Sys_Approal();
+                if (peoples != null) {
+                    DataManager.getApprovalDataCell(approalModel, unit, peoples, rankService);
+                    return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, approalModel, null).getJson();
+                }else {
+                    return new Result(ResultCode.ERROR.toString(), "无人员", null, null).getJson();
+                }
+            }else {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.RESET_ERROR, null, null).getJson();
+            }
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "提交市级机关公务员职级职数使用审批表", notes = "提交市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "提交市级机关公务员职级职数使用审批表接口")
     @PostMapping(value = "/submitApproval")
     @ResponseBody

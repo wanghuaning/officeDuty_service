@@ -11,6 +11,7 @@ public interface ApprovalService {
     void insertApproal(Sys_Approal approal);
 
     void updataApproal(Sys_Approal approal);
+    void deleteApproal(String id);
 
     Sys_Approal selectApproval(String unitId,String flag);//1：已审批 0：未审批
 

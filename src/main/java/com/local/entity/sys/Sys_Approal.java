@@ -315,6 +315,13 @@ public class Sys_Approal {
   private String vacancyTotal="0";
 
   @Default(value = "0")
+  @ApiModelProperty("调研员职数拟定合计")
+  @Comment("调研员职数拟定合计")
+  @Column("researcher_Drafting_Total_Num")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String researcherDraftingTotalNum="0";
+
+  @Default(value = "0")
   @ApiModelProperty("一级调研员职数拟定")
   @Comment("一级调研员职数拟定")
   @Column("one_Researcher_Drafting_Num")
@@ -490,6 +497,8 @@ public class Sys_Approal {
   private String fourClerkJunNum="0";
 
   private String dataFlag;
+
+  private String haves="1";
 
   private List<Sys_Approal> children;
 

@@ -34,6 +34,12 @@ public class ApprovalServiceImpl implements ApprovalService {
     }
 
     @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "重置职级表", type = "D")
+    public void deleteApproal(String id){
+        dao.delete(Sys_Approal.class,id);
+    }
+    @Override
     public  Sys_Approal selectApproval(String unitId,String flag){
         List<Sys_Approal> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
