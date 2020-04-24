@@ -148,6 +148,12 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 1)
   private String approveFlag="1";
 
+  @ApiModelProperty("审批意见")
+  @Comment("审批意见")
+  @Column("detail")
+  @ColDefine(type = ColType.VARCHAR, width = 2048)
+  private String detail;
+
   private String processFlag;
 
   public String getProcessFlag() {
@@ -156,6 +162,14 @@ public class Sys_Process implements Serializable {
     }else {
       return "职级职数使用审批表";
     }
+  }
+
+  public String getDetail() {
+    return detail;
+  }
+
+  public void setDetail(String detail) {
+    this.detail = detail;
   }
 
   public String getPeopleIds() {

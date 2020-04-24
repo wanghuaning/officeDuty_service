@@ -6,10 +6,7 @@ import com.local.common.config.CompareFileds;
 import com.local.entity.sys.*;
 import com.local.model.*;
 import com.local.service.*;
-import com.local.util.DateUtil;
-import com.local.util.EntityUtil;
-import com.local.util.ExcelFileGenerator;
-import com.local.util.StrUtils;
+import com.local.util.*;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.swagger.models.auth.In;
 import net.sf.json.JSONArray;
@@ -76,19 +73,23 @@ public class DataManager {
         }
         return process;
     }
-
     public static void rejectApprovalData(UnitService unitService, SYS_UNIT unit, List<SYS_DataInfo> dataInfos,
                                           RankService rankService, DutyService dutyService,PeopleService peopleService){
         for (SYS_DataInfo dataInfo : dataInfos) {
             if (dataInfo.getTableName().contains("unit")) {
                 if (dataInfo.getBeforeParam() != null) {
-                    SYS_UNIT sys_unit = gson.fromJson(dataInfo.getBeforeParam(), new TypeToken<SYS_UNIT>() {
-                    }.getType());
+                    SYS_UNIT sys_unit = GsonUtil.gsonToBean(dataInfo.getBeforeParam(),SYS_UNIT.class);
                     if (sys_unit!=null) {
                         unitService.updateUnit(sys_unit);
+                    }else {
+                        List<SYS_UNIT> sys_units = GsonUtil.gsonToList(dataInfo.getBeforeParam(),SYS_UNIT.class);
+                        if (sys_units!=null){
+                            unitService.updateUnit(sys_units.get(0));
+                        }
                     }
                 }
             }
+
             if (dataInfo.getTableName().contains("people")) {
                 List<SYS_People> peopleList= gson.fromJson(dataInfo.getBeforeParam(), new TypeToken<List<SYS_People>>() {
                 }.getType());
@@ -4036,9 +4037,12 @@ public class DataManager {
 
     public static List<Sys_Process> saveprocessData(List<Sys_Process> processes, ProcessService processService,
                                                     String approvalUnitName, String peopleName, SYS_USER user,
-                                                    String states, UnitService unitService, SYS_UNIT unit, String flag) throws Exception {
+                                                    String states, UnitService unitService, SYS_UNIT unit, String flag,
+                                                    Date createDate,Date processDate,String detail) throws Exception {
         List<Sys_Process> approalList = new ArrayList<>();
+        String aprounitId="";
         for (Sys_Process process : processes) {
+            process.setApproveFlag("0");
             if (!StrUtils.isBlank(process.getCreateTimeStr())) {
                 process.setCreateTime(DateUtil.stringToDateMM(process.getCreateTimeStr()));
             }
@@ -4047,7 +4051,6 @@ public class DataManager {
             } else if ("已审核".equals(states)) {
                 process.setProcessTimeStr(DateUtil.dateMMToString(new Date()));
             }
-
             if (process.getParentId() == null) {
                 Sys_Process approal1 = processService.selectProcessById(process.getId());
                 if (user != null) {
@@ -4062,6 +4065,11 @@ public class DataManager {
                     if ("".equals(peopleName)) {
                         peopleName = process.getPeople();
                     }
+                }
+                if (unit.getId().equals(process.getApprovalUnit())){
+                    process.setCreateTime(createDate);
+                    process.setProcessTime(processDate);
+                    process.setDetail(detail);
                 }
                 if (approal1 != null) {
                     process.setPeople(peopleName);
@@ -4082,6 +4090,7 @@ public class DataManager {
                     boolean sts = false;
                     int sd = 0;
                     for (Sys_Process cprocess : process.getChildren()) {
+                        cprocess.setApproveFlag("0");
                         if (!StrUtils.isBlank(cprocess.getCreateTimeStr())) {
                             cprocess.setCreateTime(DateUtil.stringToDateMM(cprocess.getCreateTimeStr()));
                         }
@@ -4099,6 +4108,11 @@ public class DataManager {
                                 sd = Integer.valueOf(cprocess.getApprovalOrder());
                                 sts = true;
                             }
+                        }
+                        if (unit.getId().equals(cprocess.getApprovalUnit())){
+                            cprocess.setCreateTime(createDate);
+                            cprocess.setProcessTime(processDate);
+                            cprocess.setDetail(detail);
                         }
                         Sys_Process capproal1 = processService.selectProcessById(cprocess.getId());
                         if (capproal1 != null) {

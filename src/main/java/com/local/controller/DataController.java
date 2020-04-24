@@ -403,12 +403,16 @@ public class DataController {
         if (StrUtils.isBlank(processId)) {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
-        SYS_Data data = dataService.selectDataByProcessId(processId);
-        if (data == null) {
-            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-        }
         Sys_Process process = processService.selectProcessById(processId);
         if (process == null) {
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+        String proid=process.getId();
+        if (!StrUtils.isBlank(process.getParentId())){
+            proid=process.getParentId();
+        }
+        SYS_Data data = dataService.selectDataByProcessId(proid);
+        if (data == null) {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
         List<Sys_Approal> approals = new ArrayList<>();
@@ -416,6 +420,7 @@ public class DataController {
         List<Object> objects = new ArrayList<>();
         List<SYS_DataInfo> dataInfoList = dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
         Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("process",process);
         if (dataInfoList != null) {
             for (SYS_DataInfo dataInfo : dataInfoList) {
 //                System.out.println(dataInfo.getTableName()+"=>");
@@ -702,7 +707,7 @@ public class DataController {
                                 if (processes.size() > 0) {
                                     if (punit.getId().equals(processes.get(0).getApprovalEve())) {
                                         DataManager.saveprocessData(processes, processService, "", "", user, "未审批",
-                                                unitService, punit, "上行");
+                                                unitService, punit, "上行", new Date(),new Date(),"");
                                         for (Sys_Process process : processes) {
                                             SYS_Data data = DataManager.saveData(dataId, process.getId(), dataType, iunitId, dataService);
                                             resultMap.put("dataId", data.getId());
@@ -892,12 +897,23 @@ public class DataController {
 
     @ApiOperation(value = "执行上行数据", notes = "执行上行数据", httpMethod = "POST", tags = "执行上行数据接口")
     @PostMapping(value = "/agreeImportData")
-    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId, HttpServletRequest request) throws Exception {
+    public String agreeImportData(@RequestParam(value = "dataId", required = false) String dataId,
+                                  @RequestParam(value = "createTime", required = false) String createTime,
+                                  @RequestParam(value = "processTime", required = false) String processTime,
+                                  @RequestParam(value = "detail", required = false) String detail, HttpServletRequest request) throws Exception {
         List<Object> objects = new ArrayList<>();
         SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
         if (!StrUtils.isBlank(dataId)) {
             if (user == null) {
                 return new Result(ResultCode.ERROR.toString(), "账号未登录！", null, null).getJson();
+            }
+            Date createDate=new Date();
+            Date processDate=new Date();
+            if (!StrUtils.isBlank(createTime)){
+                createDate=DateUtil.stringToDate(createTime);
+            }
+            if (!StrUtils.isBlank(processTime)){
+                processDate=DateUtil.stringToDate(processTime);
             }
             List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(dataId, "上行");
             if (dataInfos != null) {
@@ -917,7 +933,8 @@ public class DataController {
                                 if (people != null) {
                                     peopleName = people.getName();
                                 }
-                                DataManager.saveprocessData(sys_processes, processService, approvalUnitName, peopleName, user, "已审核", unitService, unit, "上行");
+                                DataManager.saveprocessData(sys_processes, processService, approvalUnitName, peopleName, user, "已审核", unitService, unit,
+                                        "上行", createDate,processDate,detail);
                                 objects.add(sys_processes);
                             }
                         }
@@ -1311,11 +1328,22 @@ public class DataController {
 
     @ApiOperation(value = "审批操作", notes = "审批操作", httpMethod = "POST", tags = "审批操作接口")
     @PostMapping(value = "/rejectImportData")
-    public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid, @RequestParam(value = "flag", required = false) String flag, HttpServletRequest request) {
+    public String rejectImportData(@RequestParam(value = "rowid", required = false) String rowid,
+                                   @RequestParam(value = "createTime", required = false) String createTime,
+                                   @RequestParam(value = "processTime", required = false) String processTime,
+                                   @RequestParam(value = "detail", required = false) String detail,
+                                   @RequestParam(value = "flag", required = false) String flag, HttpServletRequest request)throws Exception {
         List<Object> objects = new ArrayList<>();
         String people = "";
         String approveUnitName = "";
-        Date approvalDate = new Date();
+        Date approvalDate =new Date();
+        if (!StrUtils.isBlank(processTime)){
+            approvalDate = DateUtil.stringToDate(processTime);
+        }
+        Date createDate = new Date();
+        if (!StrUtils.isBlank(createTime)){
+            createDate =DateUtil.stringToDate(createTime);
+        }
         boolean admin = false;
         SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
         if (user == null) {
@@ -1535,6 +1563,11 @@ public class DataController {
                     process.setProcessTime(approvalDate);
                     processService.updateProcess(process);
                 }
+                Sys_Process sys_process = processService.selectProcessById(process.getId());
+                sys_process.setCreateTime(createDate);
+                sys_process.setProcessTime(approvalDate);
+                sys_process.setDetail(detail);
+                processService.updateProcess(sys_process);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
             } else {
                 if (!"不通过".equals(flag) && !"撤销".equals(flag)) {
@@ -1576,6 +1609,11 @@ public class DataController {
                     }
                 }
                 saveChildAdminApproval(process, unit, flag, admin);
+                Sys_Process sys_process = processService.selectProcessById(process.getId());
+                sys_process.setCreateTime(createDate);
+                sys_process.setProcessTime(approvalDate);
+                sys_process.setDetail(detail);
+                processService.updateProcess(sys_process);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, objects, null).getJson();
             }
         } else {
