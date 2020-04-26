@@ -664,6 +664,118 @@ public class Sys_Approal {
   @ColDefine(type = ColType.VARCHAR,width = 8)
   private String fourClerkzhuanZhengNum="0";
 
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用一级调研员")
+  @Comment("实名制领导最多使用一级调研员")
+  @Column("oneResearcherLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneResearcherLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用二级调研员")
+  @Comment("实名制领导最多使用二级调研员")
+  @Column("towResearcherLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towResearcherLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用三级调研员")
+  @Comment("实名制领导最多使用三级调研员")
+  @Column("threeResearcherLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeResearcherLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用四级调研员")
+  @Comment("实名制领导最多使用四级调研员")
+  @Column("fourResearcherLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourResearcherLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用一级主任科员")
+  @Comment("实名制领导最多使用一级主任科员")
+  @Column("oneClerkLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneClerkLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用二级主任科员")
+  @Comment("实名制领导最多使用二级主任科员")
+  @Column("towClerkLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towClerkLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导最多使用三级主任科员")
+  @Comment("实名制领导最多使用三级主任科员")
+  @Column("threeClerkLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeClerkLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("实名制领导人员最多使用四级主任科员")
+  @Comment("实名制领导人员最多使用四级主任科员")
+  @Column("fourClerkLeaderNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourClerkLeaderNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用一级调研员")
+  @Comment("转任人员最多使用一级调研员")
+  @Column("oneResearcherZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneResearcherZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用二级调研员")
+  @Comment("转任人员最多使用二级调研员")
+  @Column("towResearcherZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towResearcherZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用三级调研员")
+  @Comment("转任人员最多使用三级调研员")
+  @Column("threeResearcherZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeResearcherZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用四级调研员")
+  @Comment("转任人员最多使用四级调研员")
+  @Column("fourResearcherZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourResearcherZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用一级主任科员")
+  @Comment("转任人员最多使用一级主任科员")
+  @Column("oneClerkZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String oneClerkZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用二级主任科员")
+  @Comment("转任人员最多使用二级主任科员")
+  @Column("towClerkZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String towClerkZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用三级主任科员")
+  @Comment("转任人员最多使用三级主任科员")
+  @Column("threeClerkZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String threeClerkZhuanRenNum="0";
+
+  @Default(value = "0")
+  @ApiModelProperty("转任人员最多使用四级主任科员")
+  @Comment("转任人员最多使用四级主任科员")
+  @Column("fourClerkZhuanRenNum")
+  @ColDefine(type = ColType.VARCHAR,width = 8)
+  private String fourClerkZhuanRenNum="0";
+
   private String dataFlag;
 
   private String haves="1";
