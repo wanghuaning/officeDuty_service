@@ -780,6 +780,8 @@ public class Sys_Approal {
 
   private String haves="1";
 
+  private boolean admin=false;
+
   private List<Sys_Approal> children;
 
   public String getProcessId() {

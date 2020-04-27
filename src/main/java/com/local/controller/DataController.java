@@ -125,6 +125,60 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
+    @ApiOperation(value = "保存已审批市级机关公务员职级职数使用审批表", notes = "保存已审批市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "保存已审批市级机关公务员职级职数使用审批表接口")
+    @PostMapping(value = "/editApprovaledData")
+    @ResponseBody
+    public String editApprovaledData(@Validated @RequestBody Sys_Approal approal) {
+        try {
+//            SYS_UNIT unit = unitService.selectUnitById(approal.getUnitId());
+//            Sys_Approal approalNow = approvalService.selectApproval(approal.getProcessId(), "0");
+//            if (approalNow != null) {
+//                approal.setId(approalNow.getId());
+//                BeanUtils.copyProperties(approal, approalNow);
+//                approalNow.setCreateTime(new Date());
+//                approvalService.updataApproal(approalNow);
+//                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, approal, null).getJson();
+//            } else {
+//                String uuid = UUID.randomUUID().toString();
+//                approal.setId(uuid);
+//                approal.setCreateTime(new Date());
+//                approvalService.insertApproal(approal);
+//                return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, approal, null).getJson();
+//            }
+            Sys_Process process=processService.selectProcessById(approal.getProcessId());
+            if (process==null){
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+            }
+            if (StrUtils.isBlank(process.getParentId())){
+                List<Sys_Process> processList=processService.selectProcesssByParentId(process.getId());
+                if (processList!=null){
+                    for (Sys_Process process1:processList){
+                        process1.setParam(gson.toJson(approal));
+                        processService.updateProcess(process1);
+                    }
+                }
+            }else {
+                Sys_Process sys_process=processService.selectProcessById(process.getParentId());
+                if (sys_process!=null){
+                    sys_process.setParam(gson.toJson(approal));
+                    processService.updateProcess(sys_process);
+                    List<Sys_Process> processList=processService.selectProcesssByParentId(sys_process.getId());
+                    if (processList!=null){
+                        for (Sys_Process process1:processList){
+                            process1.setParam(gson.toJson(approal));
+                            processService.updateProcess(process1);
+                        }
+                    }
+                }
+            }
+            process.setParam(gson.toJson(approal));
+            processService.updateProcess(process);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, approal, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
+        }
+    }
     @ApiOperation(value = "重置市级机关公务员职级职数使用审批表", notes = "重置市级机关公务员职级职数使用审批表", httpMethod = "POST", tags = "重置市级机关公务员职级职数使用审批表接口")
     @PostMapping(value = "/resetData")
     @ResponseBody
@@ -2051,13 +2105,19 @@ public class DataController {
 
     @ApiOperation(value = "职数审批信息详情", notes = "职数审批信息详情", httpMethod = "POST", tags = "职数审批信息详情接口")
     @PostMapping(value = "/processDetail")
-    public String getProcessDetail(@RequestParam(value = "rowid", required = false) String rowid) {
+    public String getProcessDetail(@RequestParam(value = "rowid", required = false) String rowid,HttpServletRequest request) {
         if (!StrUtils.isBlank(rowid)) {
             Sys_Process process = processService.selectProcessById(rowid);
             if (process != null) {
                 Sys_Approal sys_processes = gson.fromJson(process.getParam(), new TypeToken<Sys_Approal>() {
                 }.getType());
                 if (sys_processes != null) {
+                    SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
+                    if (user != null) {
+                        if ("1".equals(user.getRoles())){
+                            sys_processes.setAdmin(true);
+                        }
+                    }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, sys_processes, null).getJson();
                 } else {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
@@ -2089,7 +2149,7 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "完成职级晋升情况统计表", notes = "完成职级晋升情况统计表", httpMethod = "GET", tags = "完成职级晋升情况统计表接口")
+    @ApiOperation(value = "修改审批表时间", notes = "修改审批表时间", httpMethod = "GET", tags = "修改审批表时间接口")
     @GetMapping(value = "/editeProcessData")
     public String editeProcessData(@RequestParam(value = "processId", required = false) String processId,@RequestParam(value = "createTime", required = false) String createTime,
             @RequestParam(value = "processTime", required = false) String processTime){
@@ -2105,10 +2165,13 @@ public class DataController {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
             }
             process.setCreateTimeStr(createTime);
-            process.setProcessTime(DateUtil.stringToDate(createTime));
+            process.setCreateTime(DateUtil.stringToDate(createTime));
             if (!StrUtils.isBlank(processTime)){
                 process.setProcessTimeStr(processTime);
                 process.setProcessTime(DateUtil.stringToDate(processTime));
+            }else {
+                process.setProcessTime(null);
+                process.setProcessTimeStr("");
             }
             processService.updateProcess(process);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, process, null).getJson();
