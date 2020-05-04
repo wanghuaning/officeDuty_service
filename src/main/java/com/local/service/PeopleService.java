@@ -24,6 +24,7 @@ public interface PeopleService {
     List<SYS_People> selectPeoplesByUnitId(String unitId,String isChild,String states);//根据单位ID查询，是否包含下级单位的 人员1:包含
 
     List<SYS_People> selectPeoplesByUnitId(String unitId);
+    List<SYS_People> selectPeoplesByUnitIdAndLikeName(String unitId,String name);//根据姓名模糊查询
 
     List<SYS_People> selectPeoplesByUnitIdAndRank(String unitId,String rank,String states);
 
@@ -33,6 +34,7 @@ public interface PeopleService {
     List<SYS_People> selectPeoplesByUnitIdAndRealName(String unitId,String states);//单列实名制
     List<SYS_People> selectPeoplesByUnitIdAndJunZhuan(String unitId,String states,String detail);//军转
     List<SYS_People> selectPeoplesByPids(List<String> peopleIds);
+    List<SYS_People> selectPeoplesByPidsArr(String[] peopleIds);
     List<SYS_People> selectPeoplesByUnitIds(String[] units,String states);
     List<SYS_People> selectPeoplesByUnitIds(String[] units);
     List<SYS_People> selectPeoplesByUnitIds(List<String> units);

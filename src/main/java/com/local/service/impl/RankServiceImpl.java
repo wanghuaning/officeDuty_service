@@ -92,7 +92,23 @@ public class RankServiceImpl implements RankService {
             return null;
         }
     }
-
+    @Override
+    public SYS_Rank selectNotEnableRankByPidEndTime(String pid) {
+        List<SYS_Rank> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid).andEquals("status", "已免").andEquals("serve_Approval_Time", null);
+        cir.getOrderBy().desc("create_Time");
+        list = dao.query(SYS_Rank.class, cir);
+        if (list.size() > 0) {
+            if ("已免".equals(list.get(0).getStatus()) && StrUtils.isBlank(list.get(0).getServeApprovalTime())){
+                return list.get(0);
+            }else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
     @Override
     public SYS_Rank selectRankByPidAndTimeOrderByTime(String pid,Date date,String duty){
             List<SYS_Rank> nowRank = dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).

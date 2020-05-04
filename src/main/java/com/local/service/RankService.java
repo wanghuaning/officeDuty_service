@@ -15,6 +15,7 @@ public interface RankService {
     SYS_Rank selectRankByPidOrderByTime(String pid);
     SYS_Rank selectEnableRankByPidOrderByTime(String pid);
     SYS_Rank selectNotEnableRankByPidOrderByTime(String pid);
+    SYS_Rank selectNotEnableRankByPidEndTime(String pid);
     SYS_Rank selectNowRankByPidOrderByTime(String pid);
     SYS_Rank selectRankByPidAndTimeOrderByTime(String pid,Date date,String duty);
     SYS_Rank selectRankByNameAndTime(String name, String peopleId, Date createTime);

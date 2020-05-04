@@ -154,6 +154,12 @@ public class Sys_Process implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 2048)
   private String detail;
 
+  @ApiModelProperty("是否使用 0：是 1：否")
+  @Comment("是否使用 0：是 1：否")
+  @Column("used")
+  @ColDefine(type = ColType.VARCHAR, width = 1)
+  private String used="1";
+
   private String processFlag;
 
   public String getProcessFlag() {
@@ -162,6 +168,14 @@ public class Sys_Process implements Serializable {
     }else {
       return "职级职数使用审批表";
     }
+  }
+
+  public String getUsed() {
+    return used;
+  }
+
+  public void setUsed(String used) {
+    this.used = used;
   }
 
   public String getDetail() {

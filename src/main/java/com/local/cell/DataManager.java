@@ -86,7 +86,9 @@ public class DataManager {
                     } else {
                         List<SYS_UNIT> sys_units = GsonUtil.gsonToList(dataInfo.getBeforeParam(), SYS_UNIT.class);
                         if (sys_units != null) {
-                            unitService.updateUnit(sys_units.get(0));
+                            SYS_UNIT sysUnit=new SYS_UNIT();
+                            BeanUtils.copyProperties(sys_units.get(0),sysUnit);
+                            unitService.updateUnit(sysUnit);
                         }
                     }
                 }
@@ -97,7 +99,9 @@ public class DataManager {
                 }.getType());
                 if (peopleList != null) {
                     for (SYS_People people : peopleList) {
-                        peopleService.updatePeople(people);
+                        SYS_People sys_people=new SYS_People();
+                        BeanUtils.copyProperties(people,sys_people);
+                        peopleService.updatePeople(sys_people);
                     }
                 }
             }
@@ -106,7 +110,9 @@ public class DataManager {
                 }.getType());
                 if (rankList != null) {
                     for (SYS_Rank rank : rankList) {
-                        rankService.updateRank(rank);
+                        SYS_Rank sys_rank=new SYS_Rank();
+                        BeanUtils.copyProperties(rank,sys_rank);
+                        rankService.updateRank(sys_rank);
                     }
                 }
             }
@@ -115,7 +121,9 @@ public class DataManager {
                 }.getType());
                 if (dutyList != null) {
                     for (SYS_Duty duty : dutyList) {
-                        dutyService.updateDuty(duty);
+                        SYS_Duty sys_duty=new SYS_Duty();
+                        BeanUtils.copyProperties(duty,sys_duty);
+                        dutyService.updateDuty(sys_duty);
                     }
                 }
             }
@@ -359,7 +367,8 @@ public class DataManager {
                                              RegModel model, ProcessService processService, String flag, EducationService educationService) throws Exception {
         List<RankModel> rankModels = new ArrayList<>();
         SYS_UNIT unit = unitService.selectUnitByName(unitName);
-        getRegDataInfoModel(unit, model, peopleService, rankService, dutyService, rankModels, assessmentService, educationService);
+        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
+        getRegDataInfoModel(unit, model, peopleService, rankService, dutyService, rankModels, assessmentService, educationService,peoples);
         if ("导出".equals(flag)) {
             return filingDataList(rankModels, response, unit, model);
         } else {
@@ -378,15 +387,15 @@ public class DataManager {
     }
 
     public static void getRegDataInfoModel(SYS_UNIT unit, RegModel model, PeopleService peopleService, RankService rankService, DutyService dutyService,
-                                           List<RankModel> rankModels, AssessmentService assessmentService, EducationService educationService) {
+                                           List<RankModel> rankModels, AssessmentService assessmentService, EducationService educationService,
+                                           List<SYS_People> peoples) {
         model.setPeopleNums(Long.toString(unit.getOfficialNum() + unit.getReferOfficialNum()));//编制数
         model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
         model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
         model.setUnitName(unit.getName());
-        List<SYS_People> peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
         List<String> peopleIds = new ArrayList<>();
         if (peoples != null) {
-            int order = 0;
+            int order = 1;
             Long xianyouZhengke = 0L, xianyouFuke = 0L, xianyouGanbu = 0L, xianyouOne = 0L, xianyouTow = 0L;
             Long xianyouOneTowTurn = 0L, xianyouThree = 0L, xianyouFour = 0L, xianyouThreeFourTurn = 0L;
             Long nidingZhengke = 0L, nidingFuKe = 0L, nidingGanbu = 0L, nidingOne = 0L, nidingTow = 0L, nidingThree = 0L, nidingFour = 0L;
@@ -474,6 +483,24 @@ public class DataManager {
                     }
                 }
                 SYS_Rank nirenrank = rankService.selectNotAproRanksByPid(people.getId());
+                RankModel rankModel = new RankModel();
+                rankModel.setName(people.getName());
+                rankModel.setOrder(order);
+                rankModel.setSex(people.getSex());
+                SYS_Education education = educationService.selectEducationByPidOrderByTime(people.getId());
+                if (education != null) {
+                    rankModel.setEducation(education.getName());
+                } else {
+                    rankModel.setEducation(people.getEducation());
+                }
+                rankModel.setBirthday(DateUtil.dateToString(people.getBirthday()));
+                rankModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
+                if (nowduty != null) {
+                    rankModel.setRenzhibumen(nowduty.getDutyType());
+                    rankModel.setNowDuty(nowduty.getName());
+                    rankModel.setTongzhiwudate(DateUtil.dateToString(nowduty.getDutyTime()));
+                }
+                rankModel.setJunzhuanganbu(people.getDetail());
                 if (nirenrank != null) {//拟任
                     if ("一级主任科员".equals(nirenrank.getName())) {
                         nidingOne++;
@@ -505,28 +532,21 @@ public class DataManager {
                     //上报名册
                     order++;
                     int ayear = 2019;
-                    RankModel rankModel = new RankModel();
-                    rankModel.setName(people.getName());
-                    rankModel.setOrder(order);
-                    rankModel.setSex(people.getSex());
                     peopleIds.add(people.getId());
-                    SYS_Education education = educationService.selectEducationByPidOrderByTime(people.getId());
-                    if (education != null) {
-                        rankModel.setEducation(education.getName());
-                    } else {
-                        rankModel.setEducation(people.getEducation());
-                    }
-                    rankModel.setBirthday(DateUtil.dateToString(people.getBirthday()));
-                    rankModel.setWorkday(DateUtil.dateToString(people.getWorkday()));
-                    if (nowduty != null) {
-                        rankModel.setRenzhibumen(nowduty.getDutyType());
-                        rankModel.setNowDuty(nowduty.getName());
-                        rankModel.setTongzhiwudate(DateUtil.dateToString(nowduty.getDutyTime()));
-                    }
                     if (nowRank != null) {
                         rankModel.setNowRank(nowRank.getName());
                         rankModel.setTongzhijiDate(DateUtil.dateToString(nowRank.getRankTime()));
                         ayear = DateUtil.getYear(nowRank.getCreateTime());
+                    }
+                    List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByNameAndTime("优秀", people.getId(), ayear);
+                    if (assessments != null) {
+                        StringBuffer sb = new StringBuffer();
+                        for (SYS_Assessment assessment : assessments) {
+                            sb.append(assessment.getYear() + ";");
+                        }
+                        if (sb.length() > 0) {
+                            rankModel.setKaoheyouxiu(sb.toString());
+                        }
                     }
                     if (niDuty != null) {
                         rankModel.setNirenbumen(niDuty.getDutyType());
@@ -579,20 +599,22 @@ public class DataManager {
                             mianGanBu++;
                         }
                     }
-                    rankModel.setJunzhuanganbu(people.getDetail());
-                    List<SYS_Assessment> assessments = assessmentService.selectAssessmentsByNameAndTime("优秀", people.getId(), ayear);
-                    if (assessments != null) {
-                        StringBuffer sb = new StringBuffer();
-                        for (SYS_Assessment assessment : assessments) {
-                            sb.append(assessment.getYear() + ";");
-                        }
-                        if (sb.length() > 0) {
-                            rankModel.setKaoheyouxiu(sb.toString());
-                        }
-                    }
                     rankModel.setPeopleId(people.getId());
                     rankModel.setUnitId(unit.getId());
                     rankModels.add(rankModel);
+                }else {
+                    SYS_Rank niMianRank = rankService.selectNotEnableRankByPidEndTime(people.getId());
+                    if (niMianRank!=null){
+                        SYS_Duty duty=dutyService.selectNotProDutyByPidOrderByTime(people.getId());
+                        if (duty!=null){
+                            rankModel.setNimianrank(niMianRank.getName());
+                            rankModel.setPeopleId(people.getId());
+                            rankModel.setUnitId(unit.getId());
+                            rankModel.setNirenbumen(niDuty.getDutyType());
+                            rankModel.setNirenduty(niDuty.getName());
+                            rankModels.add(rankModel);
+                        }
+                    }
                 }
             }
             model.setXianyouzhengke(Long.toString(xianyouZhengke));//现有正科
@@ -684,12 +706,11 @@ public class DataManager {
         return process;
     }
 
-    public static RegModel getRegDataInfo(UnitService unitService, String unitName, HttpServletResponse response,
-                                          PeopleService peopleService, RankService rankService, DutyService dutyService, AssessmentService assessmentService, EducationService educationService) throws Exception {
+    public static RegModel getRegDataInfo(PeopleService peopleService, RankService rankService, DutyService dutyService,
+                                          AssessmentService assessmentService, EducationService educationService,SYS_UNIT unit,List<SYS_People> peoples) throws Exception {
         List<RankModel> rankModels = new ArrayList<>();
-        SYS_UNIT unit = unitService.selectUnitByName(unitName);
         RegModel model = new RegModel();
-        getRegDataInfoModel(unit, model, peopleService, rankService, dutyService, rankModels, assessmentService, educationService);
+        getRegDataInfoModel(unit, model, peopleService, rankService, dutyService, rankModels, assessmentService, educationService,peoples);
         return model;
     }
 

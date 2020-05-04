@@ -246,15 +246,62 @@ public class DataController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.ADD_ERROR, null, null).getJson();
         }
     }
-
-    @ApiOperation(value = "查询晋升职级人员备案名册", notes = "查询晋升职级人员备案名册", httpMethod = "GET", tags = "查询晋升职级人员备案名册接口")
+    @ApiOperation(value = "未使用职级申请表审批信息", notes = "未使用职级申请表审批信息", httpMethod = "POST", tags = "未使用职级申请表审批信息接口")
+    @PostMapping("/getApprovaledRankAndNotUser")
+    @ResponseBody
+    public String getProcess(@RequestParam(value = "unitId", required = false) String unitId) {
+        try {
+            List<Sys_Process> processList = processService.selectRankProcessAndNotUser( unitId);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, processList, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "查询晋升职级人员备案名册人员", notes = "查询晋升职级人员备案名册人员", httpMethod = "GET", tags = "查询晋升职级人员备案名册人员接口")
     @PostMapping(value = "/getRegData")
     @ResponseBody
-    public String getRegData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitName", required = false) String unitName,
-                             @RequestParam(value = "unitIds", required = false) String[] unitIds) {
+    public String getRegData(@RequestParam(value = "unitId", required = false) String unitId,
+                             @RequestParam(value = "name", required = false) String name) {
         try {
-            RegModel regDataInfo = DataManager.getRegDataInfo(unitService, unitName, response, peopleService, rankService, dutyService, assessmentService, educationService);
-            return new Result(ResultCode.SUCCESS.toString(), unitName, regDataInfo, null).getJson();
+            if (StrUtils.isBlank(unitId)){
+                return new Result(ResultCode.ERROR.toString(), "请选择单位", null, null).getJson();
+            }
+            SYS_UNIT unit = unitService.selectUnitById(unitId);
+            if (StrUtils.isBlank(unit)){
+                return new Result(ResultCode.ERROR.toString(), "请选择单位", null, null).getJson();
+            }
+            List<SYS_People> peoples=new ArrayList<>();
+            if (StrUtils.isBlank(name)){
+                peoples = peopleService.selectPeoplesByUnitId(unit.getId(), "0", "在职");
+            }else {
+                peoples = peopleService.selectPeoplesByUnitIdAndLikeName(unitId,name);
+            }
+            RegModel regDataInfo = DataManager.getRegDataInfo(peopleService, rankService, dutyService,
+                    assessmentService, educationService,unit,peoples);
+            return new Result(ResultCode.SUCCESS.toString(), "", regDataInfo.getRankModels(), null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "根据勾选人员查询晋升职级人员备案名册", notes = "根据勾选人员查询晋升职级人员备案名册", httpMethod = "GET", tags = "根据勾选人员查询晋升职级人员备案名册接口")
+    @PostMapping(value = "/getRegDataByPeoples")
+    @ResponseBody
+    public String getRegDataByPeoples(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
+                             @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
+        try {
+            SYS_UNIT unit = unitService.selectUnitById(unitId);
+            if (StrUtils.isBlank(unit)){
+                return new Result(ResultCode.ERROR.toString(), "请选择单位", null, null).getJson();
+            }
+            if (StrUtils.isBlank(peopleIds)){
+                return new Result(ResultCode.ERROR.toString(), "没有勾选职级备案人员", null, null).getJson();
+            }
+            List<SYS_People> peopleList=peopleService.selectPeoplesByPidsArr(peopleIds);
+            RegModel regDataInfo = DataManager.getRegDataInfo(peopleService, rankService, dutyService,
+                    assessmentService, educationService,unit,peopleList);
+            return new Result(ResultCode.SUCCESS.toString(), unitId, regDataInfo, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();

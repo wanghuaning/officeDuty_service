@@ -332,6 +332,19 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
     @Override
+    public List<Sys_Process> selectRankProcessAndNotUser( String unitId){
+        List<Sys_Process> processList = new ArrayList<>();
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("unit_Id", unitId).andEquals("flag","1").andEquals("used","1");
+        cri.getOrderBy().desc("processTime");
+        processList = dao.query(Sys_Process.class, cri);
+        if (processList.size()>0){
+            return processList;
+        }else {
+            return null;
+        }
+    }
+    @Override
     public QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag, String states){
         Pager pager=new Pager();
         pager.setPageNumber(pageNumber+1);

@@ -32,4 +32,5 @@ public interface ProcessService {
     List<Sys_Process> selectProcesssByUnitIdsAndZuZhiBu(String[] unitIds,String zuzhiUnitId);
     QueryResult selectProcesss(int pageSize, int pageNumber, String unitId, String unitName, String approveFlag,String states);
     QueryResult selectNotEndProcesss(int pageSize, int pageNumber, String unitId, String unitName,String flag);
+    List<Sys_Process> selectRankProcessAndNotUser(String unitId);
 }
