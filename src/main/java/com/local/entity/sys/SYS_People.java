@@ -241,6 +241,18 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.DATETIME)
   private Date insertTime=new Date();
 
+  @ApiModelProperty("人员姓名中文拼音")
+  @Comment("人员姓名中文拼音")
+  @Column("chineseEncoder")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String chineseEncoder;
+
+  @ApiModelProperty("职级排序")
+  @Comment("职级排序")
+  @Column("rankOrder")
+  @ColDefine(type = ColType.INT, width = 4)
+  private Integer rankOrder=0;
+
   private String insertTimeStr;
 
   private String outTimeStr;
@@ -255,6 +267,82 @@ public class SYS_People implements Serializable {
     }else {
       return 0;
     }
+  }
+
+  public Integer getRankOrder() {
+      if (!StrUtils.isBlank(positionLevel)){
+        if ("二级科员".equals(positionLevel)){
+          return 1;
+        }else if ("一级科员".equals(positionLevel)){
+          return 2;
+        }else if ("四级主任科员".equals(positionLevel)){
+          return 3;
+        }else if ("三级主任科员".equals(positionLevel)){
+          return 4;
+        }else if ("二级主任科员".equals(positionLevel)){
+          return 5;
+        }else if ("一级主任科员".equals(positionLevel)){
+          return 6;
+        }else if ("四级调研员".equals(positionLevel)){
+          return 7;
+        }else if ("三级调研员".equals(positionLevel)){
+          return 8;
+        }else if ("二级调研员".equals(positionLevel)){
+          return 9;
+        }else if ("一级调研员".equals(positionLevel)){
+          return 10;
+        }else if ("二级巡视员".equals(positionLevel)){
+          return 11;
+        }else if ("一级巡视员".equals(positionLevel)){
+          return 12;
+        }else {
+          return rankOrder;
+        }
+      }else {
+        return rankOrder;
+      }
+  }
+
+  public void setRankOrder(Integer rankOrder) {
+    if (!StrUtils.isBlank(positionLevel)){
+      if ("二级科员".equals(positionLevel)){
+        this.rankOrder = 1;
+      }else if ("一级科员".equals(positionLevel)){
+        this.rankOrder = 2;
+      }else if ("四级主任科员".equals(positionLevel)){
+        this.rankOrder = 3;
+      }else if ("三级主任科员".equals(positionLevel)){
+        this.rankOrder = 4;
+      }else if ("二级主任科员".equals(positionLevel)){
+        this.rankOrder = 5;
+      }else if ("一级主任科员".equals(positionLevel)){
+        this.rankOrder = 6;
+      }else if ("四级调研员".equals(positionLevel)){
+        this.rankOrder = 7;
+      }else if ("三级调研员".equals(positionLevel)){
+        this.rankOrder = 8;
+      }else if ("二级调研员".equals(positionLevel)){
+        this.rankOrder = 9;
+      }else if ("一级调研员".equals(positionLevel)){
+        this.rankOrder = 10;
+      }else if ("二级巡视员".equals(positionLevel)){
+        this.rankOrder = 11;
+      }else if ("一级巡视员".equals(positionLevel)){
+        this.rankOrder = 12;
+      }else {
+        this.rankOrder = rankOrder;
+      }
+    }else {
+      this.rankOrder = rankOrder;
+    }
+  }
+
+  public String getChineseEncoder() {
+    return chineseEncoder;
+  }
+
+  public void setChineseEncoder(String chineseEncoder) {
+    this.chineseEncoder = chineseEncoder;
   }
 
   public Date getInsertTime() {
@@ -566,11 +654,31 @@ public class SYS_People implements Serializable {
   }
 
   public String getPoliticalStatus() {
-    return politicalStatus;
+    if (!StrUtils.isBlank(politicalStatus)){
+      if (politicalStatus.contains("参公")){
+        return "事业编制（参公）";
+      }else if ("".equals("其他")){
+        return "其他";
+      }else {
+        return "行政编制";
+      }
+    }else {
+      return politicalStatus;
+    }
   }
 
   public void setPoliticalStatus(String politicalStatus) {
-    this.politicalStatus = politicalStatus;
+    if (!StrUtils.isBlank(politicalStatus)){
+      if (politicalStatus.contains("参公")){
+        this.politicalStatus = "事业编制（参公）";
+      }else if ("".equals("其他")){
+        this.politicalStatus = "其他";
+      }else {
+        this.politicalStatus = "行政编制";
+      }
+    }else {
+      this.politicalStatus = politicalStatus;
+    }
   }
 
   public Date getCreateTime() {

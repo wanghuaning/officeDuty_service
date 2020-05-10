@@ -29,7 +29,7 @@ public interface UnitService {
     SYS_UNIT selectUnitByNameAndParent(String name,String pname);
 
     List<SYS_UNIT> selectAllChildUnits(String parentId);
-
+    List<String> selectAllChildUnitIds(String parentId);
     List<SYS_UNIT> selectAllParentUnits(SYS_UNIT unit);
 
     List<String> selectAllParentUnitIds(SYS_UNIT unit);

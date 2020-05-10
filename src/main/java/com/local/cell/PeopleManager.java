@@ -5,6 +5,7 @@ import com.local.model.AssessmentModel;
 import com.local.service.*;
 import com.local.util.DateUtil;
 import com.local.util.EntityUtil;
+import com.local.util.HanyuPinyinUtil;
 import com.local.util.StrUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,7 @@ public class PeopleManager {
                         String enableStr=StrUtils.toNullStr(map.get("现职"));
                         people.setIsEnable(enableStr);
                         people.setDetail(StrUtils.toNullStr(map.get("备注")));
+                        people.setChineseEncoder(HanyuPinyinUtil.toHanyuPinyin(people.getName()));
                         SYS_People people1 =service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
                         if (people1 != null) {
                             if ("1".equals(fullImport)){

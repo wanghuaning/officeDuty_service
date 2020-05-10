@@ -216,6 +216,18 @@ public class UnitConttoller {
                 unit.setHasChild(unitById.getHasChild());
                 UnitManager.setUnitArea(unit);
                 unit.setUnitOrder(unitById.getUnitOrder());
+                List<SYS_People> peopleList=peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(),"事业编制（参公）");
+                if (peopleList!=null){
+                    unit.setReferOfficialRealNum(Long.valueOf(peopleList.size()));
+                }else {
+                    unit.setReferOfficialRealNum(0l);
+                }
+                List<SYS_People> peopleList2=peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(),"行政编制");
+                if (peopleList2!=null){
+                    unit.setOfficialRealNum(Long.valueOf(peopleList2.size()));
+                }else {
+                    unit.setOfficialRealNum(0l);
+                }
                 unitService.updateUnit(unit);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, unit, null).getJson();
             } else {

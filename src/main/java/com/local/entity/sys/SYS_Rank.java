@@ -156,6 +156,61 @@ public class SYS_Rank implements Serializable {
 
   private String serveApprovalTimeStr;
 
+  @ApiModelProperty("任职级文号")
+  @Comment("任职级文号")
+  @Column("serveNumber")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String serveNumber;
+
+  @ApiModelProperty("免职级文号")
+  @Comment("免职级文号")
+  @Column("deposeNumber")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String deposeNumber;
+  @ApiModelProperty("任职部门")
+  @Comment("任职部门")
+  @Column("dutyType")
+  @ColDefine(type = ColType.VARCHAR, width = 32)
+  private String dutyType;
+
+  @ApiModelProperty("任职职务")
+  @Comment("任职职务")
+  @Column("serveDuty")
+  @ColDefine(type = ColType.VARCHAR, width = 32)
+  private String serveDuty;
+
+  public String getDutyType() {
+    return dutyType;
+  }
+
+  public void setDutyType(String dutyType) {
+    this.dutyType = dutyType;
+  }
+
+  public String getServeDuty() {
+    return serveDuty;
+  }
+
+  public void setServeDuty(String serveDuty) {
+    this.serveDuty = serveDuty;
+  }
+
+  public String getServeNumber() {
+    return serveNumber;
+  }
+
+  public void setServeNumber(String serveNumber) {
+    this.serveNumber = serveNumber;
+  }
+
+  public String getDeposeNumber() {
+    return deposeNumber;
+  }
+
+  public void setDeposeNumber(String deposeNumber) {
+    this.deposeNumber = deposeNumber;
+  }
+
   public Date getServeApprovalTime() {
     return serveApprovalTime;
   }

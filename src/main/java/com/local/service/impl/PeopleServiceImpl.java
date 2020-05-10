@@ -1,9 +1,7 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
-import com.local.entity.sys.SYS_People;
-import com.local.entity.sys.SYS_UNIT;
-import com.local.entity.sys.SYS_USER;
+import com.local.entity.sys.*;
 import com.local.service.PeopleService;
 import com.local.util.DateUtil;
 import com.local.util.StrUtils;
@@ -20,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PeopleServiceImpl implements PeopleService {
@@ -28,14 +28,23 @@ public class PeopleServiceImpl implements PeopleService {
     private Dao dao;
 
     @Override
-    public QueryResult selectPeoples(int pageSize, int pageNumber, String unitId, String name, String idcard, String politicalStatus, String states,String detail) {
+    public QueryResult selectPeoples(int pageSize, int pageNumber, List<String> unitIds, String name, String idcard, String politicalStatus, String states,String detail,String[] position,String[] rank) {
         Pager pager = new Pager();
         pager.setPageNumber(pageNumber + 1);
         pager.setPageSize(pageSize);
         List<SYS_People> peopleList = new ArrayList<>();
         Criteria cri = Cnd.cri();
         if (!StrUtils.isBlank(name)) {//市
-            cri.where().andLike("name", "%" + name + "%");
+            Pattern p_str = Pattern.compile("[\\u4e00-\\u9fa5]+");
+            Matcher m = p_str.matcher(name);
+            if(m.find()&&m.group(0).equals(name)) {//是汉字
+                cri.where().andLike("name", "%" + name + "%");
+            }else {
+                char[] chs = name.toLowerCase().toCharArray();
+                for(Character ch:chs){
+                    cri.where().andLike("chineseEncoder", "%"+ch+"%");
+                }
+            }
         }
         if (!StrUtils.isBlank(idcard)) {
             cri.where().andLike("idcard", "%" + idcard + "%");
@@ -44,10 +53,16 @@ public class PeopleServiceImpl implements PeopleService {
             if ("office".equals(politicalStatus)) {
                 cri.where().andEquals("political_Status", "行政编制");
             } else if ("enterprise".equals(politicalStatus)) {
-                cri.where().andEquals("political_Status", "事业编制（参公）");
+                cri.where().andLike("political_Status", "%参公%");
             } else if ("other".equals(politicalStatus)) {
                 cri.where().andEquals("political_Status", "其他");
             }
+        }
+        if (!StrUtils.isBlank(position)){
+            cri.where().andInStrArray("position", position);
+        }
+        if (!StrUtils.isBlank(rank)){
+            cri.where().andInStrArray("position_Level", rank);
         }
         if (!StrUtils.isBlank(detail)) {
             if ("jun".equals(detail)) {
@@ -61,8 +76,8 @@ public class PeopleServiceImpl implements PeopleService {
         if (!StrUtils.isBlank(states) && !"全部".equals(states)) {
                 cri.where().andEquals("states", states);
         }
-        cri.where().andEquals("unit_Id", unitId);
-        cri.getOrderBy().desc("insert_Time");
+        cri.where().andInStrList("unit_Id", unitIds);
+        cri.getOrderBy().desc("rankOrder");
         peopleList = dao.query(SYS_People.class, cri, pager);
         if (StrUtils.isBlank(pager)) {
             pager = new Pager();
@@ -71,6 +86,7 @@ public class PeopleServiceImpl implements PeopleService {
         QueryResult queryResult = new QueryResult(peopleList, pager);
         return queryResult;
     }
+
     @Override
     public QueryResult selectPeopleDetailInfo(int pageSize, int pageNumber,String[] arr,String sex,String party,String age,String duty,String name,String unitName){
         Pager pager = new Pager();
@@ -83,7 +99,16 @@ public class PeopleServiceImpl implements PeopleService {
             cri.where().andLike("sex", "%" + sex + "%");
         }
         if (!StrUtils.isBlank(name)) {//人员姓名
-            cri.where().andLike("name", "%" + name + "%");
+            Pattern p_str = Pattern.compile("[\\u4e00-\\u9fa5]+");
+            Matcher m = p_str.matcher(name);
+            if(m.find()&&m.group(0).equals(name)) {//是汉字
+                cri.where().andLike("name", "%" + name + "%");
+            }else {
+                char[] chs = name.toLowerCase().toCharArray();
+                for(Character ch:chs){
+                    cri.where().andLike("chineseEncoder", "%"+ch+"%");
+                }
+            }
         }
         if (!StrUtils.isBlank(unitName)) {//人员姓名
             cri.where().andLike("unit_Name", "%" + unitName + "%");
@@ -119,7 +144,30 @@ public class PeopleServiceImpl implements PeopleService {
         QueryResult queryResult = new QueryResult(peopleList, pager);
         return queryResult;
     }
-
+    @Override
+    public List<SYS_People> selectNotPeopleChinaName(){
+        List<SYS_People> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("chineseEncoder", null).orEquals("chineseEncoder","");
+        list = dao.query(SYS_People.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public List<SYS_People> selectPeoplesByUnitIdAndPoliticalStatus(String unitId,String politicalStatus){
+        List<SYS_People> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("unit_Id", unitId).andEquals("political_Status",politicalStatus);
+        list = dao.query(SYS_People.class, cir);
+        if (list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
     public List<SYS_People> selectPeopleDetailInfos(String[] arr,String sex,String party,String age,String duty){
         List<SYS_People> peopleList = new ArrayList<>();
         Criteria cri = Cnd.cri();
@@ -543,4 +591,38 @@ public class PeopleServiceImpl implements PeopleService {
         }
     }
 
+    @Override
+    public List<SYS_Pwxk> selectpwxuke(){
+        Criteria cri = Cnd.cri();
+        cri.where().andNotEquals("id", null);
+        List<SYS_Pwxk> list = dao.query(SYS_Pwxk.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public QueryResult selectPeopleDetails(int pageSize, int pageNumber,String peopleId){
+        Pager pager = new Pager();
+        pager.setPageNumber(pageNumber + 1);
+        pager.setPageSize(pageSize);
+        List<SYS_Detail> details = new ArrayList<>();
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("peopleId", peopleId);
+        cri.getOrderBy().desc("createDate");
+        details = dao.query(SYS_Detail.class, cri, pager);
+        if (StrUtils.isBlank(pager)) {
+            pager = new Pager();
+        }
+        pager.setRecordCount(dao.count(SYS_Detail.class, cri));
+        QueryResult queryResult = new QueryResult(details, pager);
+        return queryResult;
+    }
+    @Override
+    @Transactional//声明式事务管理
+    @SLog(tag = "新增人员详情", type = "C")
+    public void insertPeopleDetail(SYS_Detail detail){
+        dao.insert(detail);
+    }
 }

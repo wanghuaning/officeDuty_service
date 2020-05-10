@@ -334,11 +334,21 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public List<Sys_Process> selectRankProcessAndNotUser( String unitId){
         List<Sys_Process> processList = new ArrayList<>();
+        List<Sys_Process> processes = new ArrayList<>();
         Criteria cri = Cnd.cri();
-        cri.where().andEquals("unit_Id", unitId).andEquals("flag","1").andEquals("used","1");
+        cri.where().andEquals("unit_Id", unitId).andEquals("flag","1").andEquals("used","1").andEquals("parent_Id",null).andEquals("states","已审核");
         cri.getOrderBy().desc("processTime");
         processList = dao.query(Sys_Process.class, cri);
         if (processList.size()>0){
+//            for (Sys_Process process:processList){
+//                List<Sys_Process> cprocessList = dao.query(Sys_Process.class, Cnd.where("parent_Id", "=", process.getId()).desc("approval_Order"));
+//                if (cprocessList.size()>0){
+//                    process.setChildren(cprocessList);
+//                }else {
+//                    process.setChildren(new ArrayList<>());
+//                }
+//                processes.add(process);
+//            }
             return processList;
         }else {
             return null;

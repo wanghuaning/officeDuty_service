@@ -1,6 +1,8 @@
 package com.local.service;
 
+import com.local.entity.sys.SYS_Detail;
 import com.local.entity.sys.SYS_People;
+import com.local.entity.sys.SYS_Pwxk;
 import org.nutz.dao.QueryResult;
 
 import java.util.List;
@@ -11,7 +13,7 @@ public interface PeopleService {
     void updatePeople(SYS_People people);
     void deletePeople(String id);
 
-    QueryResult selectPeoples(int pageSize, int pageNumber,String unitId,String name,String idcard,String politicalStatus,String states,String detail);
+    QueryResult selectPeoples(int pageSize, int pageNumber,List<String> unitIds,String name,String idcard,String politicalStatus,String states,String detail,String[] position,String[] rank);
 
     SYS_People selectPeopleById(String id);//根据Id查询
 
@@ -51,4 +53,11 @@ public interface PeopleService {
     QueryResult selectPeopleDetailInfo(int pageSize, int pageNumber,String[] arr,String sex,String party,String age,String duty,String name,String unitName);
 
     List<SYS_People> selectPeopleDetailInfos(String[] arr,String sex,String party,String age,String duty);
+    List<SYS_People> selectNotPeopleChinaName();// 未同步拼音
+
+    List<SYS_People> selectPeoplesByUnitIdAndPoliticalStatus(String unitId,String politicalStatus);//根据编制类型查询
+
+    List<SYS_Pwxk> selectpwxuke();
+    QueryResult selectPeopleDetails(int pageSize, int pageNumber,String peopleId);
+    void insertPeopleDetail(SYS_Detail detail);
 }

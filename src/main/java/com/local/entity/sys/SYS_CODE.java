@@ -48,6 +48,16 @@ public class SYS_CODE implements Serializable {
 
     private String label;
 
+    private String text;
+
+    public String getText() {
+        return codeName;
+    }
+
+    public void setText(String text) {
+        this.text = codeName;
+    }
+
     public String getValue() {
         return codeName;
     }

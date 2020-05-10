@@ -56,7 +56,11 @@ public class RegModel {
     private String peopleName="";
     private String peopleNum="";
     private String unitName;
+    private String rankProcessId="";//职数表Id
     private List<String> peopleIds;
+    private String hasNiRen="否";//是否存在拟任职级
+    private String explanation="";//
+    private String detail="";//备注
 
     public List<String> getPeopleIds() {
         return peopleIds;

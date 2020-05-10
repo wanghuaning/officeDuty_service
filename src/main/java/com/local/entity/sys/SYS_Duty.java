@@ -72,6 +72,12 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 64)
   private String documentNumber;
 
+  @ApiModelProperty("任职文号")
+  @Comment("任职文号")
+  @Column("serveNumber")
+  @ColDefine(type = ColType.VARCHAR, width = 64)
+  private String serveNumber;
+
   @ApiModelProperty("是否兼任")
   @Comment("是否兼任")
   @Column("djunct")
@@ -142,6 +148,28 @@ public class SYS_Duty implements Serializable {
   private Date serveApprovalTime;
 
   private String serveApprovalTimeStr;
+
+  @ApiModelProperty("任职职务")
+  @Comment("任职职务")
+  @Column("serveDuty")
+  @ColDefine(type = ColType.VARCHAR, width = 32)
+  private String serveDuty;
+
+  public String getServeDuty() {
+    return serveDuty;
+  }
+
+  public void setServeDuty(String serveDuty) {
+    this.serveDuty = serveDuty;
+  }
+
+  public String getServeNumber() {
+    return serveNumber;
+  }
+
+  public void setServeNumber(String serveNumber) {
+    this.serveNumber = serveNumber;
+  }
 
   public String getServeFlag() {
     return serveFlag;

@@ -70,8 +70,12 @@ public class PeopleController {
                              @RequestParam(value = "politicalStatus", required = false) String politicalStatus,
                              @RequestParam(value = "states", required = false) String states,
                              @RequestParam(value = "detail", required = false) String detail,
-                             @RequestParam(value = "unitName", required = false) String unitName, HttpServletRequest request) {
+                             @RequestParam(value = "unitName", required = false) String unitName,
+                             @RequestParam(value = "position[]", required = false) String[] position,
+                             @RequestParam(value = "rank[]", required = false) String[] rank,
+                             @RequestParam(value = "isChild", required = false) String isChild, HttpServletRequest request) {
         try {
+            List<String> unitIds=new ArrayList<>();
             if (StrUtils.isBlank(unitId)) {
                 SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
                 if (user != null) {
@@ -84,7 +88,23 @@ public class PeopleController {
                     unitId=unit.getId();
                 }
             }
-            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitId, name, idcard, politicalStatus, states,detail);
+            if ("true".equals(isChild)) {
+                unitIds.add(unitId);
+               List<String> unitIdst=unitService.selectAllChildUnitIds(unitId);
+               if (unitIdst.size()>0){
+                   unitIds.addAll(unitIdst);
+               }
+            }else {
+                unitIds.add(unitId);
+            }
+            List<SYS_People> peopleList=peopleService.selectNotPeopleChinaName();
+            if (peopleList!=null){
+                for (SYS_People people:peopleList){
+                    people.setChineseEncoder(HanyuPinyinUtil.toHanyuPinyin(people.getName()));
+                    peopleService.updatePeople(people);
+                }
+            }
+            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitIds, name, idcard, politicalStatus, states,detail,position,rank);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
@@ -107,9 +127,11 @@ public class PeopleController {
                 if (unit != null) {
                     people.setUnitName(unit.getName());
                 }
+                people.setChineseEncoder(HanyuPinyinUtil.toHanyuPinyin(people.getName()));
                 people.setPeopleOrder(peopleById.getPeopleOrder());
                 people.setUnitId(peopleById.getUnitId());
                 peopleService.updatePeople(people);
+                saveUnitDataByPeople(unit);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, people, null).getJson();
             } else {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
@@ -135,7 +157,9 @@ public class PeopleController {
             if (unit != null) {
                 people.setUnitName(unit.getName());
             }
+            people.setChineseEncoder(HanyuPinyinUtil.toHanyuPinyin(people.getName()));
             peopleService.insertPeoples(people);
+            saveUnitDataByPeople(unit);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, people, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
@@ -151,12 +175,17 @@ public class PeopleController {
             if (StrUtils.isBlank(id)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             } else {
+                SYS_People people=peopleService.selectPeopleById(id);
+                SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
                 peopleService.deletePeople(id);
                 List<SYS_USER> userList = userService.selectUsersByPeopleId(id);
                 if (userList != null) {
                     for (SYS_USER user : userList) {
                         userService.deleteUser(user.getId());
                     }
+                }
+                if (unit!=null){
+                    saveUnitDataByPeople(unit);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
             }
@@ -166,6 +195,21 @@ public class PeopleController {
         }
     }
 
+    public void saveUnitDataByPeople(SYS_UNIT unit){
+        List<SYS_People> peopleList=peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(),"事业编制（参公）");
+        if (peopleList!=null){
+            unit.setReferOfficialRealNum(Long.valueOf(peopleList.size()));
+        }else {
+            unit.setReferOfficialRealNum(0l);
+        }
+        List<SYS_People> peopleList2=peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(),"行政编制");
+        if (peopleList2!=null){
+            unit.setOfficialRealNum(Long.valueOf(peopleList2.size()));
+        }else {
+            unit.setReferOfficialRealNum(0l);
+        }
+        unitService.updateUnit(unit);
+    }
     @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
     @RequestMapping(value = "/outExcel")
     public String getPeopleExcel(HttpServletRequest request, HttpServletResponse response,
@@ -531,5 +575,87 @@ public class PeopleController {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
+    }
+    @ApiOperation(value = "人员移动", notes = "人员移动", httpMethod = "POST", tags = "人员移动接口")
+    @PostMapping(value = "/movePeoples")
+    @ResponseBody
+    public String movePeoples(@RequestParam(value = "unitId", required = false) String unitId,@RequestParam(value = "peopleIds[]", required = false) String[] peopleIds,
+                              @RequestParam(value = "createDate", required = false) String createDate,@RequestParam(value = "detail", required = false) String detail) {
+        try {
+            if (StrUtils.isBlank(unitId)) {
+                return new Result(ResultCode.ERROR.toString(), "人员移动失败，请选择目标单位", null, null).getJson();
+            }
+            for (String peopleId: peopleIds){
+                SYS_People people=peopleService.selectPeopleById(peopleId);
+                SYS_UNIT unit=unitService.selectUnitById(unitId);
+                if (people!=null && unit!=null){
+                    SYS_UNIT oldunit=unitService.selectUnitById(people.getUnitId());
+                    people.setUnitId(unitId);
+                    people.setUnitName(unit.getName());
+                    peopleService.updatePeople(people);
+                    SYS_Detail sys_detail=new SYS_Detail();
+                    sys_detail.setId(UUID.randomUUID().toString());
+                    Date createTime=new Date();
+                    if (!StrUtils.isBlank(createDate)){
+                        createTime=DateUtil.stringToDate(createDate);
+                    }
+                    sys_detail.setCreateDate(createTime);
+                    sys_detail.setFlag("0");
+                    sys_detail.setName("人员移动");
+                    sys_detail.setUnitId(unitId);
+                    sys_detail.setPeopleId(peopleId);
+                    sys_detail.setUnitName(unit.getName());
+                    sys_detail.setDetail(detail);
+                    sys_detail.setOldUnitId(oldunit.getId());
+                    sys_detail.setOldUnitName(oldunit.getName());
+                    sys_detail.setPeopleName(people.getName());
+                    peopleService.insertPeopleDetail(sys_detail);
+                    if (unit!=null){
+                        saveUnitDataByPeople(unit);
+                    }
+                }
+            }
+            return new Result(ResultCode.SUCCESS.toString(), "", peopleIds, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.DEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), "人员变动失败", null, null).getJson();
+        }
+    }
+    @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
+    @GetMapping("/detailInfo")
+    @ResponseBody
+    public String getPeopleDetail(@RequestParam(value = "size", required = false) String pageSize,
+                             @RequestParam(value = "page", required = false) String pageNumber,
+                             @RequestParam(value = "peopleId", required = false) String peopleId, HttpServletRequest request) {
+        try {
+            QueryResult queryResult = peopleService.selectPeopleDetails(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), peopleId);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_FIND_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
+        }
+    }
+    @GetMapping("/testFile")
+    @ResponseBody
+    public String addAssessmentInfo(){
+        List<SYS_Pwxk> ps= peopleService.selectpwxuke();
+        if (ps!=null){
+            int i=0;
+            for (SYS_Pwxk pwxk:ps){
+//                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\副本\\"+pwxk.getCode()+"_副本.doc");
+                int year =DateUtil.getYear(pwxk.getCreateDate());
+//                if(file.exists()){
+//                    i++;
+//                    System.out.println(pwxk.getName()+"=>"+year+"->"+i);
+//                    file.renameTo(new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\"+year+"年\\"+pwxk.getOrnum()+"、"+pwxk.getName()+"_副本.doc"));   //改名
+//                }else {
+//                }
+                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\"+year+"年\\"+pwxk.getOrnum()+"、"+pwxk.getName()+"_副本.doc");
+                if(!file.exists()){
+                    System.out.println(pwxk.getName()+"=>"+year+"->"+i);
+                }
+            }
+        }
+        return "Ok";
     }
 }

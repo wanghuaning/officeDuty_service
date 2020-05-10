@@ -60,9 +60,10 @@ public class DataManager {
             RegModel regModel = gson.fromJson(process.getParam(), new TypeToken<RegModel>() {
             }.getType());
             if (regModel != null) {
+                List<String> peopleIdsL=regModel.getPeopleIds();
                 List<RankModel> rankModels = regModel.getRankModels();
                 if (rankModels.size() > 0) {
-                    saveRankAndDutyData(rankModels, approvalDate, rankService, dutyService, peopleService);
+                    saveRankAndDutyData(rankModels, approvalDate, rankService, dutyService, peopleService,peopleIdsL);
                 }
             }
         } else {
@@ -130,26 +131,31 @@ public class DataManager {
         }
     }
 
-    public static void saveRankAndDutyData(List<RankModel> rankModels, Date approvalDate, RankService rankService, DutyService dutyService, PeopleService peopleService) {
+    public static void saveRankAndDutyData(List<RankModel> rankModels, Date approvalDate, RankService rankService, DutyService dutyService,
+                                           PeopleService peopleService,List<String> peopleIds) {
         for (RankModel rankModel : rankModels) {
             List<SYS_Rank> rankList = rankService.selectRanksByPeopleId(rankModel.getPeopleId());
             List<SYS_Duty> dutyList = dutyService.selectDutysByPeopleId(rankModel.getPeopleId());
             SYS_People people = peopleService.selectPeopleById(rankModel.getPeopleId());
             if (rankList != null) {
                 for (SYS_Rank rank : rankList) {
-                    if (rank.getStatus().contains("在任")) {
-                        if (StrUtils.isBlank(rank.getApprovalTime())) {
-                            rank.setApprovalTime(approvalDate);
-                        }
-                    } else {
-                        if (StrUtils.isBlank(rank.getApprovalTime())) {
-                            rank.setApprovalTime(approvalDate);
-                        }
-                        if (StrUtils.isBlank(rank.getServeApprovalTime())) {
-                            rank.setServeApprovalTime(approvalDate);
+                    if (peopleIds.size()>0){
+                        if (peopleIds.contains(rank.getPeopleId())){
+                            if (rank.getStatus().contains("在任")) {
+                                if (StrUtils.isBlank(rank.getApprovalTime())) {
+                                    rank.setApprovalTime(approvalDate);
+                                }
+                            } else {
+                                if (StrUtils.isBlank(rank.getApprovalTime())) {
+                                    rank.setApprovalTime(approvalDate);
+                                }
+                                if (StrUtils.isBlank(rank.getServeApprovalTime())) {
+                                    rank.setServeApprovalTime(approvalDate);
+                                }
+                            }
+                            rankService.updateRank(rank);
                         }
                     }
-                    rankService.updateRank(rank);
                 }
             }
             if (dutyList != null) {
@@ -393,6 +399,7 @@ public class DataManager {
         model.setHdzhengke(Long.toString(unit.getMainHallNum()));//核定正科领导数
         model.setHdfuke(Long.toString(unit.getDeputyHallNum()));//核定副科领导数
         model.setUnitName(unit.getName());
+        boolean hasNiRen=false;
         List<String> peopleIds = new ArrayList<>();
         if (peoples != null) {
             int order = 1;
@@ -602,6 +609,7 @@ public class DataManager {
                     rankModel.setPeopleId(people.getId());
                     rankModel.setUnitId(unit.getId());
                     rankModels.add(rankModel);
+                    hasNiRen=true;
                 }else {
                     SYS_Rank niMianRank = rankService.selectNotEnableRankByPidEndTime(people.getId());
                     if (niMianRank!=null){
@@ -675,6 +683,9 @@ public class DataManager {
         model.setNowDateStr(nowDate);
         model.setRankModels(rankModels);
         model.setPeopleIds(peopleIds);
+        if (hasNiRen){
+            model.setHasNiRen("是");
+        }
         if (rankModels.size() > 0) {
             model.setPeopleNum(rankModels.size() + "");
             model.setPeopleName(rankModels.get(0).getName());
@@ -1663,6 +1674,7 @@ public class DataManager {
                         people.setRealName("否");
                     }
                     SYS_People people1 = service.selectPeopleByIdcardAndUnitId(people.getIdcard(), unit.getId());
+                    people.setChineseEncoder(HanyuPinyinUtil.toHanyuPinyin(people.getName()));
                     if (people1 != null) {
                         if ("1".equals(fullImport)) {
                             people.setId(people1.getId());
@@ -3700,16 +3712,25 @@ public class DataManager {
      * @param unitId
      * @return
      */
-    public static List<SYS_Rank> saveRankData(List<SYS_Rank> ranks, RankService rankService, String unitId, PeopleService peopleService) {
+    public static List<SYS_Rank> saveRankData(List<SYS_Rank> ranks, RankService rankService, String unitId, PeopleService peopleService,
+                                              Date processDate,List<String> peopleIds) {
         List<SYS_Rank> rankList = new ArrayList<>();
         for (SYS_Rank rank : ranks) {
             if (rank.getApprovalTime() == null) {
-                rank.setApprovalTime(new Date());
+                if (peopleIds.size()>0){
+                    if (peopleIds.contains(rank.getPeopleId())){
+                        rank.setApprovalTime(processDate);
+                    }
+                }
             }
             SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
             rankList.add(rank);
             if ("已免".equals(rank.getStatus()) && StrUtils.isBlank(rank.getServeApprovalTime())) {
-                rank.setServeApprovalTime(new Date());
+                if (peopleIds.size()>0){
+                    if (peopleIds.contains(rank.getPeopleId())){
+                        rank.setServeApprovalTime(processDate);
+                    }
+                }
             }
             SYS_Rank rank1 = rankService.selectRankById(rank.getId());
             if (rank1 != null) {
@@ -4142,6 +4163,7 @@ public class DataManager {
                     process.setApprovalUnit(user.getUnitId());
                     process.setApprovaled("0");
                     process.setPeople(peopleName);
+                    updateProcessUsed(process,processService,"0");
                 }
             } else {
                 if ("".equals(peopleName)) {
@@ -4206,6 +4228,21 @@ public class DataManager {
         return approalList;
     }
 
+    public static void updateProcessUsed(Sys_Process process,ProcessService processService,String used){
+        if ("0".equals(process.getFlag())){
+            RegModel regModel= gson.fromJson(process.getParam(), new TypeToken<RegModel>() {
+            }.getType());
+            if (regModel!=null){
+                if (!StrUtils.isBlank(regModel.getRankProcessId())){
+                    Sys_Process sys_process=processService.selectProcessById(regModel.getRankProcessId());
+                    if (sys_process!=null){
+                        sys_process.setUsed(used);
+                        processService.updateProcess(sys_process);
+                    }
+                }
+            }
+        }
+    }
     /**
      * 下行审批表
      *

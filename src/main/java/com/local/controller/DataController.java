@@ -279,17 +279,18 @@ public class DataController {
             }
             RegModel regDataInfo = DataManager.getRegDataInfo(peopleService, rankService, dutyService,
                     assessmentService, educationService,unit,peoples);
-            return new Result(ResultCode.SUCCESS.toString(), "", regDataInfo.getRankModels(), null).getJson();
+            return new Result(ResultCode.SUCCESS.toString(), regDataInfo.getHasNiRen(), regDataInfo.getRankModels(), null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-    @ApiOperation(value = "根据勾选人员查询晋升职级人员备案名册", notes = "根据勾选人员查询晋升职级人员备案名册", httpMethod = "GET", tags = "根据勾选人员查询晋升职级人员备案名册接口")
+    @ApiOperation(value = "根据勾选人员查询晋升职级人员备案名册", notes = "根据勾选人员查询晋升职级人员备案名册", httpMethod = "POST", tags = "根据勾选人员查询晋升职级人员备案名册接口")
     @PostMapping(value = "/getRegDataByPeoples")
     @ResponseBody
     public String getRegDataByPeoples(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "unitId", required = false) String unitId,
-                             @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
+                             @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds,
+                                      @RequestParam(value = "rankProcessId", required = false) String rankProcessId) {
         try {
             SYS_UNIT unit = unitService.selectUnitById(unitId);
             if (StrUtils.isBlank(unit)){
@@ -301,6 +302,73 @@ public class DataController {
             List<SYS_People> peopleList=peopleService.selectPeoplesByPidsArr(peopleIds);
             RegModel regDataInfo = DataManager.getRegDataInfo(peopleService, rankService, dutyService,
                     assessmentService, educationService,unit,peopleList);
+            regDataInfo.setRankProcessId(rankProcessId);
+            Sys_Process process = processService.selectProcessById(rankProcessId);
+            if (process != null) {
+                StringBuffer sb=new StringBuffer();
+                int oneResearcherDraftingNum=0; // 一级调研员职数拟定
+                int towResearcherkDraftingNum=0; // 二级调研员职数拟定
+                int threeResearcherDraftingNum=0; // 三级调研员职数拟定
+                int fourResearcherDraftingNum=0; // 四级调研员职数拟定
+                int oneClerkDraftingNum=0; // 一级主任科员职数拟定
+                int towClerkDraftingNum=0; // 二级主任科员职数拟定
+                int threeClerkDraftingNum=0; // 三级主任科员职数拟定
+                int fourClerkDraftingNum=0; // 四级主任科员职数拟定
+                Sys_Approal approal = gson.fromJson(process.getParam(), new TypeToken<Sys_Approal>() {
+                }.getType());
+                if (approal != null) {
+
+                List<RankModel> rankModels=regDataInfo.getRankModels();
+                if (rankModels.size()>0){
+                    for (RankModel rankModel:rankModels){
+                        if ("一级调研员".equals(rankModel.getNirenrank())){
+                            oneResearcherDraftingNum++;
+                        }else if ("二级调研员".equals(rankModel.getNirenrank())){
+                            towResearcherkDraftingNum++;
+                        }else if ("三级调研员".equals(rankModel.getNirenrank())){
+                            threeResearcherDraftingNum++;
+                        }else if ("四级调研员".equals(rankModel.getNirenrank())){
+                            fourResearcherDraftingNum++;
+                        }else if ("一级主任科员".equals(rankModel.getNirenrank())){
+                            oneClerkDraftingNum++;
+                        }else if ("二级主任科员".equals(rankModel.getNirenrank())){
+                            towClerkDraftingNum++;
+                        }else if ("三级主任科员".equals(rankModel.getNirenrank())){
+                            threeClerkDraftingNum++;
+                        }else if ("四级主任科员".equals(rankModel.getNirenrank())){
+                            fourClerkDraftingNum++;
+                        }
+                    }
+                }
+                if ((StrUtils.strToInt(approal.getOneResearcherDraftingNum())-oneResearcherDraftingNum)>0){
+                    sb.append("一级调研员剩余："+(StrUtils.strToInt(approal.getOneResearcherDraftingNum())- oneResearcherDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getTowResearcherDraftingNum())-towResearcherkDraftingNum)>0){
+                    sb.append("二级调研员剩余："+(StrUtils.strToInt(approal.getTowResearcherDraftingNum())- towResearcherkDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getThreeResearcherDraftingNum())-threeResearcherDraftingNum)>0){
+                    sb.append("三级调研员剩余："+(StrUtils.strToInt(approal.getThreeResearcherDraftingNum())- threeResearcherDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getFourResearcherDraftingNum())-fourResearcherDraftingNum)>0){
+                    sb.append("四级调研员剩余："+(StrUtils.strToInt(approal.getFourResearcherDraftingNum())- fourResearcherDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getOneClerkDraftingNum())-oneClerkDraftingNum)>0){
+                    sb.append("一级主任科员剩余："+(StrUtils.strToInt(approal.getOneClerkDraftingNum())- oneClerkDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getTowClerkDraftingNum())-towClerkDraftingNum)>0){
+                    sb.append("二级主任科员剩余："+(StrUtils.strToInt(approal.getTowClerkDraftingNum())- towClerkDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getThreeClerkDraftingNum())-threeClerkDraftingNum)>0){
+                    sb.append("三级主任科员剩余："+(StrUtils.strToInt(approal.getThreeClerkDraftingNum())- threeClerkDraftingNum)+"名；");
+                }
+                if ((StrUtils.strToInt(approal.getFourClerkDraftingNum())-fourClerkDraftingNum)>0){
+                    sb.append("四级主任科员剩余："+(StrUtils.strToInt(approal.getFourClerkDraftingNum())- fourClerkDraftingNum)+"名；");
+                }
+                }
+                if (sb.length()>0){
+                    regDataInfo.setDetail(sb.toString());
+                }
+            }
             return new Result(ResultCode.SUCCESS.toString(), unitId, regDataInfo, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_EXCEL_ERROR, e);
@@ -514,6 +582,15 @@ public class DataController {
         }
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("process",process);
+        String prid="";
+        if ("0".equals(process.getFlag())){
+            RegModel regModel = gson.fromJson(process.getParam(), new TypeToken<RegModel>() {
+            }.getType());
+            if (regModel!=null){
+                prid=regModel.getRankProcessId();
+            }
+        }
+        resultMap.put("prId",prid);
         SYS_Data data = dataService.selectDataByProcessId(proid);
         if (data == null) {
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, resultMap, null).getJson();
@@ -1017,12 +1094,13 @@ public class DataController {
                 processDate=DateUtil.stringToDate(processTime);
             }
             List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(dataId, "上行");
+            List<String> peopleIds=new ArrayList<>();
             if (dataInfos != null) {
                 for (SYS_DataInfo dataInfo : dataInfos) {
                     if (dataInfo.getId().contains("process")) {
                         List<Sys_Process> sys_processes = gson.fromJson(dataInfo.getParam(), new TypeToken<List<Sys_Process>>() {
                         }.getType());
-                        if (sys_processes.size() > 0) {
+                        if (sys_processes!=null) {
                             String peopleName = "";
                             String approvalUnitName = "";
                             if (user != null) {
@@ -1037,6 +1115,11 @@ public class DataController {
                                 DataManager.saveprocessData(sys_processes, processService, approvalUnitName, peopleName, user, "已审核", unitService, unit,
                                         "上行", createDate,processDate,detail);
                                 objects.add(sys_processes);
+                            }
+                            RegModel regModel = gson.fromJson(dataInfo.getParam(), new TypeToken<RegModel>() {
+                            }.getType());
+                            if (regModel!=null){
+                                peopleIds=regModel.getPeopleIds();
                             }
                         }
                     }
@@ -1053,7 +1136,7 @@ public class DataController {
                             }.getType());
                             if (sys_ranks.size() > 0) {
                                 objects.add(sys_ranks);
-                                DataManager.saveRankData(sys_ranks, rankService, dataInfo.getUnitId(), peopleService);
+                                DataManager.saveRankData(sys_ranks, rankService, dataInfo.getUnitId(), peopleService,processDate,peopleIds);
                             }
                         } else if (dataInfo.getId().contains("duty")) {
                             List<SYS_Duty> sys_duties = gson.fromJson(dataInfo.getParam(), new TypeToken<List<SYS_Duty>>() {
@@ -1343,7 +1426,7 @@ public class DataController {
                                         }
                                         DataManager.saveDataInfo(dataId, dataType, unitID, dataInfoService, "rank", gson.toJson(ranks), beforeparam);
                                         objects.add(ranks);
-                                        DataManager.saveRankData(ranks, rankService, unitID, peopleService);
+                                        DataManager.saveRankData(ranks, rankService, unitID, peopleService,new Date(),new ArrayList<>());
                                     }
                                 }
                                 if (rewardList != null) {
@@ -1474,12 +1557,15 @@ public class DataController {
                 proid = process.getParentId();
             }
             SYS_Data data = dataService.selectDataByProcessId(proid);
-            if (data == null) {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-            }
-            List<SYS_DataInfo> dataInfos = dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
-            if (dataInfos == null) {
-                return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+            List<SYS_DataInfo> dataInfos=new ArrayList<>();
+            if (!"不通过".equals(flag) && !"撤销".equals(flag)){
+                if (data == null) {
+                    return new Result(ResultCode.ERROR.toString(), "审批表不完整，请联系管理员删除重新提交！", null, null).getJson();
+                }
+                dataInfos= dataInfoService.selectDataInfosByDataId(data.getId(), "上行");
+                if (dataInfos == null) {
+                    return new Result(ResultCode.ERROR.toString(), "审批表不完整，请联系管理员删除重新提交！", null, null).getJson();
+                }
             }
             if ("1".equals(process.getApproveFlag())) {
                 String afterOrder = StrUtils.intToStr(StrUtils.strToInt(process.getApprovalOrder()) + 1);
@@ -1497,6 +1583,7 @@ public class DataController {
                         process.setStates("初审");
                     } else {
                         process.setStates("已审核");
+                        DataManager.updateProcessUsed(process,processService,"0");
                     }
                     process.setProcessTime(approvalDate);
                     process.setCreateTimeStr(DateUtil.dateMMToString(createDate));
@@ -1551,6 +1638,7 @@ public class DataController {
                     }
                     if (StrUtils.isBlank(process.getParentId())){
                         DataManager.rejectApprovalData(unitService, unit,dataInfos,rankService, dutyService, peopleService);
+                        DataManager.updateProcessUsed(process,processService,"1");
                     }
                 } else if ("复审".equals(flag)) {
                     List<Sys_Process> sysProcess=processService.selectProcesssByFlagAndDate(process.getUnitId(),process.getFlag(),process.getCreateTime());
@@ -1574,6 +1662,7 @@ public class DataController {
                             process.setProcessTime(approvalDate);
                             process.setCreateTimeStr(DateUtil.dateMMToString(createDate));
                             process.setProcessTimeStr(DateUtil.dateMMToString(approvalDate));
+                            DataManager.updateProcessUsed(process,processService,"0");
                             if (processList != null) {
                                 for (Sys_Process cprocess : processList) {
                                     cprocess.setStates("初审");
@@ -1714,7 +1803,7 @@ public class DataController {
                     }
                     process.setPeople(people);
                     if (admin) {
-                        saveDataInfos(dataInfos, flag, objects);
+                        saveDataInfos(dataInfos, flag, objects,approvalDate);
                     }
                 }
                 saveChildAdminApproval(process, unit, flag, admin);
@@ -1740,10 +1829,13 @@ public class DataController {
             editeBoHuiProsessTable(csys_processes, process, unit);
         } else if ("驳回".equals(flag)) {
             editeBoHuiProsessTable(csys_processes, process, unit);
+            DataManager.updateProcessUsed(process,processService,"1");
         } else if ("审核".equals(flag)) {
             editeAgreeAgenProcessTable(process, admin, unit);
+            DataManager.updateProcessUsed(process,processService,"0");
         } else if ("复审".equals(flag)) {
             editeAgreeProcessTable(process, admin, unit);
+            DataManager.updateProcessUsed(process,processService,"0");
         } else if ("撤销".equals(flag)) {
             if ("未审批".equals(process.getStates())) {
                 if (csys_processes.size() > 0) {
@@ -1757,7 +1849,7 @@ public class DataController {
         }
     }
 
-    public void saveDataInfos(List<SYS_DataInfo> dataInfos, String flag, List<Object> objects) {
+    public void saveDataInfos(List<SYS_DataInfo> dataInfos, String flag, List<Object> objects,Date processDate) {
         for (SYS_DataInfo dataInfo : dataInfos) {
             String param = dataInfo.getParam();
             if ("驳回".equals(flag)) {
@@ -1775,7 +1867,7 @@ public class DataController {
                 }.getType());
                 if (sys_ranks != null) {
                     objects.add(sys_ranks);
-                    DataManager.saveRankData(sys_ranks, rankService, dataInfo.getUnitId(), peopleService);
+                    DataManager.saveRankData(sys_ranks, rankService, dataInfo.getUnitId(), peopleService,processDate,new ArrayList<>());
                 }
             } else if (dataInfo.getId().contains("duty")) {
                 List<SYS_Duty> sys_duties = gson.fromJson(param, new TypeToken<List<SYS_Duty>>() {

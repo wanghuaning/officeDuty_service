@@ -28,6 +28,7 @@ public class UnitServiceImpl implements UnitService {
     private static List<SYS_UNIT> punits = new ArrayList<>();
     private static List<String> punitIds = new ArrayList<>();
     private static List<SYS_UNIT> allunits = new ArrayList<>();
+    private static List<String> cunitIds = new ArrayList<>();
 
     @Override
     public List<String> selectAllParentUnitIds(SYS_UNIT unit){
@@ -113,7 +114,33 @@ public class UnitServiceImpl implements UnitService {
             }
         }
     }
-
+    @Override
+    public List<String> selectAllChildUnitIds(String parentId){
+        Criteria criteria = Cnd.cri();
+        cunitIds = new ArrayList<>();
+        List<SYS_UNIT> unitList = new ArrayList<>();
+        if (!StrUtils.isBlank(parentId)) {
+            criteria.where().andEquals("parent_Id", parentId);
+            unitList = dao.query(SYS_UNIT.class, criteria);
+//            cunits.addAll(unitList);
+            getAllChildUnitIds(unitList);
+            return cunitIds;
+        } else {
+            return new ArrayList<String>();
+        }
+    }
+    public void getAllChildUnitIds(List<SYS_UNIT> unitList) {
+        for (SYS_UNIT unit : unitList) {
+//            System.out.println(unit.getName());
+            cunitIds.add(unit.getId());
+            if (countUnit(unit.getId()) > 0) {
+                List<SYS_UNIT> cunitList = dao.query(SYS_UNIT.class, Cnd.where("parent_Id", "=", unit.getId()));
+                if (!StrUtils.isBlank(cunitList) && cunitList.size() > 0) {
+                    getAllChildUnitIds(cunitList);
+                }
+            }
+        }
+    }
     @Override
     public List<SYS_UNIT> selectAllChildUnits(String parentId) {
         Criteria criteria = Cnd.cri();
