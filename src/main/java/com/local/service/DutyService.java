@@ -16,7 +16,10 @@ public interface DutyService {
     SYS_Duty selectEnableDutyByPidOrderByTime(String pid);
     SYS_Duty selectNotEnableDutyByPidOrderByTime(String pid);
     SYS_Duty selectNotProDutyByPidOrderByTime(String pid);
+    SYS_Duty selectNotProDutyByPidAndTimeInterval(String pid,Date createTime,Date endTime);
     SYS_Duty selectDutyByNameAndTime(String name, String peopleId, Date createTime);
+    SYS_Duty selectBeforeDutyByPidAndTime(String peopleId, Date createTime);
+    SYS_Duty selectDutyByNameAndMoreTime(String name, String peopleId, Date createTime);
     void insertDuty(SYS_Duty duty);
     void updateDuty(SYS_Duty duty);
     void deleteDuty(String id);

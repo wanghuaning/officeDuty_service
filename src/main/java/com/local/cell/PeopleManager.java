@@ -682,4 +682,23 @@ public class PeopleManager {
         }
         return peopleList;
     }
+    public static void savePeopleDetails(String createDate,String detail,String name,PeopleService peopleService,SYS_UNIT unit,SYS_UNIT oldunit,SYS_People people)throws Exception{
+        SYS_Detail sys_detail=new SYS_Detail();
+        sys_detail.setId(UUID.randomUUID().toString());
+        Date createTime=new Date();
+        if (!StrUtils.isBlank(createDate)){
+            createTime=DateUtil.stringToDate(createDate);
+        }
+        sys_detail.setCreateDate(createTime);
+        sys_detail.setFlag("0");
+        sys_detail.setName(name);
+        sys_detail.setUnitId(unit.getId());
+        sys_detail.setPeopleId(people.getId());
+        sys_detail.setUnitName(unit.getName());
+        sys_detail.setDetail(detail);
+        sys_detail.setOldUnitId(oldunit.getId());
+        sys_detail.setOldUnitName(oldunit.getName());
+        sys_detail.setPeopleName(people.getName());
+        peopleService.insertPeopleDetail(sys_detail);
+    }
 }

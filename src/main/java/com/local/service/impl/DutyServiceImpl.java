@@ -141,7 +141,38 @@ public class DutyServiceImpl implements DutyService {
             return null;
         }
     }
+    @Override
+    public SYS_Duty selectNotProDutyByPidAndTimeInterval(String pid,Date createTime,Date endTime){
+        List<SYS_Duty> list = new ArrayList<>();
+        Criteria cir = Cnd.cri();
+        cir.where().andEquals("people_Id", pid).andEquals("approval_Time",null).andEquals("status", "在任").andBetween("create_Time",createTime,endTime);
+        cir.getOrderBy().desc("create_Time");
+        list = dao.query(SYS_Duty.class, cir);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Duty selectDutyByNameAndMoreTime(String name, String peopleId, Date createTime){
+        List<SYS_Duty> nowDuty=dao.query(SYS_Duty.class, Cnd.where("people_Id", "=", peopleId).and("name","=",name).and("create_Time","<",createTime).andNot("approval_Time","=",null));
+        if (nowDuty.size() > 0) {
+            return nowDuty.get(0);
+        } else {
+            return null;
+        }
+    }
 
+    @Override
+    public SYS_Duty selectBeforeDutyByPidAndTime(String peopleId, Date createTime){
+        List<SYS_Duty> nowDuty=dao.query(SYS_Duty.class, Cnd.where("people_Id", "=", peopleId).and("create_Time","<",createTime).andNot("approval_Time","=",null));
+        if (nowDuty.size() > 0) {
+            return nowDuty.get(0);
+        } else {
+            return null;
+        }
+    }
     @Override
     public List<SYS_Duty> selectDutysByPeopleId(String pid){
         List<SYS_Duty> list = new ArrayList<>();

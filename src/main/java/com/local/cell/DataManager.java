@@ -494,6 +494,7 @@ public class DataManager {
                 rankModel.setName(people.getName());
                 rankModel.setOrder(order);
                 rankModel.setSex(people.getSex());
+                rankModel.setIdcard(people.getIdcard());
                 SYS_Education education = educationService.selectEducationByPidOrderByTime(people.getId());
                 if (education != null) {
                     rankModel.setEducation(education.getName());
@@ -727,7 +728,7 @@ public class DataManager {
 
     public static List<RankModel> filingDataList(List<RankModel> rankModels, HttpServletResponse response, SYS_UNIT unit, RegModel model) throws Exception {
         if (rankModels.size() > 0) {
-            String[] arr = {"order", "name", "sex", "education", "birthday", "workday", "renzhibumen", "nowDuty", "tongzhiwudate",
+            String[] arr = {"order", "name", "sex", "education", "idcard", "workday", "renzhibumen", "nowDuty", "tongzhiwudate",
                     "nowRank", "tongzhijiDate", "nirenbumen", "nirenduty", "nirenrank", "nimianduty", "nimianrank", "kaoheyouxiu", "junzhuanganbu"};
             ClassPathResource resource = new ClassPathResource("exportExcel/filingListExport.xls");
             String path = resource.getFile().getPath();
@@ -5109,5 +5110,79 @@ public class DataManager {
                 resultMap.put("digestList", arrayNull);
             }
         }
+    }
+
+
+    public static void saveRegModelData(RegModel model,List<String> regList,List<Map<String, Object>> rankList,PeopleService peopleService,SYS_UNIT unit){
+        model.setPeopleNums(regList.get(0));
+        model.setHdzhengke(regList.get(1));
+        model.setHdfuke(regList.get(2));
+        model.setXianyouzhengke(regList.get(3));
+        model.setXianyoufuke(regList.get(4));
+        model.setXianyouganbu(regList.get(5));
+        model.setHezhunoneTowClerkNum(regList.get(6));
+        model.setHezhunthreeFourClerkNum(regList.get(7));
+        model.setXianyouoneTowClerkNum(regList.get(8));
+        model.setXianyouoneClerkNum(regList.get(9));
+        model.setXianyoutowClerkNum(regList.get(10));
+        model.setXianyouOneTowJunZhuanNum(regList.get(11));
+        model.setXianyouthreeFourClerkNum(regList.get(12));
+        model.setXianyouThreeClerkNum(regList.get(13));
+        model.setXianyouFourClerkNum(regList.get(14));
+        model.setXianyouThreeFourJunZhuanNum(regList.get(15));
+        model.setNijinshengzhengke(regList.get(16));
+        model.setNijinshengfuke(regList.get(17));
+        model.setNijinshengganbu(regList.get(18));
+        model.setNijinshengoneClerkNum(regList.get(19));
+        model.setNijinshengtowClerkNum(regList.get(20));
+        model.setNijinshengThreeClerkNum(regList.get(21));
+        model.setNijinshengFourClerkNum(regList.get(22));
+        model.setNijinshengJianZhioneClerkNum(regList.get(23));
+        model.setNijinshengJiantowClerkNum(regList.get(24));
+        model.setNijinshengJianThreeClerkNum(regList.get(25));
+        model.setZhengkeGaitowClerkNum(regList.get(26));
+        model.setFukeGaiFourClerkNum(regList.get(27));
+        model.setTiaozhengzhengke(regList.get(29));
+        model.setTiaozhengfuke(regList.get(30));
+        model.setTiaozhengganbu(regList.get(31));
+        model.setTiaozhengoneTowClerkNum(regList.get(32));
+        model.setTiaozhengoneClerkNum(regList.get(33));
+        model.setTiaozhengtowClerkNum(regList.get(34));
+        model.setTiaozhengOneTowJunZhuanNum(regList.get(35));
+        model.setTiaozhenghreeFourClerkNum(regList.get(36));
+        model.setTiaozhengThreeClerkNum(regList.get(37));
+        model.setTiaozhengFourClerkNum(regList.get(38));
+        model.setTiaozhengThreeFourJunZhuanNum(regList.get(39));
+        List<RankModel> rankModels=new ArrayList<>();
+        List<String> peopleIds=new ArrayList<>();
+        for (Map<String, Object> map:rankList){
+            RankModel rankModel=new RankModel();
+            rankModel.setName(StrUtils.toNullStr(map.get("2")));
+            rankModel.setSex(StrUtils.toNullStr(map.get("4")));
+            rankModel.setEducation(StrUtils.toNullStr(map.get("6")));
+            rankModel.setIdcard(StrUtils.toNullStr(map.get("8")));
+            rankModel.setWorkday(StrUtils.toNullStr(map.get("10")));
+            rankModel.setRenzhibumen(StrUtils.toNullStr(map.get("12")));
+            rankModel.setNowDuty(StrUtils.toNullStr(map.get("14")));
+            rankModel.setTongzhiwudate(StrUtils.toNullStr(map.get("17")));
+            rankModel.setNowRank(StrUtils.toNullStr(map.get("20")));
+            rankModel.setTongzhijiDate(StrUtils.toNullStr(map.get("23")));
+            rankModel.setNirenbumen(StrUtils.toNullStr(map.get("25")));
+            rankModel.setNirenduty(StrUtils.toNullStr(map.get("27")));
+            rankModel.setNirenrank(StrUtils.toNullStr(map.get("29")));
+            rankModel.setNimianduty(StrUtils.toNullStr(map.get("31")));
+            rankModel.setNimianrank(StrUtils.toNullStr(map.get("33")));
+            rankModel.setKaoheyouxiu(StrUtils.toNullStr(map.get("35")));
+            rankModel.setJunzhuanganbu(StrUtils.toNullStr(map.get("38")));
+            SYS_People people=peopleService.selectPeopleByIdcardAndUnitIdAndName(rankModel.getIdcard(),rankModel.getName(),unit.getId());
+            if (people!=null){
+                peopleIds.add(people.getId());
+                rankModel.setPeopleId(people.getId());
+                rankModel.setUnitId(unit.getId());
+                rankModels.add(rankModel);
+            }
+        }
+        model.setPeopleIds(peopleIds);
+        model.setRankModels(rankModels);
     }
 }

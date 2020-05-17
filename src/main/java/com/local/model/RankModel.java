@@ -10,6 +10,7 @@ public class RankModel {
     private List<String> peopleIds;
     private String unitId;
     private String id;
+    private String idcard="";
     private Integer order;
     private String name;
     private String sex;
@@ -33,6 +34,15 @@ public class RankModel {
 
     private String kaoheyouxiu;//因考核优秀 缩短晋升职 级年限情况"
     private String junzhuanganbu;//军转干部、实名制管理干部
+
+
+    public String getIdcard() {
+        return idcard;
+    }
+
+    public void setIdcard(String idcard) {
+        this.idcard = idcard;
+    }
 
     public List<String> getPeopleIds() {
         return peopleIds;

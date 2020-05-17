@@ -593,23 +593,7 @@ public class PeopleController {
                     people.setUnitId(unitId);
                     people.setUnitName(unit.getName());
                     peopleService.updatePeople(people);
-                    SYS_Detail sys_detail=new SYS_Detail();
-                    sys_detail.setId(UUID.randomUUID().toString());
-                    Date createTime=new Date();
-                    if (!StrUtils.isBlank(createDate)){
-                        createTime=DateUtil.stringToDate(createDate);
-                    }
-                    sys_detail.setCreateDate(createTime);
-                    sys_detail.setFlag("0");
-                    sys_detail.setName("人员移动");
-                    sys_detail.setUnitId(unitId);
-                    sys_detail.setPeopleId(peopleId);
-                    sys_detail.setUnitName(unit.getName());
-                    sys_detail.setDetail(detail);
-                    sys_detail.setOldUnitId(oldunit.getId());
-                    sys_detail.setOldUnitName(oldunit.getName());
-                    sys_detail.setPeopleName(people.getName());
-                    peopleService.insertPeopleDetail(sys_detail);
+                    PeopleManager.savePeopleDetails(createDate,detail,"人员移动",peopleService,unit,oldunit, people);
                     if (unit!=null){
                         saveUnitDataByPeople(unit);
                     }

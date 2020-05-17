@@ -35,7 +35,7 @@ public class SYS_Rank implements Serializable {
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ColDefine(type = ColType.DATETIME)
-  private Date createTime;
+  private Date createTime=new Date();
 
   private String createTimeStr;
 

@@ -558,7 +558,84 @@ public class ExcelFileGenerator<T> {
         }
         return result;
     }
-
+    /**
+     * 读取Excel表数据 重复添加后缀
+     *
+     * @param excelInputSteam
+     * @param sheetNumber     读取Excel表位置 0开始
+     * @param headerNumber    表头位置 0开始
+     * @param rowStart        读取开始位置 0开始
+     * @return
+     * @throws IOException
+     * @throws InvalidFormatException
+     */
+    public static List<Map<String, Object>> readeExcelDataNameCopy(InputStream excelInputSteam,
+                                                           int sheetNumber,
+                                                           int headerNumber,
+                                                           int rowStart) throws IOException, InvalidFormatException {
+        //需要的变量以及要返回的数据
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        List<String> headers = new ArrayList<String>();
+        //生成工作表
+        Workbook workbook = WorkbookFactory.create(excelInputSteam);
+        Sheet sheet = workbook.getSheetAt(sheetNumber);
+        Row header = sheet.getRow(headerNumber);
+        //最后一行数据
+        int rowEnd = sheet.getLastRowNum();
+        DataFormatter dataFormatter = new DataFormatter();
+        //获取标题信息
+        for (int i = 0; i < header.getLastCellNum(); ++i) {
+            Cell cell = header.getCell(i);
+            headers.add(dataFormatter.formatCellValue(cell).replaceAll("\uFEFF", ""));
+        }
+        //获取内容信息
+        for (int i = rowStart; i <= rowEnd; ++i) {
+            Row currentRow = sheet.getRow(i);
+            if (Objects.isNull(currentRow)) {
+                continue;
+            }
+            boolean sd = false;
+            Map<String, Object> dataMap = new HashMap<>();
+            for (int j = 0; j < currentRow.getLastCellNum(); ++j) {
+                //将null转化为Blank
+                String name=j+"";
+                Cell data = currentRow.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                if (Objects.isNull(data)) {     //感觉这个if有点多余
+                    dataMap.put(name, null);
+                } else {
+                    switch (data.getCellType()) {   //不同的类型分别进行存储
+                        case Cell.CELL_TYPE_STRING:
+                            dataMap.put(name, data.getRichStringCellValue().getString());
+                            sd = true;
+                            break;
+                        case Cell.CELL_TYPE_NUMERIC:
+                            sd = true;
+                            if (DateUtil.isCellDateFormatted(data)) {
+                                dataMap.put(name, data.getDateCellValue());
+                            } else {
+                                DecimalFormat df = new DecimalFormat("0");
+                                dataMap.put(name, df.format(data.getNumericCellValue()));
+                            }
+                            break;
+                        case Cell.CELL_TYPE_FORMULA:
+                            sd = true;
+                            dataMap.put(name, data.getCellFormula());
+                            break;
+                        case Cell.CELL_TYPE_BOOLEAN:
+                            sd = true;
+                            dataMap.put(name, data.getBooleanCellValue());
+                            break;
+                        default:
+                            dataMap.put(name, null);
+                    }
+                }
+            }
+            if (sd) {
+                result.add(dataMap);
+            }
+        }
+        return result;
+    }
     /**
      * 或Excel表头
      *
