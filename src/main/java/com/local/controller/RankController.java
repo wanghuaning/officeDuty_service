@@ -98,7 +98,6 @@ public class RankController {
                     } else {
                         people.setPositionLevel("");
                         people.setPositionLevelTime(null);
-
                         peopleService.updatePeople(people);
                     }
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
@@ -114,6 +113,20 @@ public class RankController {
         }
     }
 
+    public void saveNowRank(String pid){
+        SYS_Rank rank=rankService.selectRankByPidOrderByTime(pid);
+        if (rank!=null){
+            rank.setRankOrder(1);
+            rankService.updateRank(rank);
+            List<SYS_Rank> rankList=rankService.selectRanksByPeopleId(pid);
+            for (SYS_Rank rank1:rankList){
+                if (!rank.getId().equals(rank1.getId())){
+                    rank1.setRankOrder(0);
+                    rankService.updateRank(rank1);
+                }
+            }
+        }
+    }
     @ApiOperation(value = "新增职级", notes = "新增职级", httpMethod = "POST", tags = "新增职级接口")
     @PostMapping(value = "/add")
     @ResponseBody
@@ -153,9 +166,9 @@ public class RankController {
                     } else {
                         people.setPositionLevel("");
                         people.setPositionLevelTime(null);
-
                         peopleService.updatePeople(people);
                     }
+                saveNowRank(people.getId());
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, rank, null).getJson();
                 }else {
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, "false", null).getJson();
@@ -248,6 +261,7 @@ public class RankController {
                             people.setPositionLevelTime(null);
                             peopleService.updatePeople(people);
                         }
+                        saveNowRank(people.getId());
                         return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
                     } else {
                         return new Result(ResultCode.ERROR.toString(), "权限不足！", null, null).getJson();
@@ -300,6 +314,7 @@ public class RankController {
                         people.setPositionLevelTime(null);
                         peopleService.updatePeople(people);
                     }
+                    saveNowRank(people.getId());
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, rank, null).getJson();
                 } else {
                     return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();

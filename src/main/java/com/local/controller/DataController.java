@@ -4027,10 +4027,104 @@ public class DataController {
             ekydmodel.setJianshaodiaozou(String.valueOf(ekyjianshaodiaozou));
             dutyCountModels.add(ekydmodel);
         return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, dutyCountModels, null).getJson();
-    } else
-
-    {
+    } else{
         return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, dutyCountModels, null).getJson();
     }
 }
+    @ApiOperation(value = "职级干部情况统计表", notes = "职级干部情况统计表", httpMethod = "POST", tags = "职级干部情况统计表接口")
+    @PostMapping(value = "/rankCountTable")
+    @ResponseBody
+    public String rankCountTable(@RequestParam(value = "unitId", required = false) String unitId,
+                                 @RequestParam(value = "childUnit", required = false) String childUnit,
+                                 @RequestParam(value = "startDateStr", required = false) String startDateStr,
+                                 @RequestParam(value = "endDateStr", required = false) String endDateStr) throws Exception {
+        List<RankCountModel> rankCountModels = new ArrayList<>();
+        List<RankCountModel> countModels = new ArrayList<>();
+        Date startDate = new Date();
+        Date endDate = new Date();
+        if (!StrUtils.isBlank(startDateStr)) {
+            startDate = DateUtil.stringToDate(startDateStr);
+        }
+        if (!StrUtils.isBlank(endDateStr)) {
+            endDate = DateUtil.stringToDate(endDateStr);
+        }
+        RankCountModel countModel = new RankCountModel();
+        String[] arr;
+        if (!StrUtils.isBlank(childUnit)) {
+            childUnit = childUnit.substring(1, childUnit.length() - 1);
+            arr = childUnit.split(";");
+//            countModel.setName("单位数:"+arr.length + "");
+            List<String> peopleIds=peopleService.selectPeopleIds(String.join("','",arr),"在职");
+            if (peopleIds.size()>0){
+                int bianzhishu=0,taogai=0,taogaijunzhuan=0,taogaichaozhi=0,beforerank=0,beforejunrank=0,beforechaozhirank=0,jinshengrank=0,jinshengjunrank=0,
+                 jinshengshimingrank=0,quedingzhuanzheng=0,quedingjun=0,quedingdiaoru=0,quedingmianzhiwu=0,jiangdichufen=0,jiangdidiaodong=0,jianshaomiaozhi=0,
+                 jianshaodiaozou=0,afterrank=0,afterjunrank=0,afterchaozhirank=0;
+                String[] dutyArr = {"一级调研员','二级调研员", "一级调研员", "二级调研员","三级调研员','四级调研员",  "三级调研员", "四级调研员",
+                        "一级主任科员','二级主任科员","一级主任科员", "二级主任科员","三级主任科员','四级主任科员", "三级主任科员", "四级主任科员", "一级科员", "二级科员"};
+                for (int i = 0; i < dutyArr.length; i++) {
+                    String rankInArr="('"+dutyArr[i]+"')";
+                    RankCountModel model = new RankCountModel();
+                    model.setName(dutyArr[i].replaceAll("'",""));
+                    List<SYS_Rank> rankList=rankService.selectRanksByPids(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"否");
+                    model.setAfterrank(StrUtils.intToStr(rankList.size()));afterrank+=rankList.size();
+                    model.setJinshengrank(StrUtils.intToStr(rankList.size()));jinshengrank+=rankList.size();
+                    List<SYS_Rank> junrankList=rankService.selectRanksByPids(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"军转");
+                    model.setAfterjunrank(StrUtils.intToStr(junrankList.size()));afterjunrank+=junrankList.size();
+                    model.setJinshengjunrank(StrUtils.intToStr(junrankList.size()));jinshengjunrank+=junrankList.size();
+                    List<SYS_Rank> mingRankList=rankService.selectRanksByPids(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"实名制");
+                    model.setJinshengshimingrank(StrUtils.intToStr(mingRankList.size()));jinshengshimingrank+=mingRankList.size();
+                    //调整前职级干部情况
+                    List<SYS_Rank> beforeRanks=rankService.selectBeforeRanksByPids(String.join("','",peopleIds),"已免",rankInArr,"否");
+                    model.setBeforerank(StrUtils.intToStr(beforeRanks.size()));beforerank+=beforeRanks.size();
+                    List<SYS_Rank> junbeforeRanks=rankService.selectBeforeRanksByPids(String.join("','",peopleIds),"已免",rankInArr,"是");
+                    model.setBeforejunrank(StrUtils.intToStr(junbeforeRanks.size()));beforejunrank+=junbeforeRanks.size();
+                    //确定职级情况
+                    List<SYS_Rank> xinrankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"('新录用转正定级')");
+                    model.setQuedingzhuanzheng(StrUtils.intToStr(xinrankList.size()));quedingzhuanzheng+=xinrankList.size();
+                    List<SYS_Rank> qdjunrankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"('军转安置')");
+                    model.setQuedingjun(StrUtils.intToStr(qdjunrankList.size()));quedingjun+=qdjunrankList.size();
+                    List<SYS_Rank> qddiaorankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"('调入')");
+                    model.setQuedingdiaoru(StrUtils.intToStr(qddiaorankList.size()));quedingdiaoru+=qddiaorankList.size();
+                    List<SYS_Rank> qdshigaifeirankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"('免去领导职务改任职级')");
+                    model.setQuedingmianzhiwu(StrUtils.intToStr(qdshigaifeirankList.size()));quedingmianzhiwu+=qdshigaifeirankList.size();
+                    //降低职级情况
+                    List<SYS_Rank> jiangdichufenrankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"('因处分降低职级')");
+                    model.setJiangdichufen(StrUtils.intToStr(jiangdichufenrankList.size()));jiangdichufen+=jiangdichufenrankList.size();
+                    List<SYS_Rank> jiangdidiaodongrankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"在任",rankInArr,"('调动低定职级')");
+                    model.setJiangdidiaodong(StrUtils.intToStr(jiangdidiaodongrankList.size()));jiangdidiaodong+=jiangdidiaodongrankList.size();
+                    //职级减少情况
+                    List<SYS_Rank> jianshaomiaozhirankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"已免",rankInArr,"('晋升实职')");
+                    model.setJianshaomiaozhi(StrUtils.intToStr(jianshaomiaozhirankList.size()));jianshaomiaozhi+=jianshaomiaozhirankList.size();
+                    List<SYS_Rank> jianshaodiaozourankList=rankService.selectRanksByPidsAndUpType(startDate,endDate,String.join("','",peopleIds),"已免",rankInArr,"('调出','退休','死亡')");
+                    model.setJianshaodiaozou(StrUtils.intToStr(jianshaodiaozourankList.size()));jianshaodiaozou+=jianshaodiaozourankList.size();
+                    countModels.add(model);
+                }
+                countModel.setName("合计");
+                countModel.setTaogaijunzhuan(StrUtils.intToStr(taogaijunzhuan));
+                countModel.setTaogaichaozhi(StrUtils.intToStr(taogaichaozhi));
+                countModel.setBeforerank(StrUtils.intToStr(beforerank));
+                countModel.setBeforejunrank(StrUtils.intToStr(beforejunrank));
+                countModel.setBeforechaozhirank(StrUtils.intToStr(beforechaozhirank));
+                countModel.setJinshengrank(StrUtils.intToStr(jinshengrank));
+                countModel.setJinshengjunrank(StrUtils.intToStr(jinshengjunrank));
+                countModel.setJinshengshimingrank(StrUtils.intToStr(jinshengshimingrank));
+                countModel.setQuedingzhuanzheng(StrUtils.intToStr(quedingzhuanzheng));
+                countModel.setQuedingjun(StrUtils.intToStr(quedingjun));
+                countModel.setQuedingdiaoru(StrUtils.intToStr(quedingdiaoru));
+                countModel.setQuedingmianzhiwu(StrUtils.intToStr(quedingmianzhiwu));
+                countModel.setJiangdichufen(StrUtils.intToStr(jiangdichufen));
+                countModel.setJiangdidiaodong(StrUtils.intToStr(jiangdidiaodong));
+                countModel.setJianshaomiaozhi(StrUtils.intToStr(jianshaomiaozhi));
+                countModel.setJianshaodiaozou(StrUtils.intToStr(jianshaodiaozou));
+                countModel.setAfterrank(StrUtils.intToStr(afterrank));
+                countModel.setAfterjunrank(StrUtils.intToStr(afterjunrank));
+                countModel.setAfterchaozhirank(StrUtils.intToStr(afterchaozhirank));
+                rankCountModels.add(countModel);
+                rankCountModels.addAll(countModels);
+            }
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, rankCountModels, null).getJson();
+        } else{
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
 }

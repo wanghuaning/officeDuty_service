@@ -83,6 +83,34 @@ public class NutzDaoUtil {
         return sql.getList(classOfT);
     }
 
+    /**
+     * Nutz 自定义查询工具类
+     * @param t 变量类型
+     * @param sql 查询sql
+     * @param classOfT 变量类型class
+     * @param dao
+     * @param map 参数集合 city=@city =>  map.put("city", city)
+     * @param columnLabel 返回集合 字段名 eg: name id
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> getConstantQueryBySqlParams(T t, Sql sql, Class<T> classOfT, Dao dao, Map<String,Object> map,String columnLabel) {
+        for (Map.Entry<String, Object> entry : map.entrySet()){
+            sql.params().set(entry.getKey(), entry.getValue());
+        }
+        sql.setCallback(new SqlCallback() {
+            public Object invoke(Connection conn, ResultSet rs, Sql sql) throws SQLException {
+                List<String> list = new LinkedList<String>();
+                while (rs.next())
+                    list.add(rs.getString(columnLabel));
+                return list;
+            }
+        });
+        dao.execute(sql);
+        return sql.getList(classOfT);
+
+    }
+
 
     /**
      *

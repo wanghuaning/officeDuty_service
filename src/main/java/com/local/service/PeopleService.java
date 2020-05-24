@@ -60,4 +60,6 @@ public interface PeopleService {
     List<SYS_Pwxk> selectpwxuke();
     QueryResult selectPeopleDetails(int pageSize, int pageNumber,String peopleId);
     void insertPeopleDetail(SYS_Detail detail);
+
+    List<String> selectPeopleIds(String units,String states);
 }

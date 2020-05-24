@@ -19,6 +19,7 @@ public interface RankService {
     SYS_Rank selectNowRankByPidOrderByTime(String pid);
     SYS_Rank selectRankByPidAndTimeOrderByTime(String pid,Date date,String duty);
     SYS_Rank selectRankByNameAndTime(String name, String peopleId, Date createTime);
+    SYS_Rank selectRankByPidAndTime(String peopleId, Date createTime);
     SYS_Rank selectNotAproRanksByPid(String pid);
     SYS_Rank selectAprodRanksByPid(String pid);
     SYS_Rank selectAprodRanksByPidAndBatch(String pid,String batch);
@@ -37,4 +38,7 @@ public interface RankService {
     List<SYS_Rank> selectRanksFlagByUnitId(String unitId, String flag,String name);//是:套转 否：晋升
     List<SYS_Rank> selectRanksFlagNotTurnByUnitId(String unitId, String flag,String name);//是:套转 否：晋升 不包含军转
 
+    List<SYS_Rank> selectRanksByPids(Date startTime,Date endTime,String pids,String status,String rankInArr,String types);
+    List<SYS_Rank> selectBeforeRanksByPids(String pids,String status,String rankInArr,String isjun);
+    List<SYS_Rank> selectRanksByPidsAndUpType(Date startTime,Date endTime,String pids,String status,String rankInArr,String types);
 }

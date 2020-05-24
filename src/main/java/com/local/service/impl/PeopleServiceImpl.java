@@ -4,20 +4,19 @@ import com.local.common.slog.annotation.SLog;
 import com.local.entity.sys.*;
 import com.local.service.PeopleService;
 import com.local.util.DateUtil;
+import com.local.util.NutzDaoUtil;
 import com.local.util.StrUtils;
-import org.nutz.dao.Cnd;
-import org.nutz.dao.Dao;
-import org.nutz.dao.QueryResult;
+import org.nutz.dao.*;
+import org.nutz.dao.entity.Record;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.sql.Sql;
 import org.nutz.dao.util.cri.SimpleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -624,5 +623,15 @@ public class PeopleServiceImpl implements PeopleService {
     @SLog(tag = "新增人员详情", type = "C")
     public void insertPeopleDetail(SYS_Detail detail){
         dao.insert(detail);
+    }
+
+    @Override
+    public List<String> selectPeopleIds(String units,String states){
+        String sqls = "SELECT id FROM sys_people WHERE unit_id in ('"+units+"') and states=@states";
+        Sql sql = Sqls.create(sqls);
+        Map<String,Object> map = new HashMap<>();
+        map.put("states",states);
+        List<String> statisticsModels = NutzDaoUtil.getConstantQueryBySqlParams(new String(),sql,String.class,dao,map,"id");
+        return statisticsModels;
     }
 }

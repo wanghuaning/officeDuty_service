@@ -3,6 +3,7 @@ package com.local.cell;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.local.common.config.CompareFileds;
+import com.local.controller.RankController;
 import com.local.entity.sys.*;
 import com.local.model.*;
 import com.local.service.*;
@@ -1584,6 +1585,8 @@ public class DataManager {
                             people.setEducation(education.getName());
                         }
                         service.updatePeople(people);
+                        RankController rankController=new RankController();
+                        rankController.saveNowRank(people.getId());
                     }
                 }
             } else {

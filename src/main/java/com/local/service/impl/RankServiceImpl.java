@@ -1,24 +1,24 @@
 package com.local.service.impl;
 
 import com.local.common.slog.annotation.SLog;
+import com.local.entity.sys.*;
 import com.local.entity.sys.SYS_Rank;
 import com.local.entity.sys.SYS_Rank;
-import com.local.entity.sys.SYS_Rank;
-import com.local.entity.sys.SYS_UNIT;
 import com.local.service.RankService;
+import com.local.util.NutzDaoUtil;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
+import org.nutz.dao.Sqls;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.sql.Sql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class RankServiceImpl implements RankService {
@@ -132,6 +132,15 @@ public class RankServiceImpl implements RankService {
         }
     }
 
+    @Override
+    public SYS_Rank selectRankByPidAndTime(String peopleId, Date createTime){
+        List<SYS_Rank> rankList=dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", peopleId).and("create_Time","<",createTime).andNot("approval_Time","=",null));
+        if (rankList.size() > 0) {
+            return rankList.get(0);
+        } else {
+            return null;
+        }
+    }
     @Override
     public List<SYS_Rank> selectRanksByPeopleId(String pid) {
         List<SYS_Rank> list = new ArrayList<>();
@@ -385,5 +394,55 @@ public class RankServiceImpl implements RankService {
     @SLog(tag = "删除职级", type = "D")
     public void deleteRank(String id) {
         dao.delete(SYS_Rank.class, id);
+    }
+
+    @Override
+    public List<SYS_Rank> selectRanksByPids(Date startTime,Date endTime,String pids,String status,String rankInArr,String types){
+        String sqlIn = "select id from (SELECT  ROW_NUMBER() over  (PARTITION By people_Id order by create_Time desc) as rowId,sys_rank.*  FROM sys_rank) t where people_Id in ('"+pids+"') and rowid <= 1";
+        String sqls="select * from sys_rank where create_Time >=@startTime and create_Time <=@endTime and status =@status and name in "+rankInArr+" and id in("+sqlIn+")";
+        if ("军转".equals(types)){
+            sqls="select * from sys_rank where create_Time >=@startTime and create_Time <=@endTime and status =@status and name in "+rankInArr+" and leaders='是' and id in("+sqlIn+")";
+        }else if ("实名制".equals(types)){
+            sqls="select * from sys_rank where create_Time >=@startTime and create_Time <=@endTime and status =@status and name in "+rankInArr+" and flag='是' and id in("+sqlIn+")";
+        }
+         Sql sql = Sqls.create(sqls);
+        Map<String,Object> map = new HashMap<>();
+        map.put("startTime",startTime);
+        map.put("endTime",endTime);
+        map.put("status",status);
+        SYS_Rank rank = new SYS_Rank();
+        List<SYS_Rank> list = NutzDaoUtil.getQueryBySqlParams(rank,sql,SYS_Rank.class,dao,map);
+        return list;
+    }
+    @Override
+    public List<SYS_Rank> selectBeforeRanksByPids(String pids,String status,String rankInArr,String isjun){
+        String sqlIn = "select id from (SELECT ROW_NUMBER() over (PARTITION By people_Id order by create_Time desc) as rowId,sys_rank.* FROM sys_rank where rankOrder=0) t where people_Id in ('"+pids+"') and rowid <= 1";
+        String sqls="select * from sys_rank where status =@status and name in "+rankInArr+" and id in("+sqlIn+")";
+        if ("是".equals(isjun)){
+            sqls="select * from sys_rank where status =@status and name in "+rankInArr+" and leaders='是' and id in("+sqlIn+")";
+        }
+        Sql sql = Sqls.create(sqls);
+        Map<String,Object> map = new HashMap<>();
+        map.put("status",status);
+        SYS_Rank rank = new SYS_Rank();
+        List<SYS_Rank> list = NutzDaoUtil.getQueryBySqlParams(rank,sql,SYS_Rank.class,dao,map);
+        return list;
+    }
+
+    @Override
+    public List<SYS_Rank> selectRanksByPidsAndUpType(Date startTime,Date endTime,String pids,String status,String rankInArr,String types){
+        String sqlIn = "select id from (SELECT  ROW_NUMBER() over  (PARTITION By people_Id order by create_Time desc) as rowId,sys_rank.*  FROM sys_rank) t where people_Id in ('"+pids+"') and rowid <= 1";
+        String sqls="select * from sys_rank where create_Time >=@startTime and create_Time <=@endTime and detail in "+types+" and status =@status and name in "+rankInArr+" and id in("+sqlIn+")";
+        if ("已免".equals(status)){
+            sqls="select * from sys_rank where create_Time >=@startTime and create_Time <=@endTime and depose_Rank in "+types+" and status =@status and name in "+rankInArr+" and id in("+sqlIn+")";
+        }
+        Sql sql = Sqls.create(sqls);
+        Map<String,Object> map = new HashMap<>();
+        map.put("startTime",startTime);
+        map.put("endTime",endTime);
+        map.put("status",status);
+        SYS_Rank rank = new SYS_Rank();
+        List<SYS_Rank> list = NutzDaoUtil.getQueryBySqlParams(rank,sql,SYS_Rank.class,dao,map);
+        return list;
     }
 }

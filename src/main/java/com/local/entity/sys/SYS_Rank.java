@@ -179,6 +179,20 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 32)
   private String serveDuty;
 
+  @ApiModelProperty("分类1：当前，0：已免")
+  @Comment("分类1：当前，0：已免")
+  @Column("rankOrder")
+  @ColDefine(type = ColType.INT, width = 1)
+  private Integer rankOrder=0;
+
+  public Integer getRankOrder() {
+    return rankOrder;
+  }
+
+  public void setRankOrder(Integer rankOrder) {
+    this.rankOrder = rankOrder;
+  }
+
   public String getDutyType() {
     return dutyType;
   }
