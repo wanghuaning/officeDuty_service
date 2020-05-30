@@ -185,6 +185,21 @@ public class SYS_Rank implements Serializable {
   @ColDefine(type = ColType.INT, width = 1)
   private Integer rankOrder=0;
 
+  @ApiModelProperty("单位名称")
+  @Comment("单位名称")
+  @Column("unitName")
+  @ColDefine(type = ColType.VARCHAR, width = 128)
+  private String unitName;
+
+
+  public String getUnitName() {
+    return unitName;
+  }
+
+  public void setUnitName(String unitName) {
+    this.unitName = unitName;
+  }
+
   public Integer getRankOrder() {
     return rankOrder;
   }

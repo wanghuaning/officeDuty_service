@@ -67,6 +67,7 @@ public class RankController {
                 rank.setId(uuid);
                 rank.setPeopleName(people.getName());
                 rank.setUnitId(people.getUnitId());
+                rank.setUnitName(people.getUnitName());
                 SYS_Rank rankTurn1 = rankService.selectTurnRankById(people.getId());
                 if (rankTurn1 != null && "是".equals(rank.getFlag())) {
                     return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
@@ -142,6 +143,7 @@ public class RankController {
                 rank.setId(uuid);
                 rank.setPeopleName(people.getName());
                 rank.setUnitId(people.getUnitId());
+                rank.setUnitName(people.getUnitName());
                 SYS_Rank rankTurn1 = rankService.selectTurnRankById(people.getId());
                 if (rankTurn1 != null && "是".equals(rank.getFlag())) {
                     return new Result(ResultCode.ERROR.toString(), "只能有一个套转职级", null, null).getJson();
@@ -288,6 +290,7 @@ public class RankController {
                 if (people != null) {
                     rank.setPeopleName(people.getName());
                     rank.setUnitId(people.getUnitId());
+                    rank.setUnitName(people.getUnitName());
                     SYS_Rank rank1 = rankService.selectTurnNotSelfRankById(people.getId(), rank.getId());
                     if (rank1 != null && "是".equals(rank.getFlag())) {
                         return new Result(ResultCode.ERROR.toString(), "职级只能有一条！", null, null).getJson();
@@ -339,6 +342,7 @@ public class RankController {
                 if (people != null) {
                     rank.setPeopleName(people.getName());
                     rank.setUnitId(people.getUnitId());
+                    rank.setUnitName(people.getUnitName());
                     SYS_Rank rank1 = rankService.selectTurnNotSelfRankById(people.getId(), rank.getId());
                     if (rank1 != null && "是".equals(rank.getFlag())) {
                         return new Result(ResultCode.ERROR.toString(), "职级只能有一条！", null, null).getJson();

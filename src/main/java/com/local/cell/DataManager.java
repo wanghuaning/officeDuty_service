@@ -1989,6 +1989,7 @@ public class DataManager {
             rank.setPeopleId(people.getId());
             rank.setPeopleName(people.getName());
             rank.setUnitId(people.getUnitId());
+            rank.setUnitName(people.getUnitName());
             rank.setName(name);
             String creatTime = String.valueOf(map.get("套转职级时间"));
             if (!StrUtils.isBlank(creatTime)) {
@@ -2057,6 +2058,7 @@ public class DataManager {
             rank.setPeopleId(people.getId());
             rank.setPeopleName(people.getName());
             rank.setUnitId(people.getUnitId());
+            rank.setUnitName(people.getUnitName());
             rank.setName(name);
             String creatTime = String.valueOf(map.get("任职级时间"));
             if (!StrUtils.isBlank(creatTime)) {

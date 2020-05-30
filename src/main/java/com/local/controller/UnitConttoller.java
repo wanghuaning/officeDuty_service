@@ -340,6 +340,10 @@ public class UnitConttoller {
                 resource = new ClassPathResource("exportExcel/exportPeopleInfo.xls");
                 excelName = "人员信息采集表.xls";
                 sheetName = "人员信息";
+            }else if ("regExcle".equals(flag)) {
+                resource = new ClassPathResource("exportExcel/filingListExport.xls");
+                excelName = "备案表导入模板.xls";
+                sheetName = "备案名册";
             }
             String path = resource.getFile().getPath();
             String[] arr = null;
