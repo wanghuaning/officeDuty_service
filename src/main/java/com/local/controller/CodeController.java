@@ -3,6 +3,7 @@ package com.local.controller;
 import com.local.entity.sys.SYS_CODE;
 import com.local.model.ResultModel;
 import com.local.service.CodeService;
+import com.local.service.UnitService;
 import com.local.util.Result;
 import com.local.util.ResultCode;
 import com.local.util.ResultMsg;
@@ -25,6 +26,8 @@ public class CodeController {
 
     @Autowired
     private CodeService codeService;
+    @Autowired
+    private UnitService unitService;
 
     @ApiOperation(value = "查询机构级别", notes = "机构级别列表", httpMethod = "GET", tags = {"字典管理接口"})
     @GetMapping("/level")
@@ -102,7 +105,7 @@ public class CodeController {
     public String getPositionLevels(){
         List<SYS_CODE> codes=codeService.selectPositionLevel();
         if (codes!=null){
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codes,null).getJson();
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,codeService.buildTree(codes),null).getJson();
         }else {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }

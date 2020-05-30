@@ -11,8 +11,10 @@ import org.nutz.dao.sql.Criteria;
 import org.nutz.dao.util.cri.SimpleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.util.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CodeServiceImpl implements CodeService {
@@ -197,7 +199,9 @@ public class CodeServiceImpl implements CodeService {
     public List<SYS_CODE> selectPositionLevel(){
         List<SYS_CODE> list=new ArrayList<>();
         Criteria criteria= Cnd.cri();
-        criteria.where().andEquals("parent_id","165");
+        String[] arr={"165","600","601","613","625","633","645","658"};
+        criteria.where().andInStrArray("parent_id",arr);
+        criteria.getOrderBy().asc("code_order");
         list=dao.query(SYS_CODE.class,criteria);
         if (list.size()>0){
             return list;
@@ -229,5 +233,47 @@ public class CodeServiceImpl implements CodeService {
         }else {
             return null;
         }
+    }
+
+    @Override
+    public Object buildTree(List<SYS_CODE> unitList) {
+        Set<SYS_CODE> trees = new LinkedHashSet<>();
+        Set<SYS_CODE> depts = new LinkedHashSet<>();
+        List<String> deptNames = unitList.stream().map(SYS_CODE::getCodeName).collect(Collectors.toList());
+        Boolean isChild;
+        for (SYS_CODE deptDTO : unitList) {
+            isChild = false;
+//            if (deptDTO.getId().contains(punit.getId())){
+//                trees.add(punit);
+//            }
+            for (SYS_CODE it : unitList) {
+                if (deptDTO.getId().equals(it.getParentId())) {
+                    if (deptDTO.getChildren() == null) {
+                        deptDTO.setChildren(new ArrayList<SYS_CODE>());
+                    }
+                    deptDTO.getChildren().add(it);
+                }
+                if (it.getId().equals(deptDTO.getParentId())) {
+                    isChild = true;
+                }
+            }
+            String name = "";
+            List<SYS_CODE> unit = dao.query(SYS_CODE.class, Cnd.where("id", "=", deptDTO.getId()));
+            if (unit.size() > 0) {
+                name = unit.get(0).getCodeName();
+            }
+            if (!isChild)
+                depts.add(deptDTO);
+            else if (!deptNames.contains(name))
+                depts.add(deptDTO);
+        }
+
+        if (CollectionUtils.isEmpty(trees)) {
+            trees = depts;
+        }
+        Integer totalElements = unitList != null ? unitList.size() : 0;
+        Map map = new HashMap();
+        map.put("content", CollectionUtils.isEmpty(trees) ? unitList : trees);
+        return CollectionUtils.isEmpty(trees) ? unitList : trees;
     }
 }

@@ -7,6 +7,7 @@ import org.nutz.dao.entity.annotation.*;
 
 import javax.persistence.GeneratedValue;
 import java.io.Serializable;
+import java.util.List;
 
 @ApiModel("系统字典表")//用在模型类上，对模型类做注释；
 @Table("SYS_CODE")
@@ -49,6 +50,16 @@ public class SYS_CODE implements Serializable {
     private String label;
 
     private String text;
+
+    private List<SYS_CODE> children;
+
+    public List<SYS_CODE> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SYS_CODE> children) {
+        this.children = children;
+    }
 
     public String getText() {
         return codeName;

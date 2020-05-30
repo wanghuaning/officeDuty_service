@@ -1585,8 +1585,7 @@ public class DataManager {
                             people.setEducation(education.getName());
                         }
                         service.updatePeople(people);
-                        RankController rankController=new RankController();
-                        rankController.saveNowRank(people.getId());
+                        saveNowRank(people.getId(),rankService);
                     }
                 }
             } else {
@@ -1599,7 +1598,20 @@ public class DataManager {
         }
         return peopleList;
     }
-
+    public static void saveNowRank(String pid,RankService rankService){
+        SYS_Rank rank=rankService.selectRankByPidOrderByTime(pid);
+        if (rank!=null){
+            rank.setRankOrder(1);
+            rankService.updateRank(rank);
+            List<SYS_Rank> rankList=rankService.selectRanksByPeopleId(pid);
+            for (SYS_Rank rank1:rankList){
+                if (!rank.getId().equals(rank1.getId())){
+                    rank1.setRankOrder(0);
+                    rankService.updateRank(rank1);
+                }
+            }
+        }
+    }
     /**
      * 人员基本信息
      *

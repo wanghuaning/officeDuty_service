@@ -37,4 +37,6 @@ public interface CodeService {
     List<SYS_CODE> selectCodesByPid(String pid);
 
     SYS_CODE selectCodeByName(String name,String pcode);
+
+    Object buildTree(List<SYS_CODE> unitList);
 }
