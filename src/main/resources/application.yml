@@ -16,6 +16,7 @@ spring:
       max-request-size: 400MB
 logging:
   file: "C:/log/service_log.log"
+  
   level:
     root: INFO
 swagger:

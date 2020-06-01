@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -100,6 +101,7 @@ public class DutyController {
                 duty.setUnitId(people.getUnitId());
                 dutyService.insertDuty(duty);
                 setPeopleInfo(people,dutyService,peopleService,rankService);
+                saveNowDuty(people.getId());
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.ADD_SUCCESS, duty, null).getJson();
             }else {
                 return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
@@ -135,6 +137,7 @@ public class DutyController {
                     if (sd){
                         dutyService.deleteDuty(id);
                         setPeopleInfo(people,dutyService,peopleService,rankService);
+                        saveNowDuty(duty.getPeopleId());
                         return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
                     }else {
                         return new Result(ResultCode.ERROR.toString(), "权限不足！", null, null).getJson();
@@ -162,6 +165,7 @@ public class DutyController {
                     duty.setUnitId(people.getUnitId());
                     dutyService.updateDuty(duty);
                     setPeopleInfo(people,dutyService,peopleService,rankService);
+                    saveNowDuty(dutyById.getPeopleId());
                     return new Result(ResultCode.SUCCESS.toString(), ResultMsg.UPDATE_SUCCESS, duty, null).getJson();
                 }else {
                     return new Result(ResultCode.ERROR.toString(), "人员不存在", null, null).getJson();
@@ -172,6 +176,21 @@ public class DutyController {
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.UPDATE_ERROR, null, null).getJson();
+        }
+    }
+
+    public void saveNowDuty(String pid) {
+        SYS_Duty duty = dutyService.selectDutyByPidOrderByTime(pid);
+        if (duty != null) {
+            duty.setRankOrder(1);
+            dutyService.updateDuty(duty);
+            List<SYS_Duty> dutyList = dutyService.selectDutysByPeopleId(pid);
+            for (SYS_Duty duty1 : dutyList) {
+                if (!duty.getId().equals(duty1.getId())) {
+                    duty1.setRankOrder(0);
+                    dutyService.updateDuty(duty1);
+                }
+            }
         }
     }
     @ApiOperation(value = "职务权限", notes = "职务权限", httpMethod = "POST", tags = "职务权限接口")

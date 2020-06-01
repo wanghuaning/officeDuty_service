@@ -1869,6 +1869,7 @@ public class DataManager {
             String creatTime = String.valueOf(map.get("现任职务时间"));
             if (!StrUtils.isBlank(creatTime)) {
                 duty.setCreateTime(DateUtil.stringToDate(creatTime));
+                duty.setApprovalTime(DateUtil.stringToDate(creatTime));
             }
             duty.setDutyType(StrUtils.toNullStr(map.get("现任职务")));
             duty.setName(StrUtils.toNullStr(map.get("职务名称")));
@@ -1925,6 +1926,7 @@ public class DataManager {
             String creatTime = String.valueOf(map.get("实名制现任职务时间"));
             if (!StrUtils.isBlank(creatTime)) {
                 duty.setCreateTime(DateUtil.stringToDate(creatTime));
+                duty.setApprovalTime(DateUtil.stringToDate(creatTime));
             }
             duty.setDutyType(StrUtils.toNullStr(map.get("现任职务")));
             duty.setName(StrUtils.toNullStr(map.get("实名制职务名称")));
@@ -5138,38 +5140,38 @@ public class DataManager {
         model.setXianyoufuke(regList.get(4));
         model.setXianyouganbu(regList.get(5));
         model.setHezhunoneTowClerkNum(regList.get(6));
-        model.setHezhunthreeFourClerkNum(regList.get(7));
-        model.setXianyouoneTowClerkNum(regList.get(8));
-        model.setXianyouoneClerkNum(regList.get(9));
-        model.setXianyoutowClerkNum(regList.get(10));
-        model.setXianyouOneTowJunZhuanNum(regList.get(11));
-        model.setXianyouthreeFourClerkNum(regList.get(12));
-        model.setXianyouThreeClerkNum(regList.get(13));
-        model.setXianyouFourClerkNum(regList.get(14));
-        model.setXianyouThreeFourJunZhuanNum(regList.get(15));
-        model.setNijinshengzhengke(regList.get(16));
-        model.setNijinshengfuke(regList.get(17));
-        model.setNijinshengganbu(regList.get(18));
-        model.setNijinshengoneClerkNum(regList.get(19));
-        model.setNijinshengtowClerkNum(regList.get(20));
-        model.setNijinshengThreeClerkNum(regList.get(21));
-        model.setNijinshengFourClerkNum(regList.get(22));
-        model.setNijinshengJianZhioneClerkNum(regList.get(23));
-        model.setNijinshengJiantowClerkNum(regList.get(24));
-        model.setNijinshengJianThreeClerkNum(regList.get(25));
-        model.setZhengkeGaitowClerkNum(regList.get(26));
-        model.setFukeGaiFourClerkNum(regList.get(27));
-        model.setTiaozhengzhengke(regList.get(29));
-        model.setTiaozhengfuke(regList.get(30));
-        model.setTiaozhengganbu(regList.get(31));
-        model.setTiaozhengoneTowClerkNum(regList.get(32));
-        model.setTiaozhengoneClerkNum(regList.get(33));
-        model.setTiaozhengtowClerkNum(regList.get(34));
-        model.setTiaozhengOneTowJunZhuanNum(regList.get(35));
-        model.setTiaozhenghreeFourClerkNum(regList.get(36));
-        model.setTiaozhengThreeClerkNum(regList.get(37));
-        model.setTiaozhengFourClerkNum(regList.get(38));
-        model.setTiaozhengThreeFourJunZhuanNum(regList.get(39));
+        model.setHezhunthreeFourClerkNum(regList.get(8));
+        model.setXianyouoneTowClerkNum(regList.get(10));
+        model.setXianyouoneClerkNum(regList.get(11));
+        model.setXianyoutowClerkNum(regList.get(12));
+        model.setXianyouOneTowJunZhuanNum(regList.get(13));
+        model.setXianyouthreeFourClerkNum(regList.get(14));
+        model.setXianyouThreeClerkNum(regList.get(15));
+        model.setXianyouFourClerkNum(regList.get(16));
+        model.setXianyouThreeFourJunZhuanNum(regList.get(17));
+        model.setNijinshengzhengke(regList.get(18));
+        model.setNijinshengfuke(regList.get(19));
+        model.setNijinshengganbu(regList.get(20));
+        model.setNijinshengoneClerkNum(regList.get(21));
+        model.setNijinshengtowClerkNum(regList.get(22));
+        model.setNijinshengThreeClerkNum(regList.get(23));
+        model.setNijinshengFourClerkNum(regList.get(24));
+        model.setNijinshengJianZhioneClerkNum(regList.get(25));
+        model.setNijinshengJiantowClerkNum(regList.get(26));
+        model.setNijinshengJianThreeClerkNum(regList.get(27));
+        model.setZhengkeGaitowClerkNum(regList.get(28));
+        model.setFukeGaiFourClerkNum(regList.get(29));
+        model.setTiaozhengzhengke(regList.get(30));
+        model.setTiaozhengfuke(regList.get(31));
+        model.setTiaozhengganbu(regList.get(32));
+        model.setTiaozhengoneTowClerkNum(regList.get(33));
+        model.setTiaozhengoneClerkNum(regList.get(34));
+        model.setTiaozhengtowClerkNum(regList.get(35));
+        model.setTiaozhengOneTowJunZhuanNum(regList.get(36));
+        model.setTiaozhenghreeFourClerkNum(regList.get(37));
+        model.setTiaozhengThreeClerkNum(regList.get(38));
+        model.setTiaozhengFourClerkNum(regList.get(39));
+        model.setTiaozhengThreeFourJunZhuanNum(regList.get(40));
         List<RankModel> rankModels=new ArrayList<>();
         List<String> peopleIds=new ArrayList<>();
         for (Map<String, Object> map:rankList){

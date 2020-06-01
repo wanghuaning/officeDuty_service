@@ -2,6 +2,7 @@ package com.local.service;
 
 import com.local.entity.sys.SYS_Duty;
 import com.local.entity.sys.SYS_People;
+import com.local.entity.sys.SYS_Rank;
 import org.nutz.dao.QueryResult;
 
 import java.util.Date;
@@ -28,4 +29,12 @@ public interface DutyService {
     List<SYS_Duty> selectDutysByUnitId(String unitId, String isChild);//根据单位ID查询，是否包含下级单位的 人员1:包含
     List<SYS_Duty> selectDutysByUnitId(String unitId);
     List<SYS_Duty> selectDutysByUnitIds(List<String> unitIds);
+
+    List<SYS_Duty> selectDutysByPids(Date startTime, Date endTime, String pids, String status, String rankInArr, String types);
+    List<SYS_Duty> selectBeforeDutysByPids(String pids,String status,String rankInArr,String issm);
+
+    List<SYS_Duty> selectDutysByrankOrder(String rankOrder,String status);
+    SYS_Duty selectDutysByPidAndStatus(String pid,String status);
+    SYS_Duty selectDutysByPidAndStatusOtherId(String pid,String status,String id);
+    SYS_Duty selectDutyByPidAndOverTime(String peopleId, Date createTime);
 }

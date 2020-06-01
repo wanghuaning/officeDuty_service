@@ -3673,7 +3673,6 @@ public class DataController {
             }
         }
     }
-
     @ApiOperation(value = "领导职务情况统计表", notes = "领导职务情况统计表", httpMethod = "POST", tags = "领导职务情况统计表接口")
     @PostMapping(value = "/dutyCountTable")
     @ResponseBody
@@ -4062,7 +4061,6 @@ public class DataController {
                  jianshaodiaozou=0,afterrank=0,afterjunrank=0,afterchaozhirank=0;
                 String[] dutyArr = {"一级调研员','二级调研员", "一级调研员", "二级调研员","三级调研员','四级调研员",  "三级调研员", "四级调研员",
                         "一级主任科员','二级主任科员","一级主任科员", "二级主任科员","三级主任科员','四级主任科员", "三级主任科员", "四级主任科员", "一级科员", "二级科员"};
-
                 for (int i = 0; i < dutyArr.length; i++) {
                     String rankInArr="('"+dutyArr[i]+"')";
                     RankCountModel model = new RankCountModel();
@@ -4143,6 +4141,45 @@ public class DataController {
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, rankCountModels, modelMap).getJson();
         } else{
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+        }
+    }
+
+    @ApiOperation(value = "数据整理", notes = "数据整理", httpMethod = "POST", tags = "数据整理接口")
+    @RequestMapping(value = "/shujuzhengli")
+            public String shujuzhengli(HttpServletResponse response) {
+        try {
+            List<SYS_Rank> rankList = rankService.selectRanksByrankOrder("0","在任");
+            if (rankList!=null){
+                for (SYS_Rank rank:rankList){
+                    SYS_Rank sys_rank=rankService.selectRankByPidAndOverTime(rank.getPeopleId(),rank.getCreateTime());
+                    if (sys_rank!=null){
+                        rank.setStatus("已免");
+                        rank.setDeposeTime(sys_rank.getCreateTime());
+                        if (!StrUtils.isBlank(sys_rank.getApprovalTime())){
+                            rank.setServeApprovalTime(sys_rank.getApprovalTime());
+                        }
+                        rankService.updateRank(rank);
+                    }
+                }
+            }
+            List<SYS_Duty> dutyList = dutyService.selectDutysByrankOrder("0","在任");
+            if (rankList!=null){
+                for (SYS_Duty duty:dutyList){
+                    SYS_Duty sys_rank=dutyService.selectDutyByPidAndOverTime(duty.getPeopleId(),duty.getCreateTime());
+                    if (sys_rank!=null){
+                        duty.setStatus("已免");
+                        duty.setServeTime(sys_rank.getCreateTime());
+                        if (!StrUtils.isBlank(sys_rank.getApprovalTime())){
+                            duty.setServeApprovalTime(sys_rank.getApprovalTime());
+                        }
+                        dutyService.updateDuty(duty);
+                    }
+                }
+            }
+            return new Result(ResultCode.SUCCESS.toString(), "整理成功", rankList, null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_EXCEL_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
 }

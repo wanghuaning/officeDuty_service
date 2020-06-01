@@ -142,6 +142,15 @@ public class RankServiceImpl implements RankService {
         }
     }
     @Override
+    public SYS_Rank selectRankByPidAndOverTime(String peopleId, Date createTime){
+        List<SYS_Rank> rankList=dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", peopleId).and("create_Time",">",createTime).orderBy("create_Time","desc"));
+        if (rankList.size() > 0) {
+            return rankList.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
     public List<SYS_Rank> selectRanksByPeopleId(String pid) {
         List<SYS_Rank> list = new ArrayList<>();
         Criteria cir = Cnd.cri();
@@ -315,6 +324,44 @@ public class RankServiceImpl implements RankService {
         List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
         if (!StrUtils.isBlank(list) && list.size() > 0) {
             return list;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SYS_Rank> selectRanksByrankOrder(String rankOrder,String status){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("rankOrder", rankOrder).andEquals("status",status);
+        List<SYS_Rank> peoples = new ArrayList<>();
+        List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public SYS_Rank selectRanksByPidAndStatus(String pid,String status){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("people_Id", pid).andEquals("status",status);
+        List<SYS_Rank> peoples = new ArrayList<>();
+        List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Rank selectRanksByPidAndStatusOtherId(String pid,String status,String id){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("people_Id", pid).andEquals("status",status).andNotEquals("id",id);
+        List<SYS_Rank> peoples = new ArrayList<>();
+        List<SYS_Rank> list = dao.query(SYS_Rank.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list.get(0);
         } else {
             return null;
         }

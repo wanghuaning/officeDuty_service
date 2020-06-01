@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class DutyCountModel {
+    private String title;
+    private int rowIndex;
     private String name;
     private String total;
     private String hedingheji;

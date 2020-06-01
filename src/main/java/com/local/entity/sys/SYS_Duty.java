@@ -155,6 +155,34 @@ public class SYS_Duty implements Serializable {
   @ColDefine(type = ColType.VARCHAR, width = 32)
   private String serveDuty;
 
+  @ApiModelProperty("分类1：当前，0：已免")
+  @Comment("分类1：当前，0：已免")
+  @Column("rankOrder")
+  @ColDefine(type = ColType.INT, width = 1)
+  private Integer rankOrder=1;
+
+  @ApiModelProperty("单位名称")
+  @Comment("单位名称")
+  @Column("unitName")
+  @ColDefine(type = ColType.VARCHAR, width = 128)
+  private String unitName;
+
+  public Integer getRankOrder() {
+    return rankOrder;
+  }
+
+  public void setRankOrder(Integer rankOrder) {
+    this.rankOrder = rankOrder;
+  }
+
+  public String getUnitName() {
+    return unitName;
+  }
+
+  public void setUnitName(String unitName) {
+    this.unitName = unitName;
+  }
+
   public String getServeDuty() {
     return serveDuty;
   }

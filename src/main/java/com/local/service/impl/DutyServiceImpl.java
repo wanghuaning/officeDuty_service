@@ -6,20 +6,21 @@ import com.local.entity.sys.SYS_People;
 import com.local.entity.sys.SYS_Rank;
 import com.local.entity.sys.SYS_UNIT;
 import com.local.service.DutyService;
+import com.local.util.NutzDaoUtil;
 import com.local.util.StrUtils;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
+import org.nutz.dao.Sqls;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.sql.Criteria;
+import org.nutz.dao.sql.Sql;
 import org.nutz.dao.util.cri.SimpleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class DutyServiceImpl implements DutyService {
@@ -283,5 +284,81 @@ public class DutyServiceImpl implements DutyService {
     @SLog(tag = "修改职务", type = "U")
     public void updateDuty(SYS_Duty duty) {
         dao.update(duty);
+    }
+
+    public List<SYS_Duty> selectDutysByPids(Date startTime, Date endTime, String pids, String status, String rankInArr, String types){
+        String sqlIn = "select id from (SELECT  ROW_NUMBER() over  (PARTITION By people_Id order by create_Time desc) as rowId,sys_duty.*  FROM sys_duty) t where people_Id in ('"+pids+"') and rowid <= 1";
+        String sqls="select * from sys_duty where create_Time >=@startTime and create_Time <=@endTime and status =@status and name in "+rankInArr+" and id in("+sqlIn+")";
+        if ("实名制".equals(types)){
+            sqls="select * from sys_duty d INNER JOIN sys_people p ON d.people_Id = p.id where d.create_Time >=@startTime and d.create_Time <=@endTime and d.status =@status and d.name in "+rankInArr+" and d.id in("+sqlIn+") and p.real_Name='是'";
+        }
+        Sql sql = Sqls.create(sqls);
+        Map<String,Object> map = new HashMap<>();
+        map.put("startTime",startTime);
+        map.put("endTime",endTime);
+        map.put("status",status);
+        SYS_Duty rank = new SYS_Duty();
+        List<SYS_Duty> list = NutzDaoUtil.getQueryBySqlParams(rank,sql,SYS_Duty.class,dao,map);
+        return list;
+    }
+    @Override
+    public List<SYS_Duty> selectBeforeDutysByPids(String pids,String status,String rankInArr,String issm){
+        String sqlIn = "select id from (SELECT ROW_NUMBER() over (PARTITION By people_Id order by create_Time desc) as rowId,sys_duty.* FROM sys_duty where rankOrder=0) t where people_Id in ('"+pids+"') and rowid <= 1";
+        String sqls="select * from sys_duty where status =@status and name in "+rankInArr+" and id in("+sqlIn+")";
+        if ("是".equals(issm)){
+            sqls="select * from sys_duty d INNER JOIN sys_people p ON d.people_Id = p.id where d.status =@status and d.name in "+rankInArr+" and p.real_Name='是' and d.id in("+sqlIn+")";
+        }
+        Sql sql = Sqls.create(sqls);
+        Map<String,Object> map = new HashMap<>();
+        map.put("status",status);
+        SYS_Duty rank = new SYS_Duty();
+        List<SYS_Duty> list = NutzDaoUtil.getQueryBySqlParams(rank,sql,SYS_Duty.class,dao,map);
+        return list;
+    }
+
+    @Override
+    public List<SYS_Duty> selectDutysByrankOrder(String rankOrder,String status){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("rankOrder", rankOrder).andEquals("status",status);
+        List<SYS_Duty> peoples = new ArrayList<>();
+        List<SYS_Duty> list = dao.query(SYS_Duty.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list;
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Duty selectDutysByPidAndStatus(String pid,String status){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("people_Id", pid).andEquals("status",status);
+        List<SYS_Duty> peoples = new ArrayList<>();
+        List<SYS_Duty> list = dao.query(SYS_Duty.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Duty selectDutysByPidAndStatusOtherId(String pid,String status,String id){
+        Criteria cri = Cnd.cri();
+        cri.where().andEquals("people_Id", pid).andEquals("status",status).andNotEquals("id",id);
+        List<SYS_Duty> peoples = new ArrayList<>();
+        List<SYS_Duty> list = dao.query(SYS_Duty.class, cri);
+        if (!StrUtils.isBlank(list) && list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public SYS_Duty selectDutyByPidAndOverTime(String peopleId, Date createTime){
+        List<SYS_Duty> rankList=dao.query(SYS_Duty.class, Cnd.where("people_Id", "=", peopleId).and("create_Time",">",createTime).orderBy("create_Time","desc"));
+        if (rankList.size() > 0) {
+            return rankList.get(0);
+        } else {
+            return null;
+        }
     }
 }
