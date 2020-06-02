@@ -19,11 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -75,36 +80,36 @@ public class PeopleController {
                              @RequestParam(value = "rank[]", required = false) String[] rank,
                              @RequestParam(value = "isChild", required = false) String isChild, HttpServletRequest request) {
         try {
-            List<String> unitIds=new ArrayList<>();
+            List<String> unitIds = new ArrayList<>();
             if (StrUtils.isBlank(unitId)) {
                 SYS_USER user = UserManager.getUserToken(request, userService, unitService, peopleService);
                 if (user != null) {
                     unitId = user.getUnitId();
                 }
             }
-            if (!StrUtils.isBlank(unitName)){
-                SYS_UNIT unit=unitService.selectUnitByName(unitName);
-                if (unit!=null){
-                    unitId=unit.getId();
+            if (!StrUtils.isBlank(unitName)) {
+                SYS_UNIT unit = unitService.selectUnitByName(unitName);
+                if (unit != null) {
+                    unitId = unit.getId();
                 }
             }
             if ("true".equals(isChild)) {
                 unitIds.add(unitId);
-               List<String> unitIdst=unitService.selectAllChildUnitIds(unitId);
-               if (unitIdst.size()>0){
-                   unitIds.addAll(unitIdst);
-               }
-            }else {
+                List<String> unitIdst = unitService.selectAllChildUnitIds(unitId);
+                if (unitIdst.size() > 0) {
+                    unitIds.addAll(unitIdst);
+                }
+            } else {
                 unitIds.add(unitId);
             }
-            List<SYS_People> peopleList=peopleService.selectNotPeopleChinaName();
-            if (peopleList!=null){
-                for (SYS_People people:peopleList){
+            List<SYS_People> peopleList = peopleService.selectNotPeopleChinaName();
+            if (peopleList != null) {
+                for (SYS_People people : peopleList) {
                     people.setChineseEncoder(HanyuPinyinUtil.toHanyuPinyin(people.getName()));
                     peopleService.updatePeople(people);
                 }
             }
-            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitIds, name, idcard, politicalStatus, states,detail,position,rank);
+            QueryResult queryResult = peopleService.selectPeoples(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), unitIds, name, idcard, politicalStatus, states, detail, position, rank);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
@@ -175,8 +180,8 @@ public class PeopleController {
             if (StrUtils.isBlank(id)) {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             } else {
-                SYS_People people=peopleService.selectPeopleById(id);
-                SYS_UNIT unit=unitService.selectUnitById(people.getUnitId());
+                SYS_People people = peopleService.selectPeopleById(id);
+                SYS_UNIT unit = unitService.selectUnitById(people.getUnitId());
                 peopleService.deletePeople(id);
                 List<SYS_USER> userList = userService.selectUsersByPeopleId(id);
                 if (userList != null) {
@@ -184,7 +189,7 @@ public class PeopleController {
                         userService.deleteUser(user.getId());
                     }
                 }
-                if (unit!=null){
+                if (unit != null) {
                     saveUnitDataByPeople(unit);
                 }
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.DEL_SUCCESS, id, null).getJson();
@@ -195,21 +200,22 @@ public class PeopleController {
         }
     }
 
-    public void saveUnitDataByPeople(SYS_UNIT unit){
-        List<SYS_People> peopleList=peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(),"事业编制（参公）");
-        if (peopleList!=null){
+    public void saveUnitDataByPeople(SYS_UNIT unit) {
+        List<SYS_People> peopleList = peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(), "事业编制（参公）");
+        if (peopleList != null) {
             unit.setReferOfficialRealNum(Long.valueOf(peopleList.size()));
-        }else {
+        } else {
             unit.setReferOfficialRealNum(0l);
         }
-        List<SYS_People> peopleList2=peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(),"行政编制");
-        if (peopleList2!=null){
+        List<SYS_People> peopleList2 = peopleService.selectPeoplesByUnitIdAndPoliticalStatus(unit.getId(), "行政编制");
+        if (peopleList2 != null) {
             unit.setOfficialRealNum(Long.valueOf(peopleList2.size()));
-        }else {
+        } else {
             unit.setReferOfficialRealNum(0l);
         }
         unitService.updateUnit(unit);
     }
+
     @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
     @RequestMapping(value = "/outExcel")
     public String getPeopleExcel(HttpServletRequest request, HttpServletResponse response,
@@ -233,79 +239,82 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_EXCEL_ERROR, null, null).getJson();
         }
     }
-    private final String filePathStr="C:\\RM\\file\\json";
-  @ApiOperation(value = "导出调出人员信息", notes = "导出调出人员信息", httpMethod = "POST", tags = "导出调出人员信息接口")
-  @RequestMapping(value = "/outOutPeopleExcel")
-  public String outOutPeopleExcel(HttpServletRequest request, HttpServletResponse response,
-                               @RequestParam(value = "unitId", required = false) String unitId,
-                               @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
-      try {
-          if (StrUtils.isBlank(peopleIds)){
-              return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
-          }
-          SYS_UNIT unit=unitService.selectUnitById(unitId);
-          List<Object> objects = new ArrayList<>();
-          //从请求的header中取出当前登录的登录
-          List<File> srcfile = new ArrayList<File>();
-          for (String peopleId: peopleIds){
-              List<SYS_People> peopleList = new ArrayList<>();
-              SYS_People people = peopleService.selectPeopleById(peopleId);
-              if (people != null) {
-                  if (people.getStates().contains("调出")) {
-                      Map<String, Object> paramsMap = new HashMap<>();
-                      paramsMap.put("note", "调出");
-                      paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
-                      paramsMap.put("peopleId", peopleId);
-                      paramsMap.put("idCard", people.getIdcard());
-                      Map<String, Object> resultMap = new HashMap<>();
-                      peopleList.add(people);
-                      JSONArray peoples = JSONArray.fromObject(peopleList);
-                      resultMap.put("peopleList", peoples);
-                      objects.add(peoples);
-                      List<SYS_Duty> dutyList = DataManager.getOutPeopleDutyJson(resultMap, people, dutyService);
-                      objects.addAll(dutyList);
-                      List<SYS_Rank> rankList = DataManager.getOutPeopleRankJson(resultMap, people, rankService);
-                      objects.addAll(rankList);
-                      List<SYS_Education> educationList = DataManager.getOutPeopleEducationJson(resultMap, people, educationService);
-                      objects.addAll(educationList);
-                      List<SYS_Reward> rewardList = DataManager.getOutPeopleRewardJson(resultMap, people, rewardService);
-                      objects.addAll(rankList);
-                      List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
-                      objects.addAll(assessmentList);
-                      JSONObject resultList = JSONObject.fromObject(resultMap);
-                      paramsMap.put("result", resultList);
-                      JSONObject resultJson = JSONObject.fromObject(paramsMap);
-                      byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
-                      String paramsCipher = AESUtil.parseByte2HexStr(encode);
-                      ZipUtil.getFile(filePathStr);
-                      String filePath=filePathStr+"\\"+people.getName()+"_调出信息.json";
-                      File file = new File(filePath);
-                      Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-                      writer.write(paramsCipher);
-                      srcfile.add(file);
-                      writer.flush();
-                      writer.close();
-                  }
-              } else {
-                  return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
-              }
-          }
-          ZipUtil.zipFiles(srcfile,response,"批量导出调出人员信息",request);
-          return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
-      } catch (Exception e) {
-          logger.error(ResultMsg.GET_ERROR, e);
-          return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
-      } finally {
-          ZipUtil.delFile(new File(filePathStr));
-      }
-  }
-  /**
-   * 已取消使用
-   *
-   * @param excelFile
-   * @param fullImport
-   * @return
-   */
+
+    private final String filePathStr = "C:\\RM\\file\\json";
+
+    @ApiOperation(value = "导出调出人员信息", notes = "导出调出人员信息", httpMethod = "POST", tags = "导出调出人员信息接口")
+    @RequestMapping(value = "/outOutPeopleExcel")
+    public String outOutPeopleExcel(HttpServletRequest request, HttpServletResponse response,
+                                    @RequestParam(value = "unitId", required = false) String unitId,
+                                    @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds) {
+        try {
+            if (StrUtils.isBlank(peopleIds)) {
+                return new Result(ResultCode.ERROR.toString(), ResultMsg.EXP_NOT, null, null).getJson();
+            }
+            SYS_UNIT unit = unitService.selectUnitById(unitId);
+            List<Object> objects = new ArrayList<>();
+            //从请求的header中取出当前登录的登录
+            List<File> srcfile = new ArrayList<File>();
+            for (String peopleId : peopleIds) {
+                List<SYS_People> peopleList = new ArrayList<>();
+                SYS_People people = peopleService.selectPeopleById(peopleId);
+                if (people != null) {
+                    if (people.getStates().contains("调出")) {
+                        Map<String, Object> paramsMap = new HashMap<>();
+                        paramsMap.put("note", "调出");
+                        paramsMap.put("dataId", peopleId + DateUtil.getDateNum(new Date()));
+                        paramsMap.put("peopleId", peopleId);
+                        paramsMap.put("idCard", people.getIdcard());
+                        Map<String, Object> resultMap = new HashMap<>();
+                        peopleList.add(people);
+                        JSONArray peoples = JSONArray.fromObject(peopleList);
+                        resultMap.put("peopleList", peoples);
+                        objects.add(peoples);
+                        List<SYS_Duty> dutyList = DataManager.getOutPeopleDutyJson(resultMap, people, dutyService);
+                        objects.addAll(dutyList);
+                        List<SYS_Rank> rankList = DataManager.getOutPeopleRankJson(resultMap, people, rankService);
+                        objects.addAll(rankList);
+                        List<SYS_Education> educationList = DataManager.getOutPeopleEducationJson(resultMap, people, educationService);
+                        objects.addAll(educationList);
+                        List<SYS_Reward> rewardList = DataManager.getOutPeopleRewardJson(resultMap, people, rewardService);
+                        objects.addAll(rankList);
+                        List<SYS_Assessment> assessmentList = DataManager.getOutPeopleAssessmentJson(resultMap, people, assessmentService);
+                        objects.addAll(assessmentList);
+                        JSONObject resultList = JSONObject.fromObject(resultMap);
+                        paramsMap.put("result", resultList);
+                        JSONObject resultJson = JSONObject.fromObject(paramsMap);
+                        byte[] encode = AESUtil.encrypt(resultJson.toString(), AESUtil.privateKey);
+                        String paramsCipher = AESUtil.parseByte2HexStr(encode);
+                        ZipUtil.getFile(filePathStr);
+                        String filePath = filePathStr + "\\" + people.getName() + "_调出信息.json";
+                        File file = new File(filePath);
+                        Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+                        writer.write(paramsCipher);
+                        srcfile.add(file);
+                        writer.flush();
+                        writer.close();
+                    }
+                } else {
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
+                }
+            }
+            ZipUtil.zipFiles(srcfile, response, "批量导出调出人员信息", request);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_EXCEL_SUCCESS, "ok!", null).getJson();
+        } catch (Exception e) {
+            logger.error(ResultMsg.GET_ERROR, e);
+            return new Result(ResultCode.ERROR.toString(), e.toString(), null, null).getJson();
+        } finally {
+            ZipUtil.delFile(new File(filePathStr));
+        }
+    }
+
+    /**
+     * 已取消使用
+     *
+     * @param excelFile
+     * @param fullImport
+     * @return
+     */
     @ApiOperation(value = "导入人员", notes = "导入人员", httpMethod = "POST", tags = "导入人员接口")
     @RequestMapping(value = "/import")
     public String importPeopleExcel(@RequestParam("excelFile") MultipartFile excelFile, @RequestParam(value = "fullImport", required = false) String fullImport) {
@@ -366,10 +375,10 @@ public class PeopleController {
                                 @RequestParam(value = "unitId", required = false) String unitId,
                                 @RequestParam(value = "states", required = false) String states, HttpServletRequest request) {
         try {
-            if (!"全部".equals(states)&& !StrUtils.isBlank(states)){
-                int month=DateUtil.getMonth(new Date());
-                int index=Integer.valueOf(states)-month+1;
-                states=String.valueOf(index);
+            if (!"全部".equals(states) && !StrUtils.isBlank(states)) {
+                int month = DateUtil.getMonth(new Date());
+                int index = Integer.valueOf(states) - month + 1;
+                states = String.valueOf(index);
             }
             String[] arr;
             if (!"true".equals(isChild)) {
@@ -385,18 +394,54 @@ public class PeopleController {
             }
             Pager pager = new Pager();
             List<SYS_People> peopleList = new ArrayList<>();
-            PeopleManager.getRetireInfoData(peopleList, arr, states,peopleService,unitService);
-            pager.setPageNumber(Integer.parseInt(pageNumber)+1);
+            PeopleManager.getRetireInfoData(peopleList, arr, states, peopleService, unitService);
+            pager.setPageNumber(Integer.parseInt(pageNumber) + 1);
             pager.setPageSize(Integer.parseInt(pageSize));
             pager.setRecordCount(peopleList.size());
-            QueryResult queryResult = new QueryResult(peopleList, pager);
-            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
+            QueryResult queryResult = new QueryResult(startPage(peopleList,Integer.parseInt(pageNumber) + 1,Integer.parseInt(pageSize)), pager);
+            return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS,queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+    /**
+     * 开始分页
+     * @param list
+     * @param pageNum 页码
+     * @param pageSize 每页多少条数据
+     * @return
+     */
+    public static <T> List<T> startPage(List<T> list, Integer pageNum,
+                                 Integer pageSize) {
+        if (list == null) {
+            return null;
+        }
+        if (list.size() == 0) {
+            return null;
+        }
 
+        Integer count = list.size(); // 记录总数
+        Integer pageCount = 0; // 页数
+        if (count % pageSize == 0) {
+            pageCount = count / pageSize;
+        } else {
+            pageCount = count / pageSize + 1;
+        }
+
+        int fromIndex = 0; // 开始索引
+        int toIndex = 0; // 结束索引
+
+        if (pageNum != pageCount) {
+            fromIndex = (pageNum - 1) * pageSize;
+            toIndex = fromIndex + pageSize;
+        } else {
+            fromIndex = (pageNum - 1) * pageSize;
+            toIndex = count;
+        }
+        List pageList = list.subList(fromIndex, toIndex);
+        return pageList;
+}
     @ApiOperation(value = "导出人员信息", notes = "导出人员信息", httpMethod = "POST", tags = "导出人员信息接口")
     @RequestMapping(value = "/outRetirExcel")
     public String outRetirePeopleExcel(HttpServletRequest request, HttpServletResponse response,
@@ -418,7 +463,7 @@ public class PeopleController {
                 }
             }
             List<SYS_People> peopleList = new ArrayList<>();
-            PeopleManager.getRetireInfoData(peopleList, arr, states,peopleService,unitService);
+            PeopleManager.getRetireInfoData(peopleList, arr, states, peopleService, unitService);
             ClassPathResource resource = new ClassPathResource("exportExcel/exportRetirePeopleInfo.xls");
             String path = resource.getFile().getPath();
             String[] dataArr = {"name", "unitName", "idcard", "birthday", "retireDate", "sex", "nationality", "workday", "party",
@@ -463,7 +508,7 @@ public class PeopleController {
                     return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
                 }
             }
-            QueryResult queryResult = peopleService.selectPeopleDetailInfo(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), arr, sex, party, age, duty,name,unitName);
+            QueryResult queryResult = peopleService.selectPeopleDetailInfo(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), arr, sex, party, age, duty, name, unitName);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
         } catch (Exception e) {
             logger.error(ResultMsg.GET_FIND_ERROR, e);
@@ -533,6 +578,7 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.GET_FIND_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "考核批量添加查询", notes = "考核批量添加查询", httpMethod = "GET", tags = "考核批量添加查询接口")
     @GetMapping("/addAssessmentInfo")
     @ResponseBody
@@ -549,10 +595,10 @@ public class PeopleController {
                     unitId = user.getUnitId();
                 }
             }
-            if (!StrUtils.isBlank(unitName)){
-                SYS_UNIT unit=unitService.selectUnitByName(unitName);
-                if (unit!=null){
-                    unitId=unit.getId();
+            if (!StrUtils.isBlank(unitName)) {
+                SYS_UNIT unit = unitService.selectUnitByName(unitName);
+                if (unit != null) {
+                    unitId = unit.getId();
                 }
             }
             Pager pager = new Pager();
@@ -561,13 +607,13 @@ public class PeopleController {
             if (StrUtils.isBlank(pager)) {
                 pager = new Pager();
             }
-            List<SYS_Assessment>  sys_assessmentList = assessmentService.selectAssessmentsByYears(unitId, year,name);
-            if (sys_assessmentList!=null){
-                List<AssessmentModel> modelList=PeopleManager.getAssessmentModel(sys_assessmentList);
+            List<SYS_Assessment> sys_assessmentList = assessmentService.selectAssessmentsByYears(unitId, year, name);
+            if (sys_assessmentList != null) {
+                List<AssessmentModel> modelList = PeopleManager.getAssessmentModel(sys_assessmentList);
                 pager.setRecordCount(modelList.size());
                 QueryResult queryResult = new QueryResult(modelList, pager);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
-            }else {
+            } else {
                 QueryResult queryResult = new QueryResult(new ArrayList<AssessmentModel>(), pager);
                 return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
             }
@@ -576,25 +622,26 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+
     @ApiOperation(value = "人员移动", notes = "人员移动", httpMethod = "POST", tags = "人员移动接口")
     @PostMapping(value = "/movePeoples")
     @ResponseBody
-    public String movePeoples(@RequestParam(value = "unitId", required = false) String unitId,@RequestParam(value = "peopleIds[]", required = false) String[] peopleIds,
-                              @RequestParam(value = "createDate", required = false) String createDate,@RequestParam(value = "detail", required = false) String detail) {
+    public String movePeoples(@RequestParam(value = "unitId", required = false) String unitId, @RequestParam(value = "peopleIds[]", required = false) String[] peopleIds,
+                              @RequestParam(value = "createDate", required = false) String createDate, @RequestParam(value = "detail", required = false) String detail) {
         try {
             if (StrUtils.isBlank(unitId)) {
                 return new Result(ResultCode.ERROR.toString(), "人员移动失败，请选择目标单位", null, null).getJson();
             }
-            for (String peopleId: peopleIds){
-                SYS_People people=peopleService.selectPeopleById(peopleId);
-                SYS_UNIT unit=unitService.selectUnitById(unitId);
-                if (people!=null && unit!=null){
-                    SYS_UNIT oldunit=unitService.selectUnitById(people.getUnitId());
+            for (String peopleId : peopleIds) {
+                SYS_People people = peopleService.selectPeopleById(peopleId);
+                SYS_UNIT unit = unitService.selectUnitById(unitId);
+                if (people != null && unit != null) {
+                    SYS_UNIT oldunit = unitService.selectUnitById(people.getUnitId());
                     people.setUnitId(unitId);
                     people.setUnitName(unit.getName());
                     peopleService.updatePeople(people);
-                    PeopleManager.savePeopleDetails(createDate,detail,"人员移动",peopleService,unit,oldunit, people);
-                    if (unit!=null){
+                    PeopleManager.savePeopleDetails(createDate, detail, "人员移动", peopleService, unit, oldunit, people);
+                    if (unit != null) {
                         saveUnitDataByPeople(unit);
                     }
                 }
@@ -605,12 +652,13 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), "人员变动失败", null, null).getJson();
         }
     }
+
     @ApiOperation(value = "人员信息", notes = "人员信息", httpMethod = "GET", tags = "人员信息接口")
     @GetMapping("/detailInfo")
     @ResponseBody
     public String getPeopleDetail(@RequestParam(value = "size", required = false) String pageSize,
-                             @RequestParam(value = "page", required = false) String pageNumber,
-                             @RequestParam(value = "peopleId", required = false) String peopleId, HttpServletRequest request) {
+                                  @RequestParam(value = "page", required = false) String pageNumber,
+                                  @RequestParam(value = "peopleId", required = false) String peopleId, HttpServletRequest request) {
         try {
             QueryResult queryResult = peopleService.selectPeopleDetails(Integer.parseInt(pageSize), Integer.parseInt(pageNumber), peopleId);
             return new Result(ResultCode.SUCCESS.toString(), ResultMsg.GET_FIND_SUCCESS, queryResult, null).getJson();
@@ -619,24 +667,25 @@ public class PeopleController {
             return new Result(ResultCode.ERROR.toString(), ResultMsg.LOGOUT_ERROR, null, null).getJson();
         }
     }
+
     @GetMapping("/testFile")
     @ResponseBody
-    public String addAssessmentInfo(){
-        List<SYS_Pwxk> ps= peopleService.selectpwxuke();
-        if (ps!=null){
-            int i=0;
-            for (SYS_Pwxk pwxk:ps){
+    public String addAssessmentInfo() {
+        List<SYS_Pwxk> ps = peopleService.selectpwxuke();
+        if (ps != null) {
+            int i = 0;
+            for (SYS_Pwxk pwxk : ps) {
 //                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\副本\\"+pwxk.getCode()+"_副本.doc");
-                int year =DateUtil.getYear(pwxk.getCreateDate());
+                int year = DateUtil.getYear(pwxk.getCreateDate());
 //                if(file.exists()){
 //                    i++;
 //                    System.out.println(pwxk.getName()+"=>"+year+"->"+i);
 //                    file.renameTo(new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\"+year+"年\\"+pwxk.getOrnum()+"、"+pwxk.getName()+"_副本.doc"));   //改名
 //                }else {
 //                }
-                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\"+year+"年\\"+pwxk.getOrnum()+"、"+pwxk.getName()+"_副本.doc");
-                if(!file.exists()){
-                    System.out.println(pwxk.getName()+"=>"+year+"->"+i);
+                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\" + year + "年\\" + pwxk.getOrnum() + "、" + pwxk.getName() + "_副本.doc");
+                if (!file.exists()) {
+                    System.out.println(pwxk.getName() + "=>" + year + "->" + i);
                 }
             }
         }

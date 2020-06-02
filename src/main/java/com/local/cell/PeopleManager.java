@@ -620,6 +620,7 @@ public class PeopleManager {
                             }
                         }else if (!StrUtils.isBlank(people.getPositionLevel())){
                             if (people.getPositionLevel().contains("二级调研员") || people.getPositionLevel().contains("一级调研员") || people.getPositionLevel().contains("四级调研员") || people.getPositionLevel().contains("三级调研员")) {
+                                people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                                 if (age == 60) {
                                     peopleList.add(people);
                                 }
@@ -635,6 +636,7 @@ public class PeopleManager {
                             } else if (people.getPositionLevel().contains("二级主任科员") || people.getPositionLevel().contains("一级主任科员") || people.getPositionLevel().contains("四级主任科员") || people.getPositionLevel().contains("三级主任科员") ||
                                     people.getPositionLevel().contains("一级科员") || people.getPositionLevel().contains("二级科员")) {
                                 if (people.getSex().contains("男")) {
+                                    people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                                     if (age == 60 && bmonth == nmonth) {
                                         peopleList.add(people);
                                     }
@@ -648,6 +650,7 @@ public class PeopleManager {
                                         peopleList.add(people);
                                     }
                                 } else {
+                                    people.setRetireDate(DateUtil.addYears(people.getBirthday(), 55));
                                     if (age == 55 && bmonth == nmonth) {
                                         peopleList.add(people);
                                     }
@@ -662,6 +665,7 @@ public class PeopleManager {
                                     }
                                 }
                             } else {
+                                people.setRetireDate(DateUtil.addYears(people.getBirthday(), 60));
                                 if (age == 60 && bmonth == nmonth) {
                                     peopleList.add(people);
                                 }
