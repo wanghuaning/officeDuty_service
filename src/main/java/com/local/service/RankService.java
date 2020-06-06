@@ -1,6 +1,7 @@
 package com.local.service;
 
 import com.local.entity.sys.SYS_Assessment;
+import com.local.entity.sys.SYS_Duty;
 import com.local.entity.sys.SYS_Rank;
 import org.nutz.dao.QueryResult;
 
@@ -46,4 +47,6 @@ public interface RankService {
     List<SYS_Rank> selectRanksByrankOrder(String rankOrder,String status);
     SYS_Rank selectRanksByPidAndStatus(String pid,String status);
     SYS_Rank selectRanksByPidAndStatusOtherId(String pid,String status,String id);
+
+    SYS_Rank selectRanksByPidsAndDate(Date startTime, Date endTime, String pid, String name);
 }

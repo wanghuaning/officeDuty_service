@@ -175,6 +175,15 @@ public class DutyServiceImpl implements DutyService {
         }
     }
     @Override
+    public SYS_Duty selectDutysByPidsAndDate(Date startTime, Date endTime, String pid,String name){
+        List<SYS_Duty> nowDuty=dao.query(SYS_Duty.class, Cnd.where("people_Id", "=", pid).and("name", "=", name).and("create_Time",">=",startTime).and("create_Time","<=",endTime));
+        if (nowDuty.size() > 0) {
+            return nowDuty.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
     public List<SYS_Duty> selectDutysByPeopleId(String pid){
         List<SYS_Duty> list = new ArrayList<>();
         Criteria cir = Cnd.cri();

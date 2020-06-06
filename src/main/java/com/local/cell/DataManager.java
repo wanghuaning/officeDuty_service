@@ -1289,17 +1289,17 @@ public class DataManager {
 
     public static List<SYS_People> importAllRankPeopleExcel(List<Map<String, Object>> list, PeopleService service, StringBuffer stringBuffer,
                                                             UnitService unitService, DutyService dutyService,
-                                                            RankService rankService) throws Exception {
+                                                            RankService rankService,String flag) throws Exception {
         List<SYS_People> peopleList = new ArrayList<>();
         for (Map<String, Object> map : list) {
             SYS_UNIT unit = unitService.selectUnitByName(StrUtils.toNullStr((map.get("单位"))));
             if (unit != null) {
                 SYS_People people = service.selectPeopleByIdcardAndUnitIdAndName(StrUtils.toNullStr((map.get("身份证号"))), StrUtils.toNullStr((map.get("姓名"))), unit.getId());
                 if (people != null) {
-                    saveAllDutyDataByExcel(map, list, people, stringBuffer, dutyService, service);
-                    saveAllMianDutyDataByExcel(map, list, people, dutyService, service, stringBuffer);
-                    getPeopleAllRankDataByExcel(map, list, people, stringBuffer, rankService, service);
-                    getPeopleMianAllRankDataByExcel(map, list, people, stringBuffer, rankService, service);
+                    saveAllDutyDataByExcel(map, list, people, stringBuffer, dutyService, service,flag);
+                    saveAllMianDutyDataByExcel(map, list, people, dutyService, service, stringBuffer,flag);
+                    getPeopleAllRankDataByExcel(map, list, people, stringBuffer, rankService, service,flag);
+                    getPeopleMianAllRankDataByExcel(map, list, people, stringBuffer, rankService, service,flag);
                 } else {
                     logger.error("职级、职务表：第" + list.indexOf(map) + "行;人员信息不正确！");
                     stringBuffer.append("职级、职务表：第" + list.indexOf(map) + "行;人员信息不正确！");
@@ -1316,7 +1316,7 @@ public class DataManager {
     }
 
     public static SYS_Duty saveAllDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                                  DutyService dutyService, PeopleService peopleService) throws Exception {
+                                                  DutyService dutyService, PeopleService peopleService,String flag) throws Exception {
         SYS_Duty duty = new SYS_Duty();
         String dutyName = StrUtils.toNullStr((map.get("拟任职务名称")));
         String dutyTime = StrUtils.toNullStr((map.get("任职时间")));
@@ -1339,15 +1339,22 @@ public class DataManager {
             duty.setDutyTime(DateUtil.stringToDate(ranTime));
         }
         duty.setDjunct(StrUtils.toNullStr(map.get("是否兼任")));
+        Date startDate=DateUtil.addDates(duty.getCreateTime(),-1);
+        Date endDate=DateUtil.addDates(duty.getCreateTime(),1);
         if (!StrUtils.isBlank(dutyName) && !StrUtils.isBlank(dutyTime)) {
-            SYS_Duty sys_duty = dutyService.selectDutyByNameAndTime(dutyName, people.getId(), duty.getCreateTime());
+            SYS_Duty sys_duty=dutyService.selectDutysByPidsAndDate(startDate,endDate,people.getId(),duty.getName());
             if (sys_duty != null) {
                 if (StrUtils.isBlank(sys_duty.getApprovalTime())) {
                     duty.setId(sys_duty.getId());
                     dutyService.updateDuty(duty);
                 } else {
-                    stringBuffer.append("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
-                    logger.error("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                    if ("已免".equals(duty.getStatus()) && "fugai".equals(flag)){
+                        duty.setId(sys_duty.getId());
+                        dutyService.updateDuty(duty);
+                    }else {
+                        stringBuffer.append("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                        logger.error("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                    }
                 }
             } else {
                 String uuid = UUID.randomUUID().toString();
@@ -1372,18 +1379,19 @@ public class DataManager {
     }
 
     public static SYS_Duty saveAllMianDutyDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people,
-                                                      DutyService dutyService, PeopleService peopleService, StringBuffer stringBuffer) throws Exception {
+                                                      DutyService dutyService, PeopleService peopleService, StringBuffer stringBuffer,String flag) throws Exception {
         SYS_Duty duty = new SYS_Duty();
         String dutyName = StrUtils.toNullStr((map.get("拟免职务名称")));
         String dutyTime = StrUtils.toNullStr((map.get("拟免职务任职时间")));
         if (!StrUtils.isBlank(dutyName) && !StrUtils.isBlank(dutyTime)) {
-            SYS_Duty sys_duty = dutyService.selectDutyByNameAndTime(dutyName, people.getId(), duty.getCreateTime());
+            Date startDate=DateUtil.addDates(DateUtil.stringToDate(dutyTime),-1);
+            Date endDate=DateUtil.addDates(DateUtil.stringToDate(dutyTime),1);
+            SYS_Duty sys_duty=dutyService.selectDutysByPidsAndDate(startDate,endDate,people.getId(),dutyName);
+//            SYS_Duty sys_duty = dutyService.selectDutyByNameAndTime(dutyName, people.getId(), duty.getCreateTime());
             if (sys_duty != null) {
                 sys_duty.setPeopleId(people.getId());
                 sys_duty.setPeopleName(people.getName());
-                if (!StrUtils.isBlank(dutyTime)) {
-                    sys_duty.setCreateTime(DateUtil.stringToDate(dutyTime));
-                }
+                sys_duty.setCreateTime(DateUtil.stringToDate(dutyTime));
                 sys_duty.setName(dutyName);
                 sys_duty.setDutyType(StrUtils.toNullStr(map.get("拟免职务任职部门及职务")));
                 sys_duty.setUnitId(people.getUnitId());
@@ -1395,6 +1403,13 @@ public class DataManager {
                 sys_duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
                 sys_duty.setServeFlag(StrUtils.toNullStr(map.get("免职事由")));
                 sys_duty.setStatus(StrUtils.toNullStr(map.get("拟免职务任免状态")));
+                if ("已免".equals(duty.getStatus()) && "fugai".equals(flag)){
+                    duty.setId(sys_duty.getId());
+                    dutyService.updateDuty(duty);
+                }else {
+                    stringBuffer.append("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                    logger.error("职务、职级表：第" + list.indexOf(map) + "行;该职务已审批，请勿重复导入！");
+                }
                 dutyService.updateDuty(sys_duty);
             } else {
                 duty.setPeopleId(people.getId());
@@ -1437,7 +1452,7 @@ public class DataManager {
     }
 
     public static SYS_Rank getPeopleAllRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                                       RankService rankService, PeopleService peopleService) throws Exception {
+                                                       RankService rankService, PeopleService peopleService,String flag) throws Exception {
         SYS_Rank rank = new SYS_Rank();
         String name = StrUtils.toNullStr(map.get("拟任职级名称"));
         String creatTime = String.valueOf(map.get("任职级时间"));
@@ -1456,20 +1471,32 @@ public class DataManager {
             rank.setStatus(StrUtils.toNullStr(map.get("任免状态")));
             rank.setBatch(StrUtils.toNullStr(map.get("批次")));
             rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
-            rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
+            String democracy=StrUtils.toNullStr(map.get("民主测评结果"));
+            if (StrUtils.isNumeric(democracy)){
+                rank.setDemocracy((StrUtils.strToDouble(democracy)*100)+"%");
+            }else {
+                rank.setDemocracy(democracy);
+            }
             rank.setLeaders(StrUtils.toNullStr(map.get("是否军转干部首次确定职级不占职数")));
             String approvalTime = String.valueOf(map.get("审批日期"));
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
-            SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            Date startDate=DateUtil.addDates(DateUtil.stringToDate(creatTime),-1);
+            Date endDate=DateUtil.addDates(DateUtil.stringToDate(creatTime),1);
+            SYS_Rank rank1 = rankService.selectRanksByPidsAndDate(startDate,endDate, people.getId(), rank.getName());
             if (rank1 != null) {
                 if (StrUtils.isBlank(rank1.getApprovalTime())) {
                     rank.setId(rank1.getId());
                     rankService.updateRank(rank);
                 } else {
-                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
-                    logger.error("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                    if ("已免".equals(rank.getStatus()) && "fugai".equals(flag)){
+                        rank.setId(rank1.getId());
+                        rankService.updateRank(rank);
+                    }else {
+                        stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                        logger.error("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                    }
                 }
             } else {
                 String uuid = UUID.randomUUID().toString();
@@ -1496,15 +1523,16 @@ public class DataManager {
     }
 
     public static SYS_Rank getPeopleMianAllRankDataByExcel(Map<String, Object> map, List<Map<String, Object>> list, SYS_People people, StringBuffer stringBuffer,
-                                                           RankService rankService, PeopleService peopleService) throws Exception {
+                                                           RankService rankService, PeopleService peopleService,String flag) throws Exception {
         SYS_Rank rank = new SYS_Rank();
         String name = StrUtils.toNullStr(map.get("拟免职级"));
         String creatTime = String.valueOf(map.get("拟免职级任职时间"));
         if (!StrUtils.isBlank(name) && !StrUtils.isBlank(creatTime)) {
-            if (!StrUtils.isBlank(creatTime)) {
                 rank.setCreateTime(DateUtil.stringToDate(creatTime));
-            }
-            SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
+            Date startDate=DateUtil.addDates(DateUtil.stringToDate(creatTime),-1);
+            Date endDate=DateUtil.addDates(DateUtil.stringToDate(creatTime),1);
+//            rankService.selectRanksByPidsAndDate(startDate,endDate, people.getId(), rank.getName());
+            SYS_Rank rank1 =rankService.selectRanksByPidsAndDate(startDate,endDate, people.getId(), name);
             if (rank1 != null) {
                 rank1.setPeopleId(people.getId());
                 rank1.setPeopleName(people.getName());
@@ -1521,7 +1549,12 @@ public class DataManager {
                     rank1.setDeposeTime(DateUtil.stringToDate(deposeTime));
                 }
                 rank1.setId(rank1.getId());
-                rankService.updateRank(rank1);
+                if ("已免".equals(rank1.getStatus()) && "fugai".equals(flag)){
+                    rankService.updateRank(rank1);
+                }else {
+                    stringBuffer.append("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                    logger.error("职级表：第" + list.indexOf(map) + "行;该职级已审批，请勿重复导入！");
+                }
             } else {
                 rank.setPeopleId(people.getId());
                 rank.setPeopleName(people.getName());

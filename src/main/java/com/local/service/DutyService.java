@@ -37,4 +37,5 @@ public interface DutyService {
     SYS_Duty selectDutysByPidAndStatus(String pid,String status);
     SYS_Duty selectDutysByPidAndStatusOtherId(String pid,String status,String id);
     SYS_Duty selectDutyByPidAndOverTime(String peopleId, Date createTime);
+    SYS_Duty selectDutysByPidsAndDate(Date startTime, Date endTime, String pid,String name);
 }

@@ -164,25 +164,16 @@ public class StrUtils {
      * @return
      */
     public static boolean isNumeric(String str){
-        // 先判空
-        if (isBlank(str)) {
-            return false;
-        }
-        // 用JAVA自带的函数
-        for (int i = str.length();--i>=0;){
-            if (!Character.isDigit(str.charAt(i))){
-                return false;
+            Pattern pattern = Pattern.compile("[0-9]*");
+            if(str.indexOf(".")>0){//判断是否有小数点
+                if(str.indexOf(".")==str.lastIndexOf(".") && str.split("\\.").length==2){ //判断是否只有一个小数点
+                    return pattern.matcher(str.replace(".","")).matches();
+                }else {
+                    return false;
+                }
+            }else {
+                return pattern.matcher(str).matches();
             }
-        }
-        /*
-        // 用ascii码
-        for(int i=str.length();--i>=0;){
-            int chr=str.charAt(i);
-            if(chr<48 || chr>57)
-                return false;
-        }*/
-
-        return true;
     }
 
     /**

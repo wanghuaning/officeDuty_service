@@ -423,6 +423,15 @@ public class RankServiceImpl implements RankService {
     }
 
     @Override
+    public SYS_Rank selectRanksByPidsAndDate(Date startTime, Date endTime, String pid, String name){
+        List<SYS_Rank> nowDuty=dao.query(SYS_Rank.class, Cnd.where("people_Id", "=", pid).and("name", "=", name).and("create_Time",">=",startTime).and("create_Time","<=",endTime));
+        if (nowDuty.size() > 0) {
+            return nowDuty.get(0);
+        } else {
+            return null;
+        }
+    }
+    @Override
     @Transactional//声明式事务管理
     @SLog(tag = "新增职级", type = "C")
     public void insertRank(SYS_Rank duty) {
