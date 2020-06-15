@@ -1920,6 +1920,10 @@ public class DataManager {
             if (!StrUtils.isBlank(dutyTime)) {
                 duty.setDutyTime(DateUtil.stringToDate(dutyTime));
             }
+            String approvalTime = String.valueOf(map.get("职务审批通过时间"));
+            if (!StrUtils.isBlank(approvalTime)) {
+                duty.setApprovalTime(DateUtil.stringToDate(approvalTime));
+            }
             duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
             people.setPosition(duty.getName());
             people.setPositionTime(duty.getCreateTime());
@@ -1976,6 +1980,10 @@ public class DataManager {
             String dutyTime = String.valueOf(map.get("实名制同职务层次时间"));
             if (!StrUtils.isBlank(dutyTime)) {
                 duty.setDutyTime(DateUtil.stringToDate(dutyTime));
+            }
+            String approvalTime = String.valueOf(map.get("实名制审批通过时间"));
+            if (!StrUtils.isBlank(approvalTime)) {
+                duty.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
             duty.setDocumentNumber(StrUtils.toNullStr(map.get("免职文号")));
             people.setPosition(duty.getName());
@@ -2041,8 +2049,8 @@ public class DataManager {
                 people.setDetail("是");
             }
             rank.setStatus("在任");
-            String approvalTime = String.valueOf(map.get("审批通过时间"));
             rank.setFlag("是");
+            String approvalTime = String.valueOf(map.get("套改职级审批通过时间"));
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             } else {
@@ -2108,7 +2116,7 @@ public class DataManager {
             rank.setDetail(StrUtils.toNullStr(map.get("任职级事由")));
             rank.setDemocracy(StrUtils.toNullStr(map.get("民主测评结果")));
             rank.setDocumentNumber(StrUtils.toNullStr(map.get("批准文号")));
-            String approvalTime = String.valueOf(map.get("审批日期"));
+            String approvalTime = String.valueOf(map.get("任职级审批通过日期"));
             if (!StrUtils.isBlank(approvalTime)) {
                 rank.setApprovalTime(DateUtil.stringToDate(approvalTime));
             }
@@ -2117,6 +2125,10 @@ public class DataManager {
             String deposeTime = String.valueOf(map.get("免职级时间"));
             if (!StrUtils.isBlank(deposeTime)) {
                 rank.setDeposeTime(DateUtil.stringToDate(deposeTime));
+            }
+            String serveApprovalTime = String.valueOf(map.get("免职级审批通过日期"));
+            if (!StrUtils.isBlank(serveApprovalTime)) {
+                rank.setApprovalTime(DateUtil.stringToDate(serveApprovalTime));
             }
             SYS_Rank rank1 = rankService.selectRankByNameAndTime(rank.getName(), people.getId(), rank.getCreateTime());
             people.setPositionLevel(rank.getName());
