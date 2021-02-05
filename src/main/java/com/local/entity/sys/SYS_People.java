@@ -253,6 +253,14 @@ public class SYS_People implements Serializable {
   @ColDefine(type = ColType.INT, width = 4)
   private Integer rankOrder=0;
 
+  @ApiModelProperty("离职时间")
+  @Comment("离职时间")
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  @Column("retireTime")
+  @ColDefine(type = ColType.DATETIME)
+  private Date retireTime;
+
   private String insertTimeStr;
 
   private String outTimeStr;
@@ -267,6 +275,14 @@ public class SYS_People implements Serializable {
     }else {
       return 0;
     }
+  }
+
+  public Date getRetireTime() {
+    return retireTime;
+  }
+
+  public void setRetireTime(Date retireTime) {
+    this.retireTime = retireTime;
   }
 
   public Integer getRankOrder() {

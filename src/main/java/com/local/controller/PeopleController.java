@@ -675,18 +675,20 @@ public class PeopleController {
         if (ps != null) {
             int i = 0;
             for (SYS_Pwxk pwxk : ps) {
-//                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\副本\\"+pwxk.getCode()+"_副本.doc");
-                int year = DateUtil.getYear(pwxk.getCreateDate());
-//                if(file.exists()){
-//                    i++;
-//                    System.out.println(pwxk.getName()+"=>"+year+"->"+i);
-//                    file.renameTo(new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\"+year+"年\\"+pwxk.getOrnum()+"、"+pwxk.getName()+"_副本.doc"));   //改名
-//                }else {
-//                }
-                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\" + year + "年\\" + pwxk.getOrnum() + "、" + pwxk.getName() + "_副本.doc");
-                if (!file.exists()) {
-                    System.out.println(pwxk.getName() + "=>" + year + "->" + i);
+                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\2020年副本\\"+pwxk.getCode()+"_副本.doc");
+//                int year = DateUtil.getYear(pwxk.getCreateDate());
+                if(file.exists()){
+                    i++;
+//                    System.out.println(pwxk.getName()+"=>"+"->"+i);
+                    file.renameTo(new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\"+2020+"\\"+pwxk.getOrnum()+"、"+pwxk.getName()+"_副本.doc"));   //改名
+                }else {
+                    pwxk.setIsCode("无");
+                    peopleService.updateICard(pwxk);
                 }
+//                File file = new File("D:\\中软\\19年主要负责\\排污许可\\审计数据\\附件目录\\" + 2020 + "年\\" + pwxk.getOrnum() + "、" + pwxk.getName() + "_副本.doc");
+//                if (!file.exists()) {
+//                    System.out.println(pwxk.getName() + "=>" + year + "->" + i);
+//                }
             }
         }
         return "Ok";

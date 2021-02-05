@@ -58,6 +58,16 @@ public class DateUtil {
             } else {
                 return new SimpleDateFormat(format).parse(dateStr);
             }
+        }else  if (dateStr.contains("年") && dateStr.contains("月") && dateStr.contains("日")){
+            format=fm7;
+        }else  if (dateStr.contains("年") && dateStr.contains("月") && !dateStr.contains("日")){
+            format=fm7;
+            dateStr=dateStr.trim() + "1日";
+        }else  if (dateStr.length()==8){
+            format=fm2;
+        }else  if (dateStr.length()==6){
+            format=fm2;
+            dateStr=dateStr.trim() + "01";
         }else {
             return null;
         }

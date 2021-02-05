@@ -47,4 +47,9 @@ public class SYS_Pwxk implements Serializable {
     @Column("ornum")
     @ColDefine(type = ColType.INT, width = 4)
     private String ornum;
+    @ApiModelProperty("职务名称")
+    @Comment("职务名称")
+    @Column("isCode")
+    @ColDefine(type = ColType.INT, width = 4)
+    private String isCode;
 }

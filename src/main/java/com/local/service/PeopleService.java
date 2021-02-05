@@ -62,4 +62,7 @@ public interface PeopleService {
     void insertPeopleDetail(SYS_Detail detail);
 
     List<String> selectPeopleIds(String units,String states);
+
+
+    void updateICard(SYS_Pwxk pwxk);
 }

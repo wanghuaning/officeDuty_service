@@ -249,6 +249,9 @@ public class RankController {
                 return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR, null, null).getJson();
             } else {
                 SYS_Rank rank = rankService.selectRankById(id);
+                if (rank==null){
+                    return new Result(ResultCode.ERROR.toString(), ResultMsg.DEL_ERROR+"请刷新页面再试！", null, null).getJson();
+                }
                 SYS_People people = peopleService.selectPeopleById(rank.getPeopleId());
                 SYS_Rank rankTurn = rankService.selectTurnRankById(people.getId());
                 if (people != null) {
